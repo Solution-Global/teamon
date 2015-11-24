@@ -1,0 +1,17 @@
+{
+  "name": "teamon",
+  "version": "0.1.0",
+  "description": "Unified desktop app for team communications and collaborations.",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "team",
+    "communication",
+    "collaboration"
+  ],
+  "author": "jerry",
+  "private": true,
+  "license": "ISC"
+}
