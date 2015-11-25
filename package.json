@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "description": "Unified desktop app for team communications and collaborations.",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Solution-Global/teamon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Solution-Global/teamon/issues"
+  },
   "scripts": {
     "start": "electron ."
   },
-  "keywords": [
-    "team",
-    "communication",
-    "collaboration"
-  ],
-  "author": "jerry",
+  "author": "Solution-Global",
   "private": true,
   "license": "ISC"
 }
