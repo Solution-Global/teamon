@@ -2,6 +2,8 @@
 
 **Unified desktop app for team communications and collaborations.**
 
+![screenshot](img/screenshot.png)
+
 ## Install
 
 ### Prerequisites

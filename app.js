@@ -3,7 +3,7 @@ var BrowserWindow = require('browser-window')
 var path = require('path')
 
 var APP_NAME = 'TeamOn'
-var INDEX = 'file://' + path.join(__dirname, '/index.html')
+var INDEX = 'file://' + path.join(__dirname, '/html/main.html')
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -16,13 +16,13 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
   var mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600
+    width: 950,
+    height: 700
   })
   mainWindow.loadUrl(INDEX)
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   mainWindow.on('closed', function() {
     mainWindow = null
