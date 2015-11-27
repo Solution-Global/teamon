@@ -30,36 +30,37 @@ function initCustomScrollbar() {
   }).mCustomScrollbar("scrollTo", "bottom");
 }
 
+var messenger;
 $(document).ready(function() {
   initialize();
 
-  var messagener = {
-    init: function() {
-      this.cacheDom();
-      this.bindEvents();
-    },
-    cacheDom: function() {
-      this.$inputMsg = $('.chat_section .input_message');
-      this.$inputText = this.$inputMsg.find('.input_text');
-      this.$btnSend = this.$inputMsg.find('.btn_send');
-      this.$contentArea = $('.chat_section .content_area');
-      this.$mcsbContainer = $('.chat_section .content_area .mCSB_container');
-      this.msgTemplate = this.$contentArea.find('#msg-template').html();
-    },
-    bindEvents: function() {
-      this.$btnSend.on('click', this.sendMsg.bind(this));
-      this.$inputText.on('keyup', this.keyup.bind(this));
-    },
-    keyup: function(event) {
+  messenger = (function() {
+    // cache DOM
+    $inputMsg = $('.chat_section .input_message');
+    $inputText = $inputMsg.find('.input_text');
+    $btnSend = $inputMsg.find('.btn_send');
+    $contentArea = $('.chat_section .content_area');
+    $mcsbContainer = $('.chat_section .content_area .mCSB_container');
+    msgTemplate = $contentArea.find('#msg-template').html();
+
+    // bind events
+    $btnSend.on('click', sendMsg);
+    $inputText.on('keyup', _keyup);
+
+    function sendMsg(msg) {
+      if (typeof msg !== "string")
+        msg = $inputText.val();
+      _render(msg, _simReceiver);
+      $inputText.val('').focus();
+    }
+
+    function _keyup(event) {
       if (event.keyCode == 13) {
-        this.$btnSend.click();
+        $btnSend.click();
       }
-    },
-    sendMsg: function() {
-      this.render(this.$inputText.val(), this.simReceiver.bind(this));
-      this.$inputText.val('').focus();
-    },
-    render: function(msgText, callback) {
+    }
+
+    function _render(msgText, callback) {
       if (!msgText || !msgText.trim().length)
         return;
 
@@ -73,30 +74,33 @@ $(document).ready(function() {
           "time": new Date().format("a/p hh mm")
         }]
       };
-      this.$mcsbContainer.append(Mustache.render(this.msgTemplate, msgData));
-      this.$contentArea.mCustomScrollbar("scrollTo", "bottom");
+      $mcsbContainer.append(Mustache.render(msgTemplate, msgData));
+      $contentArea.mCustomScrollbar("scrollTo", "bottom");
 
       if (callback)
         setTimeout(callback, 1000);
-    },
-    msgList: ['ㅇㅋ', 'ㅋㅋ', '^^', 'okay', 'good!', 'hi~', 'bye~'],
-    userList: ['mafintosh', 'maxcgden', 'ngoldman', 'Flot', 'foross', 'groundwater', 'shama', 'DamonOchlman'],
-    simReceiver: function() {
-      var random = Math.floor(Math.random() * this.msgList.length);
+    }
+
+    function _simReceiver() {
+      var msgList = ['ㅇㅋ', 'ㅋㅋ', '^^', 'okay', 'good!', 'hi~', 'bye~'];
+      var userList = ['mafintosh', 'maxcgden', 'ngoldman', 'Flot', 'foross', 'groundwater', 'shama', 'DamonOchlman'];
+      var random = Math.floor(Math.random() * msgList.length);
       var recvData = {
         "msg": [{
           "mode": "receive", // send or receive
           "img": "../img/profile_img" + (random + 2) + ".jpg",
-          "imgAlt": this.userList[random + 2],
-          "sender": this.userList[random + 2],
-          "msgText": this.msgList[random],
+          "imgAlt": userList[random + 2],
+          "sender": userList[random + 2],
+          "msgText": msgList[random],
           "time": new Date().format("a/p hh mm")
         }]
       };
-      this.$mcsbContainer.append(Mustache.render(this.msgTemplate, recvData));
-      this.$contentArea.mCustomScrollbar("scrollTo", "bottom");
+      $mcsbContainer.append(Mustache.render(msgTemplate, recvData));
+      $contentArea.mCustomScrollbar("scrollTo", "bottom");
     }
-  }
 
-  messagener.init();
-});
+    return {
+      sendMsg: sendMsg
+    };
+  })();
+})
