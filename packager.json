@@ -1,0 +1,7 @@
+{
+  "win" : {
+    "title" : "TeamOn",
+    "version" : "0.1.0.1",
+    "icon" : "assets/win/teamon.ico"
+  }
+}

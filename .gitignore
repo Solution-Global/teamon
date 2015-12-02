@@ -27,4 +27,5 @@ build/Release
 node_modules
 
 # Build
-teamon-win32-x64
+release
+tool
