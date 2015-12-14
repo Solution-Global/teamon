@@ -11,6 +11,12 @@ String.prototype.zf = function(len) {
   return "0".string(len - this.length) + this;
 };
 
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function(suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
+}
+
 /* Number prototype */
 Number.prototype.zf = function(len) {
   return this.toString().zf(len);

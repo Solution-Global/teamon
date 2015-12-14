@@ -11,6 +11,12 @@ String.prototype.zf = function(len) {
   return "0".string(len - this.length) + this;
 };
 
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function(suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
+}
+
 /* Number prototype */
 Number.prototype.zf = function(len) {
   return this.toString().zf(len);
@@ -54,6 +60,7 @@ Date.prototype.format = function(f) {
 window.$ = window.jQuery = require('jquery');
 require('malihu-custom-scrollbar-plugin')($);
 var Mustache = require('mustache');
+var chat = require('../script/module/chat.js');
 
 function initialize() {
   console.log("initialize");
@@ -61,13 +68,16 @@ function initialize() {
   $(window).resize();
   initCustomScrollbar();
   initLoginStatus();
+  chat.configMyInfo(1, 1, 'jerry');
+  var channelList = [1, 2, 3],
+  userList = [3, 5, 7];
+  chat.initClient(channelList, userList);
 }
 
 function initLoginStatus()
 {
     session.cookies.get({url : sessionUrl, name: "loginId"}, function(error, cookies) {
     if (error) throw error;
-
     // login
     if(cookies.length > 0)
     {
@@ -119,7 +129,6 @@ function initEmpolyees(coId){
         userList.append(userTemplet);
       });
   });
-}
 
 function bindEvents() {
   $(window).bind("orientationchange resize", function() {
@@ -143,11 +152,11 @@ function initCustomScrollbar() {
   }).mCustomScrollbar("scrollTo", "bottom");
 }
 
-var messenger;
+var chatWindow;
 $(document).ready(function() {
   initialize();
 
-  messenger = (function() {
+  chatWindow = (function() {
     // cache DOM
     $inputMsg = $('.chat_section .input_message');
     $inputText = $inputMsg.find('.input_text');
@@ -163,7 +172,7 @@ $(document).ready(function() {
     function sendMsg(msg) {
       if (typeof msg !== "string")
         msg = $inputText.val();
-      _render(msg, _simReceiver);
+      _render(msg);
       $inputText.val('').focus();
     }
 
@@ -187,24 +196,23 @@ $(document).ready(function() {
           "time": new Date().format("a/p hh mm")
         }]
       };
-      $mcsbContainer.append(Mustache.render(msgTemplate, msgData));
-      $contentArea.mCustomScrollbar("scrollTo", "bottom");
 
-      if (callback)
-        setTimeout(callback, 1000);
+      chat.sendDirectMsg(3, msgText);  // send to 3
     }
 
-    function _simReceiver() {
-      var msgList = ['ㅇㅋ', 'ㅋㅋ', '^^', 'okay', 'good!', 'hi~', 'bye~'];
+    function recvMsg(myIdPostfix, topic, message) {
+      var sendMode = topic.endsWith(myIdPostfix);
       var userList = ['mafintosh', 'maxcgden', 'ngoldman', 'Flot', 'foross', 'groundwater', 'shama', 'DamonOchlman'];
-      var random = Math.floor(Math.random() * msgList.length);
+      var random = 0;
+      if (!sendMode)
+        random = Math.floor(Math.random() * userList.length) + 1;
       var recvData = {
         "msg": [{
-          "mode": "receive", // send or receive
-          "img": "../img/profile_img" + (random + 2) + ".jpg",
-          "imgAlt": userList[random + 2],
-          "sender": userList[random + 2],
-          "msgText": msgList[random],
+          "mode": sendMode ? "send" : "receive", // send or receive
+          "img": "../img/profile_img" + (random + 1) + ".jpg",
+          "imgAlt": userList[random],
+          "sender": userList[random],
+          "msgText": message + ' from ' + topic,
           "time": new Date().format("a/p hh mm")
         }]
       };
@@ -213,7 +221,10 @@ $(document).ready(function() {
     }
 
     return {
-      sendMsg: sendMsg
+      sendMsg: sendMsg,
+      recvMsg: recvMsg
     };
   })();
-})
+
+  chat.registerRecvCallback(chatWindow.recvMsg);
+});
