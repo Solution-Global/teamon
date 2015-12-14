@@ -1,0 +1,48 @@
+<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function(){
+		var loginIdObj = $("#loginForm").find("[name=loginId]").focus();
+	});
+
+	function loginSubmit() {
+		var loginIdObj = $("#loginForm").find("[name=loginId]");
+		var passwordObj = $("#loginForm").find("[name=password]");
+		var companyObj = $("#loginForm").find("[name=company]");
+
+		var params = {
+			"company" : companyObj.val(),
+			"loginId" : loginIdObj.val(),
+			"password" : passwordObj.val(),
+		}
+		var userAPI = require('../script/rest/login'); // load custom menus
+		userAPI.login(params,
+			function(data){
+				console.log(data);
+				session.cookies.set( {url : sessionUrl, name : "loginId", value : data.loginId}, function(error, cookies) {if (error) throw error;});
+				session.cookies.set( {url : sessionUrl, name : "emplId", value : data.emplId}, function(error, cookies) {if (error) throw error;});
+				session.cookies.set( {url : sessionUrl, name : "coId", value : data.emplId}, function(error, cookies) {if (error) throw error;});
+				initEmpolyees(data.coId);
+				$( "#dialog" ).dialog( "close" );
+		});
+	}
+//]]>
+</script>
+<div>
+<form id="loginForm" onsubmit="return false;">
+	<div class="left" style="width:100px;">COMPANY</div>
+	<div class="left">
+		<input name="company" type="text" class="inputBox" style="width:175px;" value="uangel"/>
+	</div>
+	<div class="clear"></div>
+	<div class="left" style="width:100px;">ID</div>
+	<div class="left">
+		<input name="loginId" type="text" class="inputBox" style="width:175px;" value="jerry"/>
+	</div>
+	<div class="clear"></div>
+	<div class="left" style="width:100px;">PASSWORD</div>
+	<div class="left">
+		<input name="password" type="password" class="inputBox" style="width:175px;" value="jerry2001"/>
+	</div>
+	<div class="clear"></div>
+</form>
+</div>

@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
+	<script>
+		window.$ = window.jQuery = require('jquery'); // load jquery
+		//require('jquery-ui'); // load jquery-ui
+		require('../script/teamon_menu').customMenus(); // load custom menus
+		var remote = require('remote');
+		var sessionUrl = "http://www.github.com";
+		var session = remote.getCurrentWindow().webContents.session;
+	</script>
+
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title></title>
@@ -9,8 +17,10 @@
 	<link href="../style/simple-line-icons-webfont/simple-line-icons.css" rel="stylesheet" media="screen">
 	<link href="../style/font-awesome/css/font-awesome.min.css" rel="stylesheet" media="screen">
 	<link type="text/css" rel="stylesheet" href="../style/common.css" />
+	<link type="text/css" rel="stylesheet" href="../style/jquery/jquery-ui.min.css" />
 
 	<body>
+		<div id="dialog"></div>
 		<div id="wrap">
 			<!-- 목록 -->
 			<div class="connection_section">
@@ -44,71 +54,13 @@
 
 					<div class="users_area">
 						<h2 class="tit"><i class="icon-user"></i>Users</h2>
-
 						<ul class="list">
-							<li>
+							<li class="userTemplet blind">
 								<a href="#">
 									<span class="img">
 										<img src="../img/profile_img1.jpg" alt="">
 									</span>
-									<span class="name">mafintosh</span>
-								</a>
-							</li>
-							<li>
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_img2.jpg" alt="">
-									</span>
-									<span class="name">maxcgden</span>
-									<span class="alarm">12</span>
-								</a>
-							</li>
-							<li>
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_img3.jpg" alt="">
-									</span>
-									<span class="name">ngoldman</span>
-								</a>
-							</li>
-							<li>
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_img4.jpg" alt="">
-									</span>
-									<span class="name">Flot</span>
-								</a>
-							</li>
-							<li>
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_img5.jpg" alt="">
-									</span>
-									<span class="name">foross</span>
-								</a>
-							</li>
-							<li>
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_img6.jpg" alt="">
-									</span>
-									<span class="name">groundwater</span>
-								</a>
-							</li>
-							<li>
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_no.jpg" alt="">
-									</span>
-									<span class="name">shama</span>
-								</a>
-							</li>
-							<li>
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_img7.jpg" alt="">
-									</span>
-									<span class="name">DamonOchlman</span>
+									<span class="name"></span>
 								</a>
 							</li>
 						</ul>
@@ -119,7 +71,6 @@
 
 			<!-- 채팅창 -->
 			<div class="chat_section">
-
 				<div class="title_area">
 					<h3 class="tit">Solution Dep (4 peers)</h3>
 					<div class="tools">
@@ -300,10 +251,10 @@
 
 			</div>
 			<!-- // 예시 영역 -->
+
 		</div>
-
 		<script src="../script/bundle.js" charset="utf-8"></script>
-
+		<script src="../script/jquery/jquery-ui.min.js" charset="utf-8"></script>
 	</body>
 
 </html>

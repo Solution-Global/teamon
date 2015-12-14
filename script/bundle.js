@@ -56,9 +56,69 @@ require('malihu-custom-scrollbar-plugin')($);
 var Mustache = require('mustache');
 
 function initialize() {
+  console.log("initialize");
   bindEvents();
   $(window).resize();
   initCustomScrollbar();
+  initLoginStatus();
+}
+
+function initLoginStatus()
+{
+    session.cookies.get({url : sessionUrl, name: "loginId"}, function(error, cookies) {
+    if (error) throw error;
+
+    // login
+    if(cookies.length > 0)
+    {
+      session.cookies.get({url : sessionUrl, name: "coId"}, function(error, cookies) {
+        if (error) throw error;
+        initEmpolyees(cookies.value);
+      });
+    } else {
+      openLoginPopup();
+    }
+  });
+}
+
+function openLoginPopup() {
+  console.log("call openLoginPopup");
+  $.get("/ElectronExample/teamon/html/popup/login_pop.html", function(data) {
+    var options = {
+      buttons: [{
+        text: "LOGIN",
+        click: function() {
+          loginSubmit();
+        }
+      }],
+      show: { effect: "blind", duration: 800 },
+      modal: true,
+      width: 350,
+      heght: 500
+    }
+    $("#dialog").text("").html(data).dialog(options).dialog("open");
+  }).error(function() {
+    alert("Connection Error");
+  });
+}
+
+function initEmpolyees(coId){
+  console.log("call initEmpolyees" + coId);
+  var emplAPI = require('../script/rest/empl');
+  var params = {
+    "coId" : coId
+  };
+  emplAPI.getListByCoid(params, function(data){
+      var userList = $('.users_area .list');
+      $.each(data.rows, function(idx, row) {
+        var userTemplet = userList.find('.userTemplet').clone();
+        userTemplet.removeClass("blind"); // remove basic class for templet
+        userTemplet.removeClass("userTemplet");  // remove basic class for templet
+        userTemplet.find(".name").text(row.name);
+        userTemplet.find(".img").find("img").attr("src", "/ElectronExample/teamon/img/" + (row.photoLoc ? row.photoLoc : "profile_no.jpg"));
+        userList.append(userTemplet);
+      });
+  });
 }
 
 function bindEvents() {
