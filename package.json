@@ -15,11 +15,16 @@
     "clean": "npm run clean:win",
     "clean:win": "rm -rf release/win",
     "build": "npm run build:win",
-    "build:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.35.0 --icon=assets/win/teamon.ico --prune --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
     "asar": "npm run asar:win",
-    "asar:win": "asar pack release/win/teamon-win32-x64/resources/app release/win/teamon-win32-x64/resources/app.asar && rm -rf release/win/teamon-win32-x64/resources/app",
     "pack": "npm run pack:win",
-    "pack:win": "npm run build:win && npm run asar:win && electron-builder release/win/teamon-win32-x64 --platform=win --out=release/win --config=packager.json"
+
+    "build:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.35.0 --icon=assets/win/teamon.ico --prune --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",    
+    "asar:win": "asar pack release/win/teamon-win32-x64/resources/app release/win/teamon-win32-x64/resources/app.asar && rm -rf release/win/teamon-win32-x64/resources/app",
+    "pack:win": "npm run build:win && npm run asar:win && electron-builder release/win/teamon-win32-x64 --platform=win --out=release/win --config=packager.json",
+    
+    "asar:osx": "asar pack release/osx/teamon-osx/resources/app release/osx/teamon-osx/resources/app.asar && rm -rf release/osx/teamon-osx/resources/app",
+    "build:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.35.0 --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
+    "pack:osx": "npm run build:osx && npm run asar:osx && electron-builder release/osx/teamon-osx --platform=osx --out=release/osx --config=packager.json"
   },
   "author": "Solution-Global",
   "private": true,
