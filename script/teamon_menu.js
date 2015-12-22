@@ -70,10 +70,6 @@ module.exports = {
             accelerator: 'Command+R',
             click: function() {
               remote.getCurrentWindow().reload();
-              // 임시
-              session.cookies.remove({url : sessionUrl, name : "loginId"}, function(error, cookies) {if (error) throw error;});
-              session.cookies.remove({url : sessionUrl, name : "emplId"}, function(error, cookies) {if (error) throw error;});
-              session.cookies.remove({url : sessionUrl, name : "coId"}, function(error, cookies) {if (error) throw error;});
             }
           },
           {

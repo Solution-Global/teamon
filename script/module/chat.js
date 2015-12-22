@@ -86,7 +86,7 @@ var chat = (function() {
 
   function _initClient(connType, partid) {
     // cachedKey : topic
-    var cachedKey = _getTopic(DIRECT_CHAT, partid);
+    var cachedKey = _getTopic(connType, partid);
     console.log('cachedKey:%s', cachedKey);
 
     if (cachedKey !== null) {

@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-	<script>
-		window.$ = window.jQuery = require('jquery'); // load jquery
-		//require('jquery-ui'); // load jquery-ui
-		require('../script/teamon_menu').customMenus(); // load custom menus
-		var remote = require('remote');
-		var sessionUrl = "http://www.github.com";
-		var session = remote.getCurrentWindow().webContents.session;
-	</script>
-
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title></title>
@@ -43,7 +34,7 @@
 						<h2 class="tit"><i class="icon-users"></i>Channels</h2>
 
 						<ul class="list">
-							<li class="active"><a href="#">Solution Dep</a></li>
+							<li><a href="#">Solution Dep</a></li>
 							<li><a href="#">Global Biz</a></li>
 							<li><a href="#">FC 유엔젤<span class="alarm">2</span></a></li>
 							<li class="btn">
@@ -56,6 +47,7 @@
 						<h2 class="tit"><i class="icon-user"></i>Users</h2>
 						<ul class="list">
 							<li class="userTemplet blind">
+								<input name="emplId" type="hidden" />	
 								<a href="#">
 									<span class="img">
 										<img src="../img/profile_img1.jpg" alt="">
@@ -72,140 +64,13 @@
 			<!-- 채팅창 -->
 			<div class="chat_section">
 				<div class="title_area">
-					<h3 class="tit">Solution Dep (4 peers)</h3>
+					<h3 class="tit"></h3>
 					<div class="tools">
 						<button type="button" class="btn_chat_setting"><i class="fa fa-cog"></i></button>
 					</div>
 				</div>
 
 				<div class="content_area">
-					<div class="msg_set receive">
-						<div class="img">
-							<img src="../img/profile_img1.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">mafintosh</span>
-							<span class="bg_box">
-								<span class="txt">
-									이천수, 28일 은퇴경기 전격 취소..발목 부상 여파
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="msg_set send">
-						<div class="img">
-							<img src="../img/profile_img2.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">maxcgden</span>
-							<span class="bg_box">
-								<span class="txt">
-									문성현·임지섭·문우람 등 18명 상무 최종합격, 삼성 도박 스캔들, 결국 찌라시만 남나, 홈, "로우지 K.O.장면 30번도 더 봤다"
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="msg_set receive">
-						<div class="img">
-							<img src="../img/profile_no.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">shama</span>
-							<span class="bg_box">
-								<span class="txt">
-									"개막전 목표" 김재영, 한화 잠수함 숙원 푼다
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="date_line">
-						<span class="date">
-							<span>2014년 11월 24일</span>
-						</span>
-					</div>
-
-					<div class="msg_set send">
-						<div class="img">
-							<img src="../img/profile_img2.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">maxcgden</span>
-							<span class="bg_box">
-								<span class="txt">
-									<a href="#">http://sports.media.daum.net/sports/baseball/newsview?newsId=20151125112411314</a>
-									<br> 밴헤켄, 넥센에 3억 4천만원 안기고 떠난다
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="msg_set receive">
-						<div class="img">
-							<img src="../img/profile_img4.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">flot</span>
-							<span class="bg_box">
-								<span class="txt">
-									기성용-손흥민, AFC 올해의 국제선수 후보 선정
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="msg_set receive">
-						<div class="img">
-							<img src="../img/profile_no.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">shama</span>
-							<span class="bg_box">
-								<span class="txt">
-									ㅋㅋ
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="msg_set receive">
-						<div class="img">
-							<img src="../img/profile_img1.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">mafintosh</span>
-							<span class="bg_box">
-								<span class="txt">
-									'神의 귀환' 메시 "MSN 트리오는 하나의 유기체", 'ML 좌절' 손아섭, 김현수 유탄 때문이라고?
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="msg_set send">
-						<div class="img">
-							<img src="../img/profile_img2.jpg" alt="">
-						</div>
-						<div class="msg">
-							<span class="name">maxcgden</span>
-							<span class="bg_box">
-								<span class="txt">
-									수아레스 슈퍼골 '신계 입성 인증샷'동영상'올시즌 최고의 선수는?' 예측불가 K리그 MVP'보스인 내가 없는데 레알파에 갔다고?'
-								</span>
-								<span class="time">PM 03:35</span>
-							</span>
-						</div>
-					</div>
-
 					<!-- // msg-template -->
 					<script id="msg-template" type="text/template">
 						{{#msg}}
@@ -253,6 +118,11 @@
 			<!-- // 예시 영역 -->
 
 		</div>
+		<script>
+				window.$ = window.jQuery = require('jquery'); // load jquery
+		</script>
+		<script src="../script/common.js" charset="utf-8"></script>
+		<script src="../script/rest_declare.js" charset="utf-8"></script>
 		<script src="../script/dist/bundle.js" charset="utf-8"></script>
 		<script src="../script/jquery/jquery-ui.min.js" charset="utf-8"></script>
 	</body>
