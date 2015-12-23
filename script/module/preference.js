@@ -61,7 +61,7 @@ var preference = (function() {
 
   return {
     get: get,
-    set: set,
+    set: set
   };
 })();
 

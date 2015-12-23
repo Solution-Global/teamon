@@ -5,4 +5,4 @@ var loginResource = require("../script/module/rest/login");
 var restResours = {
   empl : new emplResource(),
   login : new loginResource()
-}
+};

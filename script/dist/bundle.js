@@ -1,11 +1,68 @@
-// load custom menus
+/* String prototype */
+String.prototype.string = function(len) {
+  var s = '',
+    i = 0;
+  while (i++ < len) {
+    s += this;
+  }
+  return s;
+};
+String.prototype.zf = function(len) {
+  return "0".string(len - this.length) + this;
+};
 
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function(suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
+}
+
+/* Number prototype */
+Number.prototype.zf = function(len) {
+  return this.toString().zf(len);
+};
+
+/* Date prototype */
+Date.prototype.format = function(f) {
+  if (!this.valueOf()) return " ";
+
+  var weekName = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+  var d = this;
+
+  return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function($1) {
+    switch ($1) {
+      case "yyyy":
+        return d.getFullYear();
+      case "yy":
+        return (d.getFullYear() % 1000).zf(2);
+      case "MM":
+        return (d.getMonth() + 1).zf(2);
+      case "dd":
+        return d.getDate().zf(2);
+      case "E":
+        return weekName[d.getDay()];
+      case "HH":
+        return d.getHours().zf(2);
+      case "hh":
+        return ((h = d.getHours() % 12) ? h : 12).zf(2);
+      case "mm":
+        return d.getMinutes().zf(2);
+      case "ss":
+        return d.getSeconds().zf(2);
+      case "a/p":
+        return d.getHours() < 12 ? "오전" : "오후";
+      default:
+        return $1;
+    }
+  });
+};
+
+window.$ = window.jQuery = require('jquery');
+require('jquery-ui');
 var Mustache = require('mustache');
 var chat = require('../script/module/chat.js');
 var preference = require('../script/module/preference.js');
 var remote = require('remote');
-// var sessionUrl = "http://www.github.com";
-// var session = remote.getCurrentWindow().webContents.session;
 
 function initialize() {
   console.log("initialize");
@@ -50,7 +107,7 @@ function openLoginPopup() {
       modal: true,
       width: 350,
       heght: 500
-    }
+    };
     $("#dialog").text("").html(data).dialog(options).dialog("open");
   }).error(function() {
     alert("Connection Error");
@@ -208,3 +265,115 @@ function initCustomScrollbar() {
 $(document).ready(function() {
   initialize();
 });
+
+
+var emplResource = require("../script/module/rest/empl");
+var loginResource = require("../script/module/rest/login");
+
+var restResours = {
+  empl : new emplResource(),
+  login : new loginResource()
+};
+
+
+var remote = require('remote');
+var Menu = remote.require('menu');
+var app = remote.require('app');
+
+module.exports = {
+  customMenus: function() {
+    var myMenu = Menu.buildFromTemplate(
+      [{
+        label: 'File',
+        submenu: [
+          {
+            label: 'Preference',
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Quit',
+            accelerator: 'CmdOrCtrl+Q',
+            click: function () {
+              app.quit();
+            }
+          },
+        ]
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          {
+            label: 'Undo',
+            accelerator: 'Command+Z',
+            selector: 'undo:'
+          },
+          {
+            label: 'Redo',
+            accelerator: 'Shift+Command+Z',
+            selector: 'redo:'
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Cut',
+            accelerator: 'Command+X',
+            selector: 'cut:'
+          },
+          {
+            label: 'Copy',
+            accelerator: 'Command+C',
+            selector: 'copy:'
+          },
+          {
+            label: 'Paste',
+            accelerator: 'Command+V',
+            selector: 'paste:'
+          },
+          {
+            label: 'Select All',
+            accelerator: 'Command+A',
+            selector: 'selectAll:'
+          }
+        ]
+      },
+      {
+        label: 'Window',
+        submenu: [
+          {
+            label: 'Reload',
+            accelerator: 'Command+R',
+            click: function() {
+              remote.getCurrentWindow().reload();
+            }
+          },
+          {
+            label: 'Toggle DevTools',
+            accelerator: 'Alt+Command+I',
+            click: function() { remote.getCurrentWindow().toggleDevTools(); }
+          },
+          {
+            label: 'Sign In',
+            click: function() {
+              openLoginPopup();
+          }
+        },
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Abount Teamon',
+          selector: 'arrangeInFront:',
+          click: function() { alert("솔루션 개발 1팀 개발 중.."); }
+        }
+      ]
+    }
+  ]);
+
+  Menu.setApplicationMenu(myMenu);
+  }
+};
