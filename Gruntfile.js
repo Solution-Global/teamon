@@ -42,5 +42,5 @@ module.exports = function(grunt) {
       grunt.loadNpmTasks('grunt-contrib-jshint');
 
       grunt.registerTask('default', ['clean:dist', 'jshint:beforeconcat', 'concat:dist', 'watch:dist']);
-      grunt.registerTask('browser_only_test', ['clean:browser_only_test', 'browserify', 'copy:browser_only_test', 'watch:browser_only_test']);
+      grunt.registerTask('obsolete', ['clean:browser_only_test', 'browserify', 'copy:browser_only_test', 'watch:browser_only_test']);
     };

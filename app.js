@@ -1,7 +1,6 @@
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var path = require('path');
-//var menu = require('./script/teamon_menu');
 
 var APP_NAME = 'TeamOn';
 var INDEX = 'file://' + path.join(__dirname, '/html/main.html');
@@ -21,7 +20,6 @@ app.on('ready', function() {
     height: 700
   });
   mainWindow.loadUrl(INDEX);
-  //menu.developMenus();
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
 

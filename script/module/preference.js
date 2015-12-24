@@ -4,7 +4,9 @@ var jsonfile = require('jsonfile')
   preference 설정은 json 파일로 저장한다.
   {
       "login": { - section
-          "keepSignted": false - key : value
+          "rememberMe": false - key : value,
+          "loginId": jerry,
+          "password":
       },
       "notification": { - section
         "sound" : 1,
@@ -14,54 +16,83 @@ var jsonfile = require('jsonfile')
 */
 
 var preference = (function() {
+  var prefObj;
   jsonfile.spaces = 2; // tab spaces
   var file = "config/preference.cfg";
 
-  function get(section, key) {
-    if(typeof section !== 'string' ) {
-      console.error('Miss the section!');
-      return;
-    }
-
-    if(typeof key !== 'string' ) {
-      console.error('Miss the key!');
-      return;
-    }
-
-    var readJsonObject  = jsonfile.readFileSync(file);
-    return readJsonObject[section] ? readJsonObject[section][key] : undefined;
+  function _readAll() {
+    prefObj = jsonfile.readFileSync(file);
   }
 
-  function set(section, key, value) {
-    if(typeof section !== 'string' ) {
+  function _writeAll() {
+    jsonfile.writeFileSync(file, prefObj);
+  }
+
+  function get(section, key) {
+    if (typeof section !== 'string') {
       console.error('Miss the section!');
       return;
     }
 
-    if(typeof key !== 'string' ) {
+    if (typeof key !== 'string') {
       console.error('Miss the key!');
       return;
     }
 
-    if(value === 'undefined') {
+    if (prefObj === undefined) {
+      _readAll();
+    }
+
+    return prefObj[section] ? prefObj[section][key] : undefined;
+  }
+
+  function set(section, key, value, write2File) {
+    if (typeof section !== 'string') {
+      console.error('Miss the section!');
+      return;
+    }
+
+    if (typeof key !== 'string') {
+      console.error('Miss the key!');
+      return;
+    }
+
+    if (typeof value === "undefined") {
       console.error('Miss the value');
       return;
     }
 
-    var readJsonObject  = jsonfile.readFileSync(file);
-    if(!readJsonObject[section]) {
+    write2File =  write2File || true;
+
+    if (prefObj === undefined) {
+      _readAll();
+    }
+
+    if (!prefObj[section]) {
       var temp = {};
       temp[key] = value;
-      readJsonObject[section] = temp; // add key with section
+      prefObj[section] = temp; // add key with section
     } else {
-      readJsonObject[section][key] = value;
+      prefObj[section][key] = value;
     }
-    jsonfile.writeFileSync(file, readJsonObject);
+
+    if (write2File) {
+      _writeAll();
+    }
+  }
+
+  function getPrefObj() {
+    if (prefObj === undefined) {
+      _readAll();
+    }
+
+    return prefObj;
   }
 
   return {
     get: get,
-    set: set
+    set: set,
+    getPrefObj: getPrefObj
   };
 })();
 

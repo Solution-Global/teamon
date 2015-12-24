@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -46,15 +47,19 @@
 					<div class="users_area">
 						<h2 class="tit"><i class="icon-user"></i>Users</h2>
 						<ul class="list">
-							<li class="userTemplet blind">
-								<input name="emplId" type="hidden" />
-								<a href="#">
-									<span class="img">
-										<img src="../img/profile_img1.jpg" alt="">
-									</span>
-									<span class="name"></span>
-								</a>
-							</li>
+							<!-- // user-template -->
+							<script id="user-template" type="text/template">
+								{{#user}}
+								<li data-emp='{"emplId":{{emplId}}, "loginId":"{{loginId}}"}'>
+									<a href="#">
+										<span class="img">
+											<img src="{{img}}" alt="{{imgAlt}}" >
+										</span>
+										<span class="loginId">{{loginId}}</span>
+									</a>
+								</li>
+								{{/user}}
+							</script>
 						</ul>
 					</div>
 				</div>
@@ -121,4 +126,5 @@
 
 		<script src="../script/dist/bundle.js" charset="utf-8"></script>
 	</body>
+
 </html>

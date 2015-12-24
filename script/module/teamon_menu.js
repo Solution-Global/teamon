@@ -1,4 +1,3 @@
-
 var remote = require('remote');
 var Menu = remote.require('menu');
 var app = remote.require('app');
