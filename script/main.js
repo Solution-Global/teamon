@@ -8,6 +8,9 @@ var preference = require('../script/module/preference.js');
 var remote = require('remote');
 var path = require('path');
 
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database('./temonsqlite3');
+
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
   require('malihu-custom-scrollbar-plugin')($);
@@ -16,6 +19,12 @@ function initialize() {
   $(window).resize();
   initCustomScrollbar();
   initLoginStatus();
+
+  db.serialize(function() {
+    db.run("CREATE TABLE message (topic TEXT, mode TEXT, img TEXT, imgAlt TEXT, sender TEXT, msgText TEXT, time TEXT)", function(err, row) {
+       console.log(err);
+    });
+  });
 }
 
 var myPref;

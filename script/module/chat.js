@@ -57,7 +57,7 @@ var chat = (function() {
     }
   }
 
-  function _getTopic(connType, partid) {
+  function getTopic(connType, partid) {
     // topic format : {chat type}/{topic}
     // subscribe 시 : {topic format}/+
     // publish 시 : {topic_format}/{client id=emplid}
@@ -87,7 +87,7 @@ var chat = (function() {
 
   function _initClient(connType, partid) {
     // cachedKey : topic
-    var cachedKey = _getTopic(connType, partid);
+    var cachedKey = getTopic(connType, partid);
     console.log('cachedKey:%s', cachedKey);
 
     if (cachedKey !== null) {
@@ -155,7 +155,8 @@ var chat = (function() {
   return {
     configMyInfo: configMyInfo,
     initClient: initClient,
-    sendDirectMsg: sendDirectMsg
+    sendDirectMsg: sendDirectMsg,
+    getTopic: getTopic
   };
 })();
 

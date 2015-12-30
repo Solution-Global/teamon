@@ -4,6 +4,7 @@ var chatSection = (function() {
   var myPref;
   var chatModule;
   var connSection;
+  var activeTopic;
 
   // cache DOM
   var $chatSec;
@@ -67,6 +68,11 @@ var chatSection = (function() {
     var message = msgInfo.payload.toString();
     var sender = "have to change";
 
+    console.log("[sendMode]" + sendMode);
+    console.log("[topic]" + topic);
+    console.log("[message]" + message);
+    console.log("[sender]" + sender);
+
     // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
     var imgIdx = (msgInfo.publisher * 1) % 10;
     var recvData = {
@@ -79,8 +85,16 @@ var chatSection = (function() {
         "time": new Date().format("a/p hh mm")
       }]
     };
+
     $mcsbContainer.append(Mustache.render(msgTemplate, recvData));
     $contentArea.mCustomScrollbar("scrollTo", "bottom");
+
+    db.serialize(function() {
+      var insertMsg = recvData.msg[0];
+      var stmt = db.prepare("INSERT INTO message VALUES (?, ?, ?, ?, ?, ?, ?)");
+      stmt.run(topic, insertMsg.mode, insertMsg.img, insertMsg.imgAlt, insertMsg.sender, insertMsg.msgText, insertMsg.time);
+      stmt.finalize();
+    });
   }
 
   function initChatSection(pref, chatMo, connSec) {
@@ -98,9 +112,19 @@ var chatSection = (function() {
   function changeChatView(chatId, title) {
     console.log("chatId:%s, title:%s", chatId, title);
 
+    activeTopic = chatModule.getTopic(0, chatId) + "/2";
     $title.html(title);
     $.each($contentArea.find(".msg_set"), function(idx, row) {
       $(row).remove(); // remove chatting texts
+    });
+
+    //read chatting message
+    db.serialize(function() {
+      db.each("SELECT * FROM message WHERE topic=?", activeTopic , function(err, row) {
+          $mcsbContainer.append(Mustache.render(msgTemplate, {
+            "msg": [row]
+          }));
+        });
     });
   }
 
