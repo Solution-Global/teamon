@@ -102,7 +102,6 @@ function initScreenSection() {
 }
 
 function openLoginPopup() {
-  console.log("call openLoginPopup");
   $.get("file://" + path.join(__dirname, '/popup/login_pop.html'), function(data) {
     var options = {
       buttons: [{

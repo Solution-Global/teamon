@@ -1,34 +1,15 @@
 'use strict';
 
 var mqtt = require('mqtt');
+var Cache = require('./cache');
 
 var chat = (function() {
   var myInfo;
   var DIRECT_CHAT = 0;
   var GROUP_CHAT = 1;
-  var TOPIC_SUB_POSTFIX = "/+"; // subscribe 시 postfix 추가하여 모든 클라이언트가 publish한 메시지 확인(client id 정보 확인 용도)
+  var MSG_PUB_REQ_POSTFIX = "/pubreq"; // publish시에 topic 이하의 postfix 사용 -> ChatPublisher로 전달
 
-  var cache = (function() {
-    var memory = {};
-
-    function get(key) {
-      if (typeof(memory[key]) !== 'undefined')
-        return memory[key];
-
-      return null;
-    }
-
-    function set(key, value) {
-      memory[key] = value;
-
-      console.log('cache_set[key:%s, value:%o]', key, value);
-    }
-
-    return {
-      get: get,
-      set: set
-    };
-  })();
+  var clientCache = new Cache();
 
   function configMyInfo(coid, emplid, loginid, recvCallback) {
     myInfo = {};
@@ -52,15 +33,21 @@ var chat = (function() {
     }
 
     for (var i = 0, len = userList.length; i < len; i++) {
-      if (_initClient(DIRECT_CHAT, userList[i]) === null)
+      if (userList[i] === myInfo.emplid) {
+        continue;
+      }
+
+      if (_initClient(DIRECT_CHAT, userList[i]) === null) {
         console.error("Failed to initialize[%s]", userList[i]);
+      }
     }
   }
 
   function _getTopic(connType, partid) {
     // topic format : {chat type}/{topic}
-    // subscribe 시 : {topic format}/+
-    // publish 시 : {topic_format}/{client id=emplid}
+    // {chat type} : direct(0), group(1)
+    // direct {topic} : {peer1 emplid)_{peer2 emplid}
+    // group {topic} : {group channel id}
     var myTopic;
     if (connType === DIRECT_CHAT) {
       if (myInfo.emplid < partid)
@@ -88,13 +75,11 @@ var chat = (function() {
   function _initClient(connType, partid) {
     // cachedKey : topic
     var cachedKey = _getTopic(connType, partid);
-    console.log('cachedKey:%s', cachedKey);
-
     if (cachedKey !== null) {
-      var client = cache.get(cachedKey);
+      var client = clientCache.get(cachedKey);
       if (client === null) {
         client = _createClient(cachedKey);
-        cache.set(cachedKey, client);
+        clientCache.set(cachedKey, client);
       }
       return client;
     } else
@@ -102,54 +87,44 @@ var chat = (function() {
   }
 
   function _mqttConnected() {
-    console.log('_mqttConnected! topic:%s', this.topic);
-    this.subscribe(this.topic + TOPIC_SUB_POSTFIX);
+    // topic array: topic (direct or group), topic/emplid (internal message)
+    var topicArray = [this.topic, this.topic + "/" + myInfo.emplid];
+    console.log('_mqttConnected! topicArray:%s', topicArray.toString());
+    this.subscribe(topicArray);
   }
 
   function _mqttReceived(topic, payload) {
     console.log('_mqttReceived topic:%s, msg:%s', topic, payload.toString());
-
-    myInfo.recvCallback(myInfo.emplid, _generateMsgInfo(topic, payload));
+    myInfo.recvCallback(myInfo.emplid, payload.toString());
   }
 
-  function _generateMsgInfo(topic, payload) {
-    // topic format : {chat type}/{topic}
-    // direct 타입인 경우 포맷 : 0/{coid}/{peer1}_{peer2}/{publisher}
-    // group 타입인 경우 포맷 : 1/{coid}/{group chat id}/{publisher}
-    var topicArray = topic.split('/');
-    if (topicArray.length < 4) {
-      console.error("Invalid topic format[%s], payload:", topic, payload.toString());
-      return;
-    }
-
-    var msgInfo = {};
-    if (topicArray[0] === '0') {
-      msgInfo.chatType = DIRECT_CHAT;
-      var peerArray = topicArray[2].split('_');
-      if (peerArray.length < 2) {
-        console.error("Invalid peer info[%s]", topic);
-        return;
+  function _generateMsgPayloadStr(chatType, receiver, msg) {
+    /*
+      msgPayload = {
+        chatType:  // 채팅 타입 (client 담당)
+        publisher: // 메시지 발신자 (client 담당)
+        receiver:  // 메시지 수신자, direct인 경우 peer id, group인 경우 group chat id (client 담당)
+        msgid:     // DB 저장될 msg id. (pubreq 담당)
+        time:      // 메시지 발신 시간 (pubreq 담당)
+        msg:       // 발신 메시지 (client 담당)
       }
-      msgInfo.peer1 = peerArray[0];
-      msgInfo.peer2 = peerArray[1];
-    } else {
-      msgInfo.chatType = GROUP_CHAT;
-      msgInfo.peer1 = topicArray[2];
-      msgInfo.peer2 = topicArray[2];
-    }
-    msgInfo.coid = topicArray[1];
-    msgInfo.publisher = topicArray[3];
-    msgInfo.topic = topic;
-    msgInfo.payload = payload;
+    */
+    var msgPayload = {
+      chatType: chatType,
+      publisher: myInfo.emplid,
+      receiver: receiver,
+      msg: msg
+    };
 
-    return msgInfo;
+    return JSON.stringify(msgPayload);
   }
 
   function sendDirectMsg(receiver, msg) {
     var client = _initClient(DIRECT_CHAT, receiver);
-    client.publish(client.topic + "/" + myInfo.emplid, msg);
+    var msgPayloadStr = _generateMsgPayloadStr(DIRECT_CHAT, receiver, msg);
+    client.publish(client.topic + MSG_PUB_REQ_POSTFIX, msgPayloadStr);
 
-    console.log('sendDirectMsg topic:%s, msg:%s', client.topic, msg);
+    console.log('sendDirectMsg topic:%s, msg:%s', client.topic, msgPayloadStr);
   }
 
   return {

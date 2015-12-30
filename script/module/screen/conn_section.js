@@ -1,5 +1,7 @@
 'use strict';
 
+var Cache = require('../cache');
+
 var connSection = (function() {
   var myPref;
   var chatModule;
@@ -9,6 +11,8 @@ var connSection = (function() {
   var $connSec;
   var $userListContext;
   var userTemplate;
+
+  var userCache = new Cache();
 
   function _initialize(pref, chatMo, chatSec) {
     myPref = pref;
@@ -24,7 +28,7 @@ var connSection = (function() {
       var $targetList = $(this);
       $targetList.addClass("active");
 
-      chatSection.changeChatView($targetList.data("emp").emplId, $targetList.data("emp").loginId);
+      chatSection.changeChatView($targetList.data("emplid"), $targetList.data("loginid"));
     });
   }
 
@@ -41,10 +45,9 @@ var connSection = (function() {
       "coId": coId
     };
     restResourse.empl.getListByCoid(params, function(data) {
-      var userListArray = [];
-
       if (data.rows) {
         $.each(data.rows, function(idx, row) {
+          userCache.set(row.emplId, row); // add each employee into userCache.
           if (row.emplId === myPref.login.emplId)
             return;
 
@@ -60,23 +63,52 @@ var connSection = (function() {
             }]
           };
           $userListContext.append(Mustache.render(userTemplate, userData));
-
-          // to init client of chat
-          userListArray.push(row.emplId);
         });
 
-        chatModule.initClient([], userListArray);
+        chatModule.initClient([], userCache.getKeyArray());
       }
     });
   }
 
-  function getCurrentChattingTarget() {
-    return $userListContext.find('.active').data("emp").emplId;
+  function getCurrentTargetUser() {
+    var $activeTarget = $userListContext.find('.active');
+    if ($activeTarget.length !== 0) {
+      return $activeTarget.data("emplid");
+    }
+    return undefined;
+  }
+
+  function setCurrentTargetUser(peerid, force) {
+    force = force || false;
+
+    var findTarget = true;
+    if (!force) {
+      var $activeTarget = $userListContext.find('.active');
+      if ($activeTarget.length !== 0) {
+        findTarget = false;
+      }
+    }
+
+    var $targetPeer;
+    if (findTarget) {
+      $targetPeer = $userListContext.find('[data-emplid="' + peerid + '"]');
+    }
+
+    console.log("peerid:%s, force:%s, $targetPeer:%o", peerid, force, $targetPeer);
+
+    if ($targetPeer !== undefined)
+      $targetPeer.trigger("click");
+  }
+
+  function getUserObj(emplId) {
+    return userCache.get(emplId);
   }
 
   return {
     initConnSection: initConnSection,
-    getCurrentChattingTarget: getCurrentChattingTarget
+    getCurrentTargetUser: getCurrentTargetUser,
+    setCurrentTargetUser: setCurrentTargetUser,
+    getUserObj: getUserObj
   };
 })();
 

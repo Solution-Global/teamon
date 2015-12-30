@@ -8,7 +8,7 @@ var RestCommon = (function(){
     "X-UANGEL-AUTHKEY" : "e7575605-3d58-491f-8413-d11f5a2c7c3c",
     "Content-Type" : "application/x-www-form-urlencoded"
   };
-  this.apiurl = "http://192.168.1.94:7587/rest";
+  this.apiurl = "http://192.168.1.164:7587/rest";
 });
 
 module.exports = RestCommon
