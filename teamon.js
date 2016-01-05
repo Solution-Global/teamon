@@ -19,8 +19,7 @@ app.on('ready', function() {
     width: 950,
     height: 700
   });
-  mainWindow.loadUrl(INDEX);
-
+  mainWindow.loadURL(INDEX);
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
 

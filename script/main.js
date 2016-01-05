@@ -1,18 +1,68 @@
 window.$ = window.jQuery = require('jquery');
-require('malihu-custom-scrollbar-plugin')($);
+require('jquery-ui');
 var Mustache = require('mustache');
 var chat = require('../script/module/chat.js');
+var connSection = require('../script/module/screen/conn_section.js');
+var chatSection = require('../script/module/screen/chat_section.js');
+var preference = require('../script/module/preference.js');
+var remote = require('remote');
+var path = require('path');
 
 function initialize() {
+  require('../script/module/teamon_menu').customMenus();
+  require('malihu-custom-scrollbar-plugin')($);
+
   bindEvents();
   $(window).resize();
   initCustomScrollbar();
+  initLoginStatus();
+}
 
-  // chat initialize
-  chat.configMyInfo(1, 1, 'jerry');
-  var channelList = [1, 2, 3],
-    userList = [3, 5, 7];
-  chat.initClient(channelList, userList);
+var myPref;
+
+function initLoginStatus() {
+  myPref = preference.getPrefObj();
+
+  var rememberMe = myPref.login.rememberMe;
+  var loginId = myPref.login.loginId;
+  var coId = myPref.login.coId;
+  var emplId = myPref.login.emplId;
+
+  console.log("initLoginStatus[rememberMe:%s, loginId:%s, coId:%s, emplId:%s]", rememberMe, loginId, coId, emplId);
+
+  if (rememberMe) {
+    initScreenSection();
+  } else {
+    openLoginPopup();
+  }
+}
+
+function initScreenSection() {
+  connSection.initConnSection(myPref, chat, chatSection);
+  chatSection.initChatSection(myPref, chat, connSection);
+}
+
+function openLoginPopup() {
+  $.get("file://" + path.join(__dirname, '/popup/login_pop.html'), function(data) {
+    var options = {
+      buttons: [{
+        text: "Log In",
+        click: function() {
+          loginSubmit();
+        }
+      }],
+      show: {
+        effect: "blind",
+        duration: 800
+      },
+      modal: true,
+      width: 350,
+      heght: 500
+    };
+    $("#dialog").text("").html(data).dialog(options).dialog("open");
+  }).error(function() {
+    alert("Connection Error");
+  });
 }
 
 function bindEvents() {
@@ -37,79 +87,6 @@ function initCustomScrollbar() {
   }).mCustomScrollbar("scrollTo", "bottom");
 }
 
-var chatWindow;
 $(document).ready(function() {
   initialize();
-
-  chatWindow = (function() {
-    // cache DOM
-    $inputMsg = $('.chat_section .input_message');
-    $inputText = $inputMsg.find('.input_text');
-    $btnSend = $inputMsg.find('.btn_send');
-    $contentArea = $('.chat_section .content_area');
-    $mcsbContainer = $('.chat_section .content_area .mCSB_container');
-    msgTemplate = $contentArea.find('#msg-template').html();
-
-    // bind events
-    $btnSend.on('click', sendMsg);
-    $inputText.on('keyup', _keyup);
-
-    function sendMsg(msg) {
-      if (typeof msg !== "string")
-        msg = $inputText.val();
-      _render(msg);
-      $inputText.val('').focus();
-    }
-
-    function _keyup(event) {
-      if (event.keyCode == 13) {
-        $btnSend.click();
-      }
-    }
-
-    function _render(msgText, callback) {
-      if (!msgText || !msgText.trim().length)
-        return;
-
-      var msgData = {
-        "msg": [{
-          "mode": "send", // send or receive
-          "img": "../img/profile_img1.jpg",
-          "imgAlt": "mafintosh",
-          "sender": "mafintosh",
-          "msgText": msgText,
-          "time": new Date().format("a/p hh mm")
-        }]
-      };
-
-      chat.sendDirectMsg(3, msgText);  // send to 3
-    }
-
-    function recvMsg(myIdPostfix, topic, message) {
-      var sendMode = topic.endsWith(myIdPostfix);
-      var userList = ['mafintosh', 'maxcgden', 'ngoldman', 'Flot', 'foross', 'groundwater', 'shama', 'DamonOchlman'];
-      var random = 0;
-      if (!sendMode)
-        random = Math.floor(Math.random() * userList.length) + 1;
-      var recvData = {
-        "msg": [{
-          "mode": sendMode ? "send" : "receive", // send or receive
-          "img": "../img/profile_img" + (random + 1) + ".jpg",
-          "imgAlt": userList[random],
-          "sender": userList[random],
-          "msgText": message + ' from ' + topic,
-          "time": new Date().format("a/p hh mm")
-        }]
-      };
-      $mcsbContainer.append(Mustache.render(msgTemplate, recvData));
-      $contentArea.mCustomScrollbar("scrollTo", "bottom");
-    }
-
-    return {
-      sendMsg: sendMsg,
-      recvMsg: recvMsg
-    };
-  })();
-
-  chat.registerRecvCallback(chatWindow.recvMsg);
 });
