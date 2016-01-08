@@ -46,8 +46,8 @@ var chat = (function() {
   function getTopic(connType, partid) {
     // topic format : {chat type}/{topic}
     // {chat type} : direct(0), group(1)
-    // direct {topic} : {peer1 emplid)_{peer2 emplid}
-    // group {topic} : {group channel id}
+    // direct {topic} : {coid}/{peer1 emplid)_{peer2 emplid}
+    // group {topic} : {coid}/{group channel id}
     var myTopic;
     if (connType === DIRECT_CHAT) {
       if (myInfo.emplid < partid)
@@ -82,8 +82,9 @@ var chat = (function() {
         clientCache.set(cachedKey, client);
       }
       return client;
-    } else
-      return null;
+    }
+
+    return null;
   }
 
   function _mqttConnected() {
