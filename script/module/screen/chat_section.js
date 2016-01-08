@@ -45,7 +45,7 @@ var chatSection = (function() {
       return;
     }
     msg = msg.replace(/\n$/, "");
-    var peer = connSection.getCurrentChattingTarget();
+    var peer = connSection.getCurrentTargetUser();
 
     if (peer === undefined) {
       console.error("No peer selected!");
@@ -62,11 +62,27 @@ var chatSection = (function() {
     }
   }
 
-  function recvMsg(myId, msgInfo) {
-    var sendMode = myId === msgInfo.publisher;
-    var topic = msgInfo.topic;
-    var message = msgInfo.payload.toString();
-    var sender = "have to change";
+  function recvMsg(myId, payloadStr) {
+    /*
+      msgPayload = {
+        chatType:  // 채팅 타입 (client 담당)
+        publisher: // 메시지 발신자 (client 담당)
+        receiver:  // 메시지 수신자, direct인 경우 peer id, group인 경우 group chat id (client 담당)
+        msgid:     // DB 저장될 msg id. (pubreq 담당)
+        time:      // 메시지 발신 시간 (pubreq 담당)
+        msg:       // 발신 메시지 (client 담당)
+      }
+    */
+    var msgPayload = JSON.parse(payloadStr);
+
+    var message = msgPayload.msg.toString();
+    var userObj = connSection.getUserObj(msgPayload.publisher);
+    var sender = (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]";
+    var sendMode = myId === msgPayload.publisher;
+    if (!sendMode) {
+      // target 설정에 따른 chat view 변경이 있는 경우 먼저 처리 후 메시지 출력
+      connSection.setCurrentTargetUser(msgPayload.publisher, false);
+    }
 
     console.log("[sendMode]" + sendMode);
     console.log("[topic]" + topic);
@@ -74,27 +90,20 @@ var chatSection = (function() {
     console.log("[sender]" + sender);
 
     // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
-    var imgIdx = (msgInfo.publisher * 1) % 10;
+    var imgIdx = (msgPayload.publisher * 1) % 10;
     var recvData = {
       "msg": [{
         "mode": sendMode ? "send" : "receive", // send or receive
         "img": "../img/profile_img" + imgIdx + ".jpg",
         "imgAlt": sender,
         "sender": sender,
-        "msgText": message + ' from ' + topic,
-        "time": new Date().format("a/p hh mm")
+        "msgText": message,
+        "time": new Date(msgPayload.time).format("a/p hh mm")
       }]
     };
 
     $mcsbContainer.append(Mustache.render(msgTemplate, recvData));
     $contentArea.mCustomScrollbar("scrollTo", "bottom");
-
-    db.serialize(function() {
-      var insertMsg = recvData.msg[0];
-      var stmt = db.prepare("INSERT INTO message VALUES (?, ?, ?, ?, ?, ?, ?)");
-      stmt.run(topic, insertMsg.mode, insertMsg.img, insertMsg.imgAlt, insertMsg.sender, insertMsg.msgText, insertMsg.time);
-      stmt.finalize();
-    });
   }
 
   function initChatSection(pref, chatMo, connSec) {
@@ -116,15 +125,6 @@ var chatSection = (function() {
     $title.html(title);
     $.each($contentArea.find(".msg_set"), function(idx, row) {
       $(row).remove(); // remove chatting texts
-    });
-
-    //read chatting message
-    db.serialize(function() {
-      db.each("SELECT * FROM message WHERE topic=?", activeTopic , function(err, row) {
-          $mcsbContainer.append(Mustache.render(msgTemplate, {
-            "msg": [row]
-          }));
-        });
     });
   }
 
