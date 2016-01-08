@@ -64,8 +64,6 @@ var connSection = (function() {
           };
           $userListContext.append(Mustache.render(userTemplate, userData));
         });
-
-        chatModule.initClient([], userCache.getKeyArray());
       }
     });
   }
@@ -94,7 +92,7 @@ var connSection = (function() {
       $targetPeer = $userListContext.find('[data-emplid="' + peerid + '"]');
     }
 
-    console.log("peerid:%s, force:%s, $targetPeer:%o", peerid, force, $targetPeer);
+    console.log("peerid:%s, force:%s, findTarget:%b, $targetPeer:%o", peerid, force, findTarget, $targetPeer);
 
     if ($targetPeer !== undefined)
       $targetPeer.trigger("click");
