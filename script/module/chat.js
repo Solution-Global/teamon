@@ -67,7 +67,7 @@ var chat = (function() {
 
   function _mqttReceived(topic, payload) {
     var payloadStr = payload.toString();
-    console.log('_mqttReceived topic:%s, msg:%s, %s', topic, payloadStr, new Date().format("HH:mm:ss"));
+    console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
 
     myInfo.recvCallback(myInfo.emplid, topic, payloadStr);
   }
@@ -104,15 +104,8 @@ var chat = (function() {
     console.log('sendDirectMsg topic:%s, msg:%s', topic, msgPayloadStr);
   }
 
-  function getMyInfo() {
-    return myInfo;
-  }
-
   return {
-    getMyInfo: getMyInfo,
-
     configMyInfo: configMyInfo,
-    // initClient: initClient,
     sendDirectMsg: sendDirectMsg
   };
 })();
