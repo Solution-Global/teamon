@@ -74,7 +74,6 @@ var chatSection = (function() {
       }
     */
     var msgPayload = JSON.parse(payloadStr);
-
     var message = msgPayload.msg.toString();
     var userObj = connSection.getUserObj(msgPayload.publisher);
     var sender = (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]";
@@ -84,10 +83,7 @@ var chatSection = (function() {
       connSection.setCurrentTargetUser(msgPayload.publisher, false);
     }
 
-    console.log("[sendMode]" + sendMode);
-    console.log("[topic]" + topic);
-    console.log("[message]" + message);
-    console.log("[sender]" + sender);
+    var msgTopic = chatModule.getTopic(msgPayload.chatType, sendMode ? msgPayload.receiver : msgPayload.publisher);
 
     // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
     var imgIdx = (msgPayload.publisher * 1) % 10;
@@ -102,8 +98,25 @@ var chatSection = (function() {
       }]
     };
 
-    $mcsbContainer.append(Mustache.render(msgTemplate, recvData));
-    $contentArea.mCustomScrollbar("scrollTo", "bottom");
+    if(activeTopic === msgTopic) {
+      $mcsbContainer.append(Mustache.render(msgTemplate, recvData));
+      $contentArea.mCustomScrollbar("scrollTo", "bottom");
+    } else {
+      connSection.setAlarmCnt(msgPayload.publisher);
+    }
+
+
+
+    // Store Resource
+    var resourceName = "CHAT_" +  msgTopic;
+    var getMessages = localStorage.getItem(resourceName);
+    if(getMessages)
+    {
+      getMessages += ("," + JSON.stringify(recvData.msg[0]));
+    } else {
+      getMessages = JSON.stringify(recvData.msg[0]);
+    }
+    localStorage.setItem(resourceName , LZString.compress(getMessages));
   }
 
   function initChatSection(pref, chatMo, connSec) {
@@ -118,15 +131,30 @@ var chatSection = (function() {
     chatModule.configMyInfo(coId, emplId, loginId, recvMsg);
   }
 
-  function changeChatView(chatId, title) {
+  function changeChatView(chatType, chatId, title) {
     console.log("chatId:%s, title:%s", chatId, title);
-
-    activeTopic = chatModule.getTopic(0, chatId) + "/2";
+    activeTopic = chatModule.getTopic(chatType, chatId);
     $title.html(title);
     $.each($contentArea.find(".msg_set"), function(idx, row) {
       $(row).remove(); // remove chatting texts
     });
+
+    connSection.hideAlram(chatId); // init Alram
+
+    var resourceName = "CHAT_" +  activeTopic;
+    var getMessages = localStorage.getItem(resourceName);
+    if(getMessages) {
+        var st = LZString.decompress(getMessages);
+        console.log(st);
+        console.log(LZString.decompress(getMessages));
+        console.log("---");
+        var jsonFormmet = "{\"msg\":[" +  LZString.decompress(getMessages) + "]}";
+        var messagesArr  = JSON.parse(jsonFormmet);
+        $mcsbContainer.append(Mustache.render(msgTemplate, messagesArr));
+    }
   }
+
+  //{messge:[{"chatType":0,"publisher":2,"receiver":1,"msg":"test","time":1452240680971,"msgid":"216"},{"chatType":0,"publisher":1,"receiver":2,"msg":"test","time":1452241536684,"msgid":"217"},{"chatType":0,"publisher":1,"receiver":2,"msg":"test","time":1452241538709,"msgid":"218"}]}
 
   return {
     sendMsg: sendMsg,

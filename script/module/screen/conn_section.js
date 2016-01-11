@@ -23,12 +23,12 @@ var connSection = (function() {
     $userListContext = $connSec.find('.users_area .list');
     userTemplate = $userListContext.find('#user-template').html();
 
+    // set event for direct chatting
     $userListContext.delegate("li", "click", function() {
       $userListContext.find("li.active").removeClass("active");
       var $targetList = $(this);
       $targetList.addClass("active");
-
-      chatSection.changeChatView($targetList.data("emplid"), $targetList.data("loginid"));
+      chatSection.changeChatView(chatModule.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
     });
   }
 
@@ -70,6 +70,21 @@ var connSection = (function() {
     });
   }
 
+  function hideAlram(emplId) {
+    var target = $userListContext.find("[data-emplid='" + emplId + "']");
+    var alarmArea = target.find(".alarm");
+    alarmArea.addClass("hide");
+    alarmArea.html("");
+  }
+
+  function setAlarmCnt(emplId) {
+    var target = $userListContext.find("[data-emplid='" + emplId + "']");
+    var alarmArea = target.find(".alarm");
+    var cnt = alarmArea.text();
+    alarmArea.html(cnt ? Number(cnt) + 1 : "1");
+    alarmArea.removeClass("hide");
+  }
+
   function getCurrentTargetUser() {
     var $activeTarget = $userListContext.find('.active');
     if ($activeTarget.length !== 0) {
@@ -106,6 +121,8 @@ var connSection = (function() {
 
   return {
     initConnSection: initConnSection,
+    hideAlram:hideAlram,
+    setAlarmCnt: setAlarmCnt,
     getCurrentTargetUser: getCurrentTargetUser,
     setCurrentTargetUser: setCurrentTargetUser,
     getUserObj: getUserObj

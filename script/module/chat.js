@@ -132,7 +132,9 @@ var chat = (function() {
     configMyInfo: configMyInfo,
     initClient: initClient,
     sendDirectMsg: sendDirectMsg,
-    getTopic: getTopic
+    getTopic: getTopic,
+    DIRECT_CHAT : DIRECT_CHAT,
+    GROUP_CHAT: GROUP_CHAT  
   };
 })();
 

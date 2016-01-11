@@ -7,6 +7,7 @@ var chatSection = require('../script/module/screen/chat_section.js');
 var preference = require('../script/module/preference.js');
 var remote = require('remote');
 var path = require('path');
+var LZString = require('lz-string');
 
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
