@@ -1,6 +1,7 @@
 'use strict';
 
 var Cache = require('../cache');
+var constants = require("../constants");
 
 var connSection = (function() {
   var myPref;
@@ -28,7 +29,7 @@ var connSection = (function() {
       $userListContext.find("li.active").removeClass("active");
       var $targetList = $(this);
       $targetList.addClass("active");
-      chatSection.changeChatView(chatModule.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
+      chatSection.changeChatView(constants.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
     });
   }
 
@@ -63,9 +64,51 @@ var connSection = (function() {
             }]
           };
           $userListContext.append(Mustache.render(userTemplate, userData));
-        });
 
-        chatModule.initClient([], userCache.getKeyArray());
+          // init msg
+          var chatingMsgResourceName = "CHAT_" +  constants.DIRECT_CHAT + "_" + myPref.login.emplId + "_" + row.emplId;
+          var chatingLastMsgIDResourceName = "CHAT_LASTMSGID_" +  constants.DIRECT_CHAT + "_" + myPref.login.emplId + "_" + row.emplId;
+
+          var params = {
+            "peer1": Math.min.apply(null, [myPref.login.emplId, row.emplId]),
+            "peer2": Math.max.apply(null, [myPref.login.emplId, row.emplId])
+          };
+          var lastMsgId = localStorage.getItem(chatingLastMsgIDResourceName);
+          if(lastMsgId) {
+            params.lastMsgId = lastMsgId;
+          }
+
+          restResourse.chat.getListByPeers(params, function(data) {
+            if (data) {
+              $.each(data, function(idx, msgRow) {
+                var sendMode =  myPref.login.emplId === msgRow.spkrId;
+                var sender = sendMode ? myPref.login.loginId : row.loginId;
+                var imgIdx = (msgRow.spkrId * 1) % 10;
+
+                var msgData = {
+                  "msg": [{
+                    "mode": sendMode ? "send" : "receive", // send or receive
+                    "img": "../img/profile_img" + imgIdx + ".jpg",
+                    "imgAlt": sender,
+                    "sender": sender,
+                    "msgText": msgRow.msg,
+                    "time": new Date(msgRow.creTime).format("a/p hh mm")
+                  }]
+                };
+
+                var getMessages = localStorage.getItem(chatingMsgResourceName);
+                if(getMessages)
+                {
+                  getMessages = LZString.decompress(getMessages) + ("," + JSON.stringify(msgData.msg[0]));
+                } else {
+                  getMessages = JSON.stringify(msgData.msg[0]);
+                }
+                localStorage.setItem(chatingMsgResourceName , LZString.compress(getMessages));
+
+              });
+            }
+          });
+        });
       }
     });
   }
@@ -109,7 +152,7 @@ var connSection = (function() {
       $targetPeer = $userListContext.find('[data-emplid="' + peerid + '"]');
     }
 
-    console.log("peerid:%s, force:%s, $targetPeer:%o", peerid, force, $targetPeer);
+    console.log("peerid:%s, force:%s, findTarget:%b, $targetPeer:%o", peerid, force, findTarget, $targetPeer);
 
     if ($targetPeer !== undefined)
       $targetPeer.trigger("click");

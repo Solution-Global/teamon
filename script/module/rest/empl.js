@@ -1,7 +1,9 @@
-var restCommon = require("./rest_common");
+// By convention, we name a constructor function by capitalizing the first letter.
+// Constructor functions should always be called with the new operator.
+var RestCommon = require("./rest_common");
 
 var Empl = (function() {
-  this.restCommon = new restCommon();
+  this.restCommon = new RestCommon();
   this.path ="/frontend/user/employee";
 });
 

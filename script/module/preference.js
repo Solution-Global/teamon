@@ -1,4 +1,5 @@
 var jsonfile = require('jsonfile')
+var path = require('path');
 
 /*
   preference 설정은 json 파일로 저장한다.
@@ -18,7 +19,7 @@ var jsonfile = require('jsonfile')
 var preference = (function() {
   var prefObj;
   jsonfile.spaces = 2; // tab spaces
-  var file = "config/preference.cfg";
+  var file = path.join(__dirname, '../../config/preference.cfg');
 
   function _readAll() {
     prefObj = jsonfile.readFileSync(file);

@@ -7,11 +7,12 @@ var Chat = (function() {
 
 Chat.prototype.getListByPeers = function(params, callback) {
   var self = this;
-    console.log("getListByCoid - [peer1]" + params.peer2 + "[peer1]" + params.peer2);
+    console.log("getListByCoid - [peer1]" + params.peer1 + "[peer1]" + params.peer2 + "[lastMsgId]" + params.lastMsgId );
     var args = {
       parameters : {
         "peer1" : params.peer1,
-        "peer2" : params.peer2
+        "peer2" : params.peer2,
+        "lastMsgId" : params.lastMsgId ? params.lastMsgId : -1
       },
       headers: self.restCommon.commonHeaders
     };
