@@ -67,8 +67,17 @@ var chat = (function() {
 
   function _mqttReceived(topic, payload) {
     var payloadStr = payload.toString();
-    console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
+    // TODO 자신과 관련없는 토픽은 전달되지 않도록 수정 필요 (임시코드)
+    var topicArray = topic.split('/');
+    var chatType = parseInt(topicArray[2]);
+    if (chatType === constants.DIRECT_CHAT) {
+      var peers = topicArray[3].split('_');
+      if (!peers.includes(myInfo.emplid.toString())) {
+        return;
+      }
+    }
 
+    console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
     myInfo.recvCallback(myInfo.emplid, topic, payloadStr);
   }
 
