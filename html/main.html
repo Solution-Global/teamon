@@ -5,11 +5,11 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title></title>
-	<link type="text/css" rel="stylesheet" href="../style/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css" />
-	<link href="../style/simple-line-icons-webfont/simple-line-icons.css" rel="stylesheet" media="screen">
-	<link href="../style/font-awesome/css/font-awesome.min.css" rel="stylesheet" media="screen">
-	<link type="text/css" rel="stylesheet" href="../style/common.css" />
-	<link type="text/css" rel="stylesheet" href="../style/jquery/jquery-ui.min.css" />
+	<link rel="stylesheet" href="../style/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css" />
+	<link rel="stylesheet" href="../style/simple-line-icons-webfont/simple-line-icons.css" media="screen" />
+	<link rel="stylesheet" href="../style/font-awesome/css/font-awesome.min.css" media="screen" />
+	<link rel="stylesheet" href="../style/common.css" />
+	<link rel="stylesheet" href="../style/jquery/jquery-ui.min.css" />
 
 	<body>
 		<div id="dialog"></div>
@@ -53,7 +53,7 @@
 								<li data-emplid="{{emplId}}" data-loginid="{{loginId}}">
 									<a href="#">
 										<span class="img">
-											<img src="{{img}}" alt="{{imgAlt}}" >
+											<img src="{{img}}" alt="{{imgAlt}}">
 										</span>
 										<span class="loginId">{{loginId}}</span>
 									</a>
@@ -116,7 +116,28 @@
 				</div>
 
 				<div class="content_area">
-					<div></div>
+					<div class="info_area">
+						<h3 class="tit">&nbsp;</h3>
+					</div>
+					<div id="phone">
+						<button autocomplete="off" id="call">Call</button>
+					</div>
+					<br/>
+					<div id="videos">
+						<div >
+							<div>
+								<h3>Local Stream</h3>
+							</div>
+							<div id="videoleft"></div>
+						</div>
+						<br/>
+						<div>
+							<div>
+								<h3>Remote Stream</h3>
+							</div>
+							<div id="videoright"></div>
+						</div>
+					</div>
 				</div>
 
 			</div>
@@ -125,6 +146,8 @@
 		</div>
 
 		<script src="../script/dist/bundle.js" charset="utf-8"></script>
+		<script src="../script/dist/ext/janus.js" charset="utf-8"></script>
+		<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
 	</body>
 
 </html>

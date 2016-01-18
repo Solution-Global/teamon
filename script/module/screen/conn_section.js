@@ -4,8 +4,8 @@ var Cache = require('../cache');
 
 var connSection = (function() {
   var myPref;
-  var chatModule;
   var chatSection;
+  var asideSection;
 
   // cache DOM
   var $connSec;
@@ -14,10 +14,10 @@ var connSection = (function() {
 
   var userCache = new Cache();
 
-  function _initialize(pref, chatMo, chatSec) {
+  function _initialize(pref, chatSec, asideSec) {
     myPref = pref;
-    chatModule = chatMo;
     chatSection = chatSec;
+    asideSection = asideSec;
 
     $connSec = $(".connection_section");
     $userListContext = $connSec.find('.users_area .list');
@@ -29,11 +29,12 @@ var connSection = (function() {
       $targetList.addClass("active");
 
       chatSection.changeChatView($targetList.data("emplid"), $targetList.data("loginid"));
+      asideSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
     });
   }
 
-  function initConnSection(pref, chatMo, chatSec) {
-    _initialize(pref, chatMo, chatSec);
+  function initConnSection(pref, chatSec, asideSec) {
+    _initialize(pref, chatSec, asideSec);
     _initEmployees();
   }
 

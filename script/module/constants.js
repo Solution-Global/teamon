@@ -8,6 +8,7 @@ function define(name, value) {
 define("DIRECT_CHAT", 0);
 define("GROUP_CHAT", 1);
 
+// [msg]
 // mqtt
 define("MQTT_URL", "mqtt://192.168.1.164:2883");
 
@@ -21,3 +22,6 @@ define("TOPIC_PRESENCE_KEEPALIVE", "/presence/keepalive");
 
 define("TOPIC_MSG", "/msg");
 define("TOPIC_PUBREQ", "/pubreq");
+
+// [call]
+define("CALL_GW_URL", "wss://192.168.5.54:8989/janus");

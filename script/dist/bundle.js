@@ -60,9 +60,10 @@ Date.prototype.format = function(f) {
 window.$ = window.jQuery = require('jquery');
 require('jquery-ui');
 var Mustache = require('mustache');
-var chat = require('../script/module/chat.js');
+// var chat = require('../script/module/chat.js');
 var connSection = require('../script/module/screen/conn_section.js');
 var chatSection = require('../script/module/screen/chat_section.js');
+var asideSection = require('../script/module/screen/aside_section.js');
 var preference = require('../script/module/preference.js');
 var remote = require('remote');
 var path = require('path');
@@ -97,8 +98,9 @@ function initLoginStatus() {
 }
 
 function initScreenSection() {
-  connSection.initConnSection(myPref, chat, chatSection);
-  chatSection.initChatSection(myPref, chat, connSection);
+  connSection.initConnSection(myPref, chatSection, asideSection);
+  chatSection.initChatSection(myPref, connSection, asideSection);
+  asideSection.initAsideSection(myPref, connSection, chatSection);
 }
 
 function openLoginPopup() {
@@ -116,7 +118,11 @@ function openLoginPopup() {
       },
       modal: true,
       width: 350,
-      heght: 500
+      heght: 500,
+      closeOnEscape: false,
+      open: function(event, ui) {
+        $(".ui-dialog-titlebar-close").hide();
+      }
     };
     $("#dialog").text("").html(data).dialog(options).dialog("open");
   }).error(function() {
@@ -125,11 +131,17 @@ function openLoginPopup() {
 }
 
 function bindEvents() {
-  $(window).bind("orientationchange resize", function() {
+  $(window).on("orientationchange resize", function() {
     var wrapHeight = $(window).height();
     $('.connection_section .inner_box').css('height', wrapHeight - $('.connection_section .header').outerHeight());
     $('.chat_section .content_area').css('height', wrapHeight - $('.chat_section .title_area').outerHeight() - $('.chat_section .input_message').outerHeight() - 30);
     $('.aside_section .content_area').css('height', wrapHeight - $('.aside_section .title_area').outerHeight() - 30);
+  });
+
+  $(window).on('beforeunload', function() {
+    console.log("Closing window");
+
+    chatSection.finalize();
   });
 }
 

@@ -4,8 +4,9 @@ var constants = require("../constants");
 
 var chatSection = (function() {
   var myPref;
-  var chatModule;
   var connSection;
+  var asideSection;
+  var chatModule = require('../chat');
 
   // cache DOM
   var $chatSec;
@@ -18,10 +19,10 @@ var chatSection = (function() {
   var $btnSend;
   var msgTemplate;
 
-  function _initialize(pref, chatMo, connSec) {
+  function _initialize(pref, connSec, asideSec) {
     myPref = pref;
-    chatModule = chatMo;
     connSection = connSec;
+    asideSection = asideSec;
 
     $chatSec = $(".chat_section");
     $titleArea = $chatSec.find(".title_area");
@@ -47,13 +48,12 @@ var chatSection = (function() {
     }
     msg = msg.replace(/\n$/, "");
     var peer = connSection.getCurrentTargetUser();
-
     if (peer === undefined) {
       console.error("No peer selected!");
-    } else {
-      chatModule.sendDirectMsg(peer, msg);
+      return;
     }
 
+    chatModule.sendDirectMsg(peer, msg);
     $inputText.val('').focus();
   }
 
@@ -133,8 +133,8 @@ var chatSection = (function() {
     console.info("topic[%s], payload:", topic, payloadStr);
   }
 
-  function initChatSection(pref, chatMo, connSec) {
-    _initialize(pref, chatMo, connSec);
+  function initChatSection(pref, connSec, asideSec) {
+    _initialize(pref, connSec, asideSec);
 
     var coId = myPref.login.coId;
     var emplId = myPref.login.emplId;
@@ -146,19 +146,22 @@ var chatSection = (function() {
   }
 
   function changeChatView(chatId, title) {
-    console.log("chatId:%s, title:%s", chatId, title);
-
     $title.html(title);
     $.each($contentArea.find(".msg_set"), function(idx, row) {
       $(row).remove(); // remove chatting texts
     });
   }
 
+  function finalize() {
+    chatModule.finalize();
+  }
+
   return {
     sendMsg: sendMsg,
     recvMsg: recvMsg,
     initChatSection: initChatSection,
-    changeChatView: changeChatView
+    changeChatView: changeChatView,
+    finalize: finalize
   };
 })();
 
