@@ -63,10 +63,9 @@ var Mustache = require('mustache');
 var chat = require('../script/module/chat.js');
 var connSection = require('../script/module/screen/conn_section.js');
 var chatSection = require('../script/module/screen/chat_section.js');
-var preference = require('../script/module/preference.js');
 var remote = require('remote');
 var path = require('path');
-var LZString = require('lz-string');
+var temonStrorage = require('../script/module/teamon_storage.js');
 
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
@@ -81,12 +80,24 @@ function initialize() {
 var myPref;
 
 function initLoginStatus() {
-  myPref = preference.getPrefObj();
+  myPref = {
+    "rememberMe": temonStrorage.getPerference("loginRememberMe"),
+    "company": temonStrorage.getPerference("loginCompany"),
+    "loginId": temonStrorage.getPerference("loginLoginId"),
+    "emplId": temonStrorage.getPerference("loginEmplId") ? Number(temonStrorage.getPerference("loginEmplId")) : null,
+    "coId": temonStrorage.getPerference("loginCoId") ? Number(temonStrorage.getPerference("loginCoId")) : null
+  };
 
-  var rememberMe = myPref.login.rememberMe;
-  var loginId = myPref.login.loginId;
-  var coId = myPref.login.coId;
-  var emplId = myPref.login.emplId;
+console.log(temonStrorage.getPerference("loginRememberMe"));
+console.log(temonStrorage.getPerference("loginCompany"));
+console.log(temonStrorage.getPerference("loginEmplId"));
+console.log(temonStrorage.getPerference("loginCoId"));
+
+  console.log(myPref);
+  var rememberMe = myPref.rememberMe;
+  var loginId = myPref.loginId;
+  var coId = myPref.coId;
+  var emplId = myPref.emplId;
 
   console.log("initLoginStatus[rememberMe:%s, loginId:%s, coId:%s, emplId:%s]", rememberMe, loginId, coId, emplId);
 
@@ -100,6 +111,9 @@ function initLoginStatus() {
 function initScreenSection() {
   connSection.initConnSection(myPref, chat, chatSection);
   chatSection.initChatSection(myPref, chat, connSection);
+
+  // local에 저장되지 않는 message들 모두 laod
+  temonStrorage.syncChatMessage(myPref);
 }
 
 function openLoginPopup() {

@@ -39,7 +39,7 @@ var connSection = (function() {
   }
 
   function _initEmployees() {
-    var coId = myPref.login.coId;
+    var coId = myPref.coId;
     console.log("call _initEmployees[coId:%s]", coId);
 
     var params = {
@@ -49,7 +49,7 @@ var connSection = (function() {
       if (data.rows) {
         $.each(data.rows, function(idx, row) {
           userCache.set(row.emplId, row); // add each employee into userCache.
-          if (row.emplId === myPref.login.emplId)
+          if (row.emplId === myPref.emplId)
             return;
 
           // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
@@ -66,48 +66,37 @@ var connSection = (function() {
           $userListContext.append(Mustache.render(userTemplate, userData));
 
           // init msg
-          var chatingMsgResourceName = "CHAT_" +  constants.DIRECT_CHAT + "_" + myPref.login.emplId + "_" + row.emplId;
-          var chatingLastMsgIDResourceName = "CHAT_LASTMSGID_" +  constants.DIRECT_CHAT + "_" + myPref.login.emplId + "_" + row.emplId;
-
-          var params = {
-            "peer1": Math.min.apply(null, [myPref.login.emplId, row.emplId]),
-            "peer2": Math.max.apply(null, [myPref.login.emplId, row.emplId])
-          };
-          var lastMsgId = localStorage.getItem(chatingLastMsgIDResourceName);
-          if(lastMsgId) {
-            params.lastMsgId = lastMsgId;
-          }
-
-          restResourse.chat.getListByPeers(params, function(data) {
-            if (data) {
-              $.each(data, function(idx, msgRow) {
-                var sendMode =  myPref.login.emplId === msgRow.spkrId;
-                var sender = sendMode ? myPref.login.loginId : row.loginId;
-                var imgIdx = (msgRow.spkrId * 1) % 10;
-
-                var msgData = {
-                  "msg": [{
-                    "mode": sendMode ? "send" : "receive", // send or receive
-                    "img": "../img/profile_img" + imgIdx + ".jpg",
-                    "imgAlt": sender,
-                    "sender": sender,
-                    "msgText": msgRow.msg,
-                    "time": new Date(msgRow.creTime).format("a/p hh mm")
-                  }]
-                };
-
-                var getMessages = localStorage.getItem(chatingMsgResourceName);
-                if(getMessages)
-                {
-                  getMessages = LZString.decompress(getMessages) + ("," + JSON.stringify(msgData.msg[0]));
-                } else {
-                  getMessages = JSON.stringify(msgData.msg[0]);
-                }
-                localStorage.setItem(chatingMsgResourceName , LZString.compress(getMessages));
-
-              });
-            }
-          });
+          // var params = {
+          //   "peer1": Math.min.apply(null, [myPref.emplId, row.emplId]),
+          //   "peer2": Math.max.apply(null, [myPref.emplId, row.emplId])
+          // };
+          //
+          // var lastMsgId = temonStrorage.getChatLastMessageId(constants.DIRECT_CHAT, row.emplId);
+          // if(lastMsgId) {
+          //   params.lastMsgId = lastMsgId;
+          // }
+          //
+          // restResourse.chat.getListByPeers(params, function(data) {
+          //   if (data) {
+          //     $.each(data, function(idx, msgRow) {
+          //       var sendMode =  myPref.emplId === msgRow.spkrId;
+          //       var sender = sendMode ? myPref.loginId : row.loginId;
+          //       var imgIdx = (msgRow.spkrId * 1) % 10;
+          //
+          //       var msgData = {
+          //           "msgId": msgRow.dcid,
+          //           "mode": sendMode ? "send" : "receive", // send or receive
+          //           "img": "../img/profile_img" + imgIdx + ".jpg",
+          //           "imgAlt": sender,
+          //           "sender": sender,
+          //           "msgText": msgRow.msg,
+          //           "time": new Date(msgRow.creTime).format("a/p hh mm")
+          //       };
+          //
+          //       temonStrorage.appendChatMessage(msgData, constants.DIRECT_CHAT, row.emplId);
+          //     });
+          //   }
+          // });
         });
       }
     });

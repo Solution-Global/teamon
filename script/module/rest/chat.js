@@ -18,7 +18,6 @@ Chat.prototype.getListByPeers = function(params, callback) {
     };
     self.restCommon.client.get(self.restCommon.apiurl + self.path , args,
       function(data, response){
-        console.log(data);
         callback(data);
     }).on('error',function(err){
       console.log('something went wrong on the request', err.request.options);

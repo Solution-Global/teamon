@@ -18,12 +18,18 @@
 		restResourse.login.login(params,
 			function(data) {
 				// set the personal pref info first to use it around the app.
-				preference.set("login", "rememberMe", rememberMe.is(":checked"), false);
-				preference.set("login", "company", params.company, false);
-				preference.set("login", "loginId", params.loginId, false);
-				preference.set("login", "password", params.password, false);
-				preference.set("login", "emplId", data.emplId, false);
-				preference.set("login", "coId", data.coId, true); // Save to the pref file once at the end of the config job.
+				temonStrorage.setPerference("loginRememberMe", rememberMe.is(":checked"));
+				temonStrorage.setPerference("loginCompany", params.company);
+				temonStrorage.setPerference("loginLoginId", params.loginId);
+				temonStrorage.setPerference("loginEmplId", data.emplId);
+				temonStrorage.setPerference("loginCoId", data.coId); // Save to the pref file once at the end of the config job.
+
+				myPref = {
+			    "company": params.company,
+			    "loginId": params.loginId,
+			    "emplId": data.emplId ? Number(data.emplId) : null,
+			    "coId": data.coId ? Number(data.coId) : null
+			  };
 
 				initScreenSection();
 

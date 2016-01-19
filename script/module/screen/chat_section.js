@@ -103,7 +103,7 @@ var chatSection = (function() {
     var sender = (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]";
     var sendMode = myId === msgPayload.publisher;
 
-    console.log("[sendMode]" + sendMode);
+    console.log("[msgPayload]" + msgPayload);
     // todo lastmsgid와 locallast 값을 비교하여 처리 (현재는 locallast값이 lastmsgid와 동일하다고 가정)
     var locallast = lastmsgid;
     if (locallast < lastmsgid) {
@@ -119,6 +119,7 @@ var chatSection = (function() {
         var imgIdx = (msgPayload.publisher * 1) % 10;
         var recvData = {
           "msg": [{
+            "msgId": msgPayload.msgid,
             "mode": sendMode ? "send" : "receive", // send or receive
             "img": "../img/profile_img" + imgIdx + ".jpg",
             "imgAlt": sender,
@@ -136,17 +137,8 @@ var chatSection = (function() {
         }
 
         // Store Resource
-        var chatingMsgResourceName = "CHAT_" +  activeChatType + "_" + myId + "_" + (sendMode ?  msgPayload.receiver : msgPayload.publisher);
-        var chatingLastMsgIDResourceName = "CHAT_LASTMSGID_" +  activeChatType + "_" + myId + "_" + (sendMode ?  msgPayload.receiver : msgPayload.publisher);
-        var getMessages = localStorage.getItem(chatingMsgResourceName);
-        if(getMessages)
-        {
-          getMessages = LZString.decompress(getMessages) + ("," + JSON.stringify(recvData.msg[0]));
-        } else {
-          getMessages = JSON.stringify(recvData.msg[0]);
-        }
-        localStorage.setItem(chatingMsgResourceName , LZString.compress(getMessages));
-        localStorage.setItem(chatingLastMsgIDResourceName , msgPayload.msgid);
+        temonStrorage.appendChatMessage(recvData.msg[0], activeChatType, (sendMode ?  msgPayload.receiver : msgPayload.publisher));
+
       } else {
         // 로그인한 사용자의 chatting 이 아니라 무시
       }
@@ -161,9 +153,9 @@ var chatSection = (function() {
   function initChatSection(pref, chatMo, connSec) {
     _initialize(pref, chatMo, connSec);
 
-    var coId = myPref.login.coId;
-    var emplId = myPref.login.emplId;
-    var loginId = myPref.login.loginId;
+    var coId = myPref.coId;
+    var emplId = myPref.emplId;
+    var loginId = myPref.loginId;
 
     console.log("initChatSection[coId:%s, emplId:%s, loginId:%s]", coId, emplId, loginId);
 
@@ -171,7 +163,7 @@ var chatSection = (function() {
   }
 
   function getChatRoomId(chatType, chatId) {
-    return chatType + "_" + myPref.login.emplId + "_" + chatId;
+    return chatType + "_" + myPref.emplId + "_" + chatId;
   }
 
   function changeChatView(chatType, chatId, title) {
@@ -185,14 +177,11 @@ var chatSection = (function() {
 
     connSection.hideAlram(chatId); // init Alram
 
-    var resourceName = "CHAT_" +  activeChatType + "_" + myPref.login.emplId + "_" + activeChatId;
-    var getMessages = localStorage.getItem(resourceName);
-    if(getMessages) {
-       var st = LZString.decompress(getMessages);
-       var jsonFormmet = "{\"msg\":[" +  LZString.decompress(getMessages) + "]}";
-       var messagesArr  = JSON.parse(jsonFormmet);
-       $mcsbContainer.append(Mustache.render(msgTemplate, messagesArr));
-     }
+    var messageArray = temonStrorage.getChatMessage(activeChatType, activeChatId);
+    if(messageArray) {
+      $mcsbContainer.append(Mustache.render(msgTemplate, messageArray));
+      $contentArea.mCustomScrollbar("scrollTo", "bottom");
+    }
   }
 
   return {

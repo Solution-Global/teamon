@@ -72,7 +72,7 @@ var chat = (function() {
     var chatType = parseInt(topicArray[2]);
     if (chatType === constants.DIRECT_CHAT) {
       var peers = topicArray[3].split('_');
-      if (!peers.includes(myInfo.emplid.toString())) {
+      if (peers.indexOf(myInfo.emplid.toString()) < 0) {
         return;
       }
     }
