@@ -4,10 +4,11 @@ var constants = require("../constants");
 
 var chatSection = (function() {
   var myPref;
-  var chatModule;
   var connSection;
   var activeChatId;
   var activeChatType;
+  var asideSection;
+  var chatModule = require('../chat');
 
   // cache DOM
   var $chatSec;
@@ -20,10 +21,10 @@ var chatSection = (function() {
   var $btnSend;
   var msgTemplate;
 
-  function _initialize(pref, chatMo, connSec) {
+  function _initialize(pref, connSec, asideSec) {
     myPref = pref;
-    chatModule = chatMo;
     connSection = connSec;
+    asideSection = asideSec;
 
     $chatSec = $(".chat_section");
     $titleArea = $chatSec.find(".title_area");
@@ -49,13 +50,12 @@ var chatSection = (function() {
     }
     msg = msg.replace(/\n$/, "");
     var peer = connSection.getCurrentTargetUser();
-
     if (peer === undefined) {
       console.error("No peer selected!");
-    } else {
-      chatModule.sendDirectMsg(peer, msg);
+      return;
     }
 
+    chatModule.sendDirectMsg(peer, msg);
     $inputText.val('').focus();
   }
 
@@ -103,7 +103,6 @@ var chatSection = (function() {
     var sender = (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]";
     var sendMode = myId === msgPayload.publisher;
 
-    console.log("[msgPayload]" + msgPayload);
     // todo lastmsgid와 locallast 값을 비교하여 처리 (현재는 locallast값이 lastmsgid와 동일하다고 가정)
     var locallast = lastmsgid;
     if (locallast < lastmsgid) {
@@ -150,8 +149,8 @@ var chatSection = (function() {
     console.info("topic[%s], payload:", topic, payloadStr);
   }
 
-  function initChatSection(pref, chatMo, connSec) {
-    _initialize(pref, chatMo, connSec);
+  function initChatSection(pref, connSec, asideSec) {
+    _initialize(pref, connSec, asideSec);
 
     var coId = myPref.coId;
     var emplId = myPref.emplId;
@@ -162,14 +161,11 @@ var chatSection = (function() {
     chatModule.configMyInfo(coId, emplId, loginId, recvMsg);
   }
 
-  function getChatRoomId(chatType, chatId) {
-    return chatType + "_" + myPref.emplId + "_" + chatId;
-  }
-
   function changeChatView(chatType, chatId, title) {
-    console.log("chatId:%s, title:%s", chatId, title);
+    console.log("chatType:%s, chatId:%s, title:%s",chatType, chatId, title);
     activeChatId = chatId;
     activeChatType = chatType;
+
     $title.html(title);
     $.each($contentArea.find(".msg_set"), function(idx, row) {
       $(row).remove(); // remove chatting texts
@@ -184,11 +180,16 @@ var chatSection = (function() {
     }
   }
 
+  function finalize() {
+    chatModule.finalize();
+  }
+
   return {
     sendMsg: sendMsg,
     recvMsg: recvMsg,
     initChatSection: initChatSection,
-    changeChatView: changeChatView
+    changeChatView: changeChatView,
+    finalize: finalize
   };
 })();
 

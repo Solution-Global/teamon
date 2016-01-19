@@ -5,8 +5,8 @@ var constants = require("../constants");
 
 var connSection = (function() {
   var myPref;
-  var chatModule;
   var chatSection;
+  var asideSection;
 
   // cache DOM
   var $connSec;
@@ -15,10 +15,10 @@ var connSection = (function() {
 
   var userCache = new Cache();
 
-  function _initialize(pref, chatMo, chatSec) {
+  function _initialize(pref, chatSec, asideSec) {
     myPref = pref;
-    chatModule = chatMo;
     chatSection = chatSec;
+    asideSection = asideSec;
 
     $connSec = $(".connection_section");
     $userListContext = $connSec.find('.users_area .list');
@@ -30,11 +30,12 @@ var connSection = (function() {
       var $targetList = $(this);
       $targetList.addClass("active");
       chatSection.changeChatView(constants.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
+      asideSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
     });
   }
 
-  function initConnSection(pref, chatMo, chatSec) {
-    _initialize(pref, chatMo, chatSec);
+  function initConnSection(pref, chatSec, asideSec) {
+    _initialize(pref, chatSec, asideSec);
     _initEmployees();
   }
 
@@ -64,39 +65,6 @@ var connSection = (function() {
             }]
           };
           $userListContext.append(Mustache.render(userTemplate, userData));
-
-          // init msg
-          // var params = {
-          //   "peer1": Math.min.apply(null, [myPref.emplId, row.emplId]),
-          //   "peer2": Math.max.apply(null, [myPref.emplId, row.emplId])
-          // };
-          //
-          // var lastMsgId = temonStrorage.getChatLastMessageId(constants.DIRECT_CHAT, row.emplId);
-          // if(lastMsgId) {
-          //   params.lastMsgId = lastMsgId;
-          // }
-          //
-          // restResourse.chat.getListByPeers(params, function(data) {
-          //   if (data) {
-          //     $.each(data, function(idx, msgRow) {
-          //       var sendMode =  myPref.emplId === msgRow.spkrId;
-          //       var sender = sendMode ? myPref.loginId : row.loginId;
-          //       var imgIdx = (msgRow.spkrId * 1) % 10;
-          //
-          //       var msgData = {
-          //           "msgId": msgRow.dcid,
-          //           "mode": sendMode ? "send" : "receive", // send or receive
-          //           "img": "../img/profile_img" + imgIdx + ".jpg",
-          //           "imgAlt": sender,
-          //           "sender": sender,
-          //           "msgText": msgRow.msg,
-          //           "time": new Date(msgRow.creTime).format("a/p hh mm")
-          //       };
-          //
-          //       temonStrorage.appendChatMessage(msgData, constants.DIRECT_CHAT, row.emplId);
-          //     });
-          //   }
-          // });
         });
       }
     });

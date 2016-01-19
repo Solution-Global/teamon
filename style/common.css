@@ -113,6 +113,9 @@ body {background-color:#fafafa;}
 .chat_section .input_message .input_text {width:100%;height:48px;padding:10px;border-radius:0 0 0 5px;border:1px solid #424556;}
 .chat_section .input_message .btn_send {position:absolute;top:5px;right:5px;width:94px;height:70px;border-radius:0 0 5px 0;border:1px solid #424556;background-color:#5588c9;font-size:14px;color:#fff;font-weight:bold;}
 
+/* aside */
+.aside_section .content_area {display: none;}
+.aside_section .content_area .info_area .tit {font-size:14px;color:blue;}
 
 .hide {display: none;}
 .left {float: left;}
@@ -125,4 +128,21 @@ body {background-color:#fafafa;}
 	margin: 4px 5px 4px 0;
 	width: 250px;
 	height: 18px;
+
+#videos .rounded {
+	border-radius: 5px;
+}
+
+#videos .centered {
+	display: block;
+	margin: auto;
+}
+
+#videos .no-video-text {
+	text-align: center;
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	left: 0px;
+	font-size: 24px;
 }

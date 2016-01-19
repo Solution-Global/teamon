@@ -113,9 +113,14 @@ var chat = (function() {
     console.log('sendDirectMsg topic:%s, msg:%s', topic, msgPayloadStr);
   }
 
+  function finalize() {
+    myInfo.client.end();
+  }
+
   return {
     configMyInfo: configMyInfo,
-    sendDirectMsg: sendDirectMsg
+    sendDirectMsg: sendDirectMsg,
+    finalize: finalize
   };
 })();
 
