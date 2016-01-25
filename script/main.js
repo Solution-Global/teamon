@@ -7,8 +7,9 @@ var chatSection = require('../script/module/screen/chat_section.js');
 var asideSection = require('../script/module/screen/aside_section.js');
 var remote = require('remote');
 var path = require('path');
-var temonStrorage = require('../script/module/teamon_storage.js');
-
+var storageManager = require('../script/module/storage/storage_manager.js')(true);
+var preference = require('../script/module/storage/preference.js');
+var messageManager = require('../script/module/storage/message.js');
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
   require('malihu-custom-scrollbar-plugin')($);
@@ -22,22 +23,21 @@ function initialize() {
 var myPref;
 
 function initLoginStatus() {
-  myPref = {
-    "rememberMe": temonStrorage.getPerference("loginRememberMe"),
-    "company": temonStrorage.getPerference("loginCompany"),
-    "loginId": temonStrorage.getPerference("loginLoginId"),
-    "emplId": temonStrorage.getPerference("loginEmplId") ? Number(temonStrorage.getPerference("loginEmplId")) : null,
-    "coId": temonStrorage.getPerference("loginCoId") ? Number(temonStrorage.getPerference("loginCoId")) : null
-  };
 
-  var rememberMe = myPref.rememberMe;
-  var loginId = myPref.loginId;
-  var coId = myPref.coId;
-  var emplId = myPref.emplId;
+  var remeberEmplId = storageManager.getValue("remeberEmplId");
 
-  console.log("initLoginStatus[rememberMe:%s, loginId:%s, coId:%s, emplId:%s]", rememberMe, loginId, coId, emplId);
+  console.log("initLoginStatus[remeberEmplId:%s]", remeberEmplId);
 
-  if (rememberMe) {
+  if(remeberEmplId) {
+    preference = preference(storageManager, remeberEmplId); // init preference
+
+    myPref = {
+      "company": preference.getPerference("company"),
+      "loginId": preference.getPerference("loginId"),
+      "emplId": Number(remeberEmplId),
+      "coId": preference.getPerference("coId")
+    };
+
     initScreenSection();
   } else {
     openLoginPopup();
@@ -45,11 +45,13 @@ function initLoginStatus() {
 }
 
 function initScreenSection() {
+  // local에 저장되지 않는 message들 모두 laod
+  messageManager = messageManager(storageManager, myPref);
+  messageManager.syncChatMessage();
+
   connSection.initConnSection(myPref, chatSection, asideSection);
   chatSection.initChatSection(myPref, connSection, asideSection);
   asideSection.initAsideSection(myPref, connSection, chatSection);
-  // local에 저장되지 않는 message들 모두 laod
-  temonStrorage.syncChatMessage(myPref);
 }
 
 function openLoginPopup() {
@@ -100,11 +102,20 @@ function initCustomScrollbar() {
     scrollInertia: 100,
     theme: "light-thick"
   });
+
   $('.chat_section .content_area').mCustomScrollbar({
     axis: "y",
     scrollInertia: 100,
-    theme: "dark-thick"
+    theme: "dark-thick",
+    callbacks:{
+        onScroll:function(){
+          if(this.mcs.top === 0) {
+            chatSection.getPreviousMessage(this.mcs.draggerTop);
+          }
+        }
+    }
   }).mCustomScrollbar("scrollTo", "bottom");
+
 }
 
 $(document).ready(function() {

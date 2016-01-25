@@ -17,12 +17,6 @@
 
 		restResourse.login.login(params,
 			function(data) {
-				// set the personal pref info first to use it around the app.
-				temonStrorage.setPerference("loginRememberMe", rememberMe.is(":checked"));
-				temonStrorage.setPerference("loginCompany", params.company);
-				temonStrorage.setPerference("loginLoginId", params.loginId);
-				temonStrorage.setPerference("loginEmplId", data.emplId);
-				temonStrorage.setPerference("loginCoId", data.coId); // Save to the pref file once at the end of the config job.
 
 				myPref = {
 			    "company": params.company,
@@ -33,6 +27,16 @@
 
 				initScreenSection();
 
+				// set the personal pref info first to use it around the app.
+				preference = preference(storageManager, data.emplId); // init preference
+
+				if(rememberMe.is(":checked"))
+					storageManager.setValue("remeberEmplId", data.emplId);
+				preference.setPerference("company", params.company);
+				preference.setPerference("loginId", params.loginId);
+				preference.setPerference("emplId", data.emplId);
+				preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
+
 				$("#dialog").dialog("close");
 			});
 	}
@@ -42,17 +46,17 @@
 	<form id="loginForm" onsubmit="return false;">
 		<div class="left" style="width:100px;">COMPANY</div>
 		<div class="left">
-			<input name="company" type="text" class="inputBox" style="width:175px;" value="uangel"/>
+			<input name="company" type="text" class="inputBox" style="width:175px;"/>
 		</div>
 		<div class="clear"></div>
 		<div class="left" style="width:100px;">ID</div>
 		<div class="left">
-			<input name="loginId" type="text" class="inputBox" style="width:175px;" value="sales"/>
+			<input name="loginId" type="text" class="inputBox" style="width:175px;"/>
 		</div>
 		<div class="clear"></div>
 		<div class="left" style="width:100px;">PASSWORD</div>
 		<div class="left">
-			<input name="password" type="password" class="inputBox" style="width:175px;" value="sales100" />
+			<input name="password" type="password" class="inputBox" style="width:175px;"/>
 		</div>
 		<div class="clear"></div>
 		<div>

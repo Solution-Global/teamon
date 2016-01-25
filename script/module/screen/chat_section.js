@@ -3,10 +3,12 @@
 var constants = require("../constants");
 
 var chatSection = (function() {
+  const MESSAGE_TYPE_APPEND = 1;
+  const MESSAGE_TYPE_PREPEND = 2;
+
   var myPref;
+  var activeChatInfo;
   var connSection;
-  var activeChatId;
-  var activeChatType;
   var asideSection;
   var chatModule = require('../chat');
 
@@ -20,6 +22,7 @@ var chatSection = (function() {
   var $inputText;
   var $btnSend;
   var msgTemplate;
+  var dateLineTemplate;
 
   function _initialize(pref, connSec, asideSec) {
     myPref = pref;
@@ -35,6 +38,8 @@ var chatSection = (function() {
     $inputText = $inputMsg.find('.input_text');
     $btnSend = $inputMsg.find('.btn_send');
     msgTemplate = $contentArea.find('#msg-template').html();
+    dateLineTemplate = $contentArea.find('#dateline-template').html();
+
 
     // bind events
     $btnSend.on('click', sendMsg);
@@ -82,6 +87,55 @@ var chatSection = (function() {
     }
   }
 
+  function _displayMessages(type, value) {
+    var messageTags = $mcsbContainer.find(".msg_set");
+    if(Array.isArray(value)) {
+      if(MESSAGE_TYPE_APPEND === type) {
+        for (var key = 0; key < value.length; key++) {
+          if(value[key - 1] && value[key - 1].date != value[key].date) {
+            $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value[key].date)));
+          }
+
+          $mcsbContainer.append(Mustache.render(msgTemplate, _getMsgJsonForm(value[key])));
+        }
+        $contentArea.mCustomScrollbar("scrollTo", "bottom");
+      } else {
+        // prepend mode
+        var firstDate = messageTags ? messageTags.first().data("date") : undefined;
+        for (var key = (value.length-1); key > -1; key--) {
+          $mcsbContainer.prepend(Mustache.render(msgTemplate, _getMsgJsonForm(value[key])));
+
+          if (key === (value.length-1)) {
+            if(firstDate && value[key].date != firstDate) {
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, _getDateLineJsonForm(firstDate)));
+            }
+          } else {
+            if(value[key - 1] && value[key - 1].date != value[key].date) {
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value[key].date)));
+            }
+          }
+        }
+      }
+    } else {
+      if(MESSAGE_TYPE_APPEND === type) {
+        var lastDate = messageTags ? messageTags.last().data("date"): undefined;
+        if(lastDate && value.date != lastDate) {
+          $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value.date + "-5")));
+        }
+        $mcsbContainer.append(Mustache.render(msgTemplate, _getMsgJsonForm(value)));
+        $contentArea.mCustomScrollbar("scrollTo", "bottom");
+      }
+    }
+  }
+
+  function _getMsgJsonForm(message) {
+    // Mustache 사용하기 때문에 {msg : []} format을 유지 한다.
+    return {"msg" : [message]};
+  }
+  function _getDateLineJsonForm(date) {
+    return {"dateline" : [{"date" : date}]};
+  }
+
   function _handleMsg(myId, payloadStr) {
     /*
       msgPayload = {
@@ -96,11 +150,7 @@ var chatSection = (function() {
       }
     */
     var msgPayload = JSON.parse(payloadStr);
-
     var lastmsgid = parseInt(msgPayload.lastmsgid);
-    var message = msgPayload.msg.toString();
-    var userObj = connSection.getUserObj(msgPayload.publisher);
-    var sender = (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]";
     var sendMode = myId === msgPayload.publisher;
 
     // todo lastmsgid와 locallast 값을 비교하여 처리 (현재는 locallast값이 lastmsgid와 동일하다고 가정)
@@ -114,34 +164,28 @@ var chatSection = (function() {
       }
 
       if(myId === msgPayload.publisher || myId === msgPayload.receiver ) {
-        // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
-        var imgIdx = (msgPayload.publisher * 1) % 10;
-        var recvData = {
-          "msg": [{
-            "msgId": msgPayload.msgid,
-            "mode": sendMode ? "send" : "receive", // send or receive
-            "img": "../img/profile_img" + imgIdx + ".jpg",
-            "imgAlt": sender,
-            "sender": sender,
-            "msgText": message,
-            "time": new Date(msgPayload.time).format("a/p hh mm")
-          }]
+
+        var userObj = connSection.getUserObj(msgPayload.publisher);
+        var params = {
+          spkrId : msgPayload.publisher,
+          dcId : msgPayload.msgid,
+          msg : msgPayload.msg.toString(),
+          targetLoginId : (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]",
+          creTime : msgPayload.time
         };
 
-        if(activeChatType === msgPayload.chatType && (activeChatId  === msgPayload.publisher || activeChatId === msgPayload.receiver)) {
-          $mcsbContainer.append(Mustache.render(msgTemplate, recvData));
+        var message = messageManager.madeMessageUnit(params);
+        if(activeChatInfo.chatType === msgPayload.chatType && (activeChatInfo.chatId  === msgPayload.publisher || activeChatInfo.chatId === msgPayload.receiver)) {
+          _displayMessages(MESSAGE_TYPE_APPEND, message);
           $contentArea.mCustomScrollbar("scrollTo", "bottom");
         } else {
           connSection.setAlarmCnt(msgPayload.publisher);
         }
 
-        // Store Resource
-        temonStrorage.appendChatMessage(recvData.msg[0], activeChatType, (sendMode ?  msgPayload.receiver : msgPayload.publisher));
-
-      } else {
-        // 로그인한 사용자의 chatting 이 아니라 무시
+        // Store messages
+        messageManager.appendChatMessage(message, activeChatInfo.chatType, (sendMode ?  msgPayload.receiver : msgPayload.publisher));
       }
-     }
+    }
   }
 
   function _handlePresence(topic, payloadStr) {
@@ -161,23 +205,37 @@ var chatSection = (function() {
     chatModule.configMyInfo(coId, emplId, loginId, recvMsg);
   }
 
-  function changeChatView(chatType, chatId, title) {
-    console.log("chatType:%s, chatId:%s, title:%s",chatType, chatId, title);
-    activeChatId = chatId;
-    activeChatType = chatType;
+  function changeChatView(chatType, chatId, loginId) {
+    console.log("chatType:%s, chatId:%s, loginId:%s",chatType, chatId, loginId);
 
-    $title.html(title);
+    activeChatInfo = {
+      chatId : chatId,
+      chatType : chatType,
+      loginId : loginId
+    };
+
+    $title.html(loginId);
     $.each($contentArea.find(".msg_set"), function(idx, row) {
+      $(row).remove(); // remove chatting texts
+    });
+
+    $.each($contentArea.find(".date_line"), function(idx, row) {
       $(row).remove(); // remove chatting texts
     });
 
     connSection.hideAlram(chatId); // init Alram
 
-    var messageArray = temonStrorage.getChatMessage(activeChatType, activeChatId);
+    var messageArray = messageManager.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatId); // get previous messages
     if(messageArray) {
-      $mcsbContainer.append(Mustache.render(msgTemplate, messageArray));
-      $contentArea.mCustomScrollbar("scrollTo", "bottom");
+      _displayMessages(MESSAGE_TYPE_APPEND, messageArray);
     }
+  }
+
+
+  function getPreviousMessage() {
+    messageManager.getPreviousChatMessage(activeChatInfo.chatType, activeChatInfo.chatId, activeChatInfo.loginId, function(messageArray) {
+      _displayMessages(MESSAGE_TYPE_PREPEND, messageArray);
+    });
   }
 
   function finalize() {
@@ -189,7 +247,8 @@ var chatSection = (function() {
     recvMsg: recvMsg,
     initChatSection: initChatSection,
     changeChatView: changeChatView,
-    finalize: finalize
+    finalize: finalize,
+    getPreviousMessage: getPreviousMessage
   };
 })();
 

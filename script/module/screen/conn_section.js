@@ -50,6 +50,7 @@ var connSection = (function() {
       if (data.rows) {
         $.each(data.rows, function(idx, row) {
           userCache.set(row.emplId, row); // add each employee into userCache.
+
           if (row.emplId === myPref.emplId)
             return;
 

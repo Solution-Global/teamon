@@ -80,7 +80,7 @@
 					<!-- // msg-template -->
 					<script id="msg-template" type="text/template">
 						{{#msg}}
-						<div class="msg_set {{mode}}">
+						<div class="msg_set {{mode}}" data-date="{{date}}">
 							<div class="img">
 								<img src="{{img}}" alt="{{imgAlt}}">
 							</div>
@@ -95,6 +95,14 @@
 							</div>
 						</div>
 						{{/msg}}
+					</script>
+					<!-- // dateline-template -->
+					<script id="dateline-template" type="text/template">
+						{{#dateline}}
+						<div class="date_line">
+							<span class="date"><span>{{date}}</span></span>
+						</div>
+						{{/dateline}}
 					</script>
 				</div>
 
@@ -148,6 +156,7 @@
 
 		<script src="../script/dist/bundle.js" charset="utf-8"></script>
 		<script src="../script/dist/ext/janus.js" charset="utf-8"></script>
+		<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
 		<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
 	</body>
 
