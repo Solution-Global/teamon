@@ -1,14 +1,16 @@
+var constants = require("../constants");
+
 var Client = require('node-rest-client').Client;
 var RestCommon = (function(){
   this.client = new Client();
   this.commonHeaders = {
-    "X-UANGEL-USER" : "system",
-    "X-UANGEL-CHANNEL" : "junit",
-    "X-UANGEL-AUTHID" : "test",
-    "X-UANGEL-AUTHKEY" : "e7575605-3d58-491f-8413-d11f5a2c7c3c",
-    "Content-Type" : "application/x-www-form-urlencoded"
+    "X-UANGEL-USER" : constants.API_HEADER_X_UANGEL_USER,
+    "X-UANGEL-CHANNEL" : constants.API_HEADER_X_UANGEL_CHANNEL,
+    "X-UANGEL-AUTHID" : constants.API_HEADER_X_UANGEL_AUTHID,
+    "X-UANGEL-AUTHKEY" : constants.API_HEADER_X_UANGEL_AUTHKEY,
+    "Content-Type" : constants.API_HEADER_Content_Type
   };
-  this.apiurl = "http://192.168.1.164:7587/rest";
+  this.apiurl = constants.API_URL;
 });
 
 module.exports = RestCommon

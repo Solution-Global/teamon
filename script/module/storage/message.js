@@ -37,14 +37,20 @@ var message = (function(storage, pref) {
 
   var storageManager = storage;
   var myPref = pref;
-  var chatFirstMessagIdJson = {"direct": {}, "group": {}};
-  var chatLastMessagIdJson = {"direct": {}, "group": {}};
+  var chatFirstMessagIdJson = {
+    "direct": {},
+    "group": {}
+  };
+  var chatLastMessagIdJson = {
+    "direct": {},
+    "group": {}
+  };
 
   function _readAll(params) {
     var keyName = _getKeyName(params);
     var value = storageManager.getValue(keyName);
 
-    if(value) {
+    if (value) {
       switch (params.keyType) {
         case KEY_TYPE_CHAT_FIRST_MESSAGE_ID:
           chatFirstMessagIdJson = JSON.parse(value);
@@ -77,21 +83,21 @@ var message = (function(storage, pref) {
     var keyName;
     switch (params.keyType) {
       case KEY_TYPE_CHAT_MESSAGES:
-        keyName =  "CHAT_" +  params.chatType + "_" + myPref.emplId + "_" + params.targetEmplId;
-      break;
+        keyName = "CHAT_" + params.chatType + "_" + myPref.emplId + "_" + params.targetEmplId;
+        break;
       case KEY_TYPE_CHAT_FIRST_MESSAGE_ID:
-        keyName =  "CHAT_FIRST_MSGID_" + myPref.emplId;
-      break;
+        keyName = "CHAT_FIRST_MSGID_" + myPref.emplId;
+        break;
       case KEY_TYPE_CHAT_LAST_MESSAGE_ID:
-        keyName =  "CHAT_LAST_MSGID_" + myPref.emplId;
-      break;
+        keyName = "CHAT_LAST_MSGID_" + myPref.emplId;
+        break;
     }
     return keyName;
   }
 
   function _getChatTypeToStr(chatType) {
     var chatTypeStr = "direct";
-    if(chatType === constants.GROUP_CHAT)
+    if (chatType === constants.GROUP_CHAT)
       chatTypeStr = "group";
 
     return chatTypeStr;
@@ -99,7 +105,7 @@ var message = (function(storage, pref) {
 
   // Local DB에 저장되는 Message Unit의 포맷 설정
   function madeMessageUnit(params) {
-    var sendMode =  myPref.emplId === params.spkrId;
+    var sendMode = myPref.emplId === params.spkrId;
     var sender = sendMode ? myPref.loginId : params.targetLoginId;
     // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
     var imgIdx = (params.spkrId * 1) % 10;
@@ -133,7 +139,7 @@ var message = (function(storage, pref) {
     _readAll(params);
 
     var chatType = _getChatTypeToStr(params.chatType);
-    if(!chatFirstMessagIdJson[chatType])
+    if (!chatFirstMessagIdJson[chatType])
       return;
 
     return chatFirstMessagIdJson[chatType][String(params.targetEmplId)];
@@ -154,7 +160,7 @@ var message = (function(storage, pref) {
     _readAll(params);
 
     var chatType = _getChatTypeToStr(params.chatType);
-    if(!chatLastMessagIdJson[chatType])
+    if (!chatLastMessagIdJson[chatType])
       return;
 
     return chatLastMessagIdJson[chatType][String(params.targetEmplId)];
@@ -163,31 +169,31 @@ var message = (function(storage, pref) {
   // 모든 메시지 가져오기
   function getAllChatMessage(chatType, targetEmplId) {
     var params = {
-      "keyType" : KEY_TYPE_CHAT_MESSAGES,
-      "chatType" : chatType,
-      "targetEmplId" : targetEmplId
+      "keyType": KEY_TYPE_CHAT_MESSAGES,
+      "chatType": chatType,
+      "targetEmplId": targetEmplId
     };
 
     var value = _readAll(params);
-    if(value)
+    if (value)
       return JSON.parse("[" + value + "]");
   }
 
   function _prependChatMessage(value, chatType, targetEmplId) {
     var params = {
-      "chatType" : chatType,
-      "targetEmplId" : targetEmplId
+      "chatType": chatType,
+      "targetEmplId": targetEmplId
     };
 
     var message = JSON.stringify(value);
-    if(Array.isArray(value)) {
+    if (Array.isArray(value)) {
       // 배열일 때 첫 글자와 마지막 삭제
-      message = message.slice(1,message.length -1);
+      message = message.slice(1, message.length - 1);
     }
 
     params.keyType = KEY_TYPE_CHAT_MESSAGES;
     var storredMessages = _readAll(params);
-    if(storredMessages) {
+    if (storredMessages) {
       storredMessages = (message + ",") + storredMessages;
       params.value = storredMessages;
       params.keyType = KEY_TYPE_CHAT_MESSAGES;
@@ -199,27 +205,27 @@ var message = (function(storage, pref) {
 
   function appendChatMessage(value, chatType, targetEmplId) {
     var params = {
-      "chatType" : chatType,
-      "targetEmplId" : targetEmplId
+      "chatType": chatType,
+      "targetEmplId": targetEmplId
     };
 
     var message = JSON.stringify(value);
     var msgId;
-    if(Array.isArray(value)) {
+    if (Array.isArray(value)) {
       // 배열일 때 첫 글자와 마지막 삭제
-      message = message.slice(1,message.length -1);
-      msgId = value[value.length-1].msgId;
+      message = message.slice(1, message.length - 1);
+      msgId = value[value.length - 1].msgId;
     } else {
       msgId = value.msgId;
     }
 
     params.keyType = KEY_TYPE_CHAT_MESSAGES;
     var storredMessages = _readAll(params);
-    if(storredMessages) {
+    if (storredMessages) {
       storredMessages = storredMessages + ("," + message);
     } else {
       storredMessages = message;
-      params.value = value[0].msgId;
+      params.value = value.msgId;
       _setChatFirstMessageId(params);
     }
 
@@ -233,12 +239,17 @@ var message = (function(storage, pref) {
   // Local Stroage 저장된 파일에서 과거 메시지 가져와 local storage에 저장
   function getPreviousChatMessage(chatType, targetEmplId, targetLoginId, callback) {
     var restPrams = {
+      "coId": myPref.coId,
+      "chatType": chatType,
       "peer1": Math.min.apply(null, [myPref.emplId, targetEmplId]),
       "peer2": Math.max.apply(null, [myPref.emplId, targetEmplId])
     };
 
-    var firstMsgId = _getChatFirstMessageId({"chatType" : chatType, "targetEmplId" : targetEmplId});
-    if(firstMsgId) {
+    var firstMsgId = _getChatFirstMessageId({
+      "chatType": chatType,
+      "targetEmplId": targetEmplId
+    });
+    if (firstMsgId) {
       restPrams.firstMsgId = firstMsgId;
     }
 
@@ -257,16 +268,23 @@ var message = (function(storage, pref) {
 
   // 서버에 저장된 message와 LocalDB sync, 처음 login시 한번 실행
   function syncChatMessage() {
-    restResourse.empl.getListByCoid({ "coId": myPref.coId }, function(emplData) {
+    restResourse.empl.getListByCoid({
+      "coId": myPref.coId
+    }, function(emplData) {
       if (emplData.rows.length > 0) {
         $.each(emplData.rows, function(idx, emplRow) {
           var restPrams = {
+            "coId": myPref.coId,
+            "chatType": constants.DIRECT_CHAT,
             "peer1": Math.min.apply(null, [myPref.emplId, emplRow.emplId]),
             "peer2": Math.max.apply(null, [myPref.emplId, emplRow.emplId])
           };
 
-          var lastMsgId = _getChatLastMessageId({"chatType" : constants.DIRECT_CHAT, "targetEmplId" : emplRow.emplId});
-          if(lastMsgId) {
+          var lastMsgId = _getChatLastMessageId({
+            "chatType": constants.DIRECT_CHAT,
+            "targetEmplId": emplRow.emplId
+          });
+          if (lastMsgId) {
             restPrams.lastMsgId = lastMsgId;
           }
 

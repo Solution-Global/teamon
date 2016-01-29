@@ -1,5 +1,6 @@
 // By convention, we name a constructor function by capitalizing the first letter.
 // Constructor functions should always be called with the new operator.
+var constants = require("../constants");
 var RestCommon = require("./rest_common");
 
 var Empl = (function() {
@@ -15,18 +16,18 @@ Empl.prototype.getListByCoid = function(params, callback) {
         "coId" : params.coId
       },
       parameters : {
-        "limit" : params.limit ? params.limit : 10,
-        "offset" : params.offset ? params.offset : 0,
+        "limit" : params.limit ? params.limit : constants.COMMON_SEARCH_COUNT,
+        "offset" : params.offset ? params.offset : constants.COMMON_SEARCH_OFFSET,
         "sIdx" : params.sIdx ? params.sIdx : "loginid",
-        "sOrder" : params.sOrder ? params.sOrder : "asc"
+        "sOrder" : params.sOrder ? params.sOrder : constants.COMMON_SEARCH_ORDER_ASC
       },
       headers: self.restCommon.commonHeaders
     };
-    self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${coId}", args,
+    self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${coId}", args,
       function(data, response){
         callback(data);
     }).on('error',function(err){
-      console.log('something went wrong on the request', err.request.options);
+      console.error('something went wrong on the request', err.request.options);
     });
   }
 
