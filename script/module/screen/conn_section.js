@@ -21,7 +21,7 @@ var connSection = (function() {
     asideSection = asideSec;
 
     $connSec = $(".connection_section");
-    $userListContext = $connSec.find('.users_area .list');
+    $userListContext = $connSec.find('.chat-users .users-list');
     userTemplate = $userListContext.find('#user-template').html();
 
     // set event for direct chatting

@@ -34,8 +34,8 @@ var chatSection = (function() {
     $title = $titleArea.find(".tit");
     $contentArea = $chatSec.find('.content_area');
     $mcsbContainer = $contentArea.find('.mCSB_container');
-    $inputMsg = $chatSec.find('.input_message');
-    $inputText = $inputMsg.find('.input_text');
+    $inputMsg = $chatSec.find('.chat-message-form');
+    $inputText = $inputMsg.find('.message-input');
     $btnSend = $inputMsg.find('.btn_send');
     msgTemplate = $contentArea.find('#msg-template').html();
     dateLineTemplate = $contentArea.find('#dateline-template').html();
@@ -88,7 +88,7 @@ var chatSection = (function() {
   }
 
   function _displayMessages(type, value) {
-    var messageTags = $mcsbContainer.find(".msg_set");
+    var messageTags = $mcsbContainer.find(".chat-message");
     if(Array.isArray(value)) {
       if(MESSAGE_TYPE_APPEND === type) {
         for (var key = 0; key < value.length; key++) {
@@ -120,7 +120,7 @@ var chatSection = (function() {
       if(MESSAGE_TYPE_APPEND === type) {
         var lastDate = messageTags ? messageTags.last().data("date"): undefined;
         if(lastDate && value.date != lastDate) {
-          $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value.date + "-5")));
+          $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value.date)));
         }
         $mcsbContainer.append(Mustache.render(msgTemplate, _getMsgJsonForm(value)));
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
@@ -215,7 +215,7 @@ var chatSection = (function() {
     };
 
     $title.html(loginId);
-    $.each($contentArea.find(".msg_set"), function(idx, row) {
+    $.each($contentArea.find(".chat-message"), function(idx, row) {
       $(row).remove(); // remove chatting texts
     });
 

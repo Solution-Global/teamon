@@ -106,7 +106,7 @@ var message = (function(storage, pref) {
 
     var message = {
       "msgId": params.dcId,
-      "mode": sendMode ? "send" : "receive", // send or receive
+      "mode": sendMode ? "right" : "left", // send : right or receive : left
       "img": "../img/profile_img" + imgIdx + ".jpg",
       "imgAlt": sender,
       "sender": sender,

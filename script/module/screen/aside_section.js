@@ -28,7 +28,7 @@ var asideSection = (function() {
 
     $asideSec = $(".aside_section");
     $titleArea = $asideSec.find(".title_area");
-    $title = $titleArea.find(".tit");
+    $title = $titleArea.find(".ibox-title");
     $contentArea = $asideSec.find('.content_area');
     $infoArea = $contentArea.find('.info_area');
     $info = $infoArea.find(".tit");

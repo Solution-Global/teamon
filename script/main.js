@@ -1,5 +1,8 @@
 window.$ = window.jQuery = require('jquery');
 require('jquery-ui');
+require('bootstrap');
+require('metismenu');
+require('malihu-custom-scrollbar-plugin')($);
 var Mustache = require('mustache');
 // var chat = require('../script/module/chat.js');
 var connSection = require('../script/module/screen/conn_section.js');
@@ -12,7 +15,6 @@ var preference = require('../script/module/storage/preference.js');
 var messageManager = require('../script/module/storage/message.js');
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
-  require('malihu-custom-scrollbar-plugin')($);
 
   bindEvents();
   $(window).resize();
@@ -40,7 +42,7 @@ function initLoginStatus() {
 
     initScreenSection();
   } else {
-    openLoginPopup();
+    $('#loginModal').modal('show');
   }
 }
 
@@ -54,68 +56,202 @@ function initScreenSection() {
   asideSection.initAsideSection(myPref, connSection, chatSection);
 }
 
-function openLoginPopup() {
-  $.get("file://" + path.join(__dirname, '/popup/login_pop.html'), function(data) {
-    var options = {
-      buttons: [{
-        text: "Log In",
-        click: function() {
-          loginSubmit();
-        }
-      }],
-      show: {
-        effect: "blind",
-        duration: 800
-      },
-      modal: true,
-      width: 350,
-      heght: 500,
-      closeOnEscape: false,
-      open: function(event, ui) {
-        $(".ui-dialog-titlebar-close").hide();
-      }
-    };
-    $("#dialog").text("").html(data).dialog(options).dialog("open");
-  }).error(function() {
-    alert("Connection Error");
-  });
+function loginSubmit() {
+  var loginIdObj = $("#loginForm").find("[name=loginId]");
+  var passwordObj = $("#loginForm").find("[name=password]");
+  var companyObj = $("#loginForm").find("[name=company]");
+  var rememberMe = $("#loginForm").find("[name=rememberMe]");
+  var params = {
+    "company": companyObj.val(),
+    "loginId": loginIdObj.val(),
+    "password": passwordObj.val(),
+  }
+
+  restResourse.login.login(params,
+    function(data) {
+
+      myPref = {
+        "company": params.company,
+        "loginId": params.loginId,
+        "emplId": data.emplId ? Number(data.emplId) : null,
+        "coId": data.coId ? Number(data.coId) : null
+      };
+
+      initScreenSection();
+
+      // set the personal pref info first to use it around the app.
+      preference = preference(storageManager, data.emplId); // init preference
+
+      if(rememberMe.is(":checked"))
+        storageManager.setValue("remeberEmplId", data.emplId);
+      preference.setPerference("company", params.company);
+      preference.setPerference("loginId", params.loginId);
+      preference.setPerference("emplId", data.emplId);
+      preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
+
+      $("#dialog").dialog("close");
+    });
 }
 
 function bindEvents() {
-  $(window).on("orientationchange resize", function() {
-    var wrapHeight = $(window).height();
-    $('.connection_section .inner_box').css('height', wrapHeight - $('.connection_section .header').outerHeight());
-    $('.chat_section .content_area').css('height', wrapHeight - $('.chat_section .title_area').outerHeight() - $('.chat_section .input_message').outerHeight() - 30);
-    $('.aside_section .content_area').css('height', wrapHeight - $('.aside_section .title_area').outerHeight() - 30);
+
+  // adjust height when resize
+  function _resize() {
+    var headerHeight = $(".header_section").outerHeight(true);
+    var chatInputHeight = $(".chat_section .ibox-footer").outerHeight(true);
+    var asideHeaderHeight =  $(".aside_section .ibox-title").outerHeight(true);
+    var connectHeaderHeight = $(".connection_section .nav-header").outerHeight(true);
+    var connectChannelsHeight = $(".connection_section .channels-link").outerHeight(true);
+    var connectUsersHeight = $(".connection_section .users-link").outerHeight(true);
+    var defaultHeight = 3;
+
+    if(!headerHeight || !chatInputHeight || !asideHeaderHeight || !connectHeaderHeight || !connectChannelsHeight || !connectUsersHeight)
+      console.error("There is no HTML tag.");
+
+    var scrollHeight = $(window).height() - connectHeaderHeight - connectChannelsHeight - connectUsersHeight - defaultHeight;
+    var chatHeight =  $(window).height() - headerHeight - chatInputHeight - defaultHeight;
+    var asideHeight =  $(window).height() - headerHeight - asideHeaderHeight - defaultHeight;
+
+    $('.connection_section .chat-channels').css('height', scrollHeight * 0.3 );
+    $('.connection_section .chat-users').css('height', scrollHeight * 0.7 );
+
+    $('.chat_section .content_area').css('height', chatHeight);
+    $('.aside_section .content_area').css('height', asideHeight);
+  }
+
+  _resize(); // run fist time basically
+  $(window).resize(function() {
+    _resize();
   });
 
   $(window).on('beforeunload', function() {
     console.log("Closing window");
-
     chatSection.finalize();
   });
+
+  // Close ibox function
+  $('.aside_section .aside-close-link').click(function() {
+    adjustAsideArea();
+  });
+
+  $('.header_section .call-menulink').click(function() {
+    adjustAsideArea(true);
+  });
+
+  // bind login Modal event
+  $("#loginForm").validate({
+     rules: {
+         company: {
+             required: true,
+             minlength: 6
+         },
+         loginId: {
+             required: true,
+             minlength: 4
+         },
+         password: {
+             required: true,
+             minlength: 6
+         }
+     }
+  });
+
+  $('#loginModal .sign-in').click(function() {
+    loginSubmit();
+  });
+
+}
+
+function loginSubmit() {
+  if(!$("#loginForm").valid())
+    return;
+
+  var loginIdObj = $("#loginForm").find("[name=loginId]");
+  var passwordObj = $("#loginForm").find("[name=password]");
+  var companyObj = $("#loginForm").find("[name=company]");
+  var rememberMe = $("#loginForm").find("[name=rememberMe]");
+  var params = {
+    "company": companyObj.val(),
+    "loginId": loginIdObj.val(),
+    "password": passwordObj.val(),
+  }
+
+  restResourse.login.login(params,
+    function(data) {
+
+      myPref = {
+        "company": params.company,
+        "loginId": params.loginId,
+        "emplId": data.emplId ? Number(data.emplId) : null,
+        "coId": data.coId ? Number(data.coId) : null
+      };
+
+      initScreenSection();
+
+      // set the personal pref info first to use it around the app.
+      preference = preference(storageManager, data.emplId); // init preference
+
+      if(rememberMe.is(":checked"))
+        storageManager.setValue("remeberEmplId", data.emplId);
+      preference.setPerference("company", params.company);
+      preference.setPerference("loginId", params.loginId);
+      preference.setPerference("emplId", data.emplId);
+      preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
+
+      $("#loginModal").modal("hide");
+    });
+}
+
+function adjustAsideArea(isOpen) {
+  var chatSection = $('.chat_section');
+  var asideIbox = $(".aside_section .ibox");
+  if(isOpen || chatSection.hasClass("col-xs-12 col-lg-12")) {
+    console.log("open");
+    chatSection.removeClass("col-xs-12 col-lg-12").addClass( "col-xs-9 col-lg-9" );
+    asideIbox.show(500);
+  } else {
+    console.log("hide");
+    chatSection.removeClass("col-xs-9 col-lg-9").addClass( "col-xs-12 col-lg-12" );
+    asideIbox.hide();
+  }
 }
 
 function initCustomScrollbar() {
-  $('.connection_section .inner_box').mCustomScrollbar({
-    axis: "y",
-    scrollInertia: 100,
-    theme: "light-thick"
-  });
-
   $('.chat_section .content_area').mCustomScrollbar({
-    axis: "y",
-    scrollInertia: 100,
-    theme: "dark-thick",
+    axis:"y",
+    setWidth: "auto",
+    theme:"3d",
     callbacks:{
-        onScroll:function(){
-          if(this.mcs.top === 0) {
-            chatSection.getPreviousMessage(this.mcs.draggerTop);
-          }
+      onScroll:function(){
+        if(this.mcs.top === 0) {
+          chatSection.getPreviousMessage(this.mcs.draggerTop);
         }
-    }
+      }
+    },
+    onTotalScrollOffset:100,
+    alwaysTriggerOffsets:false
   }).mCustomScrollbar("scrollTo", "bottom");
 
+  $('.aside_section .content_area').mCustomScrollbar({
+    axis:"y",
+		setWidth: "auto",
+    theme:"3d",
+  });
+
+  var scrollHeight = $(window).height() - 230;
+  $('.connection_section .chat-channels').mCustomScrollbar({
+    axis:"y",
+		setWidth: "auto",
+    setHeight:  scrollHeight * 0.3,
+    theme:"3d",
+  });
+
+  $('.connection_section .chat-users').mCustomScrollbar({
+    axis:"y",
+		setWidth: "auto",
+    setHeight:  scrollHeight * 0.7,
+    theme:"3d"
+  });
 }
 
 $(document).ready(function() {
