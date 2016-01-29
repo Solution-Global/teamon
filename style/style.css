@@ -4978,10 +4978,12 @@ dd.project-people {
   text-transform: uppercase;
 }
 /* Chat view */
+/*
 .message-input {
   height: 90px !important;
   resize:none;
 }
+*/
 .chat-avatar {
   white: 30px;
   height: 30px;
@@ -5027,8 +5029,8 @@ dd.project-people {
   padding: 10px 20px;
 }
 .message-avatar {
-  height: 40px;
-  width: 40px;
+  height: 55px;
+  width: 55px;
   border: 1px solid #e7eaec;
   border-radius: 4px;
   margin-top: 1px;
@@ -8284,6 +8286,3 @@ h1:after {
    padding: 0 !important;
    margin: 0 !important;
 }
-.left {float: left;}
-.right {float: right;}
-.clear {clear: both; height: 0px; width: 0px; overflow: hidden;}

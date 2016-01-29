@@ -1,7 +1,7 @@
 'use strict';
 
 var constants = require("../constants");
-var CallClient = require('../call.js');
+var CallClient = require('../call_client.js');
 
 var asideSection = (function() {
   var myPref;

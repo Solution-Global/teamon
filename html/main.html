@@ -1,162 +1,246 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title></title>
-	<link rel="stylesheet" href="../style/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css" />
-	<link rel="stylesheet" href="../style/simple-line-icons-webfont/simple-line-icons.css" media="screen" />
-	<link rel="stylesheet" href="../style/font-awesome/css/font-awesome.min.css" media="screen" />
-	<link rel="stylesheet" href="../style/common.css" />
-	<link rel="stylesheet" href="../style/jquery/jquery-ui.min.css" />
-
-	<body>
-		<div id="dialog"></div>
-		<div id="wrap">
-			<!-- 목록 -->
-			<div class="connection_section">
-				<div class="header">
-					<h1 class="logo">
-						<a href="#">
-							<img src="../img/logo_uangel.png" width="150" height="50" alt="유엔젤">
-						</a>
-					</h1>
-
-					<div class="public_area">
-						<a href="#"><i class="fa fa-user"></i>프로필</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-						<a href="#"><i class="fa fa-cog"></i>설정</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-						<a href="#"><i class="fa fa-power-off"></i>로그아웃</a>
-					</div>
-				</div>
-
-				<div class="inner_box">
-					<div class="channels_area">
-						<h2 class="tit"><i class="icon-users"></i>Channels</h2>
-
-						<ul class="list">
-							<li><a href="#">Solution Dep</a></li>
-							<li><a href="#">Global Biz</a></li>
-							<li><a href="#">FC 유엔젤<span class="alarm">2</span></a></li>
-							<li class="btn">
-								<button type="button" class="btn_join_channel"><i class="fa fa-plus"></i>Join channels..</button>
-							</li>
-						</ul>
-					</div>
-
-					<div class="users_area">
-						<h2 class="tit"><i class="icon-user"></i>Users</h2>
-						<ul class="list">
-							<!-- // user-template -->
-							<script id="user-template" type="text/template">
-								{{#user}}
-								<li data-emplid="{{emplId}}" data-loginid="{{loginId}}">
-									<a href="#">
-										<span class="img">
-											<img src="{{img}}" alt="{{imgAlt}}">
-										</span>
-										<span class="loginId">{{loginId}}</span>
-										<span class="hide alarm">{{alarmCnt}}</span></a>
-									</a>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Team ON | The ultimate messenger</title>
+<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="../style/font-awesome/css/font-awesome.min.css" media="screen"/>
+<link rel="stylesheet" href="../node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css"/>
+<link rel="stylesheet" href="../node_modules/jquery-ui/themes/base/minified/jquery-ui.min.css"/>
+<link rel="stylesheet" href="../style/animate.css"/>
+<link rel="stylesheet" href="../style/style.css"/>
+</head>
+<body>
+<div id="wrap">
+	<!-- 목록 -->
+	<nav class="connection_section navbar-default navbar-static-side" role="navigation">
+	<div class="sidebar-collapse">
+		<ul class="nav metismenu" id="side-menu">
+			<li class="nav-header">
+			<div class="profile-element">
+				<span>
+				<img alt="image" src="../img/logo_uangel.png"/>
+				</span>
+			</div>
+			<div class="public_area">
+				<a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp; <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp; <a href="#" data-toggle="modal" data-target="#loginModal"><i class="fa fa-power-off"></i> Sign-out</a>
+			</div>
+			</li>
+			<li class="active">
+			<a class="channels-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Channels</span></a>
+			<div class="chat-channels">
+				<ul class="nav nav-second-level">
+					<li><a href="#">Solution Dep</a></li>
+					<li><a href="#">Global Biz</a></li>
+					<li><a href="#">FC 유엔젤</a></li>
+					<li><a href="#">Solution Dep</a></li>
+					<li><a href="#">Global Biz</a></li>
+					<li><a href="#">FC 유엔젤</a></li>
+					<li><a href="#"><i class="fa fa-plus"></i>Join channels..</a></li>
+				</ul>
+			</div>
+			</li>
+			<li class="active">
+			<a class="users-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Users</span></a>
+			<div class="chat-users">
+				<ul class="nav nav-second-level users-list">
+					<script id="user-template" type="text/template">
+              {{#user}}
+              <li data-emplid="{{emplId}}" data-loginid="{{loginId}}" class="chat-user">
+                  <a href="#">
+                      <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
+                      <div class="chat-user-name ellipsis">
+                          {{loginId}}
+                          <span class="badge badge-warning right hide alarm">{{alarmCnt}}</span>
+                      </div>
+                  </a>
+              </li>
+              {{/user}}
+          </script>
+				</ul>
+			</div>
+			</li>
+		</ul>
+	</div>
+	</nav>
+	<!-- // 목록 -->
+	<div id="page-wrapper" class="gray-bg dashbard-1">
+		<div class="row">
+			<div class="col-lg-12 nopadding">
+				<div class="header_section ibox nopadding">
+					<div class="title_area ibox-title">
+						<h5 class="tit"> Chat room panel </h5>
+						<div class="ibox-tools">
+							<input type="text" placeholder=" Search ...">
+							<a href="#"><i class="fa fa-at fa-lg"></i></a>
+							<a href="#"><i class="fa fa-star-o fa-lg"></i></a>
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+							<i class="fa fa-list fa-lg"></i>
+							</a>
+							<ul class="dropdown-menu dropdown-user">
+								<li><a class="call-menulink">Call</a>
 								</li>
-								{{/user}}
-							</script>
-						</ul>
+								<li><a href="#">Your files</a>
+								</li>
+								<li><a href="#">All files</a>
+								</li>
+								<li><a href="#">Help</a>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</div>
-			<!-- // 목록 -->
-
-			<!-- 채팅창 -->
-			<div class="chat_section">
-				<div class="title_area">
-					<h3 class="tit">&nbsp;</h3>
-					<div class="tools">
-						<button type="button" class="btn_chat_setting"><i class="fa fa-cog"></i></button>
+			<div class="col-lg-12">
+				<div class="row">
+					<!-- 채팅창 -->
+					<div class="chat_section col-xs-9 col-lg-9">
+						<div class="animated fadeInRight">
+							<div class="row">
+								<div class="ibox chat-view nopadding">
+									<div class="ibox-content">
+										<div class="content_area chat-discussion">
+											<!-- // msg-template -->
+											<script id="msg-template" type="text/template">
+                        {{#msg}}
+                        <div class="chat-message {{mode}}" data-date="{{date}}">
+                          <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}">
+                          <div class="message">
+                            <a class="message-author" href="#">{{sender}}</a>
+                            <span class="message-date">{{time}}</span>
+                            <span class="message-content">
+                              {{msgText}}
+                            </span>
+                          </div>
+                        </div>
+                        {{/msg}}
+                      </script>
+											<!-- // dateline-template -->
+											<script id="dateline-template" type="text/template">
+                        {{#dateline}}
+                        <div class="date_line">
+                          <span>
+                            <h1>{{date}}</h1>
+                          </span>
+                        </div>
+                        {{/dateline}}
+                      </script>
+										</div>
+									</div>
+									<div class="ibox-footer nopadding">
+										<div class="input-group">
+											<input type="text" class="message-input form-control" name="message" placeholder="Enter message text">
+											<span class="input-group-btn">
+											<button type="button" class="btn_send btn btn-primary">Send</button>
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
-				</div>
-
-				<div class="content_area">
-					<!-- // msg-template -->
-					<script id="msg-template" type="text/template">
-						{{#msg}}
-						<div class="msg_set {{mode}}" data-date="{{date}}">
-							<div class="img">
-								<img src="{{img}}" alt="{{imgAlt}}">
+					<!-- // 채팅창 -->
+					<!-- 기타 영역 -->
+					<div class="aside_section col-xs-3 col-lg-3 nopadding">
+						<div class="ibox nopadding">
+							<div class="ibox-title title_area">
+								<h5>This is custom panel</h5>
+								<div class="ibox-tools">
+									<a class="aside-close-link">
+									<i class="fa fa-times"></i>
+									</a>
+								</div>
 							</div>
-							<div class="msg">
-								<span class="name">{{sender}}</span>
-								<span class="bg_box">
-									<span class="txt">
-										{{msgText}}
-									</span>
-									<span class="time">{{time}}</span>
-								</span>
+							<div class="ibox-content nopadding">
+								<div class="content_area">
+									<div class="info_area">
+										<h3 class="tit">&nbsp;</h3>
+									</div>
+									<div id="phone">
+										<button autocomplete="off" id="call">Call</button>
+									</div>
+									<br/>
+									<div id="videos">
+										<div>
+											<div>
+												<h3>Local Stream</h3>
+											</div>
+											<div id="videoleft">
+											</div>
+										</div>
+										<br/>
+										<div>
+											<div>
+												<h3>Remote Stream</h3>
+											</div>
+											<div id="videoright">
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
-						{{/msg}}
-					</script>
-					<!-- // dateline-template -->
-					<script id="dateline-template" type="text/template">
-						{{#dateline}}
-						<div class="date_line">
-							<span class="date"><span>{{date}}</span></span>
-						</div>
-						{{/dateline}}
-					</script>
+					</div>
+					<!-- // 기타 영역 -->
 				</div>
-
-				<div class="input_message">
-					<textarea class="input_text" cols="50" rows="5"></textarea>
-					<button type="button" class="btn_send">전송</button>
-				</div>
-
 			</div>
-			<!-- // 채팅창 -->
-
-			<!-- 예시 영역 -->
-			<div class="aside_section">
-
-				<div class="title_area">
-					<h3 class="tit">예시 영역</h3>
-					<div class="tools">
-						<button type="button" class="btn_menu"><i class="fa fa-ellipsis-h"></i></button>
-					</div>
-				</div>
-
-				<div class="content_area">
-					<div class="info_area">
-						<h3 class="tit">&nbsp;</h3>
-					</div>
-					<div id="phone">
-						<button autocomplete="off" id="call">Call</button>
-					</div>
-					<br/>
-					<div id="videos">
-						<div >
-							<div>
-								<h3>Local Stream</h3>
-							</div>
-							<div id="videoleft"></div>
-						</div>
-						<br/>
-						<div>
-							<div>
-								<h3>Remote Stream</h3>
-							</div>
-							<div id="videoright"></div>
-						</div>
-					</div>
-				</div>
-
-			</div>
-			<!-- // 예시 영역 -->
-
 		</div>
-
-		<script src="../script/dist/bundle.js" charset="utf-8"></script>
-		<script src="../script/dist/ext/janus.js" charset="utf-8"></script>
-		<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
-		<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
-	</body>
-
+	</div>
+</div>
+<!-- Modal Area -->
+<div class="modal inmodal" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content animated bounceInRight">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<i class="fa fa-github modal-icon"></i>
+				<h4 class="modal-title">Sign in</h4>
+				<small class="font-bold">Enter your team's domain.</small>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-sm-6 b-r">
+						<form role="form" id="loginForm" onsubmit="return false;">
+							<div class="form-group">
+								<label>Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>ID</label><input name="loginId" type="text" placeholder="Enter ID" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Password</label><input name="password" type="password" placeholder="Password" class="form-control">
+							</div>
+							<div>
+								<label><input name="rememberMe" type="checkbox" class="i-checks"> Remember me </label>
+							</div>
+						</form>
+					</div>
+					<div class="col-sm-6">
+						<h4>Not a member?</h4>
+						<p>
+							You can create an account:
+						</p>
+						<p class="text-center">
+							<a href=""><i class="fa fa-sign-in big-icon"></i></a>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+				<button type="button" class="sign-in btn btn-primary" type="submit">Sign In</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- // Modal Area -->
+<!-- Mainly scripts -->
+<script src="../script/dist/bundle.js" charset="utf-8"></script>
+<script src="../script/dist/ext/inspinia.js"></script>
+<script src="../script/dist/ext/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="../script/dist/ext/validate/jquery.validate.min.js"></script>
+<script src="../script/dist/ext/janus.js" charset="utf-8"></script>
+<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
+</body>
 </html>

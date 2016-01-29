@@ -105,9 +105,6 @@ function bindEvents() {
     var connectUsersHeight = $(".connection_section .users-link").outerHeight(true);
     var defaultHeight = 3;
 
-    if(!headerHeight || !chatInputHeight || !asideHeaderHeight || !connectHeaderHeight || !connectChannelsHeight || !connectUsersHeight)
-      console.error("There is no HTML tag.");
-
     var scrollHeight = $(window).height() - connectHeaderHeight - connectChannelsHeight - connectUsersHeight - defaultHeight;
     var chatHeight =  $(window).height() - headerHeight - chatInputHeight - defaultHeight;
     var asideHeight =  $(window).height() - headerHeight - asideHeaderHeight - defaultHeight;
@@ -140,20 +137,20 @@ function bindEvents() {
 
   // bind login Modal event
   $("#loginForm").validate({
-     rules: {
-         company: {
-             required: true,
-             minlength: 6
-         },
-         loginId: {
-             required: true,
-             minlength: 4
-         },
-         password: {
-             required: true,
-             minlength: 6
-         }
-     }
+    rules: {
+      company: {
+        required: true,
+        minlength: 6
+      },
+      loginId: {
+        required: true,
+        minlength: 4
+      },
+      password: {
+        required: true,
+        minlength: 6
+      }
+    }
   });
 
   $('#loginModal .sign-in').click(function() {
@@ -178,7 +175,6 @@ function loginSubmit() {
 
   restResourse.login.login(params,
     function(data) {
-
       myPref = {
         "company": params.company,
         "loginId": params.loginId,
@@ -190,7 +186,6 @@ function loginSubmit() {
 
       // set the personal pref info first to use it around the app.
       preference = preference(storageManager, data.emplId); // init preference
-
       if(rememberMe.is(":checked"))
         storageManager.setValue("remeberEmplId", data.emplId);
       preference.setPerference("company", params.company);
@@ -206,11 +201,9 @@ function adjustAsideArea(isOpen) {
   var chatSection = $('.chat_section');
   var asideIbox = $(".aside_section .ibox");
   if(isOpen || chatSection.hasClass("col-xs-12 col-lg-12")) {
-    console.log("open");
     chatSection.removeClass("col-xs-12 col-lg-12").addClass( "col-xs-9 col-lg-9" );
     asideIbox.show(500);
   } else {
-    console.log("hide");
     chatSection.removeClass("col-xs-9 col-lg-9").addClass( "col-xs-12 col-lg-12" );
     asideIbox.hide();
   }

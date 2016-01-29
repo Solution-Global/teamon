@@ -10,15 +10,15 @@ var chatSection = (function() {
   var activeChatInfo;
   var connSection;
   var asideSection;
-  var chatModule = require('../chat');
+  var chatModule = require('../chat_client');
 
   // cache DOM
   var $chatSec;
+  var $hearderSec;
   var $titleArea;
   var $title;
   var $contentArea;
   var $mcsbContainer;
-  var $inputMsg;
   var $inputText;
   var $btnSend;
   var msgTemplate;
@@ -30,16 +30,15 @@ var chatSection = (function() {
     asideSection = asideSec;
 
     $chatSec = $(".chat_section");
-    $titleArea = $chatSec.find(".title_area");
-    $title = $titleArea.find(".tit");
+    $hearderSec = $(".header_section");
+    $titleArea = $hearderSec.find(".title_area");
+    $title = $hearderSec.find(".tit");
     $contentArea = $chatSec.find('.content_area');
     $mcsbContainer = $contentArea.find('.mCSB_container');
-    $inputMsg = $chatSec.find('.chat-message-form');
-    $inputText = $inputMsg.find('.message-input');
-    $btnSend = $inputMsg.find('.btn_send');
+    $inputText = $chatSec.find('.message-input');
+    $btnSend = $chatSec.find('.btn_send');
     msgTemplate = $contentArea.find('#msg-template').html();
     dateLineTemplate = $contentArea.find('#dateline-template').html();
-
 
     // bind events
     $btnSend.on('click', sendMsg);
