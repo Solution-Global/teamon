@@ -12,7 +12,8 @@ function CallClient() {
   this.registered = false;
   this.janus = null;
   this.engaged = false;
-  this.videocall = null;
+  //this.videocall = null;
+  this.sipcall = null;
   this.remoteJsep = null;
   this.myusername = null;
   this.yourusername = null;
@@ -41,10 +42,10 @@ CallClient.prototype.initialize = function(userid) {
         success: function() {
           // Attach to echo test plugin
           self.janus.attach({
-            plugin: "janus.plugin.videocall",
+            plugin: "janus.plugin.sipgw",
             success: function(pluginHandle) {
-              self.videocall = pluginHandle;
-              console.log("Plugin attached! (" + self.videocall.getPlugin() + ", id=" + self.videocall.getId() + ")");
+              self.sipcall = pluginHandle;
+              console.log("Plugin attached! (" + self.sipcall.getPlugin() + ", id=" + self.sipcall.getId() + ")");
 
               self._registerUsername(userid);
             },
@@ -59,6 +60,7 @@ CallClient.prototype.initialize = function(userid) {
               // on : 사용자로부터 WebRTC 자원 사용 동의를 얻기 전
               // off : 사용자로부터 WebRTC 자원 사용 동의를 얻은 후
             },
+
             onmessage: function(msg, jsep) {
               console.log(" ::: Got a message :::");
               console.log(JSON.stringify(msg));
@@ -86,9 +88,7 @@ CallClient.prototype.initialize = function(userid) {
                     console.log("Waiting for the peer to answer...");
                     self.emit('oncalling');
                   } else if (event === 'incomingcall') {
-                    self.yourusername = result["username"];
-                    self.remoteJsep = jsep;
-                    self.emit('onincomingcall', self.yourusername);
+                    self._onIncomingcall(result, jsep);
                   } else if (event === 'accepted') {
                     var peer = result["username"];
                     if (peer === null || peer === undefined) {
@@ -147,11 +147,31 @@ CallClient.prototype._registerUsername = function(userid) {
   // Try a registration
   var register = {
     "request": "register",
-    "username": userid.toString()
+    "username": "sip:agent" + userid + "@" + constants.SIP_DOMAIN,
+    "proxy": constants.SIP_PROXY,
+    "secret": ""
   };
-  self.videocall.send({
+  self.sipcall.send({
     "message": register
   });
+}
+
+CallClient.prototype._onIncomingcall = function(result, jsep) {
+  var self = this;
+
+  var doAudio = true,
+    doVideo = true;
+  if (jsep !== null && jsep !== undefined) {
+    // What has been negotiated?
+    doAudio = (jsep.sdp.indexOf("m=audio ") > -1);
+    doVideo = (jsep.sdp.indexOf("m=video ") > -1);
+  }
+
+  console.log("_onIncomingcall Incoming call from " + result["username"] + " [Audio:" + doAudio + ", Video:" + doVideo + "]!");
+
+  self.yourusername = result["username"];
+  self.remoteJsep = jsep;
+  self.emit('onincomingcall', self.yourusername, doAudio, doVideo);
 }
 
 CallClient.prototype._onCallAccepted = function(peer, jsep) {
@@ -166,7 +186,7 @@ CallClient.prototype._onCallAccepted = function(peer, jsep) {
 
   // TODO Video call can start
   if (jsep !== null && jsep !== undefined)
-    self.videocall.handleRemoteJsep({
+    self.sipcall.handleRemoteJsep({
       jsep: jsep
     });
 
@@ -180,12 +200,13 @@ CallClient.prototype._onErrorMessage = function(errorCode, error) {
   // errorcode 447 : already calling
   // errorcode 478 : user doesn't exist
   // errorcode 480 : Already in a call
-  if (errorCode === 480) {
-    // Janus GW에서 보내온 메시지에 따라 정상 처리되었지만 GW에서는 에러코드 상태 -> 테스트 진행을 위해 hangup 메시지 전송
-    self._sendHangup();
-  }
-  self.videocall.hangup();
-  self._resetStatus();
+  // if (errorCode === 480) {
+  //   // Janus GW에서 보내온 메시지에 따라 정상 처리되었지만 GW에서는 에러코드 상태 -> 테스트 진행을 위해 hangup 메시지 전송
+  //   self._sendHangup();
+  // }
+  // self.sipcall.hangup();
+  // self._resetStatus();
+
   self.emit('onerrormessage', errorCode, error);
 }
 
@@ -200,7 +221,7 @@ CallClient.prototype._onHangup = function(result) {
   }
 
   self._resetStatus();
-  self.videocall.hangup();
+  self.sipcall.hangup();
 }
 
 CallClient.prototype._onCleanup = function() {
@@ -223,7 +244,7 @@ CallClient.prototype.makeCall = function(userid) {
   self.engaged = true;
 
   // Call this user
-  self.videocall.createOffer({
+  self.sipcall.createOffer({
     // By default, it's sendrecv for audio and video...
     media: {
       data: false
@@ -235,7 +256,7 @@ CallClient.prototype.makeCall = function(userid) {
         "request": "call",
         "username": userid.toString()
       };
-      self.videocall.send({
+      self.sipcall.send({
         "message": body,
         "jsep": jsep
       });
@@ -255,7 +276,7 @@ CallClient.prototype.localHangup = function() {
   }
 }
 
-CallClient.prototype.answerCall = function() {
+CallClient.prototype.answerCall = function(doAudio, doVideo) {
   var self = this;
   if (!self.remoteJsep) {
     self.emit('jserror', "No remoteJsep!");
@@ -263,25 +284,29 @@ CallClient.prototype.answerCall = function() {
   }
   self.engaged = true;
 
-  self.videocall.createAnswer({
+  self.sipcall.createAnswer({
     jsep: self.remoteJsep,
-    // No media provided: by default, it's sendrecv for audio and video
     media: {
-      data: true
-    }, // Let's negotiate data channels as well
+      audio: doAudio,
+      video: doVideo
+    },
     success: function(jsep) {
-      console.log("Got SDP!");
+      console.log("Got SDP! audio=" + doAudio + ", video=" + doVideo);
       console.log(jsep);
       var body = {
         "request": "accept"
       };
-      self.videocall.send({
+      self.sipcall.send({
         "message": body,
         "jsep": jsep
       });
     },
     error: function(error) {
       console.error("WebRTC error:%s", JSON.stringify(error));
+      // Don't keep the caller waiting any longer, but use a 480 instead of the default 486 to clarify the cause
+      var body = { "request": "decline", "code": 480 };
+      sipcall.send({"message": body});
+
       self.emit('answercallerror', error);
     }
   });
@@ -304,7 +329,10 @@ CallClient.prototype.declineCall = function() {
     return;
   }
 
-  self._sendHangup();
+  var body = { "request": "decline" };
+  self.sipcall.send({"message": body});
+
+  self._resetStatus();
 }
 
 CallClient.prototype._sendHangup = function() {
@@ -315,7 +343,7 @@ CallClient.prototype._sendHangup = function() {
   var hangup = {
     "request": "hangup"
   };
-  self.videocall.send({
+  self.sipcall.send({
     "message": hangup
   });
 }

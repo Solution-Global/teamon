@@ -21,13 +21,14 @@ var chat = (function() {
     }
   }
 
-  function _getTopic(connType, partid) {
+  function _getTopicPrefix(connType, partid) {
     var myTopic;
     if (connType === constants.DIRECT_CHAT) {
+      myTopic = "{peer}/";
       if (myInfo.emplid < partid) {
-        myTopic = myInfo.emplid + "_" + partid;
+        myTopic += myInfo.emplid + "_" + partid;
       } else {
-        myTopic = partid + "_" + myInfo.emplid;
+        myTopic += partid + "_" + myInfo.emplid;
       }
     } else if (connType === constants.GROUP_CHAT) {
       myTopic = partid;
@@ -53,35 +54,25 @@ var chat = (function() {
   }
 
   function _mqttConnected() {
-    // topic array: presence, msg, {publisher}
+    // topic array: presence, msg(direct, group)
     var topicArray = [myInfo.coid + constants.TOPIC_PRESENCE_ALL,
-      myInfo.coid + constants.TOPIC_MSG + "/+/+",
-      myInfo.coid + constants.TOPIC_MSG + "/+/+/" + myInfo.emplid
+      myInfo.coid + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + myInfo.emplid + "/+"
+      // TODO 자신이 속한 그룹 채팅에 대한 처리 추후 필요
     ];
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
     myInfo.client.subscribe(topicArray);
 
     // presence/online
-    myInfo.client.publish(myInfo.coid + constants.TOPIC_PRESENCE_ONLINE, myInfo.emplid.toString());
+    // myInfo.client.publish(myInfo.coid + constants.TOPIC_PRESENCE_ONLINE, myInfo.emplid.toString());
   }
 
   function _mqttReceived(topic, payload) {
     var payloadStr = payload.toString();
-    // TODO 자신과 관련없는 토픽은 전달되지 않도록 수정 필요 (임시코드)
-    var topicArray = topic.split('/');
-    var chatType = parseInt(topicArray[2]);
-    if (chatType === constants.DIRECT_CHAT) {
-      var peers = topicArray[3].split('_');
-      if (peers.indexOf(myInfo.emplid.toString()) < 0) {
-        return;
-      }
-    }
-
     console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
     myInfo.recvCallback(myInfo.emplid, topic, payloadStr);
   }
 
-  function _generateMsgPayloadStr(chatType, receiver, msg) {
+  function _publishMsg(data, params) {
     /*
       msgPayload = {
         chatType:  // 채팅 타입 (client 담당)
@@ -94,23 +85,57 @@ var chat = (function() {
         msg:       // 발신 메시지 (client 담당)
       }
     */
+    var receiver = (params.spkrid === params.peer1) ? params.peer2 : params.peer1;
     var msgPayload = {
-      chatType: chatType,
-      coid: myInfo.coid,
-      publisher: myInfo.emplid,
+      chatType: params.chatType,
+      coid: params.coId,
+      publisher: params.spkrid,
       receiver: receiver,
-      msg: msg
+      lastmsgid: data.lastmsgid,
+      msgid: data.msgid,
+      time: data.time,
+      msg: params.msg
     };
 
-    return JSON.stringify(msgPayload);
+    var msgPayloadStr = JSON.stringify(msgPayload);
+    var topicPrefix = _getTopicPrefix(params.chatType, receiver);
+    if (topicPrefix !== null) {
+      if (params.chatType === constants.DIRECT_CHAT) {
+        // 상대방 토픽으로 전송
+        var receiverTopic = topicPrefix.replace("{peer}", receiver);
+        myInfo.client.publish(receiverTopic, msgPayloadStr);
+        console.log('_publishMsg to the receiver [topic:%s, msg:%s]', receiverTopic, msgPayloadStr);
+
+        // 자신의 토픽으로 전송
+        var myTopic = topicPrefix.replace("{peer}", params.spkrid);
+        myInfo.client.publish(myTopic, msgPayloadStr);
+        console.log('_publishMsg to myself [topic:%s, msg:%s]', myTopic, msgPayloadStr);
+      } else if (connType === constants.GROUP_CHAT) {
+        myInfo.client.publish(topicPrefix, msgPayloadStr);
+        console.log('_publishMsg to group [topic:%s, msg:%s]', topicPrefix, msgPayloadStr);
+      }
+    }
   }
 
   function sendDirectMsg(receiver, msg) {
-    var topic = _getTopic(constants.DIRECT_CHAT, receiver) + constants.TOPIC_PUBREQ;
-    var msgPayloadStr = _generateMsgPayloadStr(constants.DIRECT_CHAT, receiver, msg);
-    myInfo.client.publish(topic, msgPayloadStr);
+    // TODO direct, group 모두 가능토록 함수 변경
+    var chatType = constants.DIRECT_CHAT;
 
-    console.log('sendDirectMsg topic:%s, msg:%s', topic, msgPayloadStr);
+    // API 전송 성공 후 콜백함수에서 Publish 처리
+    var peer1, peer2;
+    peer1 = (myInfo.emplid < receiver) ? myInfo.emplid : receiver;
+    peer2 = (myInfo.emplid < receiver) ? receiver : myInfo.emplid;
+
+    var params = {
+      "coId": myInfo.coid,
+      "chatType": chatType,
+      "peer1": peer1,
+      "peer2": peer2,
+      "spkrid": myInfo.emplid,
+      "msg": msg
+    }
+
+    restResourse.chat.postMsg(params, _publishMsg);
   }
 
   function finalize() {

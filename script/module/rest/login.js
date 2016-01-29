@@ -29,7 +29,7 @@ Login.prototype.login = function(params, callback) {
     function(data, response){
       callback(data);
   }).on('error',function(err){
-    console.log('something went wrong on the request', err.request.options);
+    console.error('something went wrong on the request', err.request.options);
   });
 };
 
