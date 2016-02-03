@@ -6,7 +6,7 @@ var Chat = (function() {
   this.path = "/frontend/communication/chat";
 });
 
-Chat.prototype.getListByPeers = function(params, callback) {
+Chat.prototype.getListByPeers = function(params, callBackRequiredValues, callback) {
   var self = this;
   console.log("getListByCoid - [coId]" + params.coId + "[chatType]" + params.chatType + "[peer1]" + params.peer1 + "[peer2]" + params.peer2 + "[lastMsgId]" + params.lastMsgId + "[firstMsgId]" + params.firstMsgId);
   var args = {
@@ -15,7 +15,7 @@ Chat.prototype.getListByPeers = function(params, callback) {
     },
     parameters: {
       "chatType": params.chatType,
-      "peer1": params.peer1,
+      "peer1": params.peer1 ? params.peer1 : constants.COMMON_SEARCH_ALL,
       "peer2": params.peer2,
       "lastMsgId": params.lastMsgId ? params.lastMsgId : constants.COMMON_SEARCH_ALL,
       "firstMsgId": params.firstMsgId ? params.firstMsgId : constants.COMMON_SEARCH_ALL,
@@ -25,7 +25,7 @@ Chat.prototype.getListByPeers = function(params, callback) {
   };
   self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${coId}", args,
     function(data, response) {
-      callback(data);
+      callback(data, callBackRequiredValues);
     }).on('error', function(err) {
     console.error('something went wrong on the request', err.request.options);
   });
@@ -38,7 +38,7 @@ Chat.prototype.postMsg = function(params, callback) {
     data: $.param({
       "coId": params.coId,
       "chatType": params.chatType,
-      "peer1": params.peer1,
+      "peer1": params.peer1 ? params.peer1 : constants.COMMON_SEARCH_ALL,
       "peer2": params.peer2,
       "spkrid": params.spkrid,
       "msg": params.msg

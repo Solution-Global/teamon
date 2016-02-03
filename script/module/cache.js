@@ -38,11 +38,16 @@ var Cache = function() {
     return cacheArray;
   }
 
+  function initCache() {
+    memory = {};
+  }
+
   return {
     get: get,
     set: set,
     getKeyArray: getKeyArray,
-    getValueArray: getValueArray
+    getValueArray: getValueArray,
+    initCache: initCache
   };
 };
 

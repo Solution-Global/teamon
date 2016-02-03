@@ -56,9 +56,10 @@ var chat = (function() {
   function _mqttConnected() {
     // topic array: presence, msg(direct, group)
     var topicArray = [myInfo.coid + constants.TOPIC_PRESENCE_ALL,
-      myInfo.coid + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + myInfo.emplid + "/+"
-      // TODO 자신이 속한 그룹 채팅에 대한 처리 추후 필요
+      myInfo.coid + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + myInfo.emplid + "/+",
+      myInfo.coid + constants.TOPIC_MSG + "/" + constants.GROUP_CHAT + "/+"
     ];
+
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
     myInfo.client.subscribe(topicArray);
 
@@ -85,7 +86,12 @@ var chat = (function() {
         msg:       // 발신 메시지 (client 담당)
       }
     */
-    var receiver = (params.spkrid === params.peer1) ? params.peer2 : params.peer1;
+    var receiver;
+    if(params.chatType === constants.DIRECT_CHAT) {
+      receiver = (params.spkrid === params.peer1) ? params.peer2 : params.peer1;
+    } else {
+      receiver = params.peer2;
+    }
     var msgPayload = {
       chatType: params.chatType,
       coid: params.coId,
@@ -110,22 +116,26 @@ var chat = (function() {
         var myTopic = topicPrefix.replace("{peer}", params.spkrid);
         myInfo.client.publish(myTopic, msgPayloadStr);
         console.log('_publishMsg to myself [topic:%s, msg:%s]', myTopic, msgPayloadStr);
-      } else if (connType === constants.GROUP_CHAT) {
+
+      } else if (params.chatType === constants.GROUP_CHAT) {
+
+        // 채팅방으로 토픽으로 전송
         myInfo.client.publish(topicPrefix, msgPayloadStr);
-        console.log('_publishMsg to group [topic:%s, msg:%s]', topicPrefix, msgPayloadStr);
+        console.log('_publishMsg to the channel members [topic:%s, msg:%s]', receiverTopic, msgPayloadStr);
       }
     }
   }
 
-  function sendDirectMsg(receiver, msg) {
-    // TODO direct, group 모두 가능토록 함수 변경
-    var chatType = constants.DIRECT_CHAT;
-
+  function sendMsg(chatType, receiver, msg) {
     // API 전송 성공 후 콜백함수에서 Publish 처리
     var peer1, peer2;
-    peer1 = (myInfo.emplid < receiver) ? myInfo.emplid : receiver;
-    peer2 = (myInfo.emplid < receiver) ? receiver : myInfo.emplid;
 
+    if(chatType === constants.DIRECT_CHAT) {
+      peer1 = (myInfo.emplid < receiver) ? myInfo.emplid : receiver;
+      peer2 = (myInfo.emplid < receiver) ? receiver : myInfo.emplid;
+    } else {
+      peer2 = receiver;
+    }
     var params = {
       "coId": myInfo.coid,
       "chatType": chatType,
@@ -144,7 +154,7 @@ var chat = (function() {
 
   return {
     configMyInfo: configMyInfo,
-    sendDirectMsg: sendDirectMsg,
+    sendMsg: sendMsg,
     finalize: finalize
   };
 })();

@@ -6,17 +6,18 @@ var constants = require("../constants");
   key : CHAT_FIRST_MSGID_[myPref.emplId]  or CHAT_LAST_MSGID_[myPref.emplId]
   value : format is JSON.
   { "direct" : {
-    "1": 100, -- targetEmplId : messageId
+    "1": 100, -- opponentEmplId : messageId
     "2" : 200,
     ...
   },
   "group" : {
-    "1": 200,
+    "1": 200, -- channelId : channelId
     "2" : 300,
     ...
   }}
 
-  Key : CHAT_[coId]_[myPref.emplId]_[myPref.targetId]
+  Direct Key : CHAT_[coId]_[myPref.emplId]_[myPref.opponentEmplId]
+  Group Key : CHAT_[coId]_[myPref.emplId]_[myPref.channelId]
   value :
   { "msgId":613,
   "mode":"send",
@@ -30,13 +31,11 @@ var constants = require("../constants");
   ...
 */
 
-var message = (function(storage, pref) {
+var message = (function(storageManager, myPref, userCache, channelCache) {
   const KEY_TYPE_CHAT_MESSAGES = 1;
   const KEY_TYPE_CHAT_FIRST_MESSAGE_ID = 2;
   const KEY_TYPE_CHAT_LAST_MESSAGE_ID = 3;
 
-  var storageManager = storage;
-  var myPref = pref;
   var chatFirstMessagIdJson = {
     "direct": {},
     "group": {}
@@ -83,7 +82,7 @@ var message = (function(storage, pref) {
     var keyName;
     switch (params.keyType) {
       case KEY_TYPE_CHAT_MESSAGES:
-        keyName = "CHAT_" + params.chatType + "_" + myPref.emplId + "_" + params.targetEmplId;
+        keyName = "CHAT_" + params.chatType + "_" + myPref.emplId + "_" + params.chatRoomId;
         break;
       case KEY_TYPE_CHAT_FIRST_MESSAGE_ID:
         keyName = "CHAT_FIRST_MSGID_" + myPref.emplId;
@@ -106,12 +105,12 @@ var message = (function(storage, pref) {
   // Local DB에 저장되는 Message Unit의 포맷 설정
   function madeMessageUnit(params) {
     var sendMode = myPref.emplId === params.spkrId;
-    var sender = sendMode ? myPref.loginId : params.targetLoginId;
-    // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
+    var sender = sendMode ? myPref.loginId : params.publisherLoginId;
+
     var imgIdx = (params.spkrId * 1) % 10;
 
     var message = {
-      "msgId": params.dcId,
+      "msgId": params.chatId,
       "mode": sendMode ? "right" : "left", // send : right or receive : left
       "img": "../img/profile_img" + imgIdx + ".jpg",
       "imgAlt": sender,
@@ -129,7 +128,8 @@ var message = (function(storage, pref) {
     params.keyType = KEY_TYPE_CHAT_FIRST_MESSAGE_ID;
     _readAll(params);
     var chatType = _getChatTypeToStr(params.chatType);
-    chatFirstMessagIdJson[chatType][String(params.targetEmplId)] = params.value;
+    chatFirstMessagIdJson[chatType][String(params.chatRoomId)] = params.value;
+
     _writeAll(params);
   }
 
@@ -142,7 +142,7 @@ var message = (function(storage, pref) {
     if (!chatFirstMessagIdJson[chatType])
       return;
 
-    return chatFirstMessagIdJson[chatType][String(params.targetEmplId)];
+    return chatFirstMessagIdJson[chatType][String(params.chatRoomId)];
   }
 
   // 메시지 마지막 메시지 아이디 저장하기
@@ -150,7 +150,8 @@ var message = (function(storage, pref) {
     params.keyType = KEY_TYPE_CHAT_LAST_MESSAGE_ID;
     _readAll(params);
     var chatType = _getChatTypeToStr(params.chatType);
-    chatLastMessagIdJson[chatType][String(params.targetEmplId)] = params.value;
+
+    chatLastMessagIdJson[chatType][String(params.chatRoomId)] = params.value;
     _writeAll(params);
   }
 
@@ -163,15 +164,15 @@ var message = (function(storage, pref) {
     if (!chatLastMessagIdJson[chatType])
       return;
 
-    return chatLastMessagIdJson[chatType][String(params.targetEmplId)];
+    return chatLastMessagIdJson[chatType][String(params.chatRoomId)];
   }
 
   // 모든 메시지 가져오기
-  function getAllChatMessage(chatType, targetEmplId) {
+  function getAllChatMessage(chatType, id) {
     var params = {
       "keyType": KEY_TYPE_CHAT_MESSAGES,
       "chatType": chatType,
-      "targetEmplId": targetEmplId
+      "chatRoomId" : id
     };
 
     var value = _readAll(params);
@@ -179,10 +180,10 @@ var message = (function(storage, pref) {
       return JSON.parse("[" + value + "]");
   }
 
-  function _prependChatMessage(value, chatType, targetEmplId) {
+  function _prependChatMessage(value, chatType, id) {
     var params = {
       "chatType": chatType,
-      "targetEmplId": targetEmplId
+      "chatRoomId" : id
     };
 
     var message = JSON.stringify(value);
@@ -203,104 +204,120 @@ var message = (function(storage, pref) {
     }
   }
 
-  function appendChatMessage(value, chatType, targetEmplId) {
+  function appendChatMessage(value, chatType, id) {
     var params = {
       "chatType": chatType,
-      "targetEmplId": targetEmplId
+      "chatRoomId" : id
     };
 
-    var message = JSON.stringify(value);
-    var msgId;
+    var messageJsonFormat = JSON.stringify(value);
+    var lastMsgId;
+    var firstMsgId;
     if (Array.isArray(value)) {
       // 배열일 때 첫 글자와 마지막 삭제
-      message = message.slice(1, message.length - 1);
-      msgId = value[value.length - 1].msgId;
+      messageJsonFormat = messageJsonFormat.slice(1, messageJsonFormat.length - 1);
+      lastMsgId = value[value.length - 1].msgId;
+      firstMsgId = value[0].msgId;
     } else {
-      msgId = value.msgId;
+      lastMsgId = value.msgId;
+      firstMsgId = value.msgId;
     }
 
-    params.keyType = KEY_TYPE_CHAT_MESSAGES;
+    params.keyType = KEY_TYPE_CHAT_MESSAGES; // add param
     var storredMessages = _readAll(params);
     if (storredMessages) {
-      storredMessages = storredMessages + ("," + message);
+      storredMessages = storredMessages + ("," + messageJsonFormat);
     } else {
-      storredMessages = message;
-      params.value = value.msgId;
+      storredMessages = messageJsonFormat;
+      params.value = firstMsgId; // add param
       _setChatFirstMessageId(params);
     }
 
-    params.value = storredMessages;
-    params.keyType = KEY_TYPE_CHAT_MESSAGES;
+    params.value = storredMessages; // modify param
+    params.keyType = KEY_TYPE_CHAT_MESSAGES; // modifiy param
     _writeAll(params);
-    params.value = msgId;
+    params.value = lastMsgId;
     _setChatLastMessageId(params);
   }
 
   // Local Stroage 저장된 파일에서 과거 메시지 가져와 local storage에 저장
-  function getPreviousChatMessage(chatType, targetEmplId, targetLoginId, callback) {
+  function getPreviousChatMessage(chatType, chatRoomId, callback) {
     var restPrams = {
       "coId": myPref.coId,
-      "chatType": chatType,
-      "peer1": Math.min.apply(null, [myPref.emplId, targetEmplId]),
-      "peer2": Math.max.apply(null, [myPref.emplId, targetEmplId])
+      "chatType": chatType
     };
+
+    if(constants.DIRECT_CHAT === chatType) {
+      restPrams["peer1"] = Math.min.apply(null, [myPref.emplId, chatRoomId]);
+      restPrams["peer2"] = Math.max.apply(null, [myPref.emplId, chatRoomId]);
+    } else {
+      restPrams["peer2"] = chatRoomId;
+    }
 
     var firstMsgId = _getChatFirstMessageId({
       "chatType": chatType,
-      "targetEmplId": targetEmplId
+      "chatRoomId": chatRoomId
     });
     if (firstMsgId) {
       restPrams.firstMsgId = firstMsgId;
     }
 
-    restResourse.chat.getListByPeers(restPrams, function(msgData) {
+    restResourse.chat.getListByPeers(restPrams, {}, function(msgData) {
       if (msgData.length > 0) {
         var messageArray = new Array();
         $.each(msgData, function(idx, msgRow) {
-          msgRow.targetLoginId = targetLoginId;
+          msgRow.publisherLoginId = userCache.get(msgRow.spkrId).loginId;;
           messageArray.push(madeMessageUnit(msgRow));
         });
-        _prependChatMessage(messageArray, chatType, targetEmplId);
+        _prependChatMessage(messageArray, chatType, chatRoomId);
         callback(messageArray);
       }
     });
   }
 
   // 서버에 저장된 message와 LocalDB sync, 처음 login시 한번 실행
-  function syncChatMessage() {
-    restResourse.empl.getListByCoid({
-      "coId": myPref.coId
-    }, function(emplData) {
-      if (emplData.rows.length > 0) {
-        $.each(emplData.rows, function(idx, emplRow) {
-          var restPrams = {
-            "coId": myPref.coId,
-            "chatType": constants.DIRECT_CHAT,
-            "peer1": Math.min.apply(null, [myPref.emplId, emplRow.emplId]),
-            "peer2": Math.max.apply(null, [myPref.emplId, emplRow.emplId])
-          };
+  function syncChatMessage(chatType) {
+    var targetArray;
+    if(constants.DIRECT_CHAT === chatType)
+      targetArray = userCache.getValueArray();
+    else
+      targetArray = channelCache.getValueArray();
 
-          var lastMsgId = _getChatLastMessageId({
-            "chatType": constants.DIRECT_CHAT,
-            "targetEmplId": emplRow.emplId
-          });
-          if (lastMsgId) {
-            restPrams.lastMsgId = lastMsgId;
-          }
+    for(var key in targetArray) {
+      var chatRoomId;
+      var restPrams = {
+        "coId": myPref.coId,
+        "chatType": chatType
+      };
 
-          restResourse.chat.getListByPeers(restPrams, function(msgData) {
-            if (msgData.length > 0) {
-              var messageArray = new Array();
-              $.each(msgData, function(idx, msgRow) {
-                msgRow.targetLoginId = emplRow.loginId;
-                messageArray.push(madeMessageUnit(msgRow));
-              });
-              appendChatMessage(messageArray, constants.DIRECT_CHAT, emplRow.emplId);
-            }
-          });
-        });
+      if(constants.DIRECT_CHAT === chatType) {
+        chatRoomId = targetArray[key].emplId;
+        restPrams["peer1"] = Math.min.apply(null, [myPref.emplId, chatRoomId]);
+        restPrams["peer2"] = Math.max.apply(null, [myPref.emplId, chatRoomId]);
+      } else {
+        chatRoomId = targetArray[key].channelId;
+        restPrams["peer2"] = chatRoomId;
       }
-    });
+
+      var lastMsgId = _getChatLastMessageId({
+        "chatType": chatType,
+        "chatRoomId": chatRoomId
+      });
+      if (lastMsgId) {
+        restPrams.lastMsgId = lastMsgId;
+      }
+
+      restResourse.chat.getListByPeers(restPrams, {"chatRoomId" : chatRoomId}, function(msgData, callBackRequiredValues) {
+        if (msgData.length > 0) {
+          var messageArray = new Array();
+          $.each(msgData, function(idx, msgRow) {
+            msgRow.publisherLoginId = userCache.get(String(msgRow.spkrId)).loginId;
+            messageArray.push(madeMessageUnit(msgRow));
+          });
+          appendChatMessage(messageArray, chatType, callBackRequiredValues.chatRoomId);
+        }
+      });
+    }
   }
 
   return {
