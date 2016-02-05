@@ -4,30 +4,32 @@ require('bootstrap');
 require('metismenu');
 require('malihu-custom-scrollbar-plugin')($);
 var Mustache = require('mustache');
-// var chat = require('../script/module/chat.js');
 var connSection = require('../script/module/screen/conn_section.js');
 var chatSection = require('../script/module/screen/chat_section.js');
 var asideSection = require('../script/module/screen/aside_section.js');
+var callSection = require('../script/module/screen/call_section.js');
+var headerSection = require('../script/module/screen/header_section.js');
+
 var remote = require('remote');
 var path = require('path');
-var storageManager = require('../script/module/storage/storage_manager.js')(true);
+var constants = require("../script/module/constants.js");
+var storageManager = require('../script/module/storage/storage_manager.js')(false);
 var preference = require('../script/module/storage/preference.js');
 var messageManager = require('../script/module/storage/message.js');
+var chatModule = require('../script/module/chat_client.js');
+var myPref; // Login 한 사용자 정보 저장
+
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
 
   bindEvents();
-  $(window).resize();
+  windowResize();
   initCustomScrollbar();
   initLoginStatus();
 }
 
-var myPref;
-
 function initLoginStatus() {
-
   var remeberEmplId = storageManager.getValue("remeberEmplId");
-
   console.log("initLoginStatus[remeberEmplId:%s]", remeberEmplId);
 
   if(remeberEmplId) {
@@ -46,96 +48,99 @@ function initLoginStatus() {
   }
 }
 
-function initScreenSection() {
-  // local에 저장되지 않는 message들 모두 load
-  messageManager = messageManager(storageManager, myPref);
-  messageManager.syncChatMessage();
-
-  connSection.initConnSection(myPref, chatSection, asideSection);
-  chatSection.initChatSection(myPref, connSection, asideSection);
-  asideSection.initAsideSection(myPref, connSection, chatSection);
-}
-
 function loginSubmit() {
-  var loginIdObj = $("#loginForm").find("[name=loginId]");
-  var passwordObj = $("#loginForm").find("[name=password]");
-  var companyObj = $("#loginForm").find("[name=company]");
-  var rememberMe = $("#loginForm").find("[name=rememberMe]");
+  var loginForm = $("#loginForm");
+  if(!loginForm.valid())
+    return;
+
+  var loginIdObj = loginForm.find("[name=loginId]");
+  var passwordObj = loginForm.find("[name=password]");
+  var companyObj = loginForm.find("[name=company]");
+  var rememberMe = loginForm.find("[name=rememberMe]");
   var params = {
     "company": companyObj.val(),
     "loginId": loginIdObj.val(),
     "password": passwordObj.val(),
-  }
+  };
 
   restResourse.login.login(params,
-    function(data) {
+  function(data) {
+    if(!data.emplId) {
+      console.error("login Fail!!");
+      return;
+    }
 
-      myPref = {
-        "company": params.company,
-        "loginId": params.loginId,
-        "emplId": data.emplId ? Number(data.emplId) : null,
-        "coId": data.coId ? Number(data.coId) : null
-      };
+    myPref = {
+      "company": params.company,
+      "loginId": params.loginId,
+      "emplId": data.emplId ? Number(data.emplId) : null,
+      "coId": data.coId ? Number(data.coId) : null
+    };
 
-      initScreenSection();
+    initScreenSection();
+    // set the personal pref info first to use it around the app.
+    preference = preference(storageManager, data.emplId); // init preference
+    if(rememberMe.is(":checked"))
+      storageManager.setValue("remeberEmplId", data.emplId);
+    preference.setPerference("company", params.company);
+    preference.setPerference("loginId", params.loginId);
+    preference.setPerference("emplId", data.emplId);
+    preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
 
-      // set the personal pref info first to use it around the app.
-      preference = preference(storageManager, data.emplId); // init preference
-
-      if(rememberMe.is(":checked"))
-        storageManager.setValue("remeberEmplId", data.emplId);
-      preference.setPerference("company", params.company);
-      preference.setPerference("loginId", params.loginId);
-      preference.setPerference("emplId", data.emplId);
-      preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
-
-      $("#dialog").dialog("close");
-    });
+    $("#loginModal").modal("hide");
+  });
 }
 
-function bindEvents() {
+function initScreenSection() {
+  connSection.initConnSection();
+  chatSection.initChatSection();
+  asideSection.initAsideSection();
+  callSection.initCallSection();
+  headerSection.initHeaderSection();
+}
+
+function windowResize() {
+  var $header_section = $(".header_section");
+  var $chat_section = $(".chat_section");
+  var $aside_section = $(".aside_section");
+  var $connection_section = $(".connection_section");
 
   // adjust height when resize
   function _resize() {
-    var headerHeight = $(".header_section").outerHeight(true);
-    var chatInputHeight = $(".chat_section .ibox-footer").outerHeight(true);
-    var asideHeaderHeight =  $(".aside_section .ibox-title").outerHeight(true);
-    var connectHeaderHeight = $(".connection_section .nav-header").outerHeight(true);
-    var connectChannelsHeight = $(".connection_section .channels-link").outerHeight(true);
-    var connectUsersHeight = $(".connection_section .users-link").outerHeight(true);
-    var defaultHeight = 3;
+    var windowHeight = $(window).height();
 
-    var scrollHeight = $(window).height() - connectHeaderHeight - connectChannelsHeight - connectUsersHeight - defaultHeight;
-    var chatHeight =  $(window).height() - headerHeight - chatInputHeight - defaultHeight;
-    var asideHeight =  $(window).height() - headerHeight - asideHeaderHeight - defaultHeight;
+    var headerHeight = $header_section.outerHeight(true);
+    var chatInputHeight = $chat_section.find(".ibox-footer").outerHeight(true);
+    var asideHeaderHeight =  $aside_section.find(".ibox-title").outerHeight(true);
+    var connectHeaderHeight = $connection_section.find(".nav-header").outerHeight(true);
+    var connectChannelsHeight = $connection_section.find(".channels-link").outerHeight(true);
+    var connectUsersHeight = $connection_section.find(".users-link").outerHeight(true);
 
-    $('.connection_section .chat-channels').css('height', scrollHeight * 0.3 );
-    $('.connection_section .chat-users').css('height', scrollHeight * 0.7 );
+    // 마지막의 3,2,1 오차 pixel.
+    var scrollHeight = windowHeight - connectHeaderHeight - connectChannelsHeight - connectUsersHeight - 3;
+    var asideHeight =  windowHeight - headerHeight - asideHeaderHeight - 2;
+    var chatHeight =  windowHeight - headerHeight - chatInputHeight - 1;
 
-    $('.chat_section .content_area').css('height', chatHeight);
-    $('.aside_section .content_area').css('height', asideHeight);
+    $connection_section.find(".chat-channels").css("height", scrollHeight * 0.3 );
+    $connection_section.find(".chat-users").css("height", scrollHeight * 0.7 );
+
+    $chat_section.find(".content_area").css("height", chatHeight);
+    $aside_section.find(".ibox-content").css("height", asideHeight);
   }
 
-  _resize(); // run fist time basically
+  _resize(); // run first time basically
   $(window).resize(function() {
     _resize();
   });
+}
 
+function bindEvents() {
   $(window).on('beforeunload', function() {
     console.log("Closing window");
     chatSection.finalize();
   });
 
-  // Close ibox function
-  $('.aside_section .aside-close-link').click(function() {
-    adjustAsideArea();
-  });
-
-  $('.header_section .call-menulink').click(function() {
-    adjustAsideArea(true);
-  });
-
-  // bind login Modal event
+  // set validation for login Form
   $("#loginForm").validate({
     rules: {
       company: {
@@ -153,60 +158,10 @@ function bindEvents() {
     }
   });
 
+  // set event for login action
   $('#loginModal .sign-in').click(function() {
     loginSubmit();
   });
-
-}
-
-function loginSubmit() {
-  if(!$("#loginForm").valid())
-    return;
-
-  var loginIdObj = $("#loginForm").find("[name=loginId]");
-  var passwordObj = $("#loginForm").find("[name=password]");
-  var companyObj = $("#loginForm").find("[name=company]");
-  var rememberMe = $("#loginForm").find("[name=rememberMe]");
-  var params = {
-    "company": companyObj.val(),
-    "loginId": loginIdObj.val(),
-    "password": passwordObj.val(),
-  }
-
-  restResourse.login.login(params,
-    function(data) {
-      myPref = {
-        "company": params.company,
-        "loginId": params.loginId,
-        "emplId": data.emplId ? Number(data.emplId) : null,
-        "coId": data.coId ? Number(data.coId) : null
-      };
-
-      initScreenSection();
-
-      // set the personal pref info first to use it around the app.
-      preference = preference(storageManager, data.emplId); // init preference
-      if(rememberMe.is(":checked"))
-        storageManager.setValue("remeberEmplId", data.emplId);
-      preference.setPerference("company", params.company);
-      preference.setPerference("loginId", params.loginId);
-      preference.setPerference("emplId", data.emplId);
-      preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
-
-      $("#loginModal").modal("hide");
-    });
-}
-
-function adjustAsideArea(isOpen) {
-  var chatSection = $('.chat_section');
-  var asideIbox = $(".aside_section .ibox");
-  if(isOpen || chatSection.hasClass("col-xs-12 col-lg-12")) {
-    chatSection.removeClass("col-xs-12 col-lg-12").addClass( "col-xs-9 col-lg-9" );
-    asideIbox.show(500);
-  } else {
-    chatSection.removeClass("col-xs-9 col-lg-9").addClass( "col-xs-12 col-lg-12" );
-    asideIbox.hide();
-  }
 }
 
 function initCustomScrollbar() {

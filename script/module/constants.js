@@ -15,6 +15,10 @@ define("COMMON_SEARCH_ORDER_DESC", "desc");
 define("DIRECT_CHAT", 0);
 define("GROUP_CHAT", 1);
 
+define("GROUP_CREATE", 0);
+define("GROUP_ADD_MEMBER", 1);
+define("GROUP_REMOVE_MEMBER", 2);
+
 // [API]
 define("API_URL", "http://192.168.1.164:7587/rest");
 define("API_HEADER_X_UANGEL_USER", "system");
@@ -35,6 +39,7 @@ define("TOPIC_PRESENCE_OFFLINE", "/presence/offline");
 define("TOPIC_PRESENCE_STATE", "/presence/state");
 define("TOPIC_PRESENCE_KEEPALIVE", "/presence/keepalive");
 define("TOPIC_MSG", "/msg");
+define("TOPIC_COMMAND", "/command");
 
 // [call]
 // define("CALL_GW_URL", "wss://192.168.5.54:8989/janus");    // videocall

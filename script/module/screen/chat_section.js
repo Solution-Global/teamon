@@ -1,22 +1,12 @@
 'use strict';
 
-var constants = require("../constants");
-
 var chatSection = (function() {
   const MESSAGE_TYPE_APPEND = 1;
   const MESSAGE_TYPE_PREPEND = 2;
-
-  var myPref;
   var activeChatInfo;
-  var connSection;
-  var asideSection;
-  var chatModule = require('../chat_client');
 
   // cache DOM
   var $chatSec;
-  var $hearderSec;
-  var $titleArea;
-  var $title;
   var $contentArea;
   var $mcsbContainer;
   var $inputText;
@@ -24,15 +14,8 @@ var chatSection = (function() {
   var msgTemplate;
   var dateLineTemplate;
 
-  function _initialize(pref, connSec, asideSec) {
-    myPref = pref;
-    connSection = connSec;
-    asideSection = asideSec;
-
+  function _initialize() {
     $chatSec = $(".chat_section");
-    $hearderSec = $(".header_section");
-    $titleArea = $hearderSec.find(".title_area");
-    $title = $hearderSec.find(".tit");
     $contentArea = $chatSec.find('.content_area');
     $mcsbContainer = $contentArea.find('.mCSB_container');
     $inputText = $chatSec.find('.message-input');
@@ -45,7 +28,8 @@ var chatSection = (function() {
     $inputText.on('keyup', _keyup);
   }
 
-  function sendMsg(msg) {
+
+  function sendMsg(msg, chatType, chatRoomId) {
     if (typeof msg !== "string") {
       msg = $inputText.val();
     }
@@ -53,13 +37,16 @@ var chatSection = (function() {
       return;
     }
     msg = msg.replace(/\n$/, "");
-    var peer = connSection.getCurrentTargetUser();
-    if (peer === undefined) {
+    if (chatType === undefined && chatRoomId === undefined && activeChatInfo === undefined) {
       console.error("No peer selected!");
       return;
     }
 
-    chatModule.sendDirectMsg(peer, msg);
+    chatType = chatType || activeChatInfo.chatType;
+    chatRoomId = chatRoomId || activeChatInfo.chatRoomId;
+
+    chatModule.sendMsg(chatType, chatRoomId, msg);
+
     $inputText.val('').focus();
   }
 
@@ -81,6 +68,8 @@ var chatSection = (function() {
       _handleMsg(myId, payloadStr);
     } else if (topicType === constants.TOPIC_PRESENCE) {
       _handlePresence(topic, payloadStr);
+    } else if (topicType === constants.TOPIC_COMMAND) {
+      _handleCommand(topicArray[2], payloadStr);
     } else {
       console.error("Invalid topic format[%s], payload:", topic, payloadStr);
     }
@@ -94,7 +83,6 @@ var chatSection = (function() {
           if(value[key - 1] && value[key - 1].date != value[key].date) {
             $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value[key].date)));
           }
-
           $mcsbContainer.append(Mustache.render(msgTemplate, _getMsgJsonForm(value[key])));
         }
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
@@ -135,7 +123,56 @@ var chatSection = (function() {
     return {"dateline" : [{"date" : date}]};
   }
 
+  function _handleCommand(receiver, payloadStr) {
+    console.info("_handleCommand information %s, %s", receiver, payloadStr);
+
+    if(receiver != myPref.emplId) {
+      console.error("reciver not match %s, %s", reciver, myPref.emplId);
+      return;
+    }
+
+    var commandPayload = JSON.parse(payloadStr);
+    /*
+      msgPayload = {
+        type:  // COMMAND 타입 (client 담당)
+        ...  // 각 command 타입에 따른 return value
+      }
+    */
+
+    switch (commandPayload.type) {
+      case constants.GROUP_CREATE:
+        connSection.displayChannel(commandPayload);
+      break;
+      case constants.GROUP_ADD_MEMBER:
+        connSection.reloadChannel(commandPayload.channelId);
+        // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
+        if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
+          asideSection.displayMember(commandPayload.newMembers);
+        }
+      break;
+      case constants.GROUP_REMOVE_MEMBER:
+        connSection.reloadChannel(commandPayload.channelId);
+
+        if(myPref.emplId === commandPayload.member) {
+          // 화면 닫기 & 리스트제거
+          asideSection.hideSection();
+          chatSection.hideSection();
+          connSection.hideChannel(commandPayload.channelId);
+        } else {
+          if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
+            // 사용자 제거
+            asideSection.hideMember(commandPayload.member);
+          }
+        }
+      break;
+      default:
+      console.error("invalid command[%s]", commandPayload.type);
+      return;
+    }
+  }
+
   function _handleMsg(myId, payloadStr) {
+    console.log("_handleMsg-" + payloadStr);
     /*
       msgPayload = {
         chatType:  // 채팅 타입 (client 담당)
@@ -152,38 +189,53 @@ var chatSection = (function() {
     var lastmsgid = parseInt(msgPayload.lastmsgid);
     var sendMode = myId === msgPayload.publisher;
 
+    //{"chatType":1,"coid":1,"publisher":2,"lastmsgid":253,"msgid":254,"time":1454494285376,"msg":"1"}
+
     // todo lastmsgid와 locallast 값을 비교하여 처리 (현재는 locallast값이 lastmsgid와 동일하다고 가정)
     var locallast = lastmsgid;
     if (locallast < lastmsgid) {
       // api 호출을 통해 모든 누락된 메시지 가져와서 보여주기
     } else {
-      if (!sendMode) {
-        // target 설정에 따른 chat view 변경이 있는 경우 먼저 처리 후 메시지 출력
-        connSection.setCurrentTargetUser(msgPayload.publisher, false);
+      // if (!sendMode) {
+      //   // target 설정에 따른 chat view 변경이 있는 경우 먼저 처리 후 메시지 출력
+      //   connSection.setCurrentTargetUser(msgPayload.publisher, false);
+      // }
+
+      var userObj = connSection.getUserObj(msgPayload.publisher);
+      var params = {
+        spkrId : msgPayload.publisher,
+        chatId : msgPayload.msgid,
+        msg : msgPayload.msg,
+        publisherLoginId : (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]",
+        creTime : msgPayload.time
+      };
+
+      var message = messageManager.madeMessageUnit(params);
+
+      /*
+        * 화면 display 조건
+        group 일 때 ?
+        - receiver가 active chatRoomId 동일 해야함
+        direct 일 때?
+        - receiver나 publisher가  active chatRoomId 동일 해야함
+      */
+      if(activeChatInfo && activeChatInfo.chatType === msgPayload.chatType && (activeChatInfo.chatRoomId  === msgPayload.publisher || activeChatInfo.chatRoomId === msgPayload.receiver)) {
+        _displayMessages(MESSAGE_TYPE_APPEND, message);
+        $contentArea.mCustomScrollbar("scrollTo", "bottom");
+      } else {
+        connSection.setAlarmCnt(msgPayload.chatType, msgPayload.chatType === constants.DIRECT_CHAT ? msgPayload.publisher : msgPayload.receiver);
       }
 
-      if(myId === msgPayload.publisher || myId === msgPayload.receiver ) {
-
-        var userObj = connSection.getUserObj(msgPayload.publisher);
-        var params = {
-          spkrId : msgPayload.publisher,
-          dcId : msgPayload.msgid,
-          msg : msgPayload.msg.toString(),
-          targetLoginId : (userObj !== null) ? userObj.loginId : "Unknown[" + msgPayload.publisher + "]",
-          creTime : msgPayload.time
-        };
-
-        var message = messageManager.madeMessageUnit(params);
-        if(activeChatInfo.chatType === msgPayload.chatType && (activeChatInfo.chatId  === msgPayload.publisher || activeChatInfo.chatId === msgPayload.receiver)) {
-          _displayMessages(MESSAGE_TYPE_APPEND, message);
-          $contentArea.mCustomScrollbar("scrollTo", "bottom");
-        } else {
-          connSection.setAlarmCnt(msgPayload.publisher);
-        }
-
-        // Store messages
-        messageManager.appendChatMessage(message, activeChatInfo.chatType, (sendMode ?  msgPayload.receiver : msgPayload.publisher));
+      // Store messages
+      var chatRoomId;
+      if(msgPayload.chatType === constants.DIRECT_CHAT)
+      {
+        chatRoomId = sendMode ?  msgPayload.receiver : msgPayload.publisher;
+      } else {
+        chatRoomId = msgPayload.receiver;
       }
+
+      messageManager.appendChatMessage(message, msgPayload.chatType, chatRoomId);
     }
   }
 
@@ -192,8 +244,8 @@ var chatSection = (function() {
     console.info("topic[%s], payload:", topic, payloadStr);
   }
 
-  function initChatSection(pref, connSec, asideSec) {
-    _initialize(pref, connSec, asideSec);
+  function initChatSection() {
+    _initialize();
 
     var coId = myPref.coId;
     var emplId = myPref.emplId;
@@ -204,35 +256,37 @@ var chatSection = (function() {
     chatModule.configMyInfo(coId, emplId, loginId, recvMsg);
   }
 
-  function changeChatView(chatType, chatId, loginId) {
-    console.log("chatType:%s, chatId:%s, loginId:%s",chatType, chatId, loginId);
+  function changeChatView(chatType, chatRoomId, chatRoomName) {
+    console.log("chatType:%s, chatRoomId:%s, chatRoomName:%s",chatType, chatRoomId, chatRoomName);
 
     activeChatInfo = {
-      chatId : chatId,
-      chatType : chatType,
-      loginId : loginId
+      "chatType" : chatType,
+      "chatRoomId" : chatRoomId
     };
 
-    $title.html(loginId);
+    // remove chatting texts
     $.each($contentArea.find(".chat-message"), function(idx, row) {
-      $(row).remove(); // remove chatting texts
+      $(row).remove();
     });
-
     $.each($contentArea.find(".date_line"), function(idx, row) {
-      $(row).remove(); // remove chatting texts
+      $(row).remove();
     });
 
-    connSection.hideAlram(chatId); // init Alram
+    callSection.hideSection();
+    showSection(); // chat Area
+    asideSection.showSection();
 
-    var messageArray = messageManager.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatId); // get previous messages
+    connSection.hideAlram(chatType, chatRoomId); // init Alram
+    headerSection.setTitle(chatType, chatRoomName);
+
+    var messageArray = messageManager.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId); // get previous messages
     if(messageArray) {
       _displayMessages(MESSAGE_TYPE_APPEND, messageArray);
     }
   }
 
-
   function getPreviousMessage() {
-    messageManager.getPreviousChatMessage(activeChatInfo.chatType, activeChatInfo.chatId, activeChatInfo.loginId, function(messageArray) {
+    messageManager.getPreviousChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId, function(messageArray) {
       _displayMessages(MESSAGE_TYPE_PREPEND, messageArray);
     });
   }
@@ -241,7 +295,17 @@ var chatSection = (function() {
     chatModule.finalize();
   }
 
+  function hideSection() {
+    $chatSec.hide();
+  }
+
+  function showSection() {
+    $chatSec.show();
+  }
+
   return {
+    hideSection : hideSection,
+    showSection : showSection,
     sendMsg: sendMsg,
     recvMsg: recvMsg,
     initChatSection: initChatSection,

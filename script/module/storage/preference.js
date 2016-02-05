@@ -5,7 +5,6 @@
   key : preference_[activeEmplId]
   value : format is JSON.
   {
-    "rememberMe": true,
     "company": "uangle",
     "LoginId": jerry,
     "coId": 1

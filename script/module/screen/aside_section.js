@@ -1,276 +1,233 @@
 'use strict';
 
-var constants = require("../constants");
-var CallClient = require('../call_client.js');
-
 var asideSection = (function() {
-  var myPref;
-  var connSection;
-  var chatSection;
-  var callClient;
-
   // cache DOM
   var $asideSec;
   var $titleArea;
   var $title;
   var $contentArea;
-  var $infoArea;
-  var $info;
-  var $phone;
-  var $callButton;
-  var $videos;
-  var $callDialog;
 
-  function _initialize(pref, connSec, chatSec) {
-    myPref = pref;
-    connSection = connSec;
-    chatSection = chatSec;
+  var aboutChannelTemplate;
+  var aboutUserTemplate;
 
+  function _initialize() {
     $asideSec = $(".aside_section");
-    $titleArea = $asideSec.find(".title_area");
-    $title = $titleArea.find(".ibox-title");
-    $contentArea = $asideSec.find('.content_area');
-    $infoArea = $contentArea.find('.info_area');
-    $info = $infoArea.find(".tit");
-    $phone = $contentArea.find("#phone");
-    $callButton = $phone.find("#call");
-    $videos = $contentArea.find("#videos");
-    $callDialog = $("#dialog");
+    $titleArea = $asideSec.find(".ibox-title");
+    $title = $titleArea.find(".title");
+    $contentArea = $asideSec.find('.ibox-content');
+    aboutChannelTemplate = $asideSec.find('#aboutChannel-template').html();
+    aboutUserTemplate = $asideSec.find('#aboutUser-template').html();
 
-    $infoArea.show();
-    $phone.hide();
-    $videos.hide();
-    $contentArea.show();
-
-    if (callClient === undefined)
-      callClient = new CallClient();
-
-    // bind events
-    callClient.on('onregistered', _onRegistered); // janus 사용자 등록 성공
-    callClient.on('onerrormessage', _onErrorMessage); // janus onmessage 중 에러메시지
-    callClient.on('oncalling', _onCalling); // calling
-    callClient.on('onincomingcall', _onIncomingCall); // incoming call
-    callClient.on('oncallaccepted', _onCallAccepted); // 수락 (local or remote) 성공 메시지
-    callClient.on('onlocalstream', _onLocalStream); // 자신의 Stream이 준비 되었을 때
-    callClient.on('onremotestream', _onRemoteStream); // 상대방의의 Stream이 준비 되었을 때
-    callClient.on('onHangup', _onHangup); // remote hangup
-    callClient.on('oncleanup', _onCleanup); // cleanup
-    callClient.on('makecallerror', _makeCallError); // makeCall network 에러
-    callClient.on('answercallerror', _answerCallError); // answerCall network 에러
-    callClient.on('jserror', _jsError); // call.js 자체 상태 에러
-
-    // 재연결이 필요한 에러
-    callClient.on('sessionerror', _gwError);
-    callClient.on('onregistration_failed', _gwError);
-    callClient.on('pluginerror', _gwError);
-
-    callClient.initialize(myPref.emplId);
+    // Close ibox function
+    $asideSec.find(".aside-close-link").click(function() {
+      adjustAsideArea();
+    });
   }
 
-  function _onRegistered(username) {
-    $info.html("Successfully registered!");
-  }
-
-  function _onErrorMessage(errorCode, error) {
-    $info.html('Error: ' + error + ' [errorCode: ' + errorCode + ']!');
-  }
-
-  function _makeCallError(msg) {
-    $info.html(msg);
-  }
-
-  function _onCalling() {
-    // TODO Any ringtone?
-    var msg = "Calling... Need any ringbacktone?";
-    $info.html(msg);
-    $callDialog.text(msg).dialog({
-      title: "Calling...",
-      modal: true,
-      draggable: false,
-      resizable: false,
-      position: ['center', 'top'],
-      show: 'blind',
-      hide: 'blind',
-      width: 300,
-      buttons: {
-        "Cancel": function() {
-          callClient.cancelCall();
-          $callDialog.dialog("close");
-        }
-      },
-      closeOnEscape: false,
-      open: function(event, ui) {
-        $(".ui-dialog-titlebar-close").hide();
-      }
-    }).dialog("open");
-  }
-
-  function _onIncomingCall(caller) {
-    console.log("Incoming call from " + caller + "!");
-
-    var callerObj = connSection.getUserObj(caller);
-    var callerName = (callerObj !== null) ? callerObj.loginId : caller;
-    var msg = "Incoming call from " + callerName + "!";
-
-    $callDialog.text(msg).dialog({
-      title: "Incoming call",
-      modal: true,
-      hideCloseButton: true,
-      draggable: false,
-      resizable: false,
-      position: ['center', 'top'],
-      show: 'blind',
-      hide: 'blind',
-      width: 300,
-      buttons: {
-        "Answer": function() {
-          callClient.answerCall();
-          $callDialog.dialog("close");
-        },
-        "Decline": function() {
-          callClient.declineCall();
-          $callDialog.dialog("close");
-        }
-      },
-      closeOnEscape: false,
-      open: function(event, ui) {
-        $(".ui-dialog-titlebar-close").hide();
-      }
-    }).dialog("open");
-  }
-
-  function _answerCallError() {
-    $info.html(msg);
-  }
-
-  function _onCallAccepted(peer) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
-
-    $videos.show();
-    var msg;
-    if (peer === null || peer === undefined) {
-      msg = "Call started!";
+  function adjustAsideArea(isOpen) {
+    var chatSection = $('.chat_section');
+    var asideIbox = $(".aside_section .ibox");
+    if(isOpen || chatSection.hasClass("col-xs-12 col-lg-12")) {
+      chatSection.removeClass("col-xs-12 col-lg-12").addClass( "col-xs-9 col-lg-9" );
+      asideIbox.show(500);
     } else {
-      var peerObj = connSection.getUserObj(peer);
-      var peerName = (peerObj !== null) ? peerObj.loginId : peer;
-      msg = peerName + " accepted the call!";
-    }
-
-    $info.html(msg);
-    _toggleButtonInfo(true, 'Hangup', _localHangup);
-  }
-
-  function _onLocalStream(stream) {
-    if ($('#myvideo').length === 0) {
-      $('#videoleft').append('<video class="rounded centered" id="myvideo" width=90% height=200 autoplay muted="muted"/>');
-    }
-    attachMediaStream($('#myvideo').get(0), stream);
-    $("#myvideo").get(0).muted = "muted";
-
-    var videoTracks = stream.getVideoTracks();
-    if (videoTracks === null || videoTracks === undefined || videoTracks.length === 0) {
-      // No webcam
-      $('#myvideo').remove();
-      $('#videoleft').append('<span class="no-video-text">No webcam available</span>');
+      chatSection.removeClass("col-xs-9 col-lg-9").addClass( "col-xs-12 col-lg-12" );
+      asideIbox.hide();
     }
   }
 
-  function _onRemoteStream(stream) {
-    if ($('#remotevideo').length === 0) {
-      $('#videoright').append('<video class="rounded centered" id="remotevideo" width=90% height=200 autoplay/>');
+  function initAsideSection() {
+    _initialize()
+  }
+
+  function showAboutUser(emplId) {
+    var userValue = connSection.getUserObj(emplId);
+
+    var aboutUserData = {
+      "loginId" : userValue.loginId,
+      "imgAlt" : userValue.loginId,
+      "img": "../img/profile_img" + userValue.emplId + ".jpg",
+    };
+
+    $title.html("About this conversation");
+    $contentArea.find(".content_area").remove();
+    $contentArea.prepend(Mustache.render(aboutUserTemplate, aboutUserData));
+
+    $contentArea.find(".call").click(function() {
+      callSection.showSection();
+      chatSection.hideSection(); // chat Area
+
+      callSection.showCallInfo(emplId, userValue.loginI);
+    });
+  }
+
+  function showAboutChannel(channelId) {
+    var channelValue = connSection.getChannelObj(channelId);
+    var existMembers;
+    for(var key in channelValue.memberList) {
+      var emplId = channelValue.memberList[key].emplId;
+      if(!existMembers)
+        existMembers = emplId;
+      else
+        existMembers += "," + channelValue.memberList[key].emplId;
     }
-    attachMediaStream($('#remotevideo').get(0), stream);
-    var videoTracks = stream.getVideoTracks();
-    if (videoTracks === null || videoTracks === undefined || videoTracks.length === 0 || videoTracks[0].muted) {
-      // No remote video
-      $('#remotevideo').remove();
-      $('#videoright').append('<span class="no-video-text">No remote video available</span>');
-    }
-  }
+    var membersArray = String(existMembers).split(",");
+    var memberCount = membersArray.length;
 
-  function _onCleanup(engaged, yourusername) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
+    $title.html("About #" + channelValue.name);
+    var aboutChannelData = {
+      "pinupMessage": channelValue.pinupMessage || "There are no purpose.",
+      "memberCount": memberCount,
+      "members":[]
+    };
 
-    var msg = engaged ? 'No answer!' : 'Canceled';
-    $info.html(msg);
-  }
-
-  function _cleanVideoArea() {
-    $('#myvideo').remove();
-    $('#remotevideo').remove();
-
-    $videos.hide();
-  }
-
-  function _onHangup(username, reason) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
-    _cleanVideoArea();
-
-    var msg = "Call hung up by " + username + " (" + reason + ")!";
-    $info.html(msg);
-
-    $callButton.html('Call')
-      .unbind('click').click(_makeCall);
-  }
-
-  function _jsError(msg) {
-    $info.html(msg);
-  }
-
-  function _gwError(msg) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
-    $('#myvideo').hide();
-
-    $info.html(msg);
-  }
-
-  function _toggleButtonInfo(show, title, eventHandler) {
-    if (show) {
-      $phone.show();
-      $callButton.html(title)
-        .unbind('click').click(eventHandler);
-    } else {
-      $phone.hide();
-    }
-  }
-
-  function initAsideSection(pref, connSec, chatSec) {
-    _initialize(pref, connSec, chatSec);
-  }
-
-  function showCallInfo(chatId, username) {
-    if (callClient.registered && !callClient.engaged) {
-      $info.html('Make a call to ' + username + '?');
-      _toggleButtonInfo(true, 'Call', _makeCall);
-      _cleanVideoArea()
-    }
-  }
-
-  function _makeCall() {
-    var peer = connSection.getCurrentTargetUser();
-    if (peer === undefined) {
-      console.error("No peer selected!");
+    for(var key in membersArray) {
+      var userValue = connSection.getUserObj(membersArray[key]);
+      aboutChannelData.members.push({
+        "loginId" : userValue.loginId,
+        "emplId" : userValue.emplId,
+        "imgAlt" : userValue.loginId,
+        "img": "../img/profile_img" + userValue.emplId + ".jpg",
+      });
     }
 
-    callClient.makeCall(peer);
+    $contentArea.find(".content_area").remove();
+    $contentArea.prepend(Mustache.render(aboutChannelTemplate, aboutChannelData));
+
+    $contentArea.find(".addMember").bind("click", function() {
+      var $inviteChannelModal = $("#inviteChannelModal");
+      var chosenSelect = $inviteChannelModal.find(".chosen-select");
+      chosenSelect.find("option").remove();
+
+      var userArray = connSection.getUsers();
+      for(var key in userArray) {
+        var userValue = userArray[key];
+        var isMember = membersArray.indexOf(String(userValue.emplId));
+        if(isMember < 0)
+          chosenSelect.append("<option value='" + userValue.emplId + "'>" + userValue.loginId + "</option>");
+      }
+      chosenSelect.chosen({width:"100%"});
+      $inviteChannelModal.modal();
+
+      // set event for new create channel
+      $inviteChannelModal.find(".invite").one("click", function() {
+        var $inviteChannelForm = $("#inviteChannelForm");
+
+        var newMembers = $inviteChannelForm.find("[name=members]").val();
+        var params = {
+          "channelId": channelId,
+          "members": newMembers,
+        };
+
+        restResourse.channel.addMember(params,
+          function(response) {
+            // Success
+            if(response.statusCode === 200) {
+              // 새로운 추가운 사용자 대상으로 그룹 가입 권고
+              var paramsForNewMember = {
+                "type": constants.GROUP_CREATE,
+                "channelId": channelId,
+                "name" : channelValue.name
+              }
+
+              var loginIds = "";
+              for(var key in newMembers) {
+                chatModule.sendCommand(newMembers[key], paramsForNewMember);
+                var memberInfo = connSection.getUserObj(newMembers[key]);
+                loginIds += " #" + memberInfo.loginId;
+              }
+
+              // 기존 사용자에게 멤버 추가
+              var paramsForExistMember = {
+                "type": constants.GROUP_ADD_MEMBER,
+                "channelId": channelId,
+                "newMembers": newMembers
+              }
+
+              for(var member in existMembers) {
+                chatModule.sendCommand(member, paramsForExistMember);
+              }
+
+              chatSection.sendMsg("Invite members - " + loginIds, constants.GROUP_CHAT, channelId); // 멤버 추가 메시지 전송
+
+              // form reset
+              $inviteChannelForm.each(function() {
+                if(this.className  == "frmClass") this.reset();
+              });
+
+              $inviteChannelModal.modal("hide");
+            } else {
+              console.log("[fail add memeber]" + response.statusMessage);
+            }
+          }
+        );
+      });
+    });
+
+    $contentArea.find(".leaveChannel").click(function() {
+      var params = {
+        "channelId": channelId,
+        "members": myPref.emplId,
+      };
+
+      restResourse.channel.removeMember(params,
+        function(response) {
+          if(response.statusCode === 200) {
+
+            var channelValue = connSection.getChannelObj(channelId);
+            if(channelValue) {
+              var members;
+              for(var key in channelValue.memberList) {
+                var emplId = channelValue.memberList[key].emplId;
+
+                var params = {
+                  "type": constants.GROUP_REMOVE_MEMBER,
+                  "channelId": channelId,
+                  "member": myPref.emplId
+                }
+
+                chatModule.sendCommand(emplId, params);
+              }
+            }
+
+            chatSection.sendMsg("퇴장 members - " + myPref.loginId, constants.GROUP_CHAT, channelId); // 멤버 삭제 메시지 전송
+          } else {
+            console.log("[fail add memeber]" + response.statusMessage);
+          }
+        }
+      );
+    });
   }
 
-  function _localHangup() {
-    callClient.localHangup();
-    $videos.hide();
+  function displayMember(members) {
+    for(var key in members) {
+      var userValue = connSection.getUserObj(members[key]);
+      var imgUrl = "../img/profile_img" + userValue.emplId + ".jpg";
+      $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.loginId + "'>" + userValue.loginId + "</a></li>");
+    }
+  }
+
+  function hideMember(member) {
+    $contentArea.find(".members [data-emplid='" + member + "']").remove();
+  }
+
+  function hideSection() {
+    $asideSec.hide();
+  }
+
+  function showSection() {
+    $asideSec.show();
   }
 
   return {
     initAsideSection: initAsideSection,
-    showCallInfo: showCallInfo
+    showAboutChannel: showAboutChannel,
+    showAboutUser: showAboutUser,
+    adjustAsideArea: adjustAsideArea,
+    displayMember: displayMember,
+    hideMember: hideMember,
+    hideSection: hideSection,
+    showSection: showSection
   };
 })();
 
