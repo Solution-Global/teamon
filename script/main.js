@@ -4,7 +4,6 @@ require('bootstrap');
 require('metismenu');
 require('malihu-custom-scrollbar-plugin')($);
 var Mustache = require('mustache');
-// var chat = require('../script/module/chat.js');
 var connSection = require('../script/module/screen/conn_section.js');
 var chatSection = require('../script/module/screen/chat_section.js');
 var asideSection = require('../script/module/screen/aside_section.js');
@@ -13,9 +12,12 @@ var headerSection = require('../script/module/screen/header_section.js');
 
 var remote = require('remote');
 var path = require('path');
+var constants = require("../script/module/constants.js");
 var storageManager = require('../script/module/storage/storage_manager.js')(false);
 var preference = require('../script/module/storage/preference.js');
 var messageManager = require('../script/module/storage/message.js');
+var chatModule = require('../script/module/chat_client.js');
+var myPref; // Login 한 사용자 정보 저장
 
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
@@ -25,8 +27,6 @@ function initialize() {
   initCustomScrollbar();
   initLoginStatus();
 }
-
-var myPref;
 
 function initLoginStatus() {
   var remeberEmplId = storageManager.getValue("remeberEmplId");
@@ -92,11 +92,11 @@ function loginSubmit() {
 }
 
 function initScreenSection() {
-  connSection.initConnSection(myPref, chatSection, asideSection);
-  chatSection.initChatSection(myPref, connSection, asideSection, headerSection);
-  asideSection.initAsideSection(myPref, callSection);
-  callSection.initCallSection(myPref);
-  headerSection.initHeaderSection(myPref, asideSection);
+  connSection.initConnSection();
+  chatSection.initChatSection();
+  asideSection.initAsideSection();
+  callSection.initCallSection();
+  headerSection.initHeaderSection();
 }
 
 function windowResize() {
@@ -115,7 +115,6 @@ function windowResize() {
     var connectHeaderHeight = $connection_section.find(".nav-header").outerHeight(true);
     var connectChannelsHeight = $connection_section.find(".channels-link").outerHeight(true);
     var connectUsersHeight = $connection_section.find(".users-link").outerHeight(true);
-    var defaultHeight = 3;
 
     // 마지막의 3,2,1 오차 pixel.
     var scrollHeight = windowHeight - connectHeaderHeight - connectChannelsHeight - connectUsersHeight - 3;

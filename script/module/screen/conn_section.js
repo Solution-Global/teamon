@@ -1,13 +1,8 @@
 'use strict';
 
 var Cache = require('../cache');
-var constants = require("../constants");
 
 var connSection = (function() {
-  var myPref;
-  var chatSection;
-  var asideSection;
-
   // cache DOM
   var $connSec;
   var $userListContext;
@@ -18,11 +13,7 @@ var connSection = (function() {
   var userCache = new Cache();
   var channelCache = new Cache();
 
-  function _initialize(pref, chatSec, asideSec) {
-    myPref = pref;
-    chatSection = chatSec;
-    asideSection = asideSec;
-
+  function _initialize() {
     // 초기화
     messageManager = messageManager(storageManager, myPref, userCache, channelCache);
 
@@ -32,6 +23,12 @@ var connSection = (function() {
     userTemplate = $userListContext.find('#user-template').html();
     channeTemplate = $channelListContext.find('#channel-template').html();
 
+
+    _initEventForAddingChannel();
+    _initEventForChattingList();
+  }
+
+  function _initEventForChattingList() {
     // set event for direct chatting
     $userListContext.delegate("li", "click", function() {
       $channelListContext.find("li.active").removeClass("active");
@@ -40,7 +37,7 @@ var connSection = (function() {
       $targetList.addClass("active");
       chatSection.changeChatView(constants.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
       // asideSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
-      asideSection.showAboutUser($targetList.data("emplid"), userCache);
+      asideSection.showAboutUser($targetList.data("emplid"));
     });
 
     // set event for group chatting
@@ -50,15 +47,17 @@ var connSection = (function() {
       var $targetList = $(this);
       $targetList.addClass("active");
       chatSection.changeChatView(constants.GROUP_CHAT, $targetList.data("channelid"), $targetList.data("name"));
-      asideSection.showAboutChannel($targetList.data("channelid"), $targetList.data("members"), userCache, channelCache);
+      asideSection.showAboutChannel($targetList.data("channelid"));
     });
+  }
 
+  function _initEventForAddingChannel() {
     // set event for channel modal
-    $connSec.find(".joinChannel").click(function() {
-      var channlJoinModal = $("#channlJoinModal");
-      var channelForm = $("#channelForm");
+    $connSec.find(".joinChannel").bind("click", function() {
+      var $channlJoinModal = $("#channlJoinModal");
+      var $channelForm = $("#channelForm");
       var userArray = userCache.getValueArray();
-      var chosenSelect = channelForm.find(".chosen-select");
+      var chosenSelect = $channelForm.find(".chosen-select");
       for(var key in userArray) {
         // if (userArray[key].emplId === myPref.emplId)
         //   continue;
@@ -67,7 +66,7 @@ var connSection = (function() {
       chosenSelect.chosen({width:"100%"});
 
       // set validation for login Form
-      channelForm.validate({
+      $channelForm.validate({
         rules: {
           name: {
             required: true,
@@ -81,27 +80,44 @@ var connSection = (function() {
       });
 
       // set event for new create channel
-      channlJoinModal.find(".create").click(function() {
-        if(!channelForm.valid())
+      $channlJoinModal.find(".create").one("click", function() {
+        if(!$channelForm.valid())
           return;
 
-          var name = channelForm.find("[name=name]");
-          var members = channelForm.find("[name=members]");
-          var pinupMessage = channelForm.find("[name=pinupMessage]");
+          var name = $channelForm.find("[name=name]").val();
+          var members = $channelForm.find("[name=members]").val();
+          var pinupMessage = $channelForm.find("[name=pinupMessage]").val();
 
+          console.error(typeof members);
           var params = {
             "coId": myPref.coId,
-            "name": name.val(),
-            "members": members.val(),
-            "pinupMessage": pinupMessage.val()
+            "name": name,
+            "members": members,
+            "pinupMessage": pinupMessage
           };
 
           restResourse.channel.createChannel(params,
-            function(response) {
+            function(data, response) {
               // Success
               if(response.statusCode === 200) {
-                _initChannels();
-                channlJoinModal.modal("hide");
+                var params = {
+                  "type": constants.GROUP_CREATE,
+                  "channelId": data.channelId,
+                  "name" : name
+                }
+
+                for(var key in members) {
+                  chatModule.sendCommand(members[key], params);
+                }
+
+                chatSection.sendMsg("Join Channel - " + pinupMessage, constants.GROUP_CHAT, data.channelId); // 가입 메시지 전송
+
+                // form reset
+                $channelForm.each(function() {
+                  if(this.className  == "frmClass") this.reset();
+                });
+
+                $channlJoinModal.modal("hide");
               } else {
                 console.log("[fail creating channel]" + response.statusMessage);
               }
@@ -109,12 +125,54 @@ var connSection = (function() {
           );
       });
 
-      channlJoinModal.modal(); // show modal
+      $channlJoinModal.modal(); // show modal
     });
   }
 
-  function initConnSection(pref, chatSec, asideSec) {
-    _initialize(pref, chatSec, asideSec);
+  function displayChannel(params) {
+    var channelData = {
+      "channelId": params.channelId,
+      "name": params.name
+    };
+    $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
+
+    reloadChannel(params.channelId);
+  }
+
+  function displayChannel(params) {
+    var channelData = {
+      "channelId": params.channelId,
+      "name": params.name
+    };
+    $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
+
+    reloadChannel(params.channelId);
+  }
+
+  function hideChannel(channelId) {
+    $channelListContext.find("[data-channelid='" + channelId + "']").remove();
+    reloadChannel(channelId);
+  }
+
+  function reloadChannel(channelId) {
+    var params = {
+      "channelId": channelId,
+      "memberIncluded": true
+    };
+
+    restResourse.channel.getChannel(params, function(data, response) {
+      if(response.statusCode === 200) {
+        if(data.channelId) {
+          channelCache.set(channelId, data);
+        }
+      } else {
+        console.error("fail channel reload!!");
+      }
+    });
+  }
+
+  function initConnSection() {
+    _initialize();
     _initUsers();
     _initChannels();
   }
@@ -158,7 +216,6 @@ var connSection = (function() {
 
           var channelData = {
               "channelId": row.channelId,
-              "members": members,
               "name": row.name,
           };
           $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
@@ -205,13 +262,15 @@ var connSection = (function() {
   }
 
   function hideAlram(chatType, chatId) {
+    console.log("[hideAlram] %s, %s" ,chatType,chatId );
     var $activeTarget;
     if (chatType === constants.DIRECT_CHAT)
       $activeTarget = $userListContext.find("[data-emplid='" + chatId + "']");
     else
-      $activeTarget = $channelListContext.find("[data-channel='" + chatId + "']");
+      $activeTarget = $channelListContext.find("[data-channelid='" + chatId + "']");
 
     var alarmArea = $activeTarget.find(".alarm");
+    console.log(alarmArea);
     alarmArea.addClass("hide");
     alarmArea.html("");
   }
@@ -272,6 +331,9 @@ var connSection = (function() {
     return userCache.get(emplId);
   }
 
+  function getUsers() {
+    return userCache.getValueArray();
+  }
   function getChannelObj(channelId) {
     return channelCache.get(channelId);
   }
@@ -282,7 +344,12 @@ var connSection = (function() {
     setAlarmCnt: setAlarmCnt,
     getCurrentTargetUser: getCurrentTargetUser,
     setCurrentTargetUser: setCurrentTargetUser,
-    getUserObj: getUserObj
+    getUserObj: getUserObj,
+    getUsers: getUsers,
+    getChannelObj: getChannelObj,
+    displayChannel: displayChannel,
+    hideChannel: hideChannel,
+    reloadChannel: reloadChannel
   };
 })();
 

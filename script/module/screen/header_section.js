@@ -1,18 +1,12 @@
 'use strict';
 
 var headerSec = (function() {
-  var myPref;
-  var asideSection;
-
   // cache DOM
   var $headerSec;
   var $titleArea;
   var $title;
 
-  function _initialize(pref, asideSec) {
-    myPref = pref;
-    asideSection = asideSec;
-
+  function _initialize() {
     $headerSec = $(".header_section");
     $titleArea = $headerSec.find(".title_area");
     $title = $headerSec.find(".tit");
@@ -22,11 +16,11 @@ var headerSec = (function() {
     });
   }
 
-  function initHeaderSection(pref, asideSec) {
-    _initialize(pref, asideSec)
+  function initHeaderSection() {
+    _initialize()
   }
 
-  function setTitle(text) {
+  function setTitle(chatType, text) {
     $title.html(text);
   }
 

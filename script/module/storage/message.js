@@ -3,21 +3,21 @@
 var constants = require("../constants");
 /*
   - Lacal storage 에 저장 되는 message 관련 포맷
-  key : CHAT_FIRST_MSGID_[myPref.emplId]  or CHAT_LAST_MSGID_[myPref.emplId]
+  key : CHAT_FIRST_MSGID_[login emplId]  or CHAT_LAST_MSGID_[login emplId]
   value : format is JSON.
   { "direct" : {
-    "1": 100, -- opponentEmplId : messageId
+    "1": 100, -- EmplId : messageId
     "2" : 200,
     ...
   },
   "group" : {
-    "1": 200, -- channelId : channelId
+    "1": 200, -- channelId : messageId
     "2" : 300,
     ...
   }}
 
-  Direct Key : CHAT_[coId]_[myPref.emplId]_[myPref.opponentEmplId]
-  Group Key : CHAT_[coId]_[myPref.emplId]_[myPref.channelId]
+  Direct Key : CHAT_[coId]_[login emplId]_[opponentEmplId]
+  Group Key : CHAT_[coId]_[login emplId]_[channelId]
   value :
   { "msgId":613,
   "mode":"send",

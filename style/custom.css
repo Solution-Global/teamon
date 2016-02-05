@@ -3,20 +3,17 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
-
 .public_area {
 	padding-top:20px;
 	text-align:center;
 	background-color: transparent;
 }
-
-  .os {
+.os {
 	margin-right: -250px;
-  }
-
+}
 h1 {
-    overflow: hidden;
-    text-align: center;
+  overflow: hidden;
+  text-align: center;
 	font-size: 15px;
 }
 h1:before,
@@ -40,4 +37,10 @@ h1:after {
 .nopadding {
    padding: 0 !important;
    margin: 0 !important;
+}
+.member-avatar {
+  white: 30px;
+  height: 30px;
+  border-radius: 50%;
+	padding: 5px;
 }

@@ -3,9 +3,6 @@
 var CallClient = require('../call_client.js');
 
 var callSection = (function() {
-  var myPref;
-  var connSection;
-  var chatSection;
   var callClient;
 
   // cache DOM
@@ -18,11 +15,7 @@ var callSection = (function() {
   var $videos;
   var $callDialog;
 
-  function _initialize(pref, connSec, chatSec) {
-    myPref = pref;
-    connSection = connSec;
-    chatSection = chatSec;
-
+  function _initialize() {
     $callSec = $(".call_section");
     $contentArea = $callSec.find('.content_area');
     $infoArea = $contentArea.find('.info_area');
@@ -31,7 +24,7 @@ var callSection = (function() {
     $callButton = $phone.find("#call");
     $videos = $contentArea.find("#videos");
     $callDialog = $("#dialog");
-  
+
     $infoArea.show();
     $phone.hide();
     $videos.hide();
@@ -237,8 +230,8 @@ var callSection = (function() {
     }
   }
 
-  function initCallSection(pref, connSec, chatSec) {
-    _initialize(pref, connSec, chatSec);
+  function initCallSection() {
+    _initialize();
   }
 
   function showCallInfo(chatId, username) {
@@ -263,7 +256,17 @@ var callSection = (function() {
     $videos.hide();
   }
 
+  function hideSection() {
+    $callSec.hide();
+  }
+
+  function showSection() {
+    $callSec.show();
+  }
+
   return {
+    hideSection : hideSection,
+    showSection : showSection,
     initCallSection: initCallSection,
     showCallInfo: showCallInfo
   };

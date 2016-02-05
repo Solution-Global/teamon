@@ -21,7 +21,7 @@ var chat = (function() {
     }
   }
 
-  function _getTopicPrefix(connType, partid) {
+  function _getMsgTopicPrefix(connType, partid) {
     var myTopic;
     if (connType === constants.DIRECT_CHAT) {
       myTopic = "{peer}/";
@@ -37,6 +37,10 @@ var chat = (function() {
     }
 
     return myInfo.coid + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
+  }
+
+  function _getCommandTopicPrefix(receiver) {
+    return myInfo.coid + constants.TOPIC_COMMAND + "/" + receiver;
   }
 
   function _createMQTTClient() {
@@ -57,7 +61,8 @@ var chat = (function() {
     // topic array: presence, msg(direct, group)
     var topicArray = [myInfo.coid + constants.TOPIC_PRESENCE_ALL,
       myInfo.coid + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + myInfo.emplid + "/+",
-      myInfo.coid + constants.TOPIC_MSG + "/" + constants.GROUP_CHAT + "/+"
+      myInfo.coid + constants.TOPIC_MSG + "/" + constants.GROUP_CHAT + "/+",
+      myInfo.coid + constants.TOPIC_COMMAND + "/" + myInfo.emplid
     ];
 
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
@@ -71,6 +76,16 @@ var chat = (function() {
     var payloadStr = payload.toString();
     console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
     myInfo.recvCallback(myInfo.emplid, topic, payloadStr);
+  }
+
+  function _publishCommand(data, params){
+    var topicPrefix = "1/command/1"
+    var msgPayload = {
+      test: "test"
+    };
+    var msgPayloadStr = JSON.stringify(msgPayload);
+    myInfo.client.publish(topicPrefix, msgPayloadStr);
+    console.log('_publishMsg to the channel members [topic:%s, msg:%s]', topicPrefix, msgPayloadStr);
   }
 
   function _publishMsg(data, params) {
@@ -104,7 +119,7 @@ var chat = (function() {
     };
 
     var msgPayloadStr = JSON.stringify(msgPayload);
-    var topicPrefix = _getTopicPrefix(params.chatType, receiver);
+    var topicPrefix = _getMsgTopicPrefix(params.chatType, receiver);
     if (topicPrefix !== null) {
       if (params.chatType === constants.DIRECT_CHAT) {
         // 상대방 토픽으로 전송
@@ -118,12 +133,18 @@ var chat = (function() {
         console.log('_publishMsg to myself [topic:%s, msg:%s]', myTopic, msgPayloadStr);
 
       } else if (params.chatType === constants.GROUP_CHAT) {
-
         // 채팅방으로 토픽으로 전송
         myInfo.client.publish(topicPrefix, msgPayloadStr);
         console.log('_publishMsg to the channel members [topic:%s, msg:%s]', receiverTopic, msgPayloadStr);
       }
     }
+  }
+
+  function sendCommand(receiver, commandPayload) {
+    var topicPrefix = _getCommandTopicPrefix(receiver);
+    var commandPayloadStr = JSON.stringify(commandPayload);
+    myInfo.client.publish(topicPrefix, commandPayloadStr);
+    console.log('sendCommand to the channel members [topic:%s, msg:%s]', topicPrefix, commandPayloadStr);
   }
 
   function sendMsg(chatType, receiver, msg) {
@@ -155,7 +176,8 @@ var chat = (function() {
   return {
     configMyInfo: configMyInfo,
     sendMsg: sendMsg,
-    finalize: finalize
+    finalize: finalize,
+    sendCommand: sendCommand
   };
 })();
 

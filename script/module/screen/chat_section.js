@@ -1,17 +1,9 @@
 'use strict';
 
-var constants = require("../constants");
-
 var chatSection = (function() {
   const MESSAGE_TYPE_APPEND = 1;
   const MESSAGE_TYPE_PREPEND = 2;
-
-  var myPref;
   var activeChatInfo;
-  var connSection;
-  var asideSection;
-  var headerSection;
-  var chatModule = require('../chat_client');
 
   // cache DOM
   var $chatSec;
@@ -22,12 +14,7 @@ var chatSection = (function() {
   var msgTemplate;
   var dateLineTemplate;
 
-  function _initialize(pref, connSec, asideSec, headerSec) {
-    myPref = pref;
-    connSection = connSec;
-    asideSection = asideSec;
-    headerSection = headerSec;
-
+  function _initialize() {
     $chatSec = $(".chat_section");
     $contentArea = $chatSec.find('.content_area');
     $mcsbContainer = $contentArea.find('.mCSB_container');
@@ -41,7 +28,8 @@ var chatSection = (function() {
     $inputText.on('keyup', _keyup);
   }
 
-  function sendMsg(msg) {
+
+  function sendMsg(msg, chatType, chatRoomId) {
     if (typeof msg !== "string") {
       msg = $inputText.val();
     }
@@ -49,12 +37,16 @@ var chatSection = (function() {
       return;
     }
     msg = msg.replace(/\n$/, "");
-    if (activeChatInfo === undefined) {
+    if (chatType === undefined && chatRoomId === undefined && activeChatInfo === undefined) {
       console.error("No peer selected!");
       return;
     }
 
-    chatModule.sendMsg(activeChatInfo.chatType, activeChatInfo.chatRoomId, msg);
+    chatType = chatType || activeChatInfo.chatType;
+    chatRoomId = chatRoomId || activeChatInfo.chatRoomId;
+
+    chatModule.sendMsg(chatType, chatRoomId, msg);
+
     $inputText.val('').focus();
   }
 
@@ -76,6 +68,8 @@ var chatSection = (function() {
       _handleMsg(myId, payloadStr);
     } else if (topicType === constants.TOPIC_PRESENCE) {
       _handlePresence(topic, payloadStr);
+    } else if (topicType === constants.TOPIC_COMMAND) {
+      _handleCommand(topicArray[2], payloadStr);
     } else {
       console.error("Invalid topic format[%s], payload:", topic, payloadStr);
     }
@@ -89,7 +83,6 @@ var chatSection = (function() {
           if(value[key - 1] && value[key - 1].date != value[key].date) {
             $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value[key].date)));
           }
-
           $mcsbContainer.append(Mustache.render(msgTemplate, _getMsgJsonForm(value[key])));
         }
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
@@ -128,6 +121,54 @@ var chatSection = (function() {
   }
   function _getDateLineJsonForm(date) {
     return {"dateline" : [{"date" : date}]};
+  }
+
+  function _handleCommand(receiver, payloadStr) {
+    console.info("_handleCommand information %s, %s", receiver, payloadStr);
+
+    if(receiver != myPref.emplId) {
+      console.error("reciver not match %s, %s", reciver, myPref.emplId);
+      return;
+    }
+
+    var commandPayload = JSON.parse(payloadStr);
+    /*
+      msgPayload = {
+        type:  // COMMAND 타입 (client 담당)
+        ...  // 각 command 타입에 따른 return value
+      }
+    */
+
+    switch (commandPayload.type) {
+      case constants.GROUP_CREATE:
+        connSection.displayChannel(commandPayload);
+      break;
+      case constants.GROUP_ADD_MEMBER:
+        connSection.reloadChannel(commandPayload.channelId);
+        // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
+        if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
+          asideSection.displayMember(commandPayload.newMembers);
+        }
+      break;
+      case constants.GROUP_REMOVE_MEMBER:
+        connSection.reloadChannel(commandPayload.channelId);
+
+        if(myPref.emplId === commandPayload.member) {
+          // 화면 닫기 & 리스트제거
+          asideSection.hideSection();
+          chatSection.hideSection();
+          connSection.hideChannel(commandPayload.channelId);
+        } else {
+          if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
+            // 사용자 제거
+            asideSection.hideMember(commandPayload.member);
+          }
+        }
+      break;
+      default:
+      console.error("invalid command[%s]", commandPayload.type);
+      return;
+    }
   }
 
   function _handleMsg(myId, payloadStr) {
@@ -178,7 +219,7 @@ var chatSection = (function() {
         direct 일 때?
         - receiver나 publisher가  active chatRoomId 동일 해야함
       */
-      if(activeChatInfo.chatType === msgPayload.chatType && (activeChatInfo.chatRoomId  === msgPayload.publisher || activeChatInfo.chatRoomId === msgPayload.receiver)) {
+      if(activeChatInfo && activeChatInfo.chatType === msgPayload.chatType && (activeChatInfo.chatRoomId  === msgPayload.publisher || activeChatInfo.chatRoomId === msgPayload.receiver)) {
         _displayMessages(MESSAGE_TYPE_APPEND, message);
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       } else {
@@ -194,7 +235,7 @@ var chatSection = (function() {
         chatRoomId = msgPayload.receiver;
       }
 
-      messageManager.appendChatMessage(message, activeChatInfo.chatType, chatRoomId);
+      messageManager.appendChatMessage(message, msgPayload.chatType, chatRoomId);
     }
   }
 
@@ -203,8 +244,8 @@ var chatSection = (function() {
     console.info("topic[%s], payload:", topic, payloadStr);
   }
 
-  function initChatSection(pref, connSec, asideSec, headerSec) {
-    _initialize(pref, connSec, asideSec, headerSec);
+  function initChatSection() {
+    _initialize();
 
     var coId = myPref.coId;
     var emplId = myPref.emplId;
@@ -216,7 +257,7 @@ var chatSection = (function() {
   }
 
   function changeChatView(chatType, chatRoomId, chatRoomName) {
-    console.log("chatType:%s, chatRoomId:%s, loginId:%s",chatType, chatRoomId, chatRoomName);
+    console.log("chatType:%s, chatRoomId:%s, chatRoomName:%s",chatType, chatRoomId, chatRoomName);
 
     activeChatInfo = {
       "chatType" : chatType,
@@ -231,8 +272,12 @@ var chatSection = (function() {
       $(row).remove();
     });
 
+    callSection.hideSection();
+    showSection(); // chat Area
+    asideSection.showSection();
+
     connSection.hideAlram(chatType, chatRoomId); // init Alram
-    headerSection.setTitle(chatRoomName);
+    headerSection.setTitle(chatType, chatRoomName);
 
     var messageArray = messageManager.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId); // get previous messages
     if(messageArray) {
@@ -250,7 +295,17 @@ var chatSection = (function() {
     chatModule.finalize();
   }
 
+  function hideSection() {
+    $chatSec.hide();
+  }
+
+  function showSection() {
+    $chatSec.show();
+  }
+
   return {
+    hideSection : hideSection,
+    showSection : showSection,
     sendMsg: sendMsg,
     recvMsg: recvMsg,
     initChatSection: initChatSection,
