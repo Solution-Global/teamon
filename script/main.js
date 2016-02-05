@@ -47,7 +47,7 @@ function initLoginStatus() {
 }
 
 function initScreenSection() {
-  // local에 저장되지 않는 message들 모두 laod
+  // local에 저장되지 않는 message들 모두 load
   messageManager = messageManager(storageManager, myPref);
   messageManager.syncChatMessage();
 
