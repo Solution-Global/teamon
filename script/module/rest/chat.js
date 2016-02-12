@@ -31,6 +31,23 @@ Chat.prototype.getListByPeers = function(params, callBackRequiredValues, callbac
   });
 }
 
+Chat.prototype.getMentionList = function(params, callback) {
+  var self = this;
+  console.log("getMentionList - [emplId]" + params.emplId);
+  var args = {
+    path: {
+      "emplId": params.emplId
+    },
+    headers: self.restCommon.commonHeaders
+  };
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/mention/${emplId}", args,
+    function(data, response) {
+      callback(data);
+    }).on('error', function(err) {
+    console.error('something went wrong on the request', err.request.options);
+  });
+}
+
 Chat.prototype.postMsg = function(params, callback) {
   var self = this;
   console.log("postMsg - [coId]" + params.coId + "[chatType]" + params.chatType + "[peer1]" + params.peer1 + "[peer2]" + params.peer2 + "[spkrid]" + params.spkrid + "[msg]" + params.msg);

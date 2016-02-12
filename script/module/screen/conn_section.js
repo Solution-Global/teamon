@@ -23,7 +23,6 @@ var connSection = (function() {
     userTemplate = $userListContext.find('#user-template').html();
     channeTemplate = $channelListContext.find('#channel-template').html();
 
-
     _initEventForAddingChannel();
     _initEventForChattingList();
   }
@@ -88,7 +87,6 @@ var connSection = (function() {
           var members = $channelForm.find("[name=members]").val();
           var pinupMessage = $channelForm.find("[name=pinupMessage]").val();
 
-          console.error(typeof members);
           var params = {
             "coId": myPref.coId,
             "name": name,
@@ -270,7 +268,6 @@ var connSection = (function() {
       $activeTarget = $channelListContext.find("[data-channelid='" + chatId + "']");
 
     var alarmArea = $activeTarget.find(".alarm");
-    console.log(alarmArea);
     alarmArea.addClass("hide");
     alarmArea.html("");
   }

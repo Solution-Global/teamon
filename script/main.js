@@ -53,14 +53,12 @@ function loginSubmit() {
   if(!loginForm.valid())
     return;
 
-  var loginIdObj = loginForm.find("[name=loginId]");
-  var passwordObj = loginForm.find("[name=password]");
-  var companyObj = loginForm.find("[name=company]");
   var rememberMe = loginForm.find("[name=rememberMe]");
+
   var params = {
-    "company": companyObj.val(),
-    "loginId": loginIdObj.val(),
-    "password": passwordObj.val(),
+    "company": loginForm.find("[name=company]").val(),
+    "loginId": loginForm.find("[name=loginId]").val(),
+    "password": loginForm.find("[name=password]").val(),
   };
 
   restResourse.login.login(params,
@@ -88,6 +86,27 @@ function loginSubmit() {
     preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
 
     $("#loginModal").modal("hide");
+  });
+}
+
+function registerEmpl() {
+  var registerEmplForm = $("#registerEmplForm");
+  if(!registerEmplForm.valid())
+    return;
+
+  var params = {
+    "company": registerEmplForm.find("[name=company]").val(),
+    "loginId": registerEmplForm.find("[name=loginId]").val(),
+    "password": registerEmplForm.find("[name=password]").val(),
+    "name": registerEmplForm.find("[name=name]").val(),
+    "dept": registerEmplForm.find("[name=dept]").val(),
+    "mobile": registerEmplForm.find("[name=mobile]").val(),
+    "office": registerEmplForm.find("[name=office]").val()
+  };
+
+  restResourse.empl.createEmpl(params,
+    function(data) {
+      $("#registerEmplModal").modal("hide");
   });
 }
 
@@ -162,6 +181,55 @@ function bindEvents() {
   $('#loginModal .sign-in').click(function() {
     loginSubmit();
   });
+
+  // set validation for login Form
+  $("#registerEmplForm").validate({
+    rules: {
+      company: {
+        required: true,
+        minlength: 6
+      },
+      loginId: {
+        required: true,
+        minlength: 4
+      },
+      name: {
+        required: true,
+        minlength: 4
+      },
+      password: {
+        required: true,
+        minlength: 6
+      }
+    }
+  });
+
+  $('#registerEmplModal').find('[name=company]').focusout(function() {
+    var $register = $(this);
+    var name = $register.val();
+    if(!name)
+      return;
+    var params = {
+      "name": $register.val(),
+    };
+
+    restResourse.company.getCompanyByName(params,
+      function(data, response) {
+        // Success
+        if(response.statusCode === 200) {
+          if(!data.coId) {
+            $register.after("<label id='company-error' class='error' for='company'>Invaid Comapny</label>");
+          }
+        } else {
+          console.log("[fail search company]" + response.statusMessage);
+        }
+      }
+    );
+  });
+
+  $('#registerEmplModal .register').click(function() {
+    registerEmpl();
+  });
 }
 
 function initCustomScrollbar() {
@@ -179,12 +247,6 @@ function initCustomScrollbar() {
     onTotalScrollOffset:100,
     alwaysTriggerOffsets:false
   }).mCustomScrollbar("scrollTo", "bottom");
-
-  $('.aside_section .content_area').mCustomScrollbar({
-    axis:"y",
-		setWidth: "auto",
-    theme:"3d",
-  });
 
   var scrollHeight = $(window).height() - 230;
   $('.connection_section .chat-channels').mCustomScrollbar({

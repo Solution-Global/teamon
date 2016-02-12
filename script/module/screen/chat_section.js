@@ -20,14 +20,27 @@ var chatSection = (function() {
     $mcsbContainer = $contentArea.find('.mCSB_container');
     $inputText = $chatSec.find('.message-input');
     $btnSend = $chatSec.find('.btn_send');
-    msgTemplate = $contentArea.find('#msg-template').html();
-    dateLineTemplate = $contentArea.find('#dateline-template').html();
+    msgTemplate = $('#msg-template').html();
+    dateLineTemplate = $('#dateline-template').html();
 
     // bind events
     $btnSend.on('click', sendMsg);
     $inputText.on('keyup', _keyup);
+
+    $inputText.mention({
+      delimiter: '@',
+      users : [],
+      queryBy : ['username'],
+      ending : function() {
+        console.log("ending");
+        $inputText.one('keyup', _keyup);
+      }
+    });
   }
 
+  function _lastChatRoom() {
+    storageManager.setValue("remeberEmplId", data.emplId);
+  }
 
   function sendMsg(msg, chatType, chatRoomId) {
     if (typeof msg !== "string") {
@@ -47,11 +60,13 @@ var chatSection = (function() {
 
     chatModule.sendMsg(chatType, chatRoomId, msg);
 
-    $inputText.val('').focus();
+    $inputText.val("").focus();
   }
 
   function _keyup(event) {
+    console.log("_keyup :" + event.keyCode);
     if (event.keyCode == 13 && event.shiftKey !== true) {
+      console.log("_keyup");
       $btnSend.click();
     }
   }
@@ -81,24 +96,24 @@ var chatSection = (function() {
       if(MESSAGE_TYPE_APPEND === type) {
         for (var key = 0; key < value.length; key++) {
           if(value[key - 1] && value[key - 1].date != value[key].date) {
-            $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value[key].date)));
+            $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value.date}));
           }
-          $mcsbContainer.append(Mustache.render(msgTemplate, _getMsgJsonForm(value[key])));
+          $mcsbContainer.append(Mustache.render(msgTemplate, value[key]));
         }
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       } else {
         // prepend mode
         var firstDate = messageTags ? messageTags.first().data("date") : undefined;
         for (var key = (value.length-1); key > -1; key--) {
-          $mcsbContainer.prepend(Mustache.render(msgTemplate, _getMsgJsonForm(value[key])));
+          $mcsbContainer.prepend(Mustache.render(msgTemplate, value[key]));
 
           if (key === (value.length-1)) {
             if(firstDate && value[key].date != firstDate) {
-              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, _getDateLineJsonForm(firstDate)));
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value.date}));
             }
           } else {
             if(value[key - 1] && value[key - 1].date != value[key].date) {
-              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value[key].date)));
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value.date}));
             }
           }
         }
@@ -107,20 +122,12 @@ var chatSection = (function() {
       if(MESSAGE_TYPE_APPEND === type) {
         var lastDate = messageTags ? messageTags.last().data("date"): undefined;
         if(lastDate && value.date != lastDate) {
-          $mcsbContainer.append(Mustache.render(dateLineTemplate, _getDateLineJsonForm(value.date)));
+          $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value.date}));
         }
-        $mcsbContainer.append(Mustache.render(msgTemplate, _getMsgJsonForm(value)));
+        $mcsbContainer.append(Mustache.render(msgTemplate, value));
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       }
     }
-  }
-
-  function _getMsgJsonForm(message) {
-    // Mustache 사용하기 때문에 {msg : []} format을 유지 한다.
-    return {"msg" : [message]};
-  }
-  function _getDateLineJsonForm(date) {
-    return {"dateline" : [{"date" : date}]};
   }
 
   function _handleCommand(receiver, payloadStr) {
@@ -278,6 +285,26 @@ var chatSection = (function() {
 
     connSection.hideAlram(chatType, chatRoomId); // init Alram
     headerSection.setTitle(chatType, chatRoomName);
+
+    if(chatType === constants.GROUP_CHAT) {
+      var channelValue = connSection.getChannelObj(chatRoomId);
+      var members = [];
+      for(var key in channelValue.memberList) {
+        var userValue = connSection.getUserObj(channelValue.memberList[key].emplId);
+
+        //본인 제외
+        if(userValue.emplId == myPref.emplId )
+          continue;
+
+        members.push({
+          //"name" : userValue.loginId,
+          "username" : userValue.loginId,
+          "image": "../img/profile_img" + userValue.emplId + ".jpg"
+        });
+      }
+
+      $inputText.mention("updateUsers", members);
+    }
 
     var messageArray = messageManager.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId); // get previous messages
     if(messageArray) {

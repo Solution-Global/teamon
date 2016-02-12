@@ -9,14 +9,18 @@ var asideSection = (function() {
 
   var aboutChannelTemplate;
   var aboutUserTemplate;
+  var mentionTemplate;
+  var mentionDateLineTemplate;
 
   function _initialize() {
     $asideSec = $(".aside_section");
     $titleArea = $asideSec.find(".ibox-title");
     $title = $titleArea.find(".title");
-    $contentArea = $asideSec.find('.ibox-content');
+    $contentArea = $asideSec.find('.content_area');
     aboutChannelTemplate = $asideSec.find('#aboutChannel-template').html();
     aboutUserTemplate = $asideSec.find('#aboutUser-template').html();
+    mentionTemplate = $asideSec.find('#mention-template').html();
+    mentionDateLineTemplate = $asideSec.find('#mention-dateline-template').html();
 
     // Close ibox function
     $asideSec.find(".aside-close-link").click(function() {
@@ -50,7 +54,7 @@ var asideSection = (function() {
     };
 
     $title.html("About this conversation");
-    $contentArea.find(".content_area").remove();
+    $contentArea.empty();
     $contentArea.prepend(Mustache.render(aboutUserTemplate, aboutUserData));
 
     $contentArea.find(".call").click(function() {
@@ -59,6 +63,8 @@ var asideSection = (function() {
 
       callSection.showCallInfo(emplId, userValue.loginI);
     });
+
+    _asideSectionScroll();
   }
 
   function showAboutChannel(channelId) {
@@ -91,7 +97,7 @@ var asideSection = (function() {
       });
     }
 
-    $contentArea.find(".content_area").remove();
+    $contentArea.empty();
     $contentArea.prepend(Mustache.render(aboutChannelTemplate, aboutChannelData));
 
     $contentArea.find(".addMember").bind("click", function() {
@@ -197,6 +203,8 @@ var asideSection = (function() {
         }
       );
     });
+
+    _asideSectionScroll();
   }
 
   function displayMember(members) {
@@ -205,6 +213,21 @@ var asideSection = (function() {
       var imgUrl = "../img/profile_img" + userValue.emplId + ".jpg";
       $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.loginId + "'>" + userValue.loginId + "</a></li>");
     }
+  }
+
+  function displayMetionList(messages) {
+    $contentArea.empty();
+
+    $title.html("Mention #" + myPref.loginId);
+
+    for (var key = 0; key < messages.length; key++) {
+      if(messages[key - 1] && messages[key - 1].date != messages[key].date) {
+        $contentArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
+      }
+      $contentArea.append(Mustache.render(mentionTemplate, messages[key]));
+    }
+
+    _asideSectionScroll();
   }
 
   function hideMember(member) {
@@ -219,12 +242,21 @@ var asideSection = (function() {
     $asideSec.show();
   }
 
+  function _asideSectionScroll() {
+    $asideSec.find(".ibox-content").mCustomScrollbar({
+      axis:"y",
+  		setWidth: "auto",
+      theme:"3d"
+    });
+  }
+
   return {
     initAsideSection: initAsideSection,
     showAboutChannel: showAboutChannel,
     showAboutUser: showAboutUser,
     adjustAsideArea: adjustAsideArea,
     displayMember: displayMember,
+    displayMetionList: displayMetionList,
     hideMember: hideMember,
     hideSection: hideSection,
     showSection: showSection

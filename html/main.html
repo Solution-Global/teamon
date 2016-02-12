@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="../style/animate.css"/>
 <link rel="stylesheet" href="../style/style.css"/>
 <link rel="stylesheet" href="../style/custom.css"/>
+
 </head>
 <body>
 <div id="wrap">
@@ -74,7 +75,7 @@
 						<h5 class="tit"></h5>
 						<div class="ibox-tools">
 							<input type="text" placeholder=" Search ...">
-							<a href="#"><i class="fa fa-at fa-lg"></i></a>
+							<a href="#"><i class="mention fa fa-at fa-lg"></i></a>
 							<a href="#"><i class="fa fa-star-o fa-lg"></i></a>
 							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="fa fa-list fa-lg"></i>
@@ -136,7 +137,6 @@
 										<div class="content_area chat-discussion">
 											<!-- // msg-template -->
 											<script id="msg-template" type="text/template">
-                        {{#msg}}
                         <div class="chat-message {{mode}}" data-date="{{date}}">
                           <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}">
                           <div class="message">
@@ -147,23 +147,21 @@
                             </span>
                           </div>
                         </div>
-                        {{/msg}}
                       </script>
 											<!-- // dateline-template -->
 											<script id="dateline-template" type="text/template">
-                        {{#dateline}}
                         <div class="date_line">
                           <span>
                             <h1>{{date}}</h1>
                           </span>
                         </div>
-                        {{/dateline}}
                       </script>
 										</div>
 									</div>
 									<div class="ibox-footer nopadding">
 										<div class="input-group">
-											<input type="text" class="message-input form-control" name="message" placeholder="Enter message text">
+											<!-- <input type="text" class="message-input form-control" name="message" placeholder="Enter message text">-->
+											<textarea class="message-input form-control" name="message" placeholder="Enter message text"></textarea>
 											<span class="input-group-btn">
 											<button type="button" class="btn_send btn btn-primary">Send</button>
 											</span>
@@ -185,67 +183,89 @@
 									</a>
 								</div>
 							</div>
-							<div class="ibox-content">
+							<div class="ibox-content nopadding">
+								<div class="content_area">
+								</div>
 								<!-- 사이드 영역 tag 들  -->
 								<script id="aboutChannel-template" type="text/template">
-									<div class="content_area">
-										<div>
-											<h4><i class="fa fa-info fa-lg text-primary"></i> Purpose</h4>
-											 <p>
-													 {{pinupMessage}}
-											 </p>
-									 </div>
-									 <div class="hr-line-dashed"></div>
-									 <div>
-											 <h4><i class="fa fa-users fa-lg text-primary"></i> {{memberCount}} Members <a href="#"><span class="addMember label label-info pull-right">ADD</span></a></h4>
-											 <ul class="members category-list nopadding">
-												 {{#members}}
-												 <li data-emplid="{{emplId}}">
-													 <span><img class="member-avatar" src="{{img}}" alt="{{imgAlt}}"> {{loginId}}</span>
-												 </li>
-												 {{/members}}
-											</ul>
-									 </div>
-									 <div class="hr-line-dashed"></div>
-									 <div>
-										 <button type="button" class="leaveChannel btn btn-warning btn-sm btn-block"><i class="fa fa-sign-out"></i> Leave channel</button>
-									 </div>
-								 </div>
+									<div>
+										<h4><i class="fa fa-info fa-lg text-primary"></i> Purpose</h4>
+										 <p>
+												 {{pinupMessage}}
+										 </p>
+								 	</div>
+								 	<div class="hr-line-dashed"></div>
+								 	<div>
+										 <h4><i class="fa fa-users fa-lg text-primary"></i> {{memberCount}} Members <a href="#"><span class="addMember label label-info pull-right">ADD</span></a></h4>
+										 <ul class="members category-list nopadding">
+											 {{#members}}
+											 <li data-emplid="{{emplId}}">
+												 <span><img class="member-avatar" src="{{img}}" alt="{{imgAlt}}"> {{loginId}}</span>
+											 </li>
+											 {{/members}}
+										</ul>
+								 	</div>
+								 	<div class="hr-line-dashed"></div>
+								 	<div>
+									 <button type="button" class="leaveChannel btn btn-warning btn-sm btn-block"><i class="fa fa-sign-out"></i> Leave channel</button>
+								 	</div>
 								</script>
 
 								<script id="aboutUser-template" type="text/template">
-									<div class="content_area">
-										<div class="row m-b-lg">
-                      <div class="col-lg-4 text-center">
-                          <h3>{{loginId}}</h3>
-													<div class="m-b-sm">
-                              <img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 62px">
-                          </div>
-                      </div>
-                      <div class="col-lg-8">
-                          <strong>
-                              About me
-                          </strong>
-                          <p>
-                              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-														</p>
-                          <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> CALL</button>
-                      </div>
-                   </div>
-									 <div class="hr-line-dashed"></div>
-									 <div>
-										 <h4><i class="fa fa-history fa-lg text-primary"></i> Call History <a href="#"></a></h4>
-										 <ul class="callHistory category-list">
-											 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-											 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-											 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-											 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-											 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-											 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-											 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-										</ul>
-									 </div>
+									<div class="row m-b-lg">
+                    <div class="col-lg-4 text-center">
+                        <h3>{{loginId}}</h3>
+												<div class="m-b-sm">
+                            <img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 62px">
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <strong>
+                            About me
+                        </strong>
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+													</p>
+                        <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> CALL</button>
+                    </div>
+                 </div>
+								 <div class="hr-line-dashed"></div>
+								 <div>
+									 <h4><i class="fa fa-history fa-lg text-primary"></i> Call History <a href="#"></a></h4>
+									 <ul class="callHistory category-list">
+										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+									</ul>
 								 </div>
+								</script>
+
+								<script id="mention-template" type="text/template">
+									<div class="row m-b-lg nopadding">
+										<div class="col-lg-4">
+												<div class="m-b-sm">
+														<img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 50px">
+												</div>
+										</div>
+										<div class="col-lg-8">
+												<p> <strong>#{{channel}}</strong></p>
+												<p>{{sender}} - {{time}}</p>
+										</div>
+										<div class="col-lg-12">
+											{{msgText}}
+										</div>
+									</div>
+							 	</script>
+								<script id="mention-dateline-template" type="text/template">
+									<div class="date_line">
+										<span>
+											<h1>{{date}}</h1>
+										</span>
+									</div>
 								</script>
 								<!-- 사이드 영역 tag 들  -->
 							</div>
@@ -260,11 +280,10 @@
 
 <!-- Modal Area -->
 <!-- Login -->
-<div class="modal inmodal" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal inmodal" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
 	<div class="modal-dialog">
 		<div class="modal-content animated bounceInRight">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 				<i class="fa fa-github modal-icon"></i>
 				<h4 class="modal-title">Sign in</h4>
 				<small class="font-bold">Enter your team's domain.</small>
@@ -293,19 +312,60 @@
 							You can create an account:
 						</p>
 						<p class="text-center">
-							<a href=""><i class="fa fa-sign-in big-icon"></i></a>
+							<a href="" data-toggle="modal" data-target="#registerEmplModal"><i class="fa fa-sign-in big-icon"></i></a>
 						</p>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
 				<button type="button" class="sign-in btn btn-primary" type="submit">Sign In</button>
 			</div>
 		</div>
 	</div>
 </div>
 <!-- // Login -->
+<!-- Create Empl -->
+<div class="modal inmodal" id="registerEmplModal" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+	<div class="modal-dialog">
+		<div class="modal-content animated bounceInRight">
+			<div class="modal-header">
+				<h4 class="modal-title">Register employee</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<form role="form" id="registerEmplForm" onsubmit="return false;">
+						<div class="form-group">
+							<label>* Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>* ID</label><input name="loginId" type="text" placeholder="Enter ID" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>* Password</label><input name="password" type="password" placeholder="Password" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>* Name</label><input name="name" type="text" placeholder="Enter name" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Department</label><input name="dept" type="text" placeholder="Enter department" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Mobile</label><input name="mobile" type="text" placeholder="Enter mobile number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Office</label><input name="office" type="text" placeholder="Enter office number" class="form-control">
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+				<button type="button" class="register btn btn-primary" type="submit">Resister</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- // Create Empl -->
 <!-- channel join -->
 <div class="modal inmodal" id="channlJoinModal" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog">
@@ -385,6 +445,7 @@
 <script src="../script/dist/ext/slimscroll/jquery.slimscroll.min.js"></script>
 <script src="../script/dist/ext/validate/jquery.validate.min.js"></script>
 <script src="../script/dist/ext/chosen.jquery.js"></script>
+<script src="../script/dist/ext/mention.js"></script>
 
 <script src="../script/dist/ext/janus.js" charset="utf-8"></script>
 <script src="../script/dist/ext/adapter.js" charset="utf-8"></script>

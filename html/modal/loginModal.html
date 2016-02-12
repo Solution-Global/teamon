@@ -1,0 +1,161 @@
+<!-- Modal Area -->
+<!-- Login -->
+<div class="modal inmodal" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog">
+		<div class="modal-content animated bounceInRight">
+			<div class="modal-header">
+				<i class="fa fa-github modal-icon"></i>
+				<h4 class="modal-title">Sign in</h4>
+				<small class="font-bold">Enter your team's domain.</small>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-sm-6 b-r">
+						<form role="form" id="loginForm" onsubmit="return false;">
+							<div class="form-group">
+								<label>Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>ID</label><input name="loginId" type="text" placeholder="Enter ID" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Password</label><input name="password" type="password" placeholder="Password" class="form-control">
+							</div>
+							<div>
+								<label><input name="rememberMe" type="checkbox" class="i-checks"> Remember me </label>
+							</div>
+						</form>
+					</div>
+					<div class="col-sm-6">
+						<h4>Not a member?</h4>
+						<p>
+							You can create an account:
+						</p>
+						<p class="text-center">
+							<a href="" data-toggle="modal" data-target="#registerEmplModal"><i class="fa fa-sign-in big-icon"></i></a>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="sign-in btn btn-primary" type="submit">Sign In</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- // Login -->
+<!-- Create Empl -->
+<div class="modal inmodal" id="registerEmplModal" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
+	<div class="modal-dialog">
+		<div class="modal-content animated bounceInRight">
+			<div class="modal-header">
+				<h4 class="modal-title">Register employee</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<form role="form" id="registerEmplForm" onsubmit="return false;">
+						<div class="form-group">
+							<label>* Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>* ID</label><input name="loginId" type="text" placeholder="Enter ID" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>* Password</label><input name="password" type="password" placeholder="Password" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>* Name</label><input name="name" type="text" placeholder="Enter name" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Department</label><input name="dept" type="text" placeholder="Enter department" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Mobile</label><input name="mobile" type="text" placeholder="Enter mobile number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label>Office</label><input name="office" type="text" placeholder="Enter office number" class="form-control">
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+				<button type="button" class="register btn btn-primary" type="submit">Resister</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- // Create Empl -->
+<!-- channel join -->
+<div class="modal inmodal" id="channlJoinModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content animated bounceInRight">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<i class="fa fa-github-alt modal-icon"></i>
+				<h4 class="modal-title">Create a new public channel</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div>
+						<form role="form" id="channelForm" onsubmit="return false;">
+							<div class="form-group">
+								<label>Channel name</label><input name="name" type="text" placeholder="Enter company" class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Invite others to join</label>
+								<div class="input-group col-sm-12">
+								<select data-placeholder="Choose users..." class="chosen-select" name="members" multiple  tabindex="4">
+									<option value="">Select</option>
+								</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label>Purpose(optional)</label><input placeholder="Enter purpose" name="pinupMessage" class="form-control">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+				<button type="button" class="create btn btn-primary" type="submit">Create channels</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- // channel join -->
+<!-- invite otheres to this channel -->
+<div class="modal inmodal" id="inviteChannelModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content animated bounceInRight">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<i class="fa fa-github-alt modal-icon"></i>
+				<h4 class="modal-title">invite otheres to this channel </h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div>
+						<form role="form" id="inviteChannelForm" onsubmit="return false;">
+							<div class="form-group">
+								<label>Invite others</label>
+								<div class="input-group col-sm-12">
+								<select data-placeholder="Choose users..." class="chosen-select" name="members" multiple  tabindex="4">
+									<option value="">Select</option>
+								</select>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+				<button type="button" class="invite btn btn-primary" type="submit">Invite</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- // invite otheres to this channel -->
+<!-- // Modal Area -->
