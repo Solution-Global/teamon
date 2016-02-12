@@ -57,7 +57,7 @@ var asideSection = (function() {
       callSection.showSection();
       chatSection.hideSection(); // chat Area
 
-      callSection.showCallInfo(emplId, userValue.loginI);
+      callSection.showCallInfo(emplId, userValue.loginId);
     });
   }
 

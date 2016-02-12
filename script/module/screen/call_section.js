@@ -1,5 +1,6 @@
 'use strict';
 
+var constants = require("../constants");
 var CallClient = require('../call_client.js');
 
 var callSection = (function() {
@@ -23,12 +24,9 @@ var callSection = (function() {
     $phone = $contentArea.find("#phone");
     $callButton = $phone.find("#call");
     $videos = $contentArea.find("#videos");
-    $callDialog = $("#dialog");
+    $callDialog = $("#callDialog");
 
-    $infoArea.show();
-    $phone.hide();
-    $videos.hide();
-    $contentArea.show();
+    $callSec.hide();
 
     if (callClient === undefined)
       callClient = new CallClient();
@@ -42,6 +40,7 @@ var callSection = (function() {
     callClient.on('onlocalstream', _onLocalStream); // 자신의 Stream이 준비 되었을 때
     callClient.on('onremotestream', _onRemoteStream); // 상대방의의 Stream이 준비 되었을 때
     callClient.on('onHangup', _onHangup); // remote hangup
+    callClient.on('onDeclining', _onDeclining); // 자신이 수락 거절하는 경우
     callClient.on('oncleanup', _onCleanup); // cleanup
     callClient.on('makecallerror', _makeCallError); // makeCall network 에러
     callClient.on('answercallerror', _answerCallError); // answerCall network 에러
@@ -93,7 +92,7 @@ var callSection = (function() {
     }).dialog("open");
   }
 
-  function _onIncomingCall(caller) {
+  function _onIncomingCall(caller, doAudio, doVideo) {
     console.log("Incoming call from " + caller + "!");
 
     var callerObj = connSection.getUserObj(caller);
@@ -112,8 +111,12 @@ var callSection = (function() {
       width: 300,
       buttons: {
         "Answer": function() {
-          callClient.answerCall();
+          callClient.answerCall(doAudio, doVideo);
           $callDialog.dialog("close");
+
+          callSection.showSection();
+          $phone.hide();
+          chatSection.hideSection(); // chat Area
         },
         "Decline": function() {
           callClient.declineCall();
@@ -131,12 +134,13 @@ var callSection = (function() {
     $info.html(msg);
   }
 
-  function _onCallAccepted(peer) {
+  function _onCallAccepted(peer, doAudio, doVideo) {
     if ($callDialog.dialog("isOpen")) {
       $callDialog.dialog("close");
     }
 
     $videos.show();
+
     var msg;
     if (peer === null || peer === undefined) {
       msg = "Call started!";
@@ -203,8 +207,12 @@ var callSection = (function() {
     var msg = "Call hung up by " + username + " (" + reason + ")!";
     $info.html(msg);
 
-    $callButton.html('Call')
-      .unbind('click').click(_makeCall);
+    _toggleButtonInfo(true, 'Call', _makeCall);
+  }
+
+  function _onDeclining(code, reason) {
+    var msg = "Declined!";
+    $info.html(msg);
   }
 
   function _jsError(msg) {
@@ -222,6 +230,11 @@ var callSection = (function() {
 
   function _toggleButtonInfo(show, title, eventHandler) {
     if (show) {
+      if (title === 'Call') {
+        $callButton.removeClass("btn-danger").addClass("btn-success");
+      } else {
+        $callButton.removeClass("btn-success").addClass("btn-danger");
+      }
       $phone.show();
       $callButton.html(title)
         .unbind('click').click(eventHandler);
@@ -238,7 +251,7 @@ var callSection = (function() {
     if (callClient.registered && !callClient.engaged) {
       $info.html('Make a call to ' + username + '?');
       _toggleButtonInfo(true, 'Call', _makeCall);
-      _cleanVideoArea()
+      _cleanVideoArea();
     }
   }
 
@@ -265,8 +278,8 @@ var callSection = (function() {
   }
 
   return {
-    hideSection : hideSection,
-    showSection : showSection,
+    hideSection: hideSection,
+    showSection: showSection,
     initCallSection: initCallSection,
     showCallInfo: showCallInfo
   };
