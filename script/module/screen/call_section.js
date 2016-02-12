@@ -11,27 +11,26 @@ var callSection = (function() {
   var $contentArea;
   var $infoArea;
   var $info;
-  var $phone;
-  var $callButton;
   var $videos;
-  var $callDialog;
+  var $hangupButton;
 
   function _initialize() {
     $callSec = $(".call_section");
     $contentArea = $callSec.find('.content_area');
     $infoArea = $contentArea.find('.info_area');
     $info = $infoArea.find(".tit");
-    $phone = $contentArea.find("#phone");
-    $callButton = $phone.find("#call");
     $videos = $contentArea.find("#videos");
-    $callDialog = $("#callDialog");
+    $hangupButton = $videos.find("#hangup");
 
     $callSec.hide();
 
     if (callClient === undefined)
       callClient = new CallClient();
 
-    // bind events
+    // bind events (general)
+    $hangupButton.on('click', _localHangup);
+
+    // bind events (callClient)
     callClient.on('onregistered', _onRegistered); // janus 사용자 등록 성공
     callClient.on('onerrormessage', _onErrorMessage); // janus onmessage 중 에러메시지
     callClient.on('oncalling', _onCalling); // calling
@@ -46,7 +45,7 @@ var callSection = (function() {
     callClient.on('answercallerror', _answerCallError); // answerCall network 에러
     callClient.on('jserror', _jsError); // call.js 자체 상태 에러
 
-    // 재연결이 필요한 에러
+    // 재연결이 필요한 에러 (callClient)
     callClient.on('sessionerror', _gwError);
     callClient.on('onregistration_failed', _gwError);
     callClient.on('pluginerror', _gwError);
@@ -70,26 +69,20 @@ var callSection = (function() {
     // TODO Any ringtone?
     var msg = "Calling... Need any ringbacktone?";
     $info.html(msg);
-    $callDialog.text(msg).dialog({
+
+    swal({
       title: "Calling...",
-      modal: true,
-      draggable: false,
-      resizable: false,
-      position: ['center', 'top'],
-      show: 'blind',
-      hide: 'blind',
-      width: 300,
-      buttons: {
-        "Cancel": function() {
-          callClient.cancelCall();
-          $callDialog.dialog("close");
-        }
-      },
-      closeOnEscape: false,
-      open: function(event, ui) {
-        $(".ui-dialog-titlebar-close").hide();
-      }
-    }).dialog("open");
+      text: msg,
+      type: "info",
+      allowEscapeKey: false,
+      showCancelButton: false,
+      confirmButtonColor: "#1a7bb9",
+      confirmButtonText: "Cancel",
+      closeOnConfirm: false
+    }, function() {
+      callClient.cancelCall();
+      swal.close();
+    });
   }
 
   function _onIncomingCall(caller, doAudio, doVideo) {
@@ -99,35 +92,29 @@ var callSection = (function() {
     var callerName = (callerObj !== null) ? callerObj.loginId : caller;
     var msg = "Incoming call from " + callerName + "!";
 
-    $callDialog.text(msg).dialog({
+    swal({
       title: "Incoming call",
-      modal: true,
-      hideCloseButton: true,
-      draggable: false,
-      resizable: false,
-      position: ['center', 'top'],
-      show: 'blind',
-      hide: 'blind',
-      width: 300,
-      buttons: {
-        "Answer": function() {
-          callClient.answerCall(doAudio, doVideo);
-          $callDialog.dialog("close");
+      text: msg,
+      type: "info",
+      allowEscapeKey: false,
+      showCancelButton: true,
+      cancelButtonText: "Decline",
+      confirmButtonColor: "#1a7bb9",
+      confirmButtonText: "Answer",
+      closeOnCancel: false,
+      closeOnConfirm: false
+    }, function(isConfirm) {
+      if (isConfirm) {
+        callClient.answerCall(doAudio, doVideo);
+        swal.close();
 
-          callSection.showSection();
-          $phone.hide();
-          chatSection.hideSection(); // chat Area
-        },
-        "Decline": function() {
-          callClient.declineCall();
-          $callDialog.dialog("close");
-        }
-      },
-      closeOnEscape: false,
-      open: function(event, ui) {
-        $(".ui-dialog-titlebar-close").hide();
+        chatSection.hideSection(); // chat Area
+        callSection.showSection();
+      } else {
+        callClient.declineCall();
+        swal.close();
       }
-    }).dialog("open");
+    });
   }
 
   function _answerCallError() {
@@ -135,10 +122,7 @@ var callSection = (function() {
   }
 
   function _onCallAccepted(peer, doAudio, doVideo) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
-
+    swal.close();
     $videos.show();
 
     var msg;
@@ -151,12 +135,11 @@ var callSection = (function() {
     }
 
     $info.html(msg);
-    _toggleButtonInfo(true, 'Hangup', _localHangup);
   }
 
   function _onLocalStream(stream) {
     if ($('#myvideo').length === 0) {
-      $('#videoleft').append('<video class="rounded centered" id="myvideo" width=90% height=200 autoplay muted="muted"/>');
+      $('#videoleft').append('<video class="rounded centered" id="myvideo" width=90% height=150 autoplay muted="muted"/>');
     }
     attachMediaStream($('#myvideo').get(0), stream);
     $("#myvideo").get(0).muted = "muted";
@@ -171,7 +154,7 @@ var callSection = (function() {
 
   function _onRemoteStream(stream) {
     if ($('#remotevideo').length === 0) {
-      $('#videoright').append('<video class="rounded centered" id="remotevideo" width=90% height=200 autoplay/>');
+      $('#videoright').append('<video class="rounded centered" id="remotevideo" width=90% height=150 autoplay/>');
     }
     attachMediaStream($('#remotevideo').get(0), stream);
     var videoTracks = stream.getVideoTracks();
@@ -183,9 +166,7 @@ var callSection = (function() {
   }
 
   function _onCleanup(engaged, yourusername) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
+    swal.close();
 
     var msg = engaged ? 'No answer!' : 'Canceled';
     $info.html(msg);
@@ -199,15 +180,11 @@ var callSection = (function() {
   }
 
   function _onHangup(username, reason) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
+    swal.close();
     _cleanVideoArea();
 
     var msg = "Call hung up by " + username + " (" + reason + ")!";
     $info.html(msg);
-
-    _toggleButtonInfo(true, 'Call', _makeCall);
   }
 
   function _onDeclining(code, reason) {
@@ -220,27 +197,10 @@ var callSection = (function() {
   }
 
   function _gwError(msg) {
-    if ($callDialog.dialog("isOpen")) {
-      $callDialog.dialog("close");
-    }
+    swal.close();
     $('#myvideo').hide();
 
     $info.html(msg);
-  }
-
-  function _toggleButtonInfo(show, title, eventHandler) {
-    if (show) {
-      if (title === 'Call') {
-        $callButton.removeClass("btn-danger").addClass("btn-success");
-      } else {
-        $callButton.removeClass("btn-success").addClass("btn-danger");
-      }
-      $phone.show();
-      $callButton.html(title)
-        .unbind('click').click(eventHandler);
-    } else {
-      $phone.hide();
-    }
   }
 
   function initCallSection() {
@@ -250,13 +210,13 @@ var callSection = (function() {
   function showCallInfo(chatId, username) {
     if (callClient.registered && !callClient.engaged) {
       $info.html('Make a call to ' + username + '?');
-      _toggleButtonInfo(true, 'Call', _makeCall);
       _cleanVideoArea();
+      _makeCall();
     }
   }
 
   function _makeCall() {
-    var peer = connSection.getCurrentTargetUser();
+    var peer = connSection.getCurrentTargetUser(constants.DIRECT_CHAT);
     if (peer === undefined) {
       console.error("No peer selected!");
     }
