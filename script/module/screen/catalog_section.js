@@ -24,7 +24,7 @@ var catalogSection = (function() {
     channeTemplate = $channelListContext.find('#channel-template').html();
 
     $('#onChannelJoinModal').bind("click", function() {
-      openModalDialog("./html/catalog/modal/channel_join_modal.html");
+      openModalDialog("./html/catalog/popup/channel_join_popup.html");
     });
 
     $('#onLoginModal').bind("click", function() {
@@ -32,7 +32,7 @@ var catalogSection = (function() {
         backdrop : "static",
         keyboard : "false"
       };
-      openModalDialog("./html/login_modal.html", dialogOptions);
+      openModalDialog("./html/login_popup.html", dialogOptions);
     });
 
     _initEventForChattingList();

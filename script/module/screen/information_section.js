@@ -106,7 +106,7 @@ var informationSection = (function() {
     $contentArea.prepend(Mustache.render(aboutChannelTemplate, aboutChannelData));
 
     $("#onInviteChannelModal").bind("click", function() {
-      openModalDialog("./html/information/modal/invite_channel_modal.html");
+      openModalDialog("./html/information/popup/invite_channel_popup.html");
     });
 
     $contentArea.find(".leaveChannel").click(function() {

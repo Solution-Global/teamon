@@ -52,7 +52,7 @@ function initLoginStatus() {
       backdrop : "static",
       keyboard : "false"
     };
-    openModalDialog("./html/login_modal.html", dialogOptions);
+    openModalDialog("./html/login_popup.html", dialogOptions);
   }
 }
 
