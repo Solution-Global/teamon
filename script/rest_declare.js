@@ -1,11 +1,13 @@
-var emplResource = require("../script/module/rest/empl");
-var loginResource = require("../script/module/rest/login");
-var chatResource = require("../script/module/rest/chat");
-var channelResource = require("../script/module/rest/channel");
+var EmplRes = require("../script/module/rest/empl");
+var LoginRes = require("../script/module/rest/login");
+var ChatRes = require("../script/module/rest/chat");
+var ChannelRes = require("../script/module/rest/channel");
+var CallHistoryRes = require("../script/module/rest/call_history");
 
 var restResourse = {
-  empl : new emplResource(),
-  login : new loginResource(),
-  chat : new chatResource(),
-  channel : new channelResource()
+  empl : new EmplRes(),
+  login : new LoginRes(),
+  chat : new ChatRes(),
+  channel : new ChannelRes(),
+  callHistory : new CallHistoryRes()
 };

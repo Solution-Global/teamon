@@ -27,11 +27,11 @@ var asideSection = (function() {
   function adjustAsideArea(isOpen) {
     var chatSection = $('.chat_section');
     var asideIbox = $(".aside_section .ibox");
-    if(isOpen || chatSection.hasClass("col-xs-12 col-lg-12")) {
-      chatSection.removeClass("col-xs-12 col-lg-12").addClass( "col-xs-9 col-lg-9" );
+    if (isOpen || chatSection.hasClass("col-xs-12 col-lg-12")) {
+      chatSection.removeClass("col-xs-12 col-lg-12").addClass("col-xs-9 col-lg-9");
       asideIbox.show(500);
     } else {
-      chatSection.removeClass("col-xs-9 col-lg-9").addClass( "col-xs-12 col-lg-12" );
+      chatSection.removeClass("col-xs-9 col-lg-9").addClass("col-xs-12 col-lg-12");
       asideIbox.hide();
     }
   }
@@ -40,14 +40,20 @@ var asideSection = (function() {
     _initialize()
   }
 
-  function showAboutUser(emplId) {
+  function _showAboutUser(emplId, callHistoryData) {
     var userValue = connSection.getUserObj(emplId);
-
     var aboutUserData = {
-      "loginId" : userValue.loginId,
-      "imgAlt" : userValue.loginId,
-      "img": "../img/profile_img" + userValue.emplId + ".jpg",
+      "loginId": userValue.loginId,
+      "imgAlt": userValue.loginId,
+      "img": "../img/profile_img" + userValue.emplId + ".jpg"
     };
+
+    if (callHistoryData !== null) {
+      // If true, the HTML between the pound and slash will be rendered and displayed one or more times.
+      aboutUserData.callHistoryList = callHistoryData;
+    } else {
+      aboutUserData.callHistoryList = false;
+    }
 
     $title.html("About this conversation");
     $contentArea.find(".content_area").remove();
@@ -61,12 +67,40 @@ var asideSection = (function() {
     });
   }
 
+  function showAboutUser(emplId) {
+    // call history 리스트를 구한 후에 출력
+    _getCallHistory(emplId, _showAboutUser);
+  }
+
+  function _getCallHistory(emplId, callback) {
+    // TODO 현재는 사용자 선택시마다 API 호출 -> 캐시 기능 필요 ?
+
+    var restPrams = {
+      "coId": myPref.coId,
+      "caller": myPref.emplId,
+      "callee": emplId
+    };
+
+    restResourse.callHistory.getListByCondition(restPrams, function(commonGridValue) {
+      console.log("commonGridValue[totalPage:%d, totalRecords:%d]", commonGridValue.totalPage, commonGridValue.totalRecords);
+
+      var callHistoryData = commonGridValue.rows ? commonGridValue.rows : null;
+      if (callHistoryData.length > 0) {
+        $.each(callHistoryData, function(idx, callHistoryRow) {
+          callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("yyyy/MM/dd a/p hh:mm");
+        });
+      }
+
+      callback(emplId, callHistoryData);
+    });
+  }
+
   function showAboutChannel(channelId) {
     var channelValue = connSection.getChannelObj(channelId);
     var existMembers;
-    for(var key in channelValue.memberList) {
+    for (var key in channelValue.memberList) {
       var emplId = channelValue.memberList[key].emplId;
-      if(!existMembers)
+      if (!existMembers)
         existMembers = emplId;
       else
         existMembers += "," + channelValue.memberList[key].emplId;
@@ -78,15 +112,15 @@ var asideSection = (function() {
     var aboutChannelData = {
       "pinupMessage": channelValue.pinupMessage || "There are no purpose.",
       "memberCount": memberCount,
-      "members":[]
+      "members": []
     };
 
-    for(var key in membersArray) {
+    for (var key in membersArray) {
       var userValue = connSection.getUserObj(membersArray[key]);
       aboutChannelData.members.push({
-        "loginId" : userValue.loginId,
-        "emplId" : userValue.emplId,
-        "imgAlt" : userValue.loginId,
+        "loginId": userValue.loginId,
+        "emplId": userValue.emplId,
+        "imgAlt": userValue.loginId,
         "img": "../img/profile_img" + userValue.emplId + ".jpg",
       });
     }
@@ -100,13 +134,15 @@ var asideSection = (function() {
       chosenSelect.find("option").remove();
 
       var userArray = connSection.getUsers();
-      for(var key in userArray) {
+      for (var key in userArray) {
         var userValue = userArray[key];
         var isMember = membersArray.indexOf(String(userValue.emplId));
-        if(isMember < 0)
+        if (isMember < 0)
           chosenSelect.append("<option value='" + userValue.emplId + "'>" + userValue.loginId + "</option>");
       }
-      chosenSelect.chosen({width:"100%"});
+      chosenSelect.chosen({
+        width: "100%"
+      });
       $inviteChannelModal.modal();
 
       // set event for new create channel
@@ -122,16 +158,16 @@ var asideSection = (function() {
         restResourse.channel.addMember(params,
           function(response) {
             // Success
-            if(response.statusCode === 200) {
+            if (response.statusCode === 200) {
               // 새로운 추가운 사용자 대상으로 그룹 가입 권고
               var paramsForNewMember = {
                 "type": constants.GROUP_CREATE,
                 "channelId": channelId,
-                "name" : channelValue.name
+                "name": channelValue.name
               }
 
               var loginIds = "";
-              for(var key in newMembers) {
+              for (var key in newMembers) {
                 chatModule.sendCommand(newMembers[key], paramsForNewMember);
                 var memberInfo = connSection.getUserObj(newMembers[key]);
                 loginIds += " #" + memberInfo.loginId;
@@ -144,7 +180,7 @@ var asideSection = (function() {
                 "newMembers": newMembers
               }
 
-              for(var member in existMembers) {
+              for (var member in existMembers) {
                 chatModule.sendCommand(member, paramsForExistMember);
               }
 
@@ -152,7 +188,7 @@ var asideSection = (function() {
 
               // form reset
               $inviteChannelForm.each(function() {
-                if(this.className  == "frmClass") this.reset();
+                if (this.className == "frmClass") this.reset();
               });
 
               $inviteChannelModal.modal("hide");
@@ -172,12 +208,12 @@ var asideSection = (function() {
 
       restResourse.channel.removeMember(params,
         function(response) {
-          if(response.statusCode === 200) {
+          if (response.statusCode === 200) {
 
             var channelValue = connSection.getChannelObj(channelId);
-            if(channelValue) {
+            if (channelValue) {
               var members;
-              for(var key in channelValue.memberList) {
+              for (var key in channelValue.memberList) {
                 var emplId = channelValue.memberList[key].emplId;
 
                 var params = {
@@ -200,7 +236,7 @@ var asideSection = (function() {
   }
 
   function displayMember(members) {
-    for(var key in members) {
+    for (var key in members) {
       var userValue = connSection.getUserObj(members[key]);
       var imgUrl = "../img/profile_img" + userValue.emplId + ".jpg";
       $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.loginId + "'>" + userValue.loginId + "</a></li>");

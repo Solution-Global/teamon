@@ -139,7 +139,7 @@ var callSection = (function() {
 
   function _onLocalStream(stream) {
     if ($('#myvideo').length === 0) {
-      $('#videoleft').append('<video class="rounded centered" id="myvideo" width=90% height=150 autoplay muted="muted"/>');
+      $('#videolocal').append('<video class="rounded centered" id="myvideo" width=100% height=100% autoplay muted="muted"/>');
     }
     attachMediaStream($('#myvideo').get(0), stream);
     $("#myvideo").get(0).muted = "muted";
@@ -148,20 +148,20 @@ var callSection = (function() {
     if (videoTracks === null || videoTracks === undefined || videoTracks.length === 0) {
       // No webcam
       $('#myvideo').remove();
-      $('#videoleft').append('<span class="no-video-text">No webcam available</span>');
+      $('#videolocal').append('<span class="no-video-text">No webcam available</span>');
     }
   }
 
   function _onRemoteStream(stream) {
     if ($('#remotevideo').length === 0) {
-      $('#videoright').append('<video class="rounded centered" id="remotevideo" width=90% height=150 autoplay/>');
+      $('#videoremote').append('<video class="rounded centered" id="remotevideo" width=100% height=100% autoplay/>');
     }
     attachMediaStream($('#remotevideo').get(0), stream);
     var videoTracks = stream.getVideoTracks();
     if (videoTracks === null || videoTracks === undefined || videoTracks.length === 0 || videoTracks[0].muted) {
       // No remote video
       $('#remotevideo').remove();
-      $('#videoright').append('<span class="no-video-text">No remote video available</span>');
+      $('#videoremote').append('<span class="no-video-text">No remote video available</span>');
     }
   }
 

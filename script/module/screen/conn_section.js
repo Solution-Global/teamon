@@ -23,7 +23,6 @@ var connSection = (function() {
     userTemplate = $userListContext.find('#user-template').html();
     channeTemplate = $channelListContext.find('#channel-template').html();
 
-
     _initEventForAddingChannel();
     _initEventForChattingList();
   }
@@ -36,7 +35,6 @@ var connSection = (function() {
       var $targetList = $(this);
       $targetList.addClass("active");
       chatSection.changeChatView(constants.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
-      // asideSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
       asideSection.showAboutUser($targetList.data("emplid"));
     });
 

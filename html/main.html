@@ -108,21 +108,21 @@
 								</div>
 								<br/>
 								<div id="videos">
-									<div>
-										<div class="panel panel-default">
-											<div class="panel-heading">
-												<h3 class="panel-title inline">You</h3>&nbsp;&nbsp;
-												<button type="button" class="btn btn-danger btn-sm" id="hangup"><i class="fa fa-phone fa-rotate-135"></i>&nbsp; Hangup</button>
-											</div>
-											<div class="panel-body" id="videoleft"></div>
-										</div>
-									</div>
-									<div>
+									<div class="col-xs-7">
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h3 class="panel-title">Remote UA</h3>
 											</div>
-											<div class="panel-body" id="videoright"></div>
+											<div class="video-panel-remote-body" id="videoremote"></div>
+										</div>
+									</div>
+									<div class="col-xs-5">
+										<div class="panel panel-default">
+											<div class="panel-heading">
+												<h3 class="panel-title inline">You</h3>
+												<button type="button" class="btn btn-danger btn-sm btn_hangup" id="hangup"><i class="fa fa-phone fa-rotate-135"></i>&nbsp; Hangup</button>
+											</div>
+											<div class="video-panel-local-body" id="videolocal"></div>
 										</div>
 									</div>
 								</div>
@@ -237,14 +237,10 @@
 											<div class="hr-line-dashed"></div>
 											<div>
 												<h4><i class="fa fa-history fa-lg text-primary"></i> Call History <a href="#"></a></h4>
-												<ul class="callHistory category-list">
-													<li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-													<li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-													<li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-													<li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-													<li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-													<li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-													<li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+												<ul class="callHistory category-list nopadding">
+													{{#callHistoryList}}
+													<li> {{callStart}} <span class="call label label-info pull-right">Detail</span></li>
+													{{/callHistoryList}}
 												</ul>
 											</div>
 										</div>
@@ -388,7 +384,9 @@
 	<!-- // invite otheres to this channel -->
 	<!-- // Modal Area -->
 	<!-- Mainly scripts -->
-	<script src="../script/dist/bundle.js" charset="utf-8"></script>
+	<script src="../script/common.js"></script>
+	<script src="../script/main.js"></script>
+	<script src="../script/rest_declare.js"></script>
 	<script src="../script/dist/ext/inspinia.js"></script>
 	<script src="../script/dist/ext/slimscroll/jquery.slimscroll.min.js"></script>
 	<script src="../script/dist/ext/validate/jquery.validate.min.js"></script>
