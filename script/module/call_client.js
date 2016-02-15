@@ -12,8 +12,8 @@ function CallClient() {
   this.registered = false;
   this.janus = null;
   this.engaged = false;
-  //this.videocall = null;
   this.sipcall = null;
+  this.myJsep = null;
   this.remoteJsep = null;
   this.myusername = null;
   this.yourusername = null;
@@ -101,13 +101,15 @@ CallClient.prototype.initialize = function(userid) {
                   } else if (event === 'hangup') {
                     self._onHangup(result);
                   } else if (event === 'declining') {
-                    console.log("Call declined (" + result["code"] + " " + result["reason"] + ")!");
+                    self._onDeclining(result);
+                  } else {
+                    console.log("Unhandled event!");
+                    console.log(JSON.stringify(result));
                   }
                 }
               } else {
-                // FIXME Error?
-                var error = msg["error"];
-                console.error(error);
+                console.log("Unhandled msg!");
+                console.log(JSON.stringify(msg));
               }
             },
             onlocalstream: function(stream) {
@@ -147,9 +149,9 @@ CallClient.prototype._registerUsername = function(userid) {
   // Try a registration
   var register = {
     "request": "register",
-    "username": "sip:agent" + userid + "@" + constants.SIP_DOMAIN,
+    "secret": "",
     "proxy": constants.SIP_PROXY,
-    "secret": ""
+    "username": "sip:agent" + userid + "@" + constants.SIP_DOMAIN
   };
   self.sipcall.send({
     "message": register
@@ -180,17 +182,29 @@ CallClient.prototype._onCallAccepted = function(peer, jsep) {
     // 로컬의 경우 이미 전화가 끊어진 상태
     console.log("_onCallAccepted but not engaged!###");
     self._sendHangup();
-    self._resetStatus();
+    self._allInternalReset();
     return;
   }
 
   // TODO Video call can start
-  if (jsep !== null && jsep !== undefined)
-    self.sipcall.handleRemoteJsep({
-      jsep: jsep
-    });
+  var doAudio = false,
+    doVideo = false;
+  if (jsep !== null && jsep !== undefined) {
+    doAudio = (jsep.sdp.indexOf("m=audio ") > -1);
+    doVideo = (jsep.sdp.indexOf("m=video ") > -1);
 
-  self.emit('oncallaccepted', peer);
+    self.sipcall.handleRemoteJsep({
+      jsep: jsep,
+      error: function() {
+        console.error("_onCallAccepted : handleRemoteJsep error!");
+
+        self._sendHangup();
+        self._allInternalReset();
+      }
+    });
+  }
+
+  self.emit('oncallaccepted', peer, doAudio, doVideo);
 }
 
 CallClient.prototype._onErrorMessage = function(errorCode, error) {
@@ -207,32 +221,51 @@ CallClient.prototype._onErrorMessage = function(errorCode, error) {
   // self.sipcall.hangup();
   // self._resetStatus();
 
+  self._allInternalReset();
   self.emit('onerrormessage', errorCode, error);
 }
 
 CallClient.prototype._onHangup = function(result) {
   var self = this;
 
-  console.log("_onHangup### " + self.engaged + ", " + self.yourusername);
+  console.log("_onHangup [engaged:%s, yourusername:%s]", self.engaged, self.yourusername);
   if (self.engaged || self.yourusername) {
-    self.emit('onHangup', result["username"], result["reason"]);
+    // 상대가 종료한 경우
+    // var username = result["username"];
+    var username = self.yourusername;
+    if (!username) {
+      // 내가 전화한 경우에 대해 상대방이 수락하지 않는 경우
+      username = self.yourusername;
+    }
+    self._allInternalReset();
+    self.emit('onHangup', username, result["reason"]);
   } else {
-    console.log("Not engaged and no yourusername! Call hung up by " + result["username"] + " (" + result["reason"] + ")!");
+    self._allInternalReset();
+    if (self.myusername === result["username"]) {
+      // 내가 종료한 경우 : 이미 cancelCall()에서 내부 종료처리 완료
+      // self.emit('onHangup', result["username"], result["reason"]);
+    }
   }
+}
 
-  self._resetStatus();
-  self.sipcall.hangup();
+CallClient.prototype._onDeclining = function(result) {
+  var self = this;
+
+  console.log("_onDeclining [code:%s, reason:%s, engaged:%s, yourusername:%s]", result["code"], result["reason"], self.engaged, self.yourusername);
+  self._allInternalReset();
+  self.emit('onDeclining', result["code"], result["reason"]);
 }
 
 CallClient.prototype._onCleanup = function() {
   var self = this;
   var engaged = self.engaged;
   var yourusername = self.yourusername;
-  console.log("_onCleanup### " + engaged + ", " + yourusername);
-  if (engaged || yourusername) {
-    self.emit('oncleanup', engaged, yourusername);
-  }
-  self._resetStatus();
+  console.log("_onCleanup [engaged:%s, yourusername:%s]", self.engaged, self.yourusername);
+  // if (engaged || yourusername) {
+  // self.emit('oncleanup', engaged, yourusername);
+  // }
+
+  // self._resetStatus();
 }
 
 CallClient.prototype.makeCall = function(userid) {
@@ -242,24 +275,28 @@ CallClient.prototype.makeCall = function(userid) {
     return;
   }
   self.engaged = true;
+  self.yourusername = "agent" + userid; // 최종 상대방 이름은 전화를 수락할 때 재설정 (수락하지않고 상대가 종료할 경우 대비)
 
   // Call this user
   self.sipcall.createOffer({
-    // By default, it's sendrecv for audio and video...
     media: {
-      data: false
+      audioSend: true,
+      audioRecv: true, // We DO want audio
+      videoSend: true,
+      videoRecv: true // We DO want audio
     },
     success: function(jsep) {
       console.log("Got SDP!");
       console.log(jsep);
       var body = {
         "request": "call",
-        "username": userid.toString()
+        uri: "sip:agent" + userid + "@" + constants.SIP_DOMAIN
       };
       self.sipcall.send({
         "message": body,
         "jsep": jsep
       });
+      self.myJsep = jsep;
     },
     error: function(error) {
       console.error("WebRTC error... " + error);
@@ -269,11 +306,19 @@ CallClient.prototype.makeCall = function(userid) {
   });
 }
 
+// 전화 연결이후 로컬에서 끊는 경우
 CallClient.prototype.localHangup = function() {
   var self = this;
-  if (self._sendHangup()) {
-    self._clearResource(false, null, null);
+  if (!self.engaged) {
+    console.error("localHangup Not engaged!");
+    return;
   }
+
+  self._sendHangup(); // hangup 메시지 전송시에 반드시 hangup 이벤트가 와야 비정상 처리 제거 가능
+
+  // 비정상적인 경우 hangup 이벤트가 오지않을 수 있어 종료 및 이벤트(중복 발생 가능) 처리
+  self._allInternalReset();
+  self.emit('onHangup', self.myusername, 'We did the hangup');
 }
 
 CallClient.prototype.answerCall = function(doAudio, doVideo) {
@@ -291,6 +336,7 @@ CallClient.prototype.answerCall = function(doAudio, doVideo) {
       video: doVideo
     },
     success: function(jsep) {
+      self.myJsep = jsep;
       console.log("Got SDP! audio=" + doAudio + ", video=" + doVideo);
       console.log(jsep);
       var body = {
@@ -300,18 +346,27 @@ CallClient.prototype.answerCall = function(doAudio, doVideo) {
         "message": body,
         "jsep": jsep
       });
+
+      // sip 버전의 경우 answerCall 성공시 accepted 이벤트가 전달되지 않아 내부 처리
+      self.emit('oncallaccepted', null, doAudio, doVideo);
     },
     error: function(error) {
       console.error("WebRTC error:%s", JSON.stringify(error));
       // Don't keep the caller waiting any longer, but use a 480 instead of the default 486 to clarify the cause
-      var body = { "request": "decline", "code": 480 };
-      sipcall.send({"message": body});
+      var body = {
+        "request": "decline",
+        "code": 480
+      };
+      sipcall.send({
+        "message": body
+      });
 
       self.emit('answercallerror', error);
     }
   });
 }
 
+// 전화 건 이후 상대방이 수락하기 전에 취소
 CallClient.prototype.cancelCall = function() {
   var self = this;
   if (!self.engaged) {
@@ -319,7 +374,11 @@ CallClient.prototype.cancelCall = function() {
     return;
   }
 
-  self._sendHangup();
+  self._sendHangup(); // hangup 메시지 전송시에 반드시 hangup 이벤트가 와야 비정상 처리 제거 가능
+
+  // 비정상적인 경우 hangup 이벤트가 오지않을 수 있어 종료 및 이벤트(중복 발생 가능) 처리
+  self._allInternalReset();
+  self.emit('onHangup', self.myusername, 'We did the hangup');
 }
 
 CallClient.prototype.declineCall = function() {
@@ -329,10 +388,12 @@ CallClient.prototype.declineCall = function() {
     return;
   }
 
-  var body = { "request": "decline" };
-  self.sipcall.send({"message": body});
-
-  self._resetStatus();
+  var body = {
+    "request": "decline"
+  };
+  self.sipcall.send({
+    "message": body
+  });
 }
 
 CallClient.prototype._sendHangup = function() {
@@ -348,9 +409,16 @@ CallClient.prototype._sendHangup = function() {
   });
 }
 
+CallClient.prototype._allInternalReset = function() {
+  var self = this;
+  self._resetStatus();
+  self.sipcall.hangup();
+}
+
 CallClient.prototype._resetStatus = function() {
   var self = this;
   self.engaged = false;
+  self.myJsep = null;
   self.remoteJsep = null;
   self.yourusername = null;
 }

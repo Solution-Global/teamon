@@ -1,0 +1,40 @@
+<div class="animated fadeInRight">
+  <div class="row">
+    <div class="ibox chat-view nopadding">
+      <div class="ibox-content">
+        <div class="content_area chat-discussion">
+          <!-- // msg-template -->
+          <script id="msg-template" type="text/template">
+            <div class="chat-message {{mode}}" data-date="{{date}}">
+              <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}">
+              <div class="message">
+                <a class="message-author" href="#">{{sender}}</a>
+                <span class="message-date">{{time}}</span>
+                <span class="message-content">
+                  {{msgText}}
+                </span>
+              </div>
+            </div>
+          </script>
+          <!-- // dateline-template -->
+          <script id="dateline-template" type="text/template">
+            <div class="date_line">
+              <span>
+                <h1>{{date}}</h1>
+              </span>
+            </div>
+          </script>
+        </div>
+      </div>
+      <div class="ibox-footer nopadding">
+        <div class="input-group">
+          <!-- <input type="text" class="message-input form-control" name="message" placeholder="Enter message text">-->
+          <textarea class="message-input form-control" name="message" placeholder="Enter message text"></textarea>
+          <span class="input-group-btn">
+          <button type="button" class="btn_send btn btn-primary">Send</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

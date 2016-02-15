@@ -1,453 +1,59 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width">
-<title>Team ON | The ultimate messenger</title>
-<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css"/>
-<link rel="stylesheet" href="../style/font-awesome/css/font-awesome.min.css" media="screen"/>
-<link rel="stylesheet" href="../node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css"/>
-<link rel="stylesheet" href="../node_modules/jquery-ui/themes/base/minified/jquery-ui.min.css"/>
-<link rel="stylesheet" href="../style/plugins/chosen/chosen.css" media="screen"/>
-<link rel="stylesheet" href="../style/animate.css"/>
-<link rel="stylesheet" href="../style/style.css"/>
-<link rel="stylesheet" href="../style/custom.css"/>
-
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Team ON | The ultimate messenger</title>
+	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="../style/font-awesome/css/font-awesome.min.css" media="screen"/>
+	<link rel="stylesheet" href="../node_modules/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css"/>
+	<link rel="stylesheet" href="../node_modules/jquery-ui/themes/base/minified/jquery-ui.min.css"/>
+	<link rel="stylesheet" href="../style/plugins/chosen/chosen.css" media="screen"/>
+	<link rel="stylesheet" href="../style/animate.css"/>
+	<link rel="stylesheet" href="../style/style.css"/>
+	<link rel="stylesheet" href="../style/custom.css"/>
 </head>
 <body>
-<div id="wrap">
-	<!-- 목록 -->
-	<nav class="connection_section navbar-default navbar-static-side" role="navigation">
-	<div class="sidebar-collapse">
-		<ul class="nav metismenu" id="side-menu">
-			<li class="nav-header">
-			<div class="profile-element">
-				<span>
-				<img alt="image" src="../img/logo_uangel.png"/>
-				</span>
-			</div>
-			<div class="public_area">
-				<a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp; <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp; <a href="#" data-toggle="modal" data-target="#loginModal"><i class="fa fa-power-off"></i> Sign-out</a>
-			</div>
-			</li>
-			<li class="active">
-			<a class="channels-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Channels</span><span class="joinChannel label label-info pull-right">ADD</span></a>
-			<div class="chat-channels">
-				<ul class="nav nav-second-level channels-list">
-					<script id="channel-template" type="text/template">
-						<li data-channelid="{{channelId}}" data-name="{{name}}">
-							<a href="#">{{name}}
-								<span class="badge badge-warning right hide alarm"></span>
-							</a>
-						</li>
-					</script>
-				</ul>
-			</div>
-			</li>
-			<li class="active">
-			<a class="users-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Users</span></a>
-			<div class="chat-users">
-				<ul class="nav nav-second-level users-list">
-					<script id="user-template" type="text/template">
-            <li data-emplid="{{emplId}}" data-loginid="{{loginId}}" class="chat-user">
-                <a href="#">
-                    <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
-                    <div class="chat-user-name ellipsis">
-                        {{loginId}}
-                        <span class="badge badge-warning right hide alarm"></span>
-                    </div>
-                </a>
-            </li>
-          </script>
-				</ul>
-			</div>
-			</li>
-		</ul>
-	</div>
-	</nav>
-	<!-- // 목록 -->
-	<div id="page-wrapper" class="gray-bg dashbard-1">
-		<div class="row">
-			<!-- 타이트 -->
-			<div class="col-lg-12 nopadding">
-				<div class="header_section ibox nopadding">
-					<div class="title_area ibox-title">
-						<h5 class="tit"></h5>
-						<div class="ibox-tools">
-							<input type="text" placeholder=" Search ...">
-							<a href="#"><i class="mention fa fa-at fa-lg"></i></a>
-							<a href="#"><i class="fa fa-star-o fa-lg"></i></a>
-							<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-							<i class="fa fa-list fa-lg"></i>
-							</a>
-							<ul class="dropdown-menu dropdown-user">
-								<li><a class="call-menulink">Call</a>
-								</li>
-								<li><a href="#">Your files</a>
-								</li>
-								<li><a href="#">All files</a>
-								</li>
-								<li><a href="#">Help</a>
-								</li>
-							</ul>
+	<div id="wrap">
+		<!-- 목록 -->
+		<div id="catalog-section">
+		</div>
+		<!-- // 목록 -->
+		<div id="page-wrapper" class="gray-bg dashbard-1">
+			<div class="row">
+				<!-- 타이틀 -->
+				<div id="header-section" class="col-lg-12 nopadding">
+				</div>
+				<!-- // 타이틀 -->
+				<div class="col-lg-12">
+					<div class="row">
+						<!-- Call 영역 -->
+						<div id="call-section" class="col-xs-9 col-lg-9 nopadding">
 						</div>
+						<!-- Call 영역 -->
+						<!-- 채팅창 -->
+						<div id="chat-section" class="col-xs-9 col-lg-9">
+						</div>
+						<!-- // 채팅창 -->
+						<!-- Infomation Section-->
+						<div id="information-section" class="col-xs-3 col-lg-3 nopadding">
+						</div>
+						<!-- // Information Section -->
 					</div>
 				</div>
 			</div>
-			<!-- // 타이틀 -->
-			<div class="col-lg-12">
-				<div class="row">
-					<!-- Call 영역 -->
-					<div class="call_section col-xs-9 col-lg-9 nopadding" style="display: none;">
-						<div class="content_area">
-							<h2> this is call area. </h2>
-							<div class="info_area">
-								<h3 class="tit">&nbsp;</h3>
-							</div>
-							<div id="phone">
-								<button autocomplete="off" id="call">Call</button>
-							</div>
-							<br/>
-							<div id="videos">
-								<div>
-									<div>
-										<h3>Local Stream</h3>
-									</div>
-									<div id="videoleft">
-									</div>
-								</div>
-								<br/>
-								<div>
-									<div>
-										<h3>Remote Stream</h3>
-									</div>
-									<div id="videoright">
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- Call 영역 -->
-					<!-- 채팅창 -->
-					<div class="chat_section col-xs-9 col-lg-9">
-						<div class="animated fadeInRight">
-							<div class="row">
-								<div class="ibox chat-view nopadding">
-									<div class="ibox-content">
-										<div class="content_area chat-discussion">
-											<!-- // msg-template -->
-											<script id="msg-template" type="text/template">
-                        <div class="chat-message {{mode}}" data-date="{{date}}">
-                          <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}">
-                          <div class="message">
-                            <a class="message-author" href="#">{{sender}}</a>
-                            <span class="message-date">{{time}}</span>
-                            <span class="message-content">
-                              {{msgText}}
-                            </span>
-                          </div>
-                        </div>
-                      </script>
-											<!-- // dateline-template -->
-											<script id="dateline-template" type="text/template">
-                        <div class="date_line">
-                          <span>
-                            <h1>{{date}}</h1>
-                          </span>
-                        </div>
-                      </script>
-										</div>
-									</div>
-									<div class="ibox-footer nopadding">
-										<div class="input-group">
-											<!-- <input type="text" class="message-input form-control" name="message" placeholder="Enter message text">-->
-											<textarea class="message-input form-control" name="message" placeholder="Enter message text"></textarea>
-											<span class="input-group-btn">
-											<button type="button" class="btn_send btn btn-primary">Send</button>
-											</span>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- // 채팅창 -->
-					<!-- 판넬 사이드 영역 -->
-					<div class="aside_section col-xs-3 col-lg-3 nopadding">
-						<div class="ibox nopadding">
-							<div class="ibox-title">
-								<h5 class="title"></h5>
-								<div class="ibox-tools">
-									<a class="aside-close-link">
-									<i class="fa fa-times"></i>
-									</a>
-								</div>
-							</div>
-							<div class="ibox-content nopadding">
-								<div class="content_area">
-								</div>
-								<!-- 사이드 영역 tag 들  -->
-								<script id="aboutChannel-template" type="text/template">
-									<div>
-										<h4><i class="fa fa-info fa-lg text-primary"></i> Purpose</h4>
-										 <p>
-												 {{pinupMessage}}
-										 </p>
-								 	</div>
-								 	<div class="hr-line-dashed"></div>
-								 	<div>
-										 <h4><i class="fa fa-users fa-lg text-primary"></i> {{memberCount}} Members <a href="#"><span class="addMember label label-info pull-right">ADD</span></a></h4>
-										 <ul class="members category-list nopadding">
-											 {{#members}}
-											 <li data-emplid="{{emplId}}">
-												 <span><img class="member-avatar" src="{{img}}" alt="{{imgAlt}}"> {{loginId}}</span>
-											 </li>
-											 {{/members}}
-										</ul>
-								 	</div>
-								 	<div class="hr-line-dashed"></div>
-								 	<div>
-									 <button type="button" class="leaveChannel btn btn-warning btn-sm btn-block"><i class="fa fa-sign-out"></i> Leave channel</button>
-								 	</div>
-								</script>
+		</div>
+	</div>
 
-								<script id="aboutUser-template" type="text/template">
-									<div class="row m-b-lg">
-                    <div class="col-lg-4 text-center">
-                        <h3>{{loginId}}</h3>
-												<div class="m-b-sm">
-                            <img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 62px">
-                        </div>
-                    </div>
-                    <div class="col-lg-8">
-                        <strong>
-                            About me
-                        </strong>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-													</p>
-                        <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> CALL</button>
-                    </div>
-                 </div>
-								 <div class="hr-line-dashed"></div>
-								 <div>
-									 <h4><i class="fa fa-history fa-lg text-primary"></i> Call History <a href="#"></a></h4>
-									 <ul class="callHistory category-list">
-										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-										 <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-									</ul>
-								 </div>
-								</script>
-
-								<script id="mention-template" type="text/template">
-									<div class="row m-b-lg nopadding">
-										<div class="col-lg-4">
-												<div class="m-b-sm">
-														<img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 50px">
-												</div>
-										</div>
-										<div class="col-lg-8">
-												<p> <strong>#{{channel}}</strong></p>
-												<p>{{sender}} - {{time}}</p>
-										</div>
-										<div class="col-lg-12">
-											{{msgText}}
-										</div>
-									</div>
-							 	</script>
-								<script id="mention-dateline-template" type="text/template">
-									<div class="date_line">
-										<span>
-											<h1>{{date}}</h1>
-										</span>
-									</div>
-								</script>
-								<!-- 사이드 영역 tag 들  -->
-							</div>
-						</div>
-					</div>
-					<!-- // 판넬 사이드 영역 -->
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Modal Area -->
-<!-- Login -->
-<div class="modal inmodal" id="loginModal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog">
-		<div class="modal-content animated bounceInRight">
-			<div class="modal-header">
-				<i class="fa fa-github modal-icon"></i>
-				<h4 class="modal-title">Sign in</h4>
-				<small class="font-bold">Enter your team's domain.</small>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-sm-6 b-r">
-						<form role="form" id="loginForm" onsubmit="return false;">
-							<div class="form-group">
-								<label>Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
-							</div>
-							<div class="form-group">
-								<label>ID</label><input name="loginId" type="text" placeholder="Enter ID" class="form-control">
-							</div>
-							<div class="form-group">
-								<label>Password</label><input name="password" type="password" placeholder="Password" class="form-control">
-							</div>
-							<div>
-								<label><input name="rememberMe" type="checkbox" class="i-checks"> Remember me </label>
-							</div>
-						</form>
-					</div>
-					<div class="col-sm-6">
-						<h4>Not a member?</h4>
-						<p>
-							You can create an account:
-						</p>
-						<p class="text-center">
-							<a href="" data-toggle="modal" data-target="#registerEmplModal"><i class="fa fa-sign-in big-icon"></i></a>
-						</p>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="sign-in btn btn-primary" type="submit">Sign In</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- // Login -->
-<!-- Create Empl -->
-<div class="modal inmodal" id="registerEmplModal" tabindex="-1" role="dialog" aria-hidden="true" data-keyboard="false">
-	<div class="modal-dialog">
-		<div class="modal-content animated bounceInRight">
-			<div class="modal-header">
-				<h4 class="modal-title">Register employee</h4>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<form role="form" id="registerEmplForm" onsubmit="return false;">
-						<div class="form-group">
-							<label>* Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
-						</div>
-						<div class="form-group">
-							<label>* ID</label><input name="loginId" type="text" placeholder="Enter ID" class="form-control">
-						</div>
-						<div class="form-group">
-							<label>* Password</label><input name="password" type="password" placeholder="Password" class="form-control">
-						</div>
-						<div class="form-group">
-							<label>* Name</label><input name="name" type="text" placeholder="Enter name" class="form-control">
-						</div>
-						<div class="form-group">
-							<label>Department</label><input name="dept" type="text" placeholder="Enter department" class="form-control">
-						</div>
-						<div class="form-group">
-							<label>Mobile</label><input name="mobile" type="text" placeholder="Enter mobile number" class="form-control">
-						</div>
-						<div class="form-group">
-							<label>Office</label><input name="office" type="text" placeholder="Enter office number" class="form-control">
-						</div>
-					</form>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-				<button type="button" class="register btn btn-primary" type="submit">Resister</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- // Create Empl -->
-<!-- channel join -->
-<div class="modal inmodal" id="channlJoinModal" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content animated bounceInRight">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<i class="fa fa-github-alt modal-icon"></i>
-				<h4 class="modal-title">Create a new public channel</h4>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div>
-						<form role="form" id="channelForm" onsubmit="return false;">
-							<div class="form-group">
-								<label>Channel name</label><input name="name" type="text" placeholder="Enter company" class="form-control">
-							</div>
-							<div class="form-group">
-								<label>Invite others to join</label>
-								<div class="input-group col-sm-12">
-								<select data-placeholder="Choose users..." class="chosen-select" name="members" multiple  tabindex="4">
-									<option value="">Select</option>
-								</select>
-								</div>
-							</div>
-							<div class="form-group">
-								<label>Purpose(optional)</label><input placeholder="Enter purpose" name="pinupMessage" class="form-control">
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-				<button type="button" class="create btn btn-primary" type="submit">Create channels</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- // channel join -->
-<!-- invite otheres to this channel -->
-<div class="modal inmodal" id="inviteChannelModal" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content animated bounceInRight">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<i class="fa fa-github-alt modal-icon"></i>
-				<h4 class="modal-title">invite otheres to this channel </h4>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div>
-						<form role="form" id="inviteChannelForm" onsubmit="return false;">
-							<div class="form-group">
-								<label>Invite others</label>
-								<div class="input-group col-sm-12">
-								<select data-placeholder="Choose users..." class="chosen-select" name="members" multiple  tabindex="4">
-									<option value="">Select</option>
-								</select>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-				<button type="button" class="invite btn btn-primary" type="submit">Invite</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- // invite otheres to this channel -->
-<!-- // Modal Area -->
-<!-- Mainly scripts -->
-<script src="../script/dist/bundle.js" charset="utf-8"></script>
-<script src="../script/dist/ext/inspinia.js"></script>
-<script src="../script/dist/ext/slimscroll/jquery.slimscroll.min.js"></script>
-<script src="../script/dist/ext/validate/jquery.validate.min.js"></script>
-<script src="../script/dist/ext/chosen.jquery.js"></script>
-<script src="../script/dist/ext/mention.js"></script>
-
-<script src="../script/dist/ext/janus.js" charset="utf-8"></script>
-<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
+	<script src="../script/common.js" charset="utf-8"></script>
+	<script src="../script/main.js" charset="utf-8"></script>
+	<script src="../script/rest_declare.js" charset="utf-8"></script>
+	<script src="../script/dist/ext/inspinia.js"></script>
+	<script src="../script/dist/ext/slimscroll/jquery.slimscroll.min.js"></script>
+	<script src="../script/dist/ext/validate/jquery.validate.min.js"></script>
+	<script src="../script/dist/ext/chosen.jquery.js"></script>
+	<script src="../script/dist/ext/mention.js"></script>
+	<script src="../script/dist/ext/janus.js" charset="utf-8"></script>
+	<script src="../script/dist/ext/adapter.js" charset="utf-8"></script>
 </body>
 </html>

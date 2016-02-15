@@ -3,7 +3,7 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
-.public_area {
+.public-area {
 	padding-top:20px;
 	text-align:center;
 	background-color: transparent;
@@ -38,6 +38,12 @@ h1:after {
    padding: 0 !important;
    margin: 0 !important;
 }
+
+.no-right-padding {
+   padding-right: 0 !important;
+   margin-right: 0 !important;
+}
+
 .member-avatar {
   white: 30px;
   height: 30px;
