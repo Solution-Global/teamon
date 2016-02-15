@@ -3,7 +3,7 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 }
-.public_area {
+.public-area {
 	padding-top:20px;
 	text-align:center;
 	background-color: transparent;
@@ -38,9 +38,60 @@ h1:after {
    padding: 0 !important;
    margin: 0 !important;
 }
+.no-right-padding {
+   padding-right: 0 !important;
+   margin-right: 0 !important;
+}
 .member-avatar {
   white: 30px;
   height: 30px;
   border-radius: 50%;
 	padding: 5px;
+}
+.mention_name{
+	font-size:12px;
+}
+.mention_username{
+	font-size:12px;
+	color:#999;
+}
+.mention_image{
+	float: left;
+	margin-right: 5px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	width: 20px;
+	height: 20px;
+}
+.active .mention_username{
+	color:#fff;
+}
+.fa-rotate-45 {
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.fa-rotate-135 {
+    -webkit-transform: rotate(135deg);
+    -moz-transform: rotate(135deg);
+    -ms-transform: rotate(135deg);
+    -o-transform: rotate(135deg);
+    transform: rotate(135deg);
+}
+.fa-rotate-225 {
+    -webkit-transform: rotate(225deg);
+    -moz-transform: rotate(225deg);
+    -ms-transform: rotate(225deg);
+    -o-transform: rotate(225deg);
+    transform: rotate(225deg);
+}
+.fa-rotate-315 {
+    -webkit-transform: rotate(315deg);
+    -moz-transform: rotate(315deg);
+    -ms-transform: rotate(315deg);
+    -o-transform: rotate(315deg);
+    transform: rotate(315deg);
 }

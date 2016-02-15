@@ -23,7 +23,7 @@ Janus.isExtensionEnabled = function() {
 Janus.noop = function() {};
 
 // Initialization
-Janus.init = function(options, relPath) {
+Janus.init = function(options) {
 	options = options || {};
 	options.callback = (typeof options.callback == "function") ? options.callback : Janus.noop;
 	if(Janus.initDone === true) {
@@ -84,7 +84,7 @@ Janus.init = function(options, relPath) {
 			}
 		}
 		// Helper to add external JavaScript sources
-		function addJs(src, relPath) {
+		function addJs(src) {
 			if(src === 'jquery.min.js') {
 				if(window.jQuery) {
 					// Already loaded
@@ -101,8 +101,7 @@ Janus.init = function(options, relPath) {
 			var oHead = document.getElementsByTagName('head').item(0);
 			var oScript = document.createElement("script");
 			oScript.type = "text/javascript";
-			oScript.src = (relPath !== undefined ? relPath : "") + src;
-			Janus.log("oScript.src: " + oScript.src);
+			oScript.src = src;
 			oScript.onload = function() {
 				Janus.log("Library " + src + " loaded");
 				if(src === 'jquery.min.js') {
@@ -1737,12 +1736,28 @@ function Janus(gatewayCallbacks) {
 			config.bitrate.tsbefore = null;
 			config.bitrate.value = null;
 			try {
+				// Try a MediaStream.stop() first
 				if(!config.streamExternal && config.myStream !== null && config.myStream !== undefined) {
 					Janus.log("Stopping local stream");
 					config.myStream.stop();
 				}
 			} catch(e) {
-				// Do nothing
+				// Do nothing if this fails
+			}
+			try {
+				// Try a MediaStreamTrack.stop() for each track as well
+				if(!config.streamExternal && config.myStream !== null && config.myStream !== undefined) {
+					Janus.log("Stopping local stream tracks");
+					var tracks = config.myStream.getTracks();
+					for(var i in tracks) {
+						var mst = tracks[i];
+						Janus.log(mst);
+						if(mst !== null && mst !== undefined)
+							mst.stop();
+					}
+				}
+			} catch(e) {
+				// Do nothing if this fails
 			}
 			config.streamExternal = false;
 			config.myStream = null;

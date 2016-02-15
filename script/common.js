@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 /* String prototype */
 String.prototype.string = function(len) {
   var s = '',
@@ -55,4 +57,40 @@ Date.prototype.format = function(f) {
         return $1;
     }
   });
+};
+
+function loadHtml(fileName, target) {
+  var div = target;
+  if(typeof target === 'string') {
+    div = $("#" + target);
+  }
+
+  var data = fs.readFileSync(fileName, 'utf-8');
+  var rtMsg = jQuery.trim(data);
+  div.html(rtMsg);
+}
+
+function openModalDialog(fileName, options) {
+  var dialogId = randomHashCode();
+	var defaultOptions = {
+    show : true
+	};
+
+	var div = $("<div>").attr("id", dialogId).addClass("modal inmodal").attr("role", "dialog");
+	$("body").append(div);
+  var data = fs.readFileSync(fileName, 'utf-8');
+  var rtMsg = jQuery.trim(data);
+  div.html(rtMsg);
+  div.modal(options ? $.extend({}, defaultOptions, options) : defaultOptions);
+	div.on("hidden.bs.modal", function() {
+		$(this).remove();
+	});
+	return div;
+}
+
+randomHashCode = function() {
+	return hashCode((new Date().getTime() * Math.random()).toString());
+};
+hashCode = function(s) {
+	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0);
 };

@@ -2,9 +2,9 @@
 
 var Cache = require('../cache');
 
-var connSection = (function() {
+var catalogSection = (function() {
   // cache DOM
-  var $connSec;
+  var $catalogSec;
   var $userListContext;
   var $channelListContext;
   var userTemplate;
@@ -17,27 +17,43 @@ var connSection = (function() {
     // 초기화
     messageManager = messageManager(storageManager, myPref, userCache, channelCache);
 
-    $connSec = $(".connection_section");
-    $userListContext = $connSec.find('.chat-users .users-list');
-    $channelListContext = $connSec.find('.chat-channels .channels-list');
+    $catalogSec = $("#catalog-section");
+    $userListContext = $catalogSec.find('.chat-users .users-list');
+    $channelListContext = $catalogSec.find('.chat-channels .channels-list');
     userTemplate = $userListContext.find('#user-template').html();
     channeTemplate = $channelListContext.find('#channel-template').html();
 
+    $('#onChannelJoinModal').bind("click", function() {
+      openModalDialog("./html/catalog/popup/channel_join_popup.html");
+    });
 
-    _initEventForAddingChannel();
+    $('#onLoginModal').bind("click", function() {
+      var dialogOptions = {
+        backdrop : "static",
+        keyboard : "false"
+      };
+      openModalDialog("./html/login_popup.html", dialogOptions);
+    });
+
     _initEventForChattingList();
-  }
+    _initCustomScrollbar()
+ }
 
-  function _initEventForChattingList() {
+ function _initEventForChattingList() {
     // set event for direct chatting
     $userListContext.delegate("li", "click", function() {
       $channelListContext.find("li.active").removeClass("active");
       $userListContext.find("li.active").removeClass("active");
       var $targetList = $(this);
       $targetList.addClass("active");
+      activeChatInfo = {
+        "chatType" : constants.DIRECT_CHAT,
+        "chatRoomId" : $targetList.data("emplid")
+      };
       chatSection.changeChatView(constants.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
-      // asideSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
-      asideSection.showAboutUser($targetList.data("emplid"));
+
+      // informationSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
+      informationSection.showAboutUser();
     });
 
     // set event for group chatting
@@ -46,86 +62,12 @@ var connSection = (function() {
       $userListContext.find("li.active").removeClass("active");
       var $targetList = $(this);
       $targetList.addClass("active");
+      activeChatInfo = {
+        "chatType" : constants.GROUP_CHAT,
+        "chatRoomId" : $targetList.data("channelid")
+      };
       chatSection.changeChatView(constants.GROUP_CHAT, $targetList.data("channelid"), $targetList.data("name"));
-      asideSection.showAboutChannel($targetList.data("channelid"));
-    });
-  }
-
-  function _initEventForAddingChannel() {
-    // set event for channel modal
-    $connSec.find(".joinChannel").bind("click", function() {
-      var $channlJoinModal = $("#channlJoinModal");
-      var $channelForm = $("#channelForm");
-      var userArray = userCache.getValueArray();
-      var chosenSelect = $channelForm.find(".chosen-select");
-      for(var key in userArray) {
-        // if (userArray[key].emplId === myPref.emplId)
-        //   continue;
-        chosenSelect.append("<option value='" + userArray[key].emplId + "'>" + userArray[key].loginId + "</option>");
-      }
-      chosenSelect.chosen({width:"100%"});
-
-      // set validation for login Form
-      $channelForm.validate({
-        rules: {
-          name: {
-            required: true,
-            minlength: 6
-          },
-          members: {
-            required: true,
-            min: 1
-          }
-        }
-      });
-
-      // set event for new create channel
-      $channlJoinModal.find(".create").one("click", function() {
-        if(!$channelForm.valid())
-          return;
-
-          var name = $channelForm.find("[name=name]").val();
-          var members = $channelForm.find("[name=members]").val();
-          var pinupMessage = $channelForm.find("[name=pinupMessage]").val();
-
-          console.error(typeof members);
-          var params = {
-            "coId": myPref.coId,
-            "name": name,
-            "members": members,
-            "pinupMessage": pinupMessage
-          };
-
-          restResourse.channel.createChannel(params,
-            function(data, response) {
-              // Success
-              if(response.statusCode === 200) {
-                var params = {
-                  "type": constants.GROUP_CREATE,
-                  "channelId": data.channelId,
-                  "name" : name
-                }
-
-                for(var key in members) {
-                  chatModule.sendCommand(members[key], params);
-                }
-
-                chatSection.sendMsg("Join Channel - " + pinupMessage, constants.GROUP_CHAT, data.channelId); // 가입 메시지 전송
-
-                // form reset
-                $channelForm.each(function() {
-                  if(this.className  == "frmClass") this.reset();
-                });
-
-                $channlJoinModal.modal("hide");
-              } else {
-                console.log("[fail creating channel]" + response.statusMessage);
-              }
-            }
-          );
-      });
-
-      $channlJoinModal.modal(); // show modal
+      informationSection.showAboutChannel();
     });
   }
 
@@ -171,10 +113,44 @@ var connSection = (function() {
     });
   }
 
-  function initConnSection() {
+  function initCatalogSection() {
     _initialize();
     _initUsers();
     _initChannels();
+  }
+
+  function _initCustomScrollbar() {
+    var scrollHeight = $(window).height() - 230;
+    $catalogSec.find('.chat-channels').mCustomScrollbar({
+      axis:"y",
+      setWidth: "auto",
+      setHeight:  scrollHeight * 0.3,
+      theme:"3d",
+    });
+
+    $catalogSec.find('.chat-users').mCustomScrollbar({
+      axis:"y",
+      setWidth: "auto",
+      setHeight:  scrollHeight * 0.7,
+      theme:"3d"
+    });
+  }
+
+  function resizeCatalogSection() {
+    var windowHeight = $(window).height();
+    var catalogHeaderHeight = $catalogSec.find(".nav-header").outerHeight(true);
+    var catalogChannelsHeight = $catalogSec.find(".channels-link").outerHeight(true);
+    var catalogUsersHeight = $catalogSec.find(".users-link").outerHeight(true);
+
+    // 마지막의 3,2,1 오차 pixel.
+    var scrollHeight = windowHeight - catalogHeaderHeight - catalogChannelsHeight - catalogUsersHeight - 3;
+
+    $catalogSec.find(".chat-channels").css("height", scrollHeight * 0.3 );
+    $catalogSec.find(".chat-users").css("height", scrollHeight * 0.7 );
+  }
+
+  function loadCatalogSection() {
+    loadHtml("./html/catalog/catalog_section.html", $("#catalog-section"));
   }
 
   function _initChannels() {
@@ -262,7 +238,6 @@ var connSection = (function() {
   }
 
   function hideAlram(chatType, chatId) {
-    console.log("[hideAlram] %s, %s" ,chatType,chatId );
     var $activeTarget;
     if (chatType === constants.DIRECT_CHAT)
       $activeTarget = $userListContext.find("[data-emplid='" + chatId + "']");
@@ -270,7 +245,6 @@ var connSection = (function() {
       $activeTarget = $channelListContext.find("[data-channelid='" + chatId + "']");
 
     var alarmArea = $activeTarget.find(".alarm");
-    console.log(alarmArea);
     alarmArea.addClass("hide");
     alarmArea.html("");
   }
@@ -339,7 +313,9 @@ var connSection = (function() {
   }
 
   return {
-    initConnSection: initConnSection,
+    initCatalogSection: initCatalogSection,
+    resizeCatalogSection: resizeCatalogSection,
+    loadCatalogSection: loadCatalogSection,
     hideAlram:hideAlram,
     setAlarmCnt: setAlarmCnt,
     getCurrentTargetUser: getCurrentTargetUser,
@@ -353,4 +329,4 @@ var connSection = (function() {
   };
 })();
 
-module.exports = connSection;
+module.exports = catalogSection;

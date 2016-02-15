@@ -15,7 +15,7 @@ mozRTCSessionDescription, webkitRTCPeerConnection */
  *  Edge support provided thanks to the adaptation devised by SimpleWebRTC
  *
  * 		https://simplewebrtc.com/bundle-edge.js
- * 
+ *
  */
 
 //~ 'use strict';
@@ -706,7 +706,7 @@ if (navigator.mozGetUserMedia) {
           for(var c in self.tracks[sdpMLineIndex].remoteCandidates) {
             var candidate = self.tracks[sdpMLineIndex].remoteCandidates[c];
             self.addIceCandidate(candidate);
-          }  
+          }
 
           var remoteIceParameters = self._getIceParameters(section,
               sessionpart);
@@ -885,7 +885,7 @@ if (navigator.mozGetUserMedia) {
           for(var c in self.tracks[sdpMLineIndex].remoteCandidates) {
             var candidate = self.tracks[sdpMLineIndex].remoteCandidates[c];
             self.addIceCandidate(candidate);
-          }  
+          }
 
           iceTransport.start(iceGatherer, remoteIceParameters, 'controlling');
           dtlsTransport.start(remoteDtlsParameters);
@@ -1326,4 +1326,3 @@ function requestUserMedia(constraints) {
     }
   });
 }
-
