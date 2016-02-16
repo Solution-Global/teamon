@@ -15,7 +15,7 @@ var callSection = (function() {
   var $hangupButton;
 
   function _initialize() {
-    $callSec = $(".call_section");
+    $callSec = $("#call-section");
     $contentArea = $callSec.find('.content_area');
     $infoArea = $contentArea.find('.info_area');
     $info = $infoArea.find(".tit");
@@ -88,7 +88,7 @@ var callSection = (function() {
   function _onIncomingCall(caller, doAudio, doVideo) {
     console.log("Incoming call from " + caller + "!");
 
-    var callerObj = connSection.getUserObj(caller);
+    var callerObj = catalogSection.getUserObj(caller);
     var callerName = (callerObj !== null) ? callerObj.loginId : caller;
     var msg = "Incoming call from " + callerName + "!";
 
@@ -129,7 +129,7 @@ var callSection = (function() {
     if (peer === null || peer === undefined) {
       msg = "Call started!";
     } else {
-      var peerObj = connSection.getUserObj(peer);
+      var peerObj = catalogSection.getUserObj(peer);
       var peerName = (peerObj !== null) ? peerObj.loginId : peer;
       msg = peerName + " accepted the call!";
     }
@@ -207,6 +207,10 @@ var callSection = (function() {
     _initialize();
   }
 
+  function loadCallSection() {
+    loadHtml("./html/call/call_section.html", $("#call-section"));
+  }
+
   function showCallInfo(chatId, username) {
     if (callClient.registered && !callClient.engaged) {
       $info.html('Make a call to ' + username + '?');
@@ -216,7 +220,7 @@ var callSection = (function() {
   }
 
   function _makeCall() {
-    var peer = connSection.getCurrentTargetUser(constants.DIRECT_CHAT);
+    var peer = catalogSection.getCurrentTargetUser(constants.DIRECT_CHAT);
     if (peer === undefined) {
       console.error("No peer selected!");
     }
@@ -238,10 +242,11 @@ var callSection = (function() {
   }
 
   return {
+    initCallSection: initCallSection,
+    loadCallSection: loadCallSection,
+    showCallInfo: showCallInfo,
     hideSection: hideSection,
     showSection: showSection,
-    initCallSection: initCallSection,
-    showCallInfo: showCallInfo
   };
 })();
 

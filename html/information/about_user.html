@@ -1,0 +1,38 @@
+<div class="ibox nopadding">
+  <div class="ibox-title">
+    <h5 class="title"></h5>
+    <div class="ibox-tools">
+      <a class="aside-close-link">
+      <i class="fa fa-times"></i>
+      </a>
+    </div>
+  </div>
+</div>
+<div class="ibox-content no-right-padding">
+  <div class="content_area">
+    <script id="aboutUser-template" type="text/template">
+      <div class="row m-b-lg">
+        <div class="col-lg-4 text-center">
+          <h3>{{loginId}}</h3>
+          <div class="m-b-sm">
+            <img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 62px">
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <strong>About me</strong>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod</p>
+          <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> CALL</button>
+        </div>
+      </div>
+      <div class="hr-line-dashed"></div>
+      <div>
+        <h4><i class="fa fa-history fa-lg text-primary"></i> Call History <a href="#"></a></h4>
+        <ul class="callHistory category-list nopadding">
+          {{#callHistoryList}}
+          <li> {{callStart}} <span class="call label label-info pull-right">Detail</span></li>
+          {{/callHistoryList}}
+        </ul>
+       </div>
+    </script>
+  </div>
+</div>

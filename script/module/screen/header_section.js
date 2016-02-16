@@ -7,17 +7,25 @@ var headerSec = (function() {
   var $title;
 
   function _initialize() {
-    $headerSec = $(".header_section");
+    $headerSec = $("#header-section");
     $titleArea = $headerSec.find(".title_area");
     $title = $headerSec.find(".tit");
 
     $headerSec.find(".call-menulink").click(function() {
-      asideSection.adjustAsideArea(true);
+      informationSection.adjustAsideArea(true);
+    });
+
+    $headerSec.find(".mention").click(function() {
+      informationSection.showMentionList();
     });
   }
 
   function initHeaderSection() {
     _initialize()
+  }
+
+  function loadHeaderSection() {
+    loadHtml("./html/header/header_section.html", $("#header-section"));
   }
 
   function setTitle(chatType, text) {
@@ -26,6 +34,7 @@ var headerSec = (function() {
 
   return {
     initHeaderSection: initHeaderSection,
+    loadHeaderSection: loadHeaderSection,
     setTitle: setTitle
   };
 })();

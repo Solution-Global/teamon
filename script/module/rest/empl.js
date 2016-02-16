@@ -31,4 +31,29 @@ Empl.prototype.getListByCoid = function(params, callback) {
     });
   }
 
+  Empl.prototype.createEmpl = function(params, callback) {
+    var self = this;
+    console.log("createEmpl - [company]" + params.company + "[loginId]" + params.loginId + "[name]" + params.name
+      + "[dept]" + params.dept + "[mobile]" + params.mobile  + "[office]" + params.office);
+    var args = {
+      data: $.param({
+        "company": params.company,
+        "loginId": params.loginId,
+        "password": params.password,
+        "name": params.name,
+        "dept": params.dept,
+        "mobile": params.mobile,
+        "office": params.office,
+      }),
+      headers: self.restCommon.commonHeaders
+    };
+
+    self.restCommon.client.post(self.restCommon.apiurl + self.path, args,
+      function(data, response) {
+        callback(data, response);
+      }).on('error', function(err) {
+      console.error('something went wrong on the request', err.request.options);
+    });
+  }
+
 module.exports =  Empl

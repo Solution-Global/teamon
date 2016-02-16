@@ -1,3 +1,5 @@
+// By convention, we name a constructor function by capitalizing the first letter.
+// Constructor functions should always be called with the new operator.
 var EmplRes = require("../script/module/rest/empl");
 var LoginRes = require("../script/module/rest/login");
 var ChatRes = require("../script/module/rest/chat");
