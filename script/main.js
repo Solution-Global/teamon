@@ -22,14 +22,9 @@ var activeChatInfo; // 현재 active 된 user chatting room  OR channel chatttin
 
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
-
   loadScreenSection(); // call this function firstly
   bindEvents();
   initLoginStatus();
-  resizeSection(); // run first time basically
-  $(window).resize(function() {
-    resizeSection();
-  });
 }
 
 function initLoginStatus() {
@@ -69,6 +64,11 @@ function initScreenSection() {
   informationSection.initAsideSection();
   callSection.initCallSection();
   headerSection.initHeaderSection();
+
+  resizeSection(); // run first time basically
+  $(window).resize(function() {
+    resizeSection();
+  });
 }
 
 function resizeSection() {
