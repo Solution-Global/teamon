@@ -244,6 +244,10 @@ var informationSection = (function() {
   function hideSection() {
     $informationSec.hide();
   }
+  
+  function showSection() {
+    $informationSec.show();
+  }
 
   function _informationSectionScroll() {
     $informationSec.find(".ibox-content").mCustomScrollbar({
