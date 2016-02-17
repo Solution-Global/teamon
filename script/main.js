@@ -3,6 +3,7 @@ require('jquery-ui');
 require('bootstrap');
 require('metismenu');
 require('malihu-custom-scrollbar-plugin')($);
+var Dropzone = require('dropzone');
 var Mustache = require('mustache');
 var catalogSection = require('../script/module/screen/catalog_section.js');
 var chatSection = require('../script/module/screen/chat_section.js');

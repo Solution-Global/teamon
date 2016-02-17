@@ -1,4 +1,4 @@
-<div class="animated fadeInRight">
+<div>
   <div class="row">
     <div class="ibox chat-view nopadding">
       <div class="ibox-content">
@@ -26,12 +26,18 @@
           </script>
         </div>
       </div>
-      <div class="ibox-footer nopadding">
-        <div class="input-group">
-          <!-- <input type="text" class="message-input form-control" name="message" placeholder="Enter message text">-->
+      <div class="ibox-footer">
+        <div class="input-group" style="padding: 5px;">
+          <div class="input-group-btn">
+            <button data-toggle="dropdown" type="button" class="btn dropdown-toggle"><i class="fa fa-plus"></i></button>
+            <ul class="dropdown-menu" style="top: inherit; bottom: 50px;">
+              <li><a href="#" id="fileupload-btn">Upload file</a></li>
+              <li><a href="#" id="capture-btn">Screen capture</a></li>
+            </ul>
+          </div>
           <textarea class="message-input form-control" name="message" placeholder="Enter message text"></textarea>
           <span class="input-group-btn">
-          <button type="button" class="btn_send btn btn-primary">Send</button>
+            <button type="button" class="btn_send btn btn-primary">Send</button>
           </span>
         </div>
       </div>
