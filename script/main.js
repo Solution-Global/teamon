@@ -5,6 +5,7 @@ require('metismenu');
 require('malihu-custom-scrollbar-plugin')($);
 var Dropzone = require('dropzone');
 var Mustache = require('mustache');
+var moment = require('moment-timezone');
 var catalogSection = require('../script/module/screen/catalog_section.js');
 var chatSection = require('../script/module/screen/chat_section.js');
 var informationSection = require('../script/module/screen/information_section.js');
@@ -20,6 +21,7 @@ var messageManager = require('../script/module/storage/message.js');
 var chatModule = require('../script/module/chat_client.js');
 var myPref; // Login 한 사용자 정보 저장
 var activeChatInfo; // 현재 active 된 user chatting room  OR channel chattting room 정보
+var timezone = "Asia/Seoul";
 
 function initialize() {
   require('../script/module/teamon_menu').customMenus();

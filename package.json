@@ -48,6 +48,8 @@
     "lz-string": "1.4.4",
     "node-rest-client": "1.5.1",
     "dropzone": "4.2.0",
-    "cropper": "2.2.5"
+    "cropper": "2.2.5",
+    "moment": "2.11.2",
+    "moment-timezone": "0.5.0"    
   }
 }

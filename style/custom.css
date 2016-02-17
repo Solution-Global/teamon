@@ -128,3 +128,8 @@ h1:after {
 	height: 200px;
   padding: 5px;
 }
+
+img.in-message {
+	max-width: 300px;
+	max-height: 200px;
+}
