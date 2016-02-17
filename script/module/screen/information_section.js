@@ -38,7 +38,7 @@ var informationSection = (function() {
     $informationSec.find(".ibox-content").css("height", informationHeight);
   }
 
-  function showAboutUser() {
+  function _showAboutUser(callHistoryData) {
     loadHtml("./html/information/about_user.html", $informationSec);
     var aboutUserTemplate = $informationSec.find('#aboutUser-template').html();
     var $title = $informationSec.find(".title");
@@ -51,6 +51,13 @@ var informationSection = (function() {
       "imgAlt" : userValue.loginId,
       "img": "../img/profile_img" + userValue.emplId + ".jpg",
     };
+
+    if (callHistoryData !== null) {
+      // If true, the HTML between the pound and slash will be rendered and displayed one or more times.
+      aboutUserData.callHistoryList = callHistoryData;
+    } else {
+      aboutUserData.callHistoryList = false;
+    }
 
     $title.html("About this conversation");
     $contentArea.prepend(Mustache.render(aboutUserTemplate, aboutUserData));
@@ -66,6 +73,34 @@ var informationSection = (function() {
     _informationSectionScroll();
     $informationSec.show();
   }
+
+  function showAboutUser() {
+    // call history 리스트를 구한 후에 출력
+    _getCallHistory(_showAboutUser);
+  }
+
+  function _getCallHistory(callback) {
+     // TODO 현재는 사용자 선택시마다 API 호출 -> 캐시 기능 필요 ?
+
+     var restPrams = {
+       "coId": myPref.coId,
+       "caller": myPref.emplId,
+       "callee": activeChatInfo.chatRoomId
+     };
+
+     restResourse.callHistory.getListByCondition(restPrams, function(commonGridValue) {
+       console.log("commonGridValue[totalPage:%d, totalRecords:%d]", commonGridValue.totalPage, commonGridValue.totalRecords);
+
+       var callHistoryData = commonGridValue.rows ? commonGridValue.rows : null;
+       if (callHistoryData.length > 0) {
+         $.each(callHistoryData, function(idx, callHistoryRow) {
+           callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("yyyy/MM/dd a/p hh:mm");
+         });
+       }
+
+       callback(callHistoryData);
+     });
+   }
 
   function showAboutChannel() {
     loadHtml("./html/information/about_channel.html", $informationSec);
