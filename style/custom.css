@@ -128,6 +128,7 @@ h1:after {
 	height: 200px;
   padding: 5px;
 }
+
 #player{
 	margin: 0 auto;
 	width: 900px;
@@ -364,4 +365,8 @@ h1:after {
 	border-radius: 15px;
 	height: 4px;
 	z-index: 0;
+}
+img.in-message {
+	max-width: 300px;
+	max-height: 200px;
 }

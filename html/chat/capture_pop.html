@@ -1,0 +1,133 @@
+<div class="modal-dialog modal-full">
+	<div class="modal-content animated fadeIn">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<h4 class="modal-title">Choose to capture</h4>
+		</div>
+		<div class="modal-body">
+      <div id="capture-step1">
+        <div>
+          <select id="capture-list" class="image-picker show-html"></select>
+        </div>
+      </div>
+      <div id="capture-step2" style="display: none">
+				<div style="text-align: center">
+					<form id="cropped-form"></form>
+					<button id="crop-upload-image" type="button" class="btn btn-primary">Upload cropped image</button>
+        </div>
+        <div style="margin: 10px; overflow: auto; height: 100%">
+					<div>
+          	<img id="capture-chosen" />
+					</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+.modal-full {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	width: 100%;
+	margin: 0;
+}
+</style>
+<script type="text/javascript" src="../script/dist/ext/image-picker/image-picker.min.js"></script>
+<script type="text/javascript" src="../node_modules/cropper/dist/cropper.min.js"></script>
+<script>
+var desktopCapturer = require('desktop-capturer');
+var topic = activeChatInfo.chatType + "_" + (activeChatInfo.chatType == 0 ? myPref.emplId < activeChatInfo.chatRoomId ? myPref.emplId + "_" + activeChatInfo.chatRoomId : activeChatInfo.chatRoomId + "_" + myPref.emplId : activeChatInfo.chatRoomId);
+var dropzone = new Dropzone("#cropped-form", {
+    autoProcessQueue: false,
+    uploadMultiple: false,
+    url: constants.UPLOAD_URL + myPref.coId + "/" + topic + "/" + myPref.emplId,
+
+    // Dropzone settings
+    init: function() {
+        var myDropzone = this;
+        this.on("success", function(file, response) {
+					file.name = response[0].name;
+					$("#crop-upload-image").closest(".modal-dialog").closest(".modal").modal("hide");
+					var imageUrl = constants.REPOSITORY_URL + file.name + "?coId=" + myPref.coId + "&topic=" + topic + "&emplId=" + myPref.emplId;
+          chatSection.sendMsg("<img src='" + imageUrl + "' class='in-message' /><br/>Captured image uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
+        });
+        this.on("error", function(file, response) {
+					console.log("failed to upload cropped image");
+        });
+    }
+});
+
+$(document).ready(function() {
+  showCaptureList();
+
+  $("#crop-upload-image").click(function() {
+		var blob = dataURItoBlob($("#capture-chosen").cropper("getCroppedCanvas").toDataURL());
+		blob.name = "captured_" + new Date().format("YYYY_MM_DD_HH_mm_ss") + ".png";
+		dropzone.addFile(blob);
+		dropzone.processQueue();
+  });
+});
+
+function showCaptureList() {
+  desktopCapturer.getSources({
+    types: ["window", "screen"]
+  }, function(error, sources) {
+    if (error) throw error;
+    for (var i = 0; i < sources.length; i++) {
+      if (sources[i].thumbnail.getSize().width == 0)
+        continue;
+      var option = $("<option>", {
+        value: sources[i].id.replace(/:/gi, "_"),
+        text: sources[i].name
+      }).attr("data-img-src", sources[i].thumbnail.toDataUrl());
+      $("#capture-list").append(option);
+    }
+    $("#capture-list").imagepicker({
+      hide_select: true,
+      show_label: true,
+      clicked: function(options) {
+        showChosenImage($("#capture-list").val());
+      }
+    });
+  });
+}
+
+function showChosenImage(id) {
+  $("#capture-step1").hide();
+  $("#capture-step2").show();
+	$("#capture-step1").closest(".modal-dialog").find(".modal-header .modal-title").html("Crop the image");
+  id = id.replace(/_/gi, ":");
+  var screen = require('electron').screen;
+  var width = screen.getPrimaryDisplay().workAreaSize.width;
+  var height = screen.getPrimaryDisplay().workAreaSize.height;
+
+  desktopCapturer.getSources({
+    types: ["window", "screen"], thumbnailSize: {width: width, height: height}
+  }, function(error, sources) {
+    if (error) throw error;
+    for (var i = 0; i < sources.length; i++) {
+      if (sources[i].id  == id) {
+        $("#capture-chosen").parent().css("width", sources[i].thumbnail.getSize().width);
+        $("#capture-chosen").parent().css("height", sources[i].thumbnail.getSize().height);
+        $("#capture-chosen").attr("src", sources[i].thumbnail.toDataUrl());
+        break;
+      }
+    }
+    $("#capture-chosen").cropper();
+  });
+}
+
+// transform cropper dataURI output to a Blob which Dropzone accepts
+function dataURItoBlob(dataURI) {
+    var byteString = atob(dataURI.split(',')[1]);
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], {type: 'image/png'});
+}
+</script>

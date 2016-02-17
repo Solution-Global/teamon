@@ -46,3 +46,7 @@ define("TOPIC_COMMAND", "/command");
 define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");    // sip gw
 define("SIP_PROXY", "sip:192.168.5.53:5062");
 define("SIP_DOMAIN", "192.168.5.53");
+
+// [file]
+define("UPLOAD_URL", "http://192.168.1.164:7587/upload/");
+define("REPOSITORY_URL", "http://192.168.1.164:7587/repository/");

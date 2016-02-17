@@ -25,39 +25,51 @@ Number.prototype.zf = function(len) {
 };
 
 /* Date prototype */
-Date.prototype.format = function(f) {
-  if (!this.valueOf()) return " ";
+Date.prototype.add = function(offset, unit) {
+	if (!unit)
+		throw "unit is undefined";
+	return moment(this).tz(timezone).add(offset, unit).toDate();
+}
 
-  var weekName = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-  var d = this;
+Date.prototype.format = function(formatStr) {
+	if (!formatStr)
+		throw "the format is not defined";
+	return moment(this).tz(timezone).format(formatStr);
+}
 
-  return f.replace(/(yyyy|yy|MM|dd|E|hh|mm|ss|a\/p)/gi, function($1) {
-    switch ($1) {
-      case "yyyy":
-        return d.getFullYear();
-      case "yy":
-        return (d.getFullYear() % 1000).zf(2);
-      case "MM":
-        return (d.getMonth() + 1).zf(2);
-      case "dd":
-        return d.getDate().zf(2);
-      case "E":
-        return weekName[d.getDay()];
-      case "HH":
-        return d.getHours().zf(2);
-      case "hh":
-        return ((h = d.getHours() % 12) ? h : 12).zf(2);
-      case "mm":
-        return d.getMinutes().zf(2);
-      case "ss":
-        return d.getSeconds().zf(2);
-      case "a/p":
-        return d.getHours() < 12 ? "오전" : "오후";
-      default:
-        return $1;
-    }
-  });
+Date.prototype.parse = function(dateStr, formatStr) {
+	if (!formatStr)
+		throw "the format is not defined";
+	return moment(dateStr, formatStr).tz(timezone);
+}
+
+/* String prototype */
+String.prototype.startsWith = function(str) {
+	if (this.indexOf(str) > -1 && this[0] === str[0])
+		return true;
+	return false;
+}
+
+String.prototype.endsWith = function(str) {
+	if (this.indexOf(str) > -1 && this[this.length-1] === str[str.length-1])
+		return true;
+	return false;
+}
+
+String.prototype.byteLength = function() {
+	var l= 0;
+	for (var idx = 0; idx < this.length; idx++) {
+		var c = escape(this.charAt(idx));
+		if (c.length == 1)
+			l ++;
+		else if (c.indexOf("%u") != -1)
+			l += 2;
+		else if (c.indexOf("%") != -1)
+			l += c.length / 3;
+	}
+	return l;
 };
+
 
 function loadHtml(fileName, target) {
   var div = target;
@@ -74,7 +86,7 @@ function getModalData(key) {
   return $(".modal").data(key);
 }
 
-function openModalDialog(fileName, data, options) {
+function openModalDialog(fileName, options, data) {
   var dialogId = randomHashCode();
 	var defaultOptions = {
     show : true
@@ -82,10 +94,12 @@ function openModalDialog(fileName, data, options) {
 
   var div = $("<div>").attr("id", dialogId).addClass("modal inmodal").attr("role", "dialog");
 
-  var keys = Object.keys(data);
-  $.each(keys, function(idx, row) {
-    div.attr("data-" + keys, data[row]);
-  });
+  if(data) {
+    var keys = Object.keys(data);
+    $.each(keys, function(idx, row) {
+      div.attr("data-" + keys, data[row]);
+    });
+  }
 
 	$("body").append(div);
   var data = fs.readFileSync(fileName, 'utf-8');

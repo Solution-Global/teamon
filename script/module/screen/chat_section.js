@@ -33,6 +33,14 @@ var chatSection = (function() {
 
      _initCustomScrollbar()
      $mcsbContainer = $contentArea.find('.mCSB_container'); // set this value after _initCustomScrollbar
+
+     $("#fileupload-btn").click(function() {
+       openModalDialog("./html/chat/fileupload_pop.html");
+     });
+
+     $("#capture-btn").click(function() {
+       openModalDialog("./html/chat/capture_pop.html");
+     });
   }
 
   function _initCustomScrollbar() {
@@ -181,6 +189,7 @@ var chatSection = (function() {
           informationSection.hideSection();
           chatSection.hideSection();
           catalogSection.removeChannel(commandPayload.channelId);
+          screenshareSection.hideSection();
         } else {
           if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
             // 사용자 제거
@@ -301,7 +310,8 @@ var chatSection = (function() {
 
     callSection.hideSection();
     showSection(); // chat Area
-
+    
+    screenshareSection.hideSection();
     catalogSection.hideAlram(chatType, chatRoomId); // init Alram
     headerSection.setTitle(chatType, chatRoomName);
 

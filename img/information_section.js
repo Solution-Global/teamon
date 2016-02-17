@@ -74,7 +74,7 @@ var informationSection = (function() {
 
       var callHistoryList = commonGridValue.rows;
       $.each(callHistoryList, function(idx, callHistoryRow) {
-        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("yyyy/MM/dd a/p hh:mm");
+        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("YYYY/MM/DD a/p HH:mm");
       });
 
       var callHistoryData = {
@@ -88,7 +88,7 @@ var informationSection = (function() {
         console.log(callHistoryId);
         var sendingData = {"callhistoryid" : callHistoryId };
 
-        openModalDialog("./html/information/popup/detail_callhistory_popup.html", sendingData);
+        openModalDialog("./html/information/popup/detail_callhistory_popup.html", undefied, sendingData);
       });
     });
 
@@ -204,8 +204,8 @@ var informationSection = (function() {
             "channel": channel ? channel.name : "unknown",
             "sender": sender.loginId,
             "msgText": row.msg,
-            "date": new Date(row.creTime).format("yyyy/MM/dd"),
-            "time": new Date(row.creTime).format("a/p hh mm")
+            "date": new Date(row.creTime).format("YYYY/MM/DD"),
+            "time": new Date(row.creTime).format("a hh:mm")
           };
 
           messages.push(message);

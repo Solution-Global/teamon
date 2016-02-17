@@ -74,7 +74,7 @@ var informationSection = (function() {
 
       var callHistoryList = commonGridValue.rows;
       $.each(callHistoryList, function(idx, callHistoryRow) {
-        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("yyyy/MM/dd a/p hh:mm");
+        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("YYYY/MM/DD a HH:mm");
       });
 
       var callHistoryData = {
@@ -82,13 +82,11 @@ var informationSection = (function() {
       };
 
       $contentArea.append(Mustache.render(callHistoryTemplate, callHistoryData));
-
       $contentArea.find(".onDetailHistoryModal").bind("click", function() {
         var callHistoryId = $(this).closest("li").data("callhistoryid") ;
         console.log(callHistoryId);
         var sendingData = {"callhistoryid" : callHistoryId };
-
-        openModalDialog("./html/information/popup/detail_callhistory_popup.html", sendingData);
+        openModalDialog("./html/information/popup/detail_callhistory_popup.html", null, sendingData);
       });
     });
 
@@ -205,7 +203,7 @@ var informationSection = (function() {
             "sender": sender.loginId,
             "msgText": row.msg,
             "date": new Date(row.creTime).format("yyyy/MM/dd"),
-            "time": new Date(row.creTime).format("a/p hh mm")
+            "time": new Date(row.creTime).format("a hh mm")
           };
 
           messages.push(message);

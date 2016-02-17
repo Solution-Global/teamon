@@ -5,6 +5,8 @@ var CallClient = require('../call_client.js');
 
 var callSection = (function() {
   var callClient;
+  var callHistoryId, callHistoryTimeout, callStartTime;
+  var callerId, calleeId;
 
   // cache DOM
   var $callSec;
@@ -13,6 +15,7 @@ var callSection = (function() {
   var $info;
   var $videos;
   var $hangupButton;
+  var $callMemo;
 
   function _initialize() {
     $callSec = $("#call-section");
@@ -21,9 +24,12 @@ var callSection = (function() {
     $info = $infoArea.find(".tit");
     $videos = $contentArea.find("#videos");
     $hangupButton = $videos.find("#hangup");
+    $callMemo = $videos.find("#callMemo");
 
     $callSec.hide();
 
+    callHistoryId = null;
+    callHistoryTimeout = null;
     if (callClient === undefined)
       callClient = new CallClient();
 
@@ -38,7 +44,7 @@ var callSection = (function() {
     callClient.on('oncallaccepted', _onCallAccepted); // 수락 (local or remote) 성공 메시지
     callClient.on('onlocalstream', _onLocalStream); // 자신의 Stream이 준비 되었을 때
     callClient.on('onremotestream', _onRemoteStream); // 상대방의의 Stream이 준비 되었을 때
-    callClient.on('onHangup', _onHangup); // remote hangup
+    callClient.on('onHangup', _onHangup); // local or remote hangup
     callClient.on('onDeclining', _onDeclining); // 자신이 수락 거절하는 경우
     callClient.on('oncleanup', _onCleanup); // cleanup
     callClient.on('makecallerror', _makeCallError); // makeCall network 에러
@@ -68,6 +74,8 @@ var callSection = (function() {
   function _onCalling() {
     // TODO Any ringtone?
     var msg = "Calling... Need any ringbacktone?";
+    callerId = myPref.emplId;
+    calleeId = activeChatInfo.chatRoomId;
     $info.html(msg);
 
     swal({
@@ -90,6 +98,8 @@ var callSection = (function() {
 
     var callerObj = catalogSection.getUserObj(caller);
     var callerName = (callerObj !== null) ? callerObj.loginId : caller;
+    callerId = caller;
+    calleeId = myPref.emplId;
     var msg = "Incoming call from " + callerName + "!";
 
     swal({
@@ -110,6 +120,7 @@ var callSection = (function() {
 
         chatSection.hideSection(); // chat Area
         callSection.showSection();
+        screenshareSection.hideSection();
       } else {
         callClient.declineCall();
         swal.close();
@@ -135,11 +146,48 @@ var callSection = (function() {
     }
 
     $info.html(msg);
+
+    // call history 생성 트리거 (3초 이내 종료 호에 대해서는 무시)
+    if (callHistoryTimeout !== null) {
+      clearTimeout(callHistoryTimeout);
+    }
+    callHistoryTimeout = setTimeout(_createCallHistory, 3000);
+    callStartTime = new Date();
+  }
+
+  function _createCallHistory() {
+    if ($videos.is(":visible")) {
+      var args = {
+        "coId": myPref.coId,
+        "caller": callerId,
+        "callee": calleeId,
+        "callStart": callStartTime.format("yyyyMMddHHmmss")
+      }
+
+      restResourse.callHistory.createCallHistory(args, function(data) {
+        callHistoryId = data.callHistoryId;
+        console.log("current call history id:%d [data:%O]", callHistoryId, data);
+      });
+    }
+  }
+
+  function _updateCallHistory() {
+    if ($videos.is(":visible")) {
+      var args = {
+        "callhid": callHistoryId,
+        "memo": $callMemo.val(),
+        "callTime": Math.ceil((new Date().getTime() - callStartTime.getTime()) / 1000)
+      }
+
+      restResourse.callHistory.updateCallHistory(args, function(data) {
+        console.log("successfully updated call history! [memo:%s, callTime:%d]", args.memo, args.callTime);
+      });
+    }
   }
 
   function _onLocalStream(stream) {
     if ($('#myvideo').length === 0) {
-      $('#videolocal').append('<video class="rounded centered" id="myvideo" width=100% height=100% autoplay muted="muted"/>');
+      $('#videolocal').append('<video class="rounded centered" id="myvideo" width=200 height=100% autoplay muted="muted"/>');
     }
     attachMediaStream($('#myvideo').get(0), stream);
     $("#myvideo").get(0).muted = "muted";
@@ -154,7 +202,7 @@ var callSection = (function() {
 
   function _onRemoteStream(stream) {
     if ($('#remotevideo').length === 0) {
-      $('#videoremote').append('<video class="rounded centered" id="remotevideo" width=100% height=100% autoplay/>');
+      $('#videoremote').append('<video class="rounded centered" id="remotevideo" width=250 height=100% autoplay/>');
     }
     attachMediaStream($('#remotevideo').get(0), stream);
     var videoTracks = stream.getVideoTracks();
@@ -176,6 +224,17 @@ var callSection = (function() {
     $('#myvideo').remove();
     $('#remotevideo').remove();
 
+    // call history 처리
+    if (callHistoryTimeout !== null) {
+      clearTimeout(_createCallHistory);
+      callHistoryTimeout = null;
+    }
+
+    if (callHistoryId !== null) {
+      _updateCallHistory();
+      callHistoryId = null;
+    }
+
     $videos.hide();
   }
 
@@ -183,7 +242,9 @@ var callSection = (function() {
     swal.close();
     _cleanVideoArea();
 
-    var msg = "Call hung up by " + username + " (" + reason + ")!";
+    var userObj = catalogSection.getUserObj(username);
+    var userName = (userObj !== null) ? userObj.loginId : username;
+    var msg = "Call hung up by " + userName + " (" + reason + ")!";
     $info.html(msg);
   }
 

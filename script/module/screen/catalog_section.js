@@ -36,7 +36,7 @@ var catalogSection = (function() {
         backdrop : "static",
         keyboard : "false"
       };
-      openModalDialog("./html/login_popup.html", [], dialogOptions);
+      openModalDialog("./html/login_popup.html", dialogOptions);
     });
 
     _initUsers();

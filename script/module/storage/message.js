@@ -116,8 +116,8 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       "imgAlt": sender,
       "sender": sender,
       "msgText": params.msg,
-      "date": new Date(params.creTime).format("yyyy/MM/dd"),
-      "time": new Date(params.creTime).format("a/p hh mm")
+      "date": new Date(params.creTime).format("YYYY/MM/DD"),
+      "time": new Date(params.creTime).format("a hh:mm")
     };
 
     return message;
