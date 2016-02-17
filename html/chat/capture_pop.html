@@ -49,8 +49,10 @@ var dropzone = new Dropzone("#cropped-form", {
     init: function() {
         var myDropzone = this;
         this.on("success", function(file, response) {
+					file.name = response[0].name;
 					$("#crop-upload-image").closest(".modal-dialog").closest(".modal").modal("hide");
-          chatSection.sendMsg("Captured images[" + file.name + "] uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
+					var imageUrl = constants.REPOSITORY_URL + file.name + "?coId=" + myPref.coId + "&topic=" + topic + "&emplId=" + myPref.emplId;
+          chatSection.sendMsg("<img src='" + imageUrl + "' class='in-message' /><br/>Captured image uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
         });
         this.on("error", function(file, response) {
 					console.log("failed to upload cropped image");
@@ -63,8 +65,7 @@ $(document).ready(function() {
 
   $("#crop-upload-image").click(function() {
 		var blob = dataURItoBlob($("#capture-chosen").cropper("getCroppedCanvas").toDataURL());
-		blob.name = "temp1.png";
-		console.log(blob);
+		blob.name = "captured_" + new Date().format("YYYY_MM_DD_HH_mm_ss") + ".png";
 		dropzone.addFile(blob);
 		dropzone.processQueue();
   });
@@ -109,7 +110,6 @@ function showChosenImage(id) {
     if (error) throw error;
     for (var i = 0; i < sources.length; i++) {
       if (sources[i].id  == id) {
-				console.log($("#capture-chosen").parent().css("width"));
         $("#capture-chosen").parent().css("width", sources[i].thumbnail.getSize().width);
         $("#capture-chosen").parent().css("height", sources[i].thumbnail.getSize().height);
         $("#capture-chosen").attr("src", sources[i].thumbnail.toDataUrl());

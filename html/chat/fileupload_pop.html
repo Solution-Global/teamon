@@ -32,12 +32,12 @@ var dropzone = new Dropzone("#fileupload-form", {
         });
         this.on("successmultiple", function(files, response) {
 					$("#submit-fileupload").closest(".modal-dialog").closest(".modal").modal("hide");
-          console.log(files);
           var fileNames = "";
-          $.each(files, function() {
-            fileNames += this.name + ",";
+          $.each(files, function(idx) {
+						var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?coId=" + myPref.coId + "&topic=" + topic + "&emplId=" + myPref.emplId;
+            fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
           });
-          chatSection.sendMsg("File[" + fileNames.substr(0, fileNames.length-1) + "] uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
+          chatSection.sendMsg("Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
         });
         this.on("errormultiple", function(files, response) {
         });
