@@ -69,6 +69,13 @@ var informationSection = (function() {
       callSection.showCallInfo(emplId, userValue.loginId);
     });
 
+    $contentArea.find(".screenShare").click(function() {
+      callSection.hideSection();
+      chatSection.hideSection();
+      screenshareSection.showSection();
+      screenshareSection.showDialog(emplId);
+    });
+
     resizeInformationSection();
     _informationSectionScroll();
   }

@@ -189,6 +189,7 @@ var chatSection = (function() {
           informationSection.hideSection();
           chatSection.hideSection();
           catalogSection.hideChannel(commandPayload.channelId);
+          screenshareSection.hideSection();
         } else {
           if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
             // 사용자 제거
@@ -316,6 +317,7 @@ var chatSection = (function() {
     callSection.hideSection();
     showSection(); // chat Area
     informationSection.showSection();
+    screenshareSection.hideSection();
 
     catalogSection.hideAlram(chatType, chatRoomId); // init Alram
     headerSection.setTitle(chatType, chatRoomName);

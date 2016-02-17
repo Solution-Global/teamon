@@ -120,6 +120,7 @@ var callSection = (function() {
 
         chatSection.hideSection(); // chat Area
         callSection.showSection();
+        screenshareSection.hideSection();
       } else {
         callClient.declineCall();
         swal.close();
