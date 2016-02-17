@@ -31,7 +31,7 @@ var constants = require("../constants");
   ...
 */
 
-var message = (function(storageManager, myPref, userCache, channelCache) {
+var message = (function(storageManager, myInfo, userCache, channelCache) {
   const KEY_TYPE_CHAT_MESSAGES = 1;
   const KEY_TYPE_CHAT_FIRST_MESSAGE_ID = 2;
   const KEY_TYPE_CHAT_LAST_MESSAGE_ID = 3;
@@ -82,13 +82,13 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     var keyName;
     switch (params.keyType) {
       case KEY_TYPE_CHAT_MESSAGES:
-        keyName = "CHAT_" + params.chatType + "_" + myPref.emplId + "_" + params.chatRoomId;
+        keyName = "CHAT_" + params.chatType + "_" + myInfo.emplId + "_" + params.chatRoomId;
         break;
       case KEY_TYPE_CHAT_FIRST_MESSAGE_ID:
-        keyName = "CHAT_FIRST_MSGID_" + myPref.emplId;
+        keyName = "CHAT_FIRST_MSGID_" + myInfo.emplId;
         break;
       case KEY_TYPE_CHAT_LAST_MESSAGE_ID:
-        keyName = "CHAT_LAST_MSGID_" + myPref.emplId;
+        keyName = "CHAT_LAST_MSGID_" + myInfo.emplId;
         break;
     }
     return keyName;
@@ -104,8 +104,8 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
 
   // Local DB에 저장되는 Message Unit의 포맷 설정
   function madeMessageUnit(params) {
-    var sendMode = myPref.emplId === params.spkrId;
-    var sender = sendMode ? myPref.loginId : params.publisherLoginId;
+    var sendMode = myInfo.emplId === params.spkrId;
+    var sender = sendMode ? myInfo.loginId : params.publisherLoginId;
 
     var imgIdx = (params.spkrId * 1) % 10;
 
@@ -243,13 +243,13 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
   // Local Stroage 저장된 파일에서 과거 메시지 가져와 local storage에 저장
   function getPreviousChatMessage(chatType, chatRoomId, callback) {
     var restPrams = {
-      "coId": myPref.coId,
+      "coId": myInfo.coId,
       "chatType": chatType
     };
 
     if(constants.DIRECT_CHAT === chatType) {
-      restPrams["peer1"] = Math.min.apply(null, [myPref.emplId, chatRoomId]);
-      restPrams["peer2"] = Math.max.apply(null, [myPref.emplId, chatRoomId]);
+      restPrams["peer1"] = Math.min.apply(null, [myInfo.emplId, chatRoomId]);
+      restPrams["peer2"] = Math.max.apply(null, [myInfo.emplId, chatRoomId]);
     } else {
       restPrams["peer2"] = chatRoomId;
     }
@@ -286,14 +286,14 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     for(var key in targetArray) {
       var chatRoomId;
       var restPrams = {
-        "coId": myPref.coId,
+        "coId": myInfo.coId,
         "chatType": chatType
       };
 
       if(constants.DIRECT_CHAT === chatType) {
         chatRoomId = targetArray[key].emplId;
-        restPrams["peer1"] = Math.min.apply(null, [myPref.emplId, chatRoomId]);
-        restPrams["peer2"] = Math.max.apply(null, [myPref.emplId, chatRoomId]);
+        restPrams["peer1"] = Math.min.apply(null, [myInfo.emplId, chatRoomId]);
+        restPrams["peer2"] = Math.max.apply(null, [myInfo.emplId, chatRoomId]);
       } else {
         chatRoomId = targetArray[key].channelId;
         restPrams["peer2"] = chatRoomId;

@@ -77,17 +77,7 @@ var chat = (function() {
     console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
     myInfo.recvCallback(myInfo.emplid, topic, payloadStr);
   }
-
-  function _publishCommand(data, params){
-    var topicPrefix = "1/command/1"
-    var msgPayload = {
-      test: "test"
-    };
-    var msgPayloadStr = JSON.stringify(msgPayload);
-    myInfo.client.publish(topicPrefix, msgPayloadStr);
-    console.log('_publishMsg to the channel members [topic:%s, msg:%s]', topicPrefix, msgPayloadStr);
-  }
-
+  
   function _publishMsg(data, params) {
     /*
       msgPayload = {
@@ -101,6 +91,7 @@ var chat = (function() {
         msg:       // 발신 메시지 (client 담당)
       }
     */
+
     var receiver;
     if(params.chatType === constants.DIRECT_CHAT) {
       receiver = (params.spkrid === params.peer1) ? params.peer2 : params.peer1;

@@ -14,11 +14,13 @@ var remote = require('remote');
 var path = require('path');
 var constants = require("../script/module/constants.js");
 var storageManager = require('../script/module/storage/storage_manager.js')(false);
-var preference = require('../script/module/storage/preference.js');
+var preferenceManager = require('../script/module/storage/preference.js');
 var messageManager = require('../script/module/storage/message.js');
 var chatModule = require('../script/module/chat_client.js');
-var myPref; // Login 한 사용자 정보 저장
+var myInfo; // Login 한 사용자 정보 저장
 var activeChatInfo; // 현재 active 된 user chatting room  OR channel chattting room 정보
+var myMessage; // local Storage에 저장된 Message 처리
+var myPreference; 
 
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
@@ -32,13 +34,13 @@ function initLoginStatus() {
   console.log("initLoginStatus[remeberEmplId:%s]", remeberEmplId);
 
   if(remeberEmplId) {
-    preference = preference(storageManager, remeberEmplId); // init preference
+    myPreference = preferenceManager(storageManager, remeberEmplId); // init preference
 
-    myPref = {
-      "company": preference.getPerference("company"),
-      "loginId": preference.getPerference("loginId"),
+    myInfo = {
+      "company": myPreference.getPreference("company"),
+      "loginId": myPreference.getPreference("loginId"),
       "emplId": Number(remeberEmplId),
-      "coId": preference.getPerference("coId")
+      "coId": myPreference.getPreference("coId")
     };
 
     initScreenSection();

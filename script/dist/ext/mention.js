@@ -3,7 +3,6 @@
   "use strict"; // jshint ;_;
 
   var Metion = function (element, options) {
-    //console.log(element);
     this.$element = $(element)
     this.options = $.extend({}, $.fn.mention.defaults, options)
     this.matcher = this.options.matcher || this.matcher
@@ -34,22 +33,22 @@
           i;
 
       for (i = caratPos; i >= 0; i--) {
-          if (data[i] == this.options.delimiter) {
+          if (data[i] == this.options.firstDelimiter) {
               break;
           }
       }
+
       var replace = data.substring(i, caratPos),
         textBefore = data.substring(0, i),
         textAfter = data.substring(caratPos),
-        data = textBefore + this.options.delimiter + item + textAfter;
+        data = textBefore + this.options.firstDelimiter + item + textAfter;
 
       this.tempQuery = data;
 
-      return data;
+      return data + this.options.lastDelimiter;
   }
 
   , show: function () {
-
       // 처음 한번만
       if (this.eventSupported('keydown')) {
         this.$element.on('keydown', $.proxy(this.keydown, this))
@@ -62,7 +61,6 @@
       this.$menu
         .insertAfter(this.$element)
         .css({
-          // top: pos.top + pos.height : 아래 방향 fix - anna
           top: - (pos.top + this.$menu.height())
         , left: pos.left
         })
@@ -75,11 +73,6 @@
   , hide: function () {
       this.$menu.hide()
       this.shown = false
-
-      // hide action
-      if(this.options.ending) {
-        this.options.ending();
-      }
       return this
     }
 
@@ -117,7 +110,7 @@
   , extractCurrentQuery : function(query, caratPos) {
       var i;
       for (i = caratPos; i >= 0; i--) {
-          if (query[i] == this.options.delimiter) {
+          if (query[i] == this.options.firstDelimiter) {
               break;
           }
       }
@@ -131,7 +124,7 @@
         var q = (this.query.toLowerCase()),
           caratPos = this.$element[0].selectionStart,
           lastChar = q.slice(caratPos-1,caratPos);
-        if(lastChar==this.options.delimiter){
+        if(lastChar==this.options.firstDelimiter){
           return true;
         }
       }
@@ -139,14 +132,14 @@
       for (i in this.options.queryBy) {
           if (itemProps[this.options.queryBy[i]]) {
               var item = itemProps[this.options.queryBy[i]].toLowerCase(),
-                  usernames = (this.query.toLowerCase()).match(new RegExp(this.options.delimiter + '\\w+', "g")),
+                  usernames = (this.query.toLowerCase()).match(new RegExp(this.options.firstDelimiter + '\\w+', "g")),
                   j;
 
               if ( !! usernames) {
                   for (j = 0; j < usernames.length; j++) {
 
                       var username = (usernames[j].substring(1)).toLowerCase(),
-                          re = new RegExp(this.options.delimiter + item, "g"),
+                          re = new RegExp(this.options.firstDelimiter + item, "g"),
                           used = ((this.query.toLowerCase()).match(re));
 
                       if (item.indexOf(username) != -1 && used === null) {
@@ -219,7 +212,7 @@
               _linkHtml.append('<b class="mention_name">' + item.name + '</b>');
           }
           if (item.username) {
-              _linkHtml.append('<span class="mention_username"> ' + that.options.delimiter + item.username + '</span>');
+              _linkHtml.append('<span class="mention_username"> ' + that.options.firstDelimiter + item.username + '</span>');
           }
 
           i.find('a').html(that.highlighter(_linkHtml.html()));
@@ -259,10 +252,6 @@
         .on('blur',     $.proxy(this.blur, this))
         .on('keypress', $.proxy(this.keypress, this))
         .on('keyup',    $.proxy(this.keyup, this))
-
-      // if (this.eventSupported('keydown')) {
-      //   this.$element.on('keydown', $.proxy(this.keydown, this))
-      // }
 
       this.$menu
         .on('click', $.proxy(this.click, this))
@@ -372,6 +361,9 @@
       this.users = undefined;
       this.users = value;
     }
+  , showStatus: function() {
+      return this.shown;
+    }
 
   }
 
@@ -388,13 +380,14 @@
       if (!data)
         $this.data('mention', (data = new Metion(this, options)))
       if (typeof option == 'string')
-        data[option](value);
+        return data[option](value);
     })
   }
 
   $.fn.mention.defaults = {
     users: []
-  , delimiter: '@'
+  , firstDelimiter: '@'
+  , lastDelimiter: ': '
   , sensitive: true
   , emptyQuery: false
   , queryBy: ['name', 'username']

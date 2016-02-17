@@ -5,6 +5,8 @@ var Cache = require('../cache');
 var catalogSection = (function() {
   // cache DOM
   var $catalogSec;
+  var $userArea;
+  var $channelArea;
   var $userListContext;
   var $channelListContext;
   var userTemplate;
@@ -15,11 +17,13 @@ var catalogSection = (function() {
 
   function _initialize() {
     // 초기화
-    messageManager = messageManager(storageManager, myPref, userCache, channelCache);
+    myMessage = messageManager(storageManager, myInfo, userCache, channelCache);
 
     $catalogSec = $("#catalog-section");
-    $userListContext = $catalogSec.find('.chat-users .users-list');
-    $channelListContext = $catalogSec.find('.chat-channels .channels-list');
+    $userArea = $catalogSec.find('.chat-users');
+    $channelArea = $catalogSec.find('.chat-channels');
+    $userListContext = $userArea.find('.users-list');
+    $channelListContext = $channelArea.find('.channels-list');
     userTemplate = $userListContext.find('#user-template').html();
     channeTemplate = $channelListContext.find('#channel-template').html();
 
@@ -35,8 +39,9 @@ var catalogSection = (function() {
       openModalDialog("./html/login_popup.html", dialogOptions);
     });
 
+    _initUsers();
+    _initChannels();
     _initEventForChattingList();
-    _initCustomScrollbar()
  }
 
  function _initEventForChattingList() {
@@ -50,6 +55,8 @@ var catalogSection = (function() {
         "chatType" : constants.DIRECT_CHAT,
         "chatRoomId" : $targetList.data("emplid")
       };
+
+      myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
       chatSection.changeChatView(constants.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
 
       // informationSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
@@ -66,6 +73,7 @@ var catalogSection = (function() {
         "chatType" : constants.GROUP_CHAT,
         "chatRoomId" : $targetList.data("channelid")
       };
+      myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
       chatSection.changeChatView(constants.GROUP_CHAT, $targetList.data("channelid"), $targetList.data("name"));
       informationSection.showAboutChannel();
     });
@@ -78,7 +86,7 @@ var catalogSection = (function() {
     };
     $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
 
-    reloadChannel(params.channelId);
+    reloadChannelCache(params.channelId);
   }
 
   function displayChannel(params) {
@@ -88,15 +96,15 @@ var catalogSection = (function() {
     };
     $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
 
-    reloadChannel(params.channelId);
+    reloadChannelCache(params.channelId);
   }
 
-  function hideChannel(channelId) {
+  function removeChannel(channelId) {
     $channelListContext.find("[data-channelid='" + channelId + "']").remove();
-    reloadChannel(channelId);
+    reloadChannelCache(channelId);
   }
 
-  function reloadChannel(channelId) {
+  function reloadChannelCache(channelId) {
     var params = {
       "channelId": channelId,
       "memberIncluded": true
@@ -115,25 +123,6 @@ var catalogSection = (function() {
 
   function initCatalogSection() {
     _initialize();
-    _initUsers();
-    _initChannels();
-  }
-
-  function _initCustomScrollbar() {
-    var scrollHeight = $(window).height() - 230;
-    $catalogSec.find('.chat-channels').mCustomScrollbar({
-      axis:"y",
-      setWidth: "auto",
-      setHeight:  scrollHeight * 0.3,
-      theme:"3d",
-    });
-
-    $catalogSec.find('.chat-users').mCustomScrollbar({
-      axis:"y",
-      setWidth: "auto",
-      setHeight:  scrollHeight * 0.7,
-      theme:"3d"
-    });
   }
 
   function resizeCatalogSection() {
@@ -145,8 +134,8 @@ var catalogSection = (function() {
     // 마지막의 3,2,1 오차 pixel.
     var scrollHeight = windowHeight - catalogHeaderHeight - catalogChannelsHeight - catalogUsersHeight - 3;
 
-    $catalogSec.find(".chat-channels").css("height", scrollHeight * 0.3 );
-    $catalogSec.find(".chat-users").css("height", scrollHeight * 0.7 );
+    $channelArea.css("height", scrollHeight * 0.3 );
+    $userArea.css("height", scrollHeight * 0.7 );
   }
 
   function loadCatalogSection() {
@@ -154,17 +143,12 @@ var catalogSection = (function() {
   }
 
   function _initChannels() {
-    var coId = myPref.coId;
-    console.log("call _initChannels[coId:%s]", coId);
-
+    console.log("call initChannels[coId:%s]", coId);
+    var coId = myInfo.coId;
     var params = {
       "coId": coId,
       "memberIncluded": true
     };
-
-    // 초기화
-    $channelListContext.find("li").remove();
-    channelCache.initCache();
 
     restResourse.channel.getChannelList(params, function(data) {
       if(data) {
@@ -174,7 +158,7 @@ var catalogSection = (function() {
           for(var key in row.memberList) {
             var member = row.memberList[key];
 
-            if(!isIncludingMember && myPref.emplId === member.emplId) {
+            if(!isIncludingMember && myInfo.emplId === member.emplId) {
               isIncludingMember = true;
             }
 
@@ -197,16 +181,27 @@ var catalogSection = (function() {
           $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
         });
 
-        //sync Message
-        messageManager.syncChatMessage(constants.GROUP_CHAT);
+        _activeChatView(constants.GROUP_CHAT);
       }
+
+      // init scroll
+      var scrollHeight = $(window).height() - 230;
+      $channelArea.mCustomScrollbar({
+        axis:"y",
+        setWidth: "auto",
+        setHeight:  scrollHeight * 0.3,
+        theme:"3d",
+      });
+
+      //sync Message
+      myMessage.syncChatMessage(constants.GROUP_CHAT);
+
     });
   }
 
   function _initUsers() {
-    var coId = myPref.coId;
-    console.log("call _initUsers[coId:%s]", coId);
-
+    console.log("call initUsers[coId:%s]", coId);
+    var coId = myInfo.coId;
     var params = {
       "coId": coId
     };
@@ -216,7 +211,7 @@ var catalogSection = (function() {
         $.each(data.rows, function(idx, row) {
           userCache.set(row.emplId, row); // add each employee into userCache.
 
-          if (row.emplId === myPref.emplId)
+          if (row.emplId === myInfo.emplId)
             return;
 
           // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
@@ -230,31 +225,59 @@ var catalogSection = (function() {
           };
           $userListContext.append(Mustache.render(userTemplate, userData));
         });
+
+        _activeChatView(constants.DIRECT_CHAT);
       }
 
+      // init scroll
+      var scrollHeight = $(window).height() - 230;
+      $userArea.mCustomScrollbar({
+        axis:"y",
+        setWidth: "auto",
+        setHeight:  scrollHeight * 0.7,
+        theme:"3d"
+      });
+
       //sync Message
-      messageManager.syncChatMessage(constants.DIRECT_CHAT);
+      myMessage.syncChatMessage(constants.DIRECT_CHAT);
     });
   }
 
-  function hideAlram(chatType, chatId) {
+  function _activeChatView(chatType) {
+    var lastChatInfo = myPreference.getPreference("lastChatInfo");
+    if(lastChatInfo) {
+      lastChatInfo = JSON.parse(lastChatInfo);
+      if(chatType === lastChatInfo.chatType) {
+        var $activeTarget = _getActiveTarget(lastChatInfo.chatType, lastChatInfo.chatRoomId);
+        $activeTarget.trigger("click");
+      }
+    } else {
+      // 마지막으로 저장된 chatting 정보가 없을 경우
+      informationSection.hideSection();
+      chatSection.hideSection();
+      callSection.hideSection();
+    }
+  }
+
+  function _getActiveTarget(chatType, chatId) {
     var $activeTarget;
     if (chatType === constants.DIRECT_CHAT)
       $activeTarget = $userListContext.find("[data-emplid='" + chatId + "']");
     else
       $activeTarget = $channelListContext.find("[data-channelid='" + chatId + "']");
 
+    return $activeTarget;
+  }
+
+  function hideAlram(chatType, chatId) {
+    var $activeTarget = _getActiveTarget(chatType, chatId);
     var alarmArea = $activeTarget.find(".alarm");
     alarmArea.addClass("hide");
     alarmArea.html("");
   }
 
   function setAlarmCnt(chatType, chatId) {
-    var $activeTarget;
-    if (chatType === constants.DIRECT_CHAT)
-      $activeTarget = $userListContext.find("[data-emplid='" + chatId + "']");
-    else
-      $activeTarget = $channelListContext.find("[data-channelid='" + chatId + "']");
+    var $activeTarget = _getActiveTarget(chatType, chatId);
 
     var alarmArea = $activeTarget.find(".alarm");
     var cnt = alarmArea.text();
@@ -262,54 +285,30 @@ var catalogSection = (function() {
     alarmArea.removeClass("hide");
   }
 
-  function getCurrentTargetUser(chatType) {
-    var $activeTarget;
-    if (chatType === constants.DIRECT_CHAT) {
-      $activeTarget = $userListContext.find('.active');
-      if ($activeTarget.length !== 0) {
-        return $activeTarget.data("emplid");
-      }
-    } else {
-      $activeTarget = $channelListContext.find('.active');
-      if ($activeTarget.length !== 0) {
-        return $activeTarget.data("channelid");
-      }
-    }
-
-    return undefined;
-  }
-
-  function setCurrentTargetUser(peerid, force) {
-    force = force || false;
-
-    var findTarget = true;
-    if (!force) {
-      var $activeTarget = $userListContext.find('.active');
-      if ($activeTarget.length !== 0) {
-        findTarget = false;
-      }
-    }
-
-    var $targetPeer;
-    if (findTarget) {
-      $targetPeer = $userListContext.find('[data-emplid="' + peerid + '"]');
-    }
-
-    console.log("peerid:%s, force:%s, findTarget:%b, $targetPeer:%o", peerid, force, findTarget, $targetPeer);
-
-    if ($targetPeer !== undefined)
-      $targetPeer.trigger("click");
-  }
-
   function getUserObj(emplId) {
     return userCache.get(emplId);
+  }
+
+  function getChannelObj(channelId) {
+    return channelCache.get(channelId);
   }
 
   function getUsers() {
     return userCache.getValueArray();
   }
-  function getChannelObj(channelId) {
-    return channelCache.get(channelId);
+
+  function reloadSection() {
+    // 초기화
+    myMessage = messageManager(storageManager, myInfo, userCache, channelCache);
+
+    $userListContext.find("li").remove();
+    userCache.initCache();
+
+    $channelListContext.find("li").remove();
+    channelCache.initCache();
+
+    _initUsers();
+    _initChannels();
   }
 
   return {
@@ -318,14 +317,13 @@ var catalogSection = (function() {
     loadCatalogSection: loadCatalogSection,
     hideAlram:hideAlram,
     setAlarmCnt: setAlarmCnt,
-    getCurrentTargetUser: getCurrentTargetUser,
-    setCurrentTargetUser: setCurrentTargetUser,
     getUserObj: getUserObj,
-    getUsers: getUsers,
     getChannelObj: getChannelObj,
+    getUsers: getUsers,
     displayChannel: displayChannel,
-    hideChannel: hideChannel,
-    reloadChannel: reloadChannel
+    removeChannel: removeChannel,
+    reloadChannelCache: reloadChannelCache,
+    reloadSection: reloadSection
   };
 })();
 

@@ -90,22 +90,36 @@ function loginSubmit() {
 	      return;
 	    }
 
-	    myPref = {
+			var isAlreadyLogin = myInfo ? true : false;
+
+			myInfo = {
 	      "company": params.company,
 	      "loginId": params.loginId,
 	      "emplId": data.emplId ? Number(data.emplId) : null,
 	      "coId": data.coId ? Number(data.coId) : null
 	    };
 
-	    initScreenSection();
-	    // set the personal pref info first to use it around the app.
-	    preference = preference(storageManager, data.emplId); // init preference
+			if(isAlreadyLogin) {
+				// logout 후 login 시도
+				catalogSection.reloadSection();
+				chatSection.reloadSection();
+			} else {
+				// 처음 login 시도
+				initScreenSection();
+			}
+
+			// set the personal pref info first to use it around the app.
+			myPreference = preferenceManager(storageManager, data.emplId); // init preference
+
 	    if(rememberMe.is(":checked"))
 	      storageManager.setValue("remeberEmplId", data.emplId);
-	    preference.setPerference("company", params.company);
-	    preference.setPerference("loginId", params.loginId);
-	    preference.setPerference("emplId", data.emplId);
-	    preference.setPerference("coId", data.coId); // Save to the pref file once at the end of the config job.
+			else
+				storageManager.removeKey("remeberEmplId");
+
+	    myPreference.setPreference("company", params.company);
+	    myPreference.setPreference("loginId", params.loginId);
+	    myPreference.setPreference("emplId", data.emplId);
+	    myPreference.setPreference("coId", data.coId); // Save to the pref file once at the end of the config job.
 
 	  	$loginForm.closest(".modal-dialog").closest(".modal").modal("hide");
   });

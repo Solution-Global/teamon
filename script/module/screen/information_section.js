@@ -64,6 +64,7 @@ var informationSection = (function() {
 
     resizeInformationSection();
     _informationSectionScroll();
+    $informationSec.show();
   }
 
   function showAboutChannel() {
@@ -112,7 +113,7 @@ var informationSection = (function() {
     $contentArea.find(".leaveChannel").click(function() {
       var params = {
         "channelId": channelId,
-        "members": myPref.emplId,
+        "members": myInfo.emplId,
       };
 
       restResourse.channel.removeMember(params,
@@ -128,14 +129,14 @@ var informationSection = (function() {
                 var params = {
                   "type": constants.GROUP_REMOVE_MEMBER,
                   "channelId": channelId,
-                  "member": myPref.emplId
+                  "member": myInfo.emplId
                 }
 
                 chatModule.sendCommand(emplId, params);
               }
             }
 
-            chatSection.sendMsg("퇴장 members - " + myPref.loginId, constants.GROUP_CHAT, channelId); // 멤버 삭제 메시지 전송
+            chatSection.sendMsg("left - " + myInfo.loginId, constants.GROUP_CHAT, channelId); // 멤버 삭제 메시지 전송
           } else {
             console.log("[fail add memeber]" + response.statusMessage);
           }
@@ -145,14 +146,7 @@ var informationSection = (function() {
 
     resizeInformationSection();
     _informationSectionScroll();
-  }
-
-  function displayMember(members) {
-    for(var key in members) {
-      var userValue = catalogSection.getUserObj(members[key]);
-      var imgUrl = "../img/profile_img" + userValue.emplId + ".jpg";
-      $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.loginId + "'>" + userValue.loginId + "</a></li>");
-    }
+    $informationSec.show();
   }
 
   function showMentionList(messages) {
@@ -164,7 +158,7 @@ var informationSection = (function() {
     var $contentArea = $informationSec.find('.content_area');
 
     var params = {
-      "emplId": myPref.emplId
+      "emplId": myInfo.emplId
     };
 
     restResourse.chat.getMentionList(params, function(data) {
@@ -188,29 +182,39 @@ var informationSection = (function() {
         });
 
         $contentArea.empty();
-        $title.html("Mention #" + myPref.loginId);
+        $title.html("Mention #" + myInfo.loginId);
         for (var key = 0; key < messages.length; key++) {
+          if(key === 0) {
+            $contentArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
+          }
           if(messages[key - 1] && messages[key - 1].date != messages[key].date) {
             $contentArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
           }
           $contentArea.append(Mustache.render(mentionTemplate, messages[key]));
         }
-        resizeInformationSection();
-        _informationSectionScroll();
       }
     });
+    resizeInformationSection();
+    _informationSectionScroll();
+    $informationSec.show();
+  }
+
+  function displayMember(members) {
+    var $contentArea = $informationSec.find('.content_area');
+    for(var key in members) {
+      var userValue = catalogSection.getUserObj(members[key]);
+      var imgUrl = "../img/profile_img" + userValue.emplId + ".jpg";
+      $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.loginId + "'>" + userValue.loginId + "</a></li>");
+    }
   }
 
   function hideMember(member) {
+    var $contentArea = $informationSec.find('.content_area');
     $contentArea.find(".members [data-emplid='" + member + "']").remove();
   }
 
   function hideSection() {
     $informationSec.hide();
-  }
-
-  function showSection() {
-    $informationSec.show();
   }
 
   function _informationSectionScroll() {
@@ -230,8 +234,7 @@ var informationSection = (function() {
     displayMember: displayMember,
     showMentionList: showMentionList,
     hideMember: hideMember,
-    hideSection: hideSection,
-    showSection: showSection
+    hideSection: hideSection
   };
 })();
 

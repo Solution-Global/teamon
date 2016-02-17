@@ -50,7 +50,7 @@ var callSection = (function() {
     callClient.on('onregistration_failed', _gwError);
     callClient.on('pluginerror', _gwError);
 
-    callClient.initialize(myPref.emplId);
+    callClient.initialize(myInfo.emplId);
   }
 
   function _onRegistered(username) {
@@ -220,7 +220,7 @@ var callSection = (function() {
   }
 
   function _makeCall() {
-    var peer = catalogSection.getCurrentTargetUser(constants.DIRECT_CHAT);
+    var peer = activeChatInfo.chatRoomId;
     if (peer === undefined) {
       console.error("No peer selected!");
     }
