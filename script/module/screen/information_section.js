@@ -244,7 +244,7 @@ var informationSection = (function() {
   function hideSection() {
     $informationSec.hide();
   }
-  
+
   function showSection() {
     $informationSec.show();
   }
@@ -266,7 +266,8 @@ var informationSection = (function() {
     displayMember: displayMember,
     showMentionList: showMentionList,
     hideMember: hideMember,
-    hideSection: hideSection
+    hideSection: hideSection,
+    showSection: showSection
   };
 })();
 
