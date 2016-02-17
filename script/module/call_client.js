@@ -17,6 +17,7 @@ function CallClient() {
   this.remoteJsep = null;
   this.myusername = null;
   this.yourusername = null;
+  this.callHistoryTimeout = null;
 
   events.EventEmitter.call(this);
 }
@@ -205,6 +206,13 @@ CallClient.prototype._onCallAccepted = function(peer, jsep) {
   }
 
   self.emit('oncallaccepted', peer, doAudio, doVideo);
+
+  // call history 트리거 생성
+  if (self.callHistoryTimeout !== null) {
+    clearTimeout(self.callHistoryTimeout);
+  }
+  self.callHistoryTimeout = setTimeout(self._createCallHistory.bind(self), 3000);
+  self.callStartTime = new Date().format("yyyyMMddHHmmss");
 }
 
 CallClient.prototype._onErrorMessage = function(errorCode, error) {
@@ -413,6 +421,11 @@ CallClient.prototype._allInternalReset = function() {
   var self = this;
   self._resetStatus();
   self.sipcall.hangup();
+
+  if (self.callHistoryTimeout !== null) {
+    clearTimeout(self._createCallHistory);
+    self.callHistoryTimeout = null;
+  }
 }
 
 CallClient.prototype._resetStatus = function() {
@@ -421,6 +434,21 @@ CallClient.prototype._resetStatus = function() {
   self.myJsep = null;
   self.remoteJsep = null;
   self.yourusername = null;
+}
+
+CallClient.prototype._createCallHistory = function() {
+  var self = this;
+
+  if (self.engaged) {
+    var args = {
+      "coId": myPref.coId,
+      "caller": self.myusername.replace("agent", ""),
+      "callee": self.yourusername.replace("agent", ""),
+      "callStart": self.callStartTime
+    }
+
+    restResourse.callHistory.createCallHistory(args);
+  }
 }
 
 module.exports = CallClient;

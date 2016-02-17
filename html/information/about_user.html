@@ -27,14 +27,10 @@
       <div class="hr-line-dashed"></div>
       <div>
         <h4><i class="fa fa-history fa-lg text-primary"></i> Call History <a href="#"></a></h4>
-        <ul class="callHistory category-list">
-          <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-          <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-          <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-          <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-          <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-          <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
-          <li> 2015년 11월 20일 <span class="call label label-info pull-right">PLAY</span></li>
+        <ul class="callHistory category-list nopadding">
+          {{#callHistoryList}}
+          <li> {{callStart}} <span class="call label label-info pull-right">Detail</span></li>
+          {{/callHistoryList}}
         </ul>
        </div>
     </script>
