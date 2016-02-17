@@ -88,7 +88,7 @@ var informationSection = (function() {
      };
 
      restResourse.callHistory.getListByCondition(restPrams, function(commonGridValue) {
-       console.log("commonGridValue[totalPage:%d, totalRecords:%d]", commonGridValue.totalPage, commonGridValue.totalRecords);
+       console.log("commonGridValue[totalPage:%d, totalRecords:%d, rows:%O]", commonGridValue.totalPage, commonGridValue.totalRecords, commonGridValue.rows);
 
        var callHistoryData = commonGridValue.rows ? commonGridValue.rows : null;
        if (callHistoryData.length > 0) {
