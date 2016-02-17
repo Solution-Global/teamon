@@ -55,7 +55,7 @@
     var userArray = catalogSection.getUsers();
     var chosenSelect = $channelForm.find(".chosen-select");
     for(var key in userArray) {
-      // if (userArray[key].emplId === myInfo.emplId)
+      // if (userArray[key].emplId === myPref.emplId)
       //   continue;
       chosenSelect.append("<option value='" + userArray[key].emplId + "'>" + userArray[key].loginId + "</option>");
     }
@@ -77,7 +77,7 @@
     var pinupMessage = $channelForm.find("[name=pinupMessage]").val();
 
     var params = {
-      "coId": myInfo.coId,
+      "coId": myPref.coId,
       "name": name,
       "members": members,
       "pinupMessage": pinupMessage

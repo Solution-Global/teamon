@@ -50,7 +50,7 @@ var callSection = (function() {
     callClient.on('onregistration_failed', _gwError);
     callClient.on('pluginerror', _gwError);
 
-    callClient.initialize(myInfo.emplId);
+    callClient.initialize(myPref.emplId);
   }
 
   function _onRegistered(username) {

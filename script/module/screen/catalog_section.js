@@ -17,7 +17,7 @@ var catalogSection = (function() {
 
   function _initialize() {
     // 초기화
-    myMessage = messageManager(storageManager, myInfo, userCache, channelCache);
+    myMessage = messageManager(storageManager, myPref, userCache, channelCache);
 
     $catalogSec = $("#catalog-section");
     $userArea = $catalogSec.find('.chat-users');
@@ -36,7 +36,7 @@ var catalogSection = (function() {
         backdrop : "static",
         keyboard : "false"
       };
-      openModalDialog("./html/login_popup.html", dialogOptions);
+      openModalDialog("./html/login_popup.html", [], dialogOptions);
     });
 
     _initUsers();
@@ -144,7 +144,7 @@ var catalogSection = (function() {
 
   function _initChannels() {
     console.log("call initChannels[coId:%s]", coId);
-    var coId = myInfo.coId;
+    var coId = myPref.coId;
     var params = {
       "coId": coId,
       "memberIncluded": true
@@ -158,7 +158,7 @@ var catalogSection = (function() {
           for(var key in row.memberList) {
             var member = row.memberList[key];
 
-            if(!isIncludingMember && myInfo.emplId === member.emplId) {
+            if(!isIncludingMember && myPref.emplId === member.emplId) {
               isIncludingMember = true;
             }
 
@@ -201,7 +201,7 @@ var catalogSection = (function() {
 
   function _initUsers() {
     console.log("call initUsers[coId:%s]", coId);
-    var coId = myInfo.coId;
+    var coId = myPref.coId;
     var params = {
       "coId": coId
     };
@@ -211,7 +211,7 @@ var catalogSection = (function() {
         $.each(data.rows, function(idx, row) {
           userCache.set(row.emplId, row); // add each employee into userCache.
 
-          if (row.emplId === myInfo.emplId)
+          if (row.emplId === myPref.emplId)
             return;
 
           // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
@@ -299,7 +299,7 @@ var catalogSection = (function() {
 
   function reloadSection() {
     // 초기화
-    myMessage = messageManager(storageManager, myInfo, userCache, channelCache);
+    myMessage = messageManager(storageManager, myPref, userCache, channelCache);
 
     $userListContext.find("li").remove();
     userCache.initCache();

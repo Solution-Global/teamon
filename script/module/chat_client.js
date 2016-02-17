@@ -4,18 +4,18 @@ var mqtt = require('mqtt');
 var constants = require("./constants");
 
 var chat = (function() {
-  var myInfo;
+  var myPref;
 
   function configMyInfo(coid, emplid, loginid, recvCallback) {
-    myInfo = {};
-    myInfo.coid = coid;
-    myInfo.emplid = emplid;
-    myInfo.loginid = loginid;
-    myInfo.recvCallback = recvCallback;
+    myPref = {};
+    myPref.coid = coid;
+    myPref.emplid = emplid;
+    myPref.loginid = loginid;
+    myPref.recvCallback = recvCallback;
 
     console.log('coid:%i, emplid:%i, loginid:%s, recvCallback:%s', coid, emplid, loginid, recvCallback.name);
 
-    if ((myInfo.client = _createMQTTClient()) === null) {
+    if ((myPref.client = _createMQTTClient()) === null) {
       console.error("Failed to initialize MQTT client");
       return;
     }
@@ -25,10 +25,10 @@ var chat = (function() {
     var myTopic;
     if (connType === constants.DIRECT_CHAT) {
       myTopic = "{peer}/";
-      if (myInfo.emplid < partid) {
-        myTopic += myInfo.emplid + "_" + partid;
+      if (myPref.emplid < partid) {
+        myTopic += myPref.emplid + "_" + partid;
       } else {
-        myTopic += partid + "_" + myInfo.emplid;
+        myTopic += partid + "_" + myPref.emplid;
       }
     } else if (connType === constants.GROUP_CHAT) {
       myTopic = partid;
@@ -36,11 +36,11 @@ var chat = (function() {
       return null;
     }
 
-    return myInfo.coid + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
+    return myPref.coid + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
   }
 
   function _getCommandTopicPrefix(receiver) {
-    return myInfo.coid + constants.TOPIC_COMMAND + "/" + receiver;
+    return myPref.coid + constants.TOPIC_COMMAND + "/" + receiver;
   }
 
   function _createMQTTClient() {
@@ -59,25 +59,25 @@ var chat = (function() {
 
   function _mqttConnected() {
     // topic array: presence, msg(direct, group)
-    var topicArray = [myInfo.coid + constants.TOPIC_PRESENCE_ALL,
-      myInfo.coid + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + myInfo.emplid + "/+",
-      myInfo.coid + constants.TOPIC_MSG + "/" + constants.GROUP_CHAT + "/+",
-      myInfo.coid + constants.TOPIC_COMMAND + "/" + myInfo.emplid
+    var topicArray = [myPref.coid + constants.TOPIC_PRESENCE_ALL,
+      myPref.coid + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + myPref.emplid + "/+",
+      myPref.coid + constants.TOPIC_MSG + "/" + constants.GROUP_CHAT + "/+",
+      myPref.coid + constants.TOPIC_COMMAND + "/" + myPref.emplid
     ];
 
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
-    myInfo.client.subscribe(topicArray);
+    myPref.client.subscribe(topicArray);
 
     // presence/online
-    // myInfo.client.publish(myInfo.coid + constants.TOPIC_PRESENCE_ONLINE, myInfo.emplid.toString());
+    // myPref.client.publish(myPref.coid + constants.TOPIC_PRESENCE_ONLINE, myPref.emplid.toString());
   }
 
   function _mqttReceived(topic, payload) {
     var payloadStr = payload.toString();
     console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
-    myInfo.recvCallback(myInfo.emplid, topic, payloadStr);
+    myPref.recvCallback(myPref.emplid, topic, payloadStr);
   }
-  
+
   function _publishMsg(data, params) {
     /*
       msgPayload = {
@@ -115,17 +115,17 @@ var chat = (function() {
       if (params.chatType === constants.DIRECT_CHAT) {
         // 상대방 토픽으로 전송
         var receiverTopic = topicPrefix.replace("{peer}", receiver);
-        myInfo.client.publish(receiverTopic, msgPayloadStr);
+        myPref.client.publish(receiverTopic, msgPayloadStr);
         console.log('_publishMsg to the receiver [topic:%s, msg:%s]', receiverTopic, msgPayloadStr);
 
         // 자신의 토픽으로 전송
         var myTopic = topicPrefix.replace("{peer}", params.spkrid);
-        myInfo.client.publish(myTopic, msgPayloadStr);
+        myPref.client.publish(myTopic, msgPayloadStr);
         console.log('_publishMsg to myself [topic:%s, msg:%s]', myTopic, msgPayloadStr);
 
       } else if (params.chatType === constants.GROUP_CHAT) {
         // 채팅방으로 토픽으로 전송
-        myInfo.client.publish(topicPrefix, msgPayloadStr);
+        myPref.client.publish(topicPrefix, msgPayloadStr);
         console.log('_publishMsg to the channel members [topic:%s, msg:%s]', receiverTopic, msgPayloadStr);
       }
     }
@@ -134,7 +134,7 @@ var chat = (function() {
   function sendCommand(receiver, commandPayload) {
     var topicPrefix = _getCommandTopicPrefix(receiver);
     var commandPayloadStr = JSON.stringify(commandPayload);
-    myInfo.client.publish(topicPrefix, commandPayloadStr);
+    myPref.client.publish(topicPrefix, commandPayloadStr);
     console.log('sendCommand to the channel members [topic:%s, msg:%s]', topicPrefix, commandPayloadStr);
   }
 
@@ -143,17 +143,17 @@ var chat = (function() {
     var peer1, peer2;
 
     if(chatType === constants.DIRECT_CHAT) {
-      peer1 = (myInfo.emplid < receiver) ? myInfo.emplid : receiver;
-      peer2 = (myInfo.emplid < receiver) ? receiver : myInfo.emplid;
+      peer1 = (myPref.emplid < receiver) ? myPref.emplid : receiver;
+      peer2 = (myPref.emplid < receiver) ? receiver : myPref.emplid;
     } else {
       peer2 = receiver;
     }
     var params = {
-      "coId": myInfo.coid,
+      "coId": myPref.coid,
       "chatType": chatType,
       "peer1": peer1,
       "peer2": peer2,
-      "spkrid": myInfo.emplid,
+      "spkrid": myPref.emplid,
       "msg": msg
     }
 
@@ -161,7 +161,7 @@ var chat = (function() {
   }
 
   function finalize() {
-    myInfo.client.end();
+    myPref.client.end();
   }
 
   return {

@@ -17,10 +17,10 @@ var storageManager = require('../script/module/storage/storage_manager.js')(fals
 var preferenceManager = require('../script/module/storage/preference.js');
 var messageManager = require('../script/module/storage/message.js');
 var chatModule = require('../script/module/chat_client.js');
-var myInfo; // Login 한 사용자 정보 저장
+var myPref; // Login 한 사용자 정보 저장
 var activeChatInfo; // 현재 active 된 user chatting room  OR channel chattting room 정보
 var myMessage; // local Storage에 저장된 Message 처리
-var myPreference; 
+var myPreference;
 
 function initialize() {
   require('../script/module/teamon_menu').customMenus();
@@ -36,7 +36,7 @@ function initLoginStatus() {
   if(remeberEmplId) {
     myPreference = preferenceManager(storageManager, remeberEmplId); // init preference
 
-    myInfo = {
+    myPref = {
       "company": myPreference.getPreference("company"),
       "loginId": myPreference.getPreference("loginId"),
       "emplId": Number(remeberEmplId),
@@ -49,7 +49,7 @@ function initLoginStatus() {
       backdrop : "static",
       keyboard : "false"
     };
-    openModalDialog("./html/login_popup.html", dialogOptions);
+    openModalDialog("./html/login_popup.html", [], dialogOptions);
   }
 }
 

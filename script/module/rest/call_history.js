@@ -56,4 +56,21 @@ CallHistory.prototype.createCallHistory = function(params) {
   });
 }
 
+CallHistory.prototype.getCallHistory = function(params, callback) {
+  var self = this;
+  console.log("getCallHistory - [callHistoryId]" + params.callHistoryId);
+  var args = {
+    path: {
+      "callHistoryId": params.callHistoryId
+    },
+    headers: self.restCommon.commonHeaders
+  };
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${callHistoryId}", args,
+    function(data, response) {
+      callback(data, response);
+    }).on('error', function(err) {
+    console.error('something went wrong on the request', err.request.options);
+  });
+}
+
 module.exports = CallHistory

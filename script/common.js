@@ -70,13 +70,23 @@ function loadHtml(fileName, target) {
   div.html(rtMsg);
 }
 
-function openModalDialog(fileName, options) {
+function getModalData(key) {
+  return $(".modal").data(key);
+}
+
+function openModalDialog(fileName, data, options) {
   var dialogId = randomHashCode();
 	var defaultOptions = {
     show : true
 	};
 
-	var div = $("<div>").attr("id", dialogId).addClass("modal inmodal").attr("role", "dialog");
+  var div = $("<div>").attr("id", dialogId).addClass("modal inmodal").attr("role", "dialog");
+
+  var keys = Object.keys(data);
+  $.each(keys, function(idx, row) {
+    div.attr("data-" + keys, data[row]);
+  });
+
 	$("body").append(div);
   var data = fs.readFileSync(fileName, 'utf-8');
   var rtMsg = jQuery.trim(data);

@@ -128,3 +128,240 @@ h1:after {
 	height: 200px;
   padding: 5px;
 }
+#player{
+	margin: 0 auto;
+	width: 900px;
+	height: 470px;
+	background-color: #F0F0F0;
+}
+#videoBoxWrapper{
+	position: relative;
+	margin: 0 auto;
+	width: 842px;
+	height: 380px;
+}
+#videoBox{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+#callerVideoWrapper{
+	height: 100%;
+	float: left;
+	margin-right: 2px;
+}
+#callerVideo{
+	background-color: black;
+	float: left;
+	z-index: -10;
+}
+#calleeVideoWrapper{
+	height: 100%;
+	float: left;
+}
+#calleeVideo{
+	background-color: black;
+	float: left;
+	z-index: -10;
+}
+#ctrlBox{
+	margin: 0 auto;
+	width: 842px;
+	height: 90px;
+ 	background-color: #B2B2B2;
+}
+#timelineBoxWrapper{
+	width: 100%;
+	height: 30px;
+	padding-top: 8px;
+}
+#timelineBox{
+	margin: 0 auto;
+	width: 600px;
+	height: 20px;
+}
+#curTime{
+	font-family: Dotum, Helvetica, sans-serif;
+	font-size: 14px;
+	overflow: hidden;
+	width: 75px;
+	height: 100%;
+	float: left;
+	font-weight: 900;
+	margin-right: 20px;
+}
+#duration{
+	font-family: Dotum, Helvetica, sans-serif;
+	font-size: 14px;
+	overflow: hidden;
+	width: 75px;
+	height: 100%;
+	float: left;
+	font-weight: 900;
+	margin-left: 20px;
+}
+#timelineWrapper{
+	position: relative;
+ 	margin: 3px 0;
+	width: 400px;
+	height: 14px;
+	float: left;
+	z-index: 1;
+}
+#timelineWrapper:HOVER{
+	cursor: pointer;
+}
+#timeline{
+	position: absolute;
+	margin-top: 5px;
+	width: 100%;
+	height: 3px;
+	background: #000000;
+	display: inline;
+	border-radius: 15px;
+	z-index: -1;
+}
+#playhead{
+	position: absolute;
+	width: 10px;
+	height: 10px;
+ 	border-radius: 50%;
+ 	background: #FFFFFF;
+ 	cursor: pointer;
+ 	z-index: 2;
+ 	bottom: -4px;
+}
+#playhead:HOVER{
+	cursor: pointer;
+}
+#playhead_tail{
+	position: absolute;
+	background: #90AA01;
+	border-radius: 15px;
+	height: 3px;
+	z-index: 0;
+}
+#btnBoxWrapper{
+	width: 100%;
+	height: 40px;
+}
+#btnBox{
+	margin: 0 auto;
+	width: 260px;
+	height: 40px;
+}
+#timeAlert{
+	position: fixed;
+	display: none;
+	font-size: 10px;
+	font-weight: 700;
+	border: 1px solid white;
+	z-index: 10;
+	background-color: yellow;
+}
+.mouseDown{
+	cursor: default;
+}
+#playBtn{
+	width: 40px;
+	height: 40px;
+	display: inline;
+	float: left;
+	border: none;
+	background-size: 70% 70%;
+	background-position: center;
+}
+.playBtn{
+	background: url('../img/play48.png') no-repeat;
+}
+.playBtn:HOVER{
+	background: url('../img/play48.png') no-repeat;
+	cursor: pointer;
+}
+.pauseBtn{
+	background: url('../img/pause41.png') no-repeat;
+}
+.pauseBtn:HOVER{
+	background: url('../img/pause41.png') no-repeat;
+	cursor: pointer;
+}
+#loadBtn{
+	width: 40px;
+	height: 40px;
+	display: inline;
+	float: left;
+	border: none;
+	background-size: 50% 50%;
+	background-position: center;
+}
+.loadBtn{
+	background: url('..//img/media26.png') no-repeat;
+}
+.loadBtn:HOVER{
+	cursor: pointer;
+}
+#volumeBtn{
+	width: 40px;
+	height: 40px;
+	display: inline;
+	float: left;
+	border: none;
+	background-size: 50% 50%;
+	background-position: center;
+}
+.volumeBtn{
+	background: url('..//img/sound35.png') no-repeat;
+}
+.volumeBtn:HOVER{
+	background: url('..//img/sound35.png') no-repeat;
+	cursor: pointer;
+}
+.muteBtn{
+	background: url('..//img/speaker113.png') no-repeat;
+}
+.muteBtn:HOVER{
+	background: url('..//img/speaker113.png') no-repeat;
+	cursor: pointer;
+}
+#volumelineWrapper{
+	position: relative;
+ 	margin: 3px 0;
+	width: 100px;
+	height: 14px;
+	float: left;
+	z-index: 1;
+	margin-top: 12px;
+}
+#volumelineWrapper:HOVER{
+	cursor: pointer;
+}
+#volumeline{
+	position: absolute;
+	margin-top: 5px;
+	width: 100%;
+	height: 4px;
+	background: #000000;
+	display: inline;
+	border-radius: 15px;
+	z-index: -1;
+}
+#volumehead{
+	position: absolute;
+	width: 13px;
+	height: 13px;
+ 	border-radius: 50%;
+ 	background: #FFFFFF;
+ 	cursor: pointer;
+ 	z-index: 2;
+ 	bottom: -5px;
+}
+#volumehead:HOVER{
+	cursor: pointer;
+}
+#volumehead_tail{
+	position: absolute;
+	background: #90AA01;
+	border-radius: 15px;
+	height: 4px;
+	z-index: 0;
+}

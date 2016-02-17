@@ -149,8 +149,8 @@ var chatSection = (function() {
   function _handleCommand(receiver, payloadStr) {
     console.info("_handleCommand information %s, %s", receiver, payloadStr);
 
-    if(receiver != myInfo.emplId) {
-      console.error("reciver not match %s, %s", reciver, myInfo.emplId);
+    if(receiver != myPref.emplId) {
+      console.error("reciver not match %s, %s", reciver, myPref.emplId);
       return;
     }
 
@@ -176,7 +176,7 @@ var chatSection = (function() {
       case constants.GROUP_REMOVE_MEMBER:
         catalogSection.reloadChannelCache(commandPayload.channelId);
 
-        if(myInfo.emplId === commandPayload.member) {
+        if(myPref.emplId === commandPayload.member) {
           // 화면 닫기 & 리스트제거
           informationSection.hideSection();
           chatSection.hideSection();
@@ -265,9 +265,9 @@ var chatSection = (function() {
   function initChatSection() {
     _initialize();
 
-    var coId = myInfo.coId;
-    var emplId = myInfo.emplId;
-    var loginId = myInfo.loginId;
+    var coId = myPref.coId;
+    var emplId = myPref.emplId;
+    var loginId = myPref.loginId;
 
     console.log("initChatSection[coId:%s, emplId:%s, loginId:%s]", coId, emplId, loginId);
 
@@ -312,7 +312,7 @@ var chatSection = (function() {
         var userValue = catalogSection.getUserObj(channelValue.memberList[key].emplId);
 
         //본인 제외
-        if(userValue.emplId == myInfo.emplId)
+        if(userValue.emplId == myPref.emplId)
           continue;
 
         members.push({
@@ -351,9 +351,9 @@ var chatSection = (function() {
   function reloadSection() {
     finalize();
 
-    var coId = myInfo.coId;
-    var emplId = myInfo.emplId;
-    var loginId = myInfo.loginId;
+    var coId = myPref.coId;
+    var emplId = myPref.emplId;
+    var loginId = myPref.loginId;
     chatModule.configMyInfo(coId, emplId, loginId, recvMsg);
   }
 

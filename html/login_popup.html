@@ -90,9 +90,9 @@ function loginSubmit() {
 	      return;
 	    }
 
-			var isAlreadyLogin = myInfo ? true : false;
+			var isAlreadyLogin = myPref ? true : false;
 
-			myInfo = {
+			myPref = {
 	      "company": params.company,
 	      "loginId": params.loginId,
 	      "emplId": data.emplId ? Number(data.emplId) : null,
