@@ -16,7 +16,7 @@ var chatSection = (function() {
   function _initialize() {
     $chatSec = $("#chat-section");
     $contentArea = $chatSec.find('.content_area');
-     $inputText = $chatSec.find('.message-input');
+    $inputText = $chatSec.find('.message-input');
     $btnSend = $chatSec.find('.btn_send');
     msgTemplate = $('#msg-template').html();
     dateLineTemplate = $('#dateline-template').html();
@@ -36,6 +36,14 @@ var chatSection = (function() {
 
      _initCustomScrollbar()
      $mcsbContainer = $contentArea.find('.mCSB_container'); // set this value after _initCustomScrollbar
+
+     $("#fileupload-btn").click(function() {
+       openModalDialog("./html/chat/fileupload_pop.html");
+     });
+
+     $("#capture-btn").click(function() {
+       openModalDialog("./html/chat/capture_pop.html");
+     });
   }
 
   function _initCustomScrollbar() {
