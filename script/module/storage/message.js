@@ -117,7 +117,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       "sender": sender,
       "msgText": params.msg,
       "date": new Date(params.creTime).format("YYYY/MM/DD"),
-      "time": new Date(params.creTime).format("a hh:mm")
+      "time": new Date(params.creTime).format("A hh mm")
     };
 
     return message;

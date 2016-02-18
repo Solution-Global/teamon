@@ -62,6 +62,13 @@ var informationSection = (function() {
       callSection.showCallInfo(emplId, userValue.loginId);
     });
 
+    $contentArea.find(".screenShare").click(function() {
+      callSection.hideSection();
+      chatSection.hideSection();
+      screenshareSection.showSection();
+      screenshareSection.showDialog(emplId);
+    });
+
     // TODO 현재는 사용자 선택시마다 API 호출 -> 캐시 기능 필요 ?
     var restPrams = {
       "coId": myPref.coId,
@@ -244,6 +251,10 @@ var informationSection = (function() {
     $informationSec.hide();
   }
 
+  function showSection() {
+    $informationSec.show();
+  }
+
   function _informationSectionScroll() {
     $informationSec.find(".ibox-content").mCustomScrollbar({
       axis:"y",
@@ -261,7 +272,8 @@ var informationSection = (function() {
     displayMember: displayMember,
     showMentionList: showMentionList,
     hideMember: hideMember,
-    hideSection: hideSection
+    hideSection: hideSection,
+    showSection: showSection
   };
 })();
 
