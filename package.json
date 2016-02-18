@@ -17,10 +17,10 @@
     "pack": "npm run pack:win",
     "asar": "npm run asar:win",
     "build": "npm run build:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.35.0 --icon=assets/win/teamon.ico --prune --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
+    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.35.0 --icon=assets/win/teamon.ico --prune --ignore=release --ignore=assets --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" ",
     "asar:win": "asar pack release/win/teamon-win32-x64/resources/app release/win/teamon-win32-x64/resources/app.asar && rm -rf release/win/teamon-win32-x64/resources/app",
     "build:win": "npm run pack:win && npm run asar:win && electron-builder release/win/teamon-win32-x64 --platform=win --out=release/win --config=packager.json",
-    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.35.0 --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
+    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.35.0 --ignore=release --ignore=assets --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" ",
     "asar:osx": "asar pack release/osx/teamon-osx/resources/app release/osx/teamon-osx/resources/app.asar && rm -rf release/osx/teamon-osx/resources/app",
     "build:osx": "npm run pack:osx && npm run asar:osx && electron-builder release/osx/teamon-osx --platform=osx --out=release/osx --config=packager.json"
   },
@@ -50,6 +50,6 @@
     "dropzone": "4.2.0",
     "cropper": "2.2.5",
     "moment": "2.11.2",
-    "moment-timezone": "0.5.0"    
+    "moment-timezone": "0.5.0"
   }
 }

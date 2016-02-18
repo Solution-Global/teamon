@@ -81,7 +81,7 @@ var informationSection = (function() {
 
       var callHistoryList = commonGridValue.rows;
       $.each(callHistoryList, function(idx, callHistoryRow) {
-        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("YYYY/MM/DD a HH:mm");
+        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("M/D H:mm");
       });
 
       var callHistoryData = {
@@ -209,7 +209,7 @@ var informationSection = (function() {
             "sender": sender.loginId,
             "msgText": row.msg,
             "date": new Date(row.creTime).format("yyyy/MM/dd"),
-            "time": new Date(row.creTime).format("a hh mm")
+            "time": new Date(row.creTime).format("A hh mm")
           };
 
           messages.push(message);
