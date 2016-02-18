@@ -19,8 +19,8 @@ var callSection = (function() {
 
   function _initialize() {
     $callSec = $("#call-section");
-    $contentArea = $callSec.find('.content_area');
-    $infoArea = $contentArea.find('.info_area');
+    $contentArea = $callSec.find(".content_area");
+    $infoArea = $contentArea.find(".info_area");
     $info = $infoArea.find(".tit");
     $videos = $contentArea.find("#videos");
     $hangupButton = $videos.find("#hangup");
@@ -143,16 +143,17 @@ var callSection = (function() {
       var peerObj = catalogSection.getUserObj(peer);
       var peerName = (peerObj !== null) ? peerObj.loginId : peer;
       msg = peerName + " accepted the call!";
+
+      // TODO 현재는 발신자만 call history 생성 -> 레코드에 대한 caller, callee 정책 결정 후 처리
+      // call history 생성 트리거 (3초 이내 종료 호에 대해서는 무시)
+      if (callHistoryTimeout !== null) {
+        clearTimeout(callHistoryTimeout);
+      }
+      callHistoryTimeout = setTimeout(_createCallHistory, 3000);
+      callStartTime = new Date();
     }
 
     $info.html(msg);
-
-    // call history 생성 트리거 (3초 이내 종료 호에 대해서는 무시)
-    if (callHistoryTimeout !== null) {
-      clearTimeout(callHistoryTimeout);
-    }
-    callHistoryTimeout = setTimeout(_createCallHistory, 3000);
-    callStartTime = new Date();
   }
 
   function _createCallHistory() {
@@ -161,7 +162,7 @@ var callSection = (function() {
         "coId": myPref.coId,
         "caller": callerId,
         "callee": calleeId,
-        "callStart": callStartTime.format("yyyyMMddHHmmss")
+        "callStart": callStartTime.format("YYYYMMDDHHmmss")
       }
 
       restResourse.callHistory.createCallHistory(args, function(data) {
@@ -171,11 +172,11 @@ var callSection = (function() {
     }
   }
 
-  function _updateCallHistory() {
+  function _updateCallHistory(callMemo) {
     if ($videos.is(":visible")) {
       var args = {
         "callhid": callHistoryId,
-        "memo": $callMemo.val(),
+        "memo": callMemo,
         "callTime": Math.ceil((new Date().getTime() - callStartTime.getTime()) / 1000)
       }
 
@@ -230,9 +231,13 @@ var callSection = (function() {
       callHistoryTimeout = null;
     }
 
-    if (callHistoryId !== null) {
-      _updateCallHistory();
-      callHistoryId = null;
+    var callMemo = $callMemo.val();
+    if (callMemo.trim().length) {
+      if (callHistoryId !== null) {
+        _updateCallHistory(callMemo);
+        callHistoryId = null;
+      }
+      $callMemo.val('');
     }
 
     $videos.hide();
