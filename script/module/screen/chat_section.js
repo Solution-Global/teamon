@@ -12,6 +12,7 @@ var chatSection = (function() {
   var $btnSend;
   var msgTemplate;
   var dateLineTemplate;
+  var $mentionText;
 
   function _initialize() {
     $chatSec = $("#chat-section");
@@ -23,15 +24,11 @@ var chatSection = (function() {
 
     // bind events
     $btnSend.on('click', sendMsg);
-    $inputText.on('keyup', _keyup);
+    $inputText.on('keyup', _keyupInputText);
 
-    $inputText.mention({
-      delimiter: '@',
+    $mentionText = $inputText.mention({
       users : [],
       queryBy : ['username'],
-      ending : function() {
-        $inputText.one('keyup', _keyup);
-      }
     });
 
      _initCustomScrollbar()
@@ -58,8 +55,7 @@ var chatSection = (function() {
           }
         }
       },
-      onTotalScrollOffset:100,
-      alwaysTriggerOffsets:false
+      scrollInertia : 0
     }).mCustomScrollbar("scrollTo", "bottom");
   }
 
@@ -88,8 +84,9 @@ var chatSection = (function() {
     $inputText.val("").focus();
   }
 
-  function _keyup(event) {
-    if (event.keyCode == 13 && event.shiftKey !== true) {
+  function _keyupInputText(event) {
+    // mention이 활성화 되어 있으면 send 전송을 막는다.
+    if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
       $btnSend.click();
     }
   }
@@ -116,11 +113,13 @@ var chatSection = (function() {
   function _displayMessages(type, value) {
     var messageTags = $mcsbContainer.find(".chat-message");
 
+    //$contentArea.mCustomScrollbar("scrollTo", "bottom");
+
     if(Array.isArray(value)) {
       if(MESSAGE_TYPE_APPEND === type) {
         for (var key = 0; key < value.length; key++) {
           if(value[key - 1] && value[key - 1].date != value[key].date) {
-            $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value.date}));
+            $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
           }
           $mcsbContainer.append(Mustache.render(msgTemplate, value[key]));
         }
@@ -133,15 +132,16 @@ var chatSection = (function() {
 
           if (key === (value.length-1)) {
             if(firstDate && value[key].date != firstDate) {
-              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value.date}));
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
             }
           } else {
             if(value[key - 1] && value[key - 1].date != value[key].date) {
-              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value.date}));
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
             }
           }
         }
       }
+
     } else {
       if(MESSAGE_TYPE_APPEND === type) {
         var lastDate = messageTags ? messageTags.last().data("date"): undefined;
@@ -175,20 +175,20 @@ var chatSection = (function() {
         catalogSection.displayChannel(commandPayload);
       break;
       case constants.GROUP_ADD_MEMBER:
-        catalogSection.reloadChannel(commandPayload.channelId);
+        catalogSection.reloadChannelCache(commandPayload.channelId);
         // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
         if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
           informationSection.displayMember(commandPayload.newMembers);
         }
       break;
       case constants.GROUP_REMOVE_MEMBER:
-        catalogSection.reloadChannel(commandPayload.channelId);
+        catalogSection.reloadChannelCache(commandPayload.channelId);
 
         if(myPref.emplId === commandPayload.member) {
           // 화면 닫기 & 리스트제거
           informationSection.hideSection();
           chatSection.hideSection();
-          catalogSection.hideChannel(commandPayload.channelId);
+          catalogSection.removeChannel(commandPayload.channelId);
           screenshareSection.hideSection();
         } else {
           if(activeChatInfo && activeChatInfo.chatRoomId === commandPayload.channelId) {
@@ -228,11 +228,6 @@ var chatSection = (function() {
     if (locallast < lastmsgid) {
       // api 호출을 통해 모든 누락된 메시지 가져와서 보여주기
     } else {
-      // if (!sendMode) {
-      //   // target 설정에 따른 chat view 변경이 있는 경우 먼저 처리 후 메시지 출력
-      //   catalogSection.setCurrentTargetUser(msgPayload.publisher, false);
-      // }
-
       var userObj = catalogSection.getUserObj(msgPayload.publisher);
       var params = {
         spkrId : msgPayload.publisher,
@@ -242,7 +237,7 @@ var chatSection = (function() {
         creTime : msgPayload.time
       };
 
-      var message = messageManager.madeMessageUnit(params);
+      var message = myMessage.madeMessageUnit(params);
 
       /*
         * 화면 display 조건
@@ -267,7 +262,7 @@ var chatSection = (function() {
         chatRoomId = msgPayload.receiver;
       }
 
-      messageManager.appendChatMessage(message, msgPayload.chatType, chatRoomId);
+      myMessage.appendChatMessage(message, msgPayload.chatType, chatRoomId);
     }
   }
 
@@ -292,8 +287,6 @@ var chatSection = (function() {
     var windowHeight = $(window).height();
     var headerHeight = $("#header-section").outerHeight(true);
     var chatInputHeight = $chatSec.find(".ibox-footer").outerHeight(true);
-
-    // 마지막의 3,2,1 오차 pixel.
     var chatHeight =  windowHeight - headerHeight - chatInputHeight - 1;
 
     $chatSec.find(".content_area").css("height", chatHeight);
@@ -310,45 +303,45 @@ var chatSection = (function() {
     $.each($contentArea.find(".chat-message"), function(idx, row) {
       $(row).remove();
     });
+
     $.each($contentArea.find(".date_line"), function(idx, row) {
       $(row).remove();
     });
 
     callSection.hideSection();
     showSection(); // chat Area
-    informationSection.showSection();
+    
     screenshareSection.hideSection();
-
     catalogSection.hideAlram(chatType, chatRoomId); // init Alram
     headerSection.setTitle(chatType, chatRoomName);
 
     if(chatType === constants.GROUP_CHAT) {
       var channelValue = catalogSection.getChannelObj(chatRoomId);
-      var members = [];
+      var members = []; // for mention
       for(var key in channelValue.memberList) {
         var userValue = catalogSection.getUserObj(channelValue.memberList[key].emplId);
 
         //본인 제외
-        if(userValue.emplId == myPref.emplId )
+        if(userValue.emplId == myPref.emplId)
           continue;
 
         members.push({
-          //"name" : userValue.loginId,
           "username" : userValue.loginId,
           "image": "../img/profile_img" + userValue.emplId + ".jpg"
         });
       }
 
-      $inputText.mention("updateUsers", members);
+      $mentionText.mention("updateUsers", members);
     }
-    var messageArray = messageManager.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId); // get previous messages
+
+    var messageArray = myMessage.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId); // get previous messages
     if(messageArray) {
       _displayMessages(MESSAGE_TYPE_APPEND, messageArray);
     }
   }
 
   function getPreviousMessage() {
-    messageManager.getPreviousChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId, function(messageArray) {
+    myMessage.getPreviousChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId, function(messageArray) {
       _displayMessages(MESSAGE_TYPE_PREPEND, messageArray);
     });
   }
@@ -365,12 +358,22 @@ var chatSection = (function() {
     $chatSec.show();
   }
 
+  function reloadSection() {
+    finalize();
+
+    var coId = myPref.coId;
+    var emplId = myPref.emplId;
+    var loginId = myPref.loginId;
+    chatModule.configMyInfo(coId, emplId, loginId, recvMsg);
+  }
+
   return {
     initChatSection: initChatSection,
     loadChatSection: loadChatSection,
     resizeInChatSection: resizeInChatSection,
     hideSection : hideSection,
     showSection : showSection,
+    reloadSection: reloadSection,
     sendMsg: sendMsg,
     recvMsg: recvMsg,
     changeChatView: changeChatView,

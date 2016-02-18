@@ -62,13 +62,6 @@ var informationSection = (function() {
       callSection.showCallInfo(emplId, userValue.loginId);
     });
 
-    $contentArea.find(".screenShare").click(function() {
-      callSection.hideSection();
-      chatSection.hideSection();
-      screenshareSection.showSection();
-      screenshareSection.showDialog(emplId);
-    });
-
     // TODO 현재는 사용자 선택시마다 API 호출 -> 캐시 기능 필요 ?
     var restPrams = {
       "coId": myPref.coId,
@@ -81,7 +74,7 @@ var informationSection = (function() {
 
       var callHistoryList = commonGridValue.rows;
       $.each(callHistoryList, function(idx, callHistoryRow) {
-        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("YYYY/MM/DD a HH:mm");
+        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("YYYY/MM/DD a/p HH:mm");
       });
 
       var callHistoryData = {
@@ -89,11 +82,13 @@ var informationSection = (function() {
       };
 
       $contentArea.append(Mustache.render(callHistoryTemplate, callHistoryData));
+
       $contentArea.find(".onDetailHistoryModal").bind("click", function() {
         var callHistoryId = $(this).closest("li").data("callhistoryid") ;
         console.log(callHistoryId);
         var sendingData = {"callhistoryid" : callHistoryId };
-        openModalDialog("./html/information/popup/detail_callhistory_popup.html", null, sendingData);
+
+        openModalDialog("./html/information/popup/detail_callhistory_popup.html", undefied, sendingData);
       });
     });
 
@@ -209,8 +204,8 @@ var informationSection = (function() {
             "channel": channel ? channel.name : "unknown",
             "sender": sender.loginId,
             "msgText": row.msg,
-            "date": new Date(row.creTime).format("yyyy/MM/dd"),
-            "time": new Date(row.creTime).format("a hh mm")
+            "date": new Date(row.creTime).format("YYYY/MM/DD"),
+            "time": new Date(row.creTime).format("a hh:mm")
           };
 
           messages.push(message);
@@ -252,10 +247,6 @@ var informationSection = (function() {
     $informationSec.hide();
   }
 
-  function showSection() {
-    $informationSec.show();
-  }
-
   function _informationSectionScroll() {
     $informationSec.find(".ibox-content").mCustomScrollbar({
       axis:"y",
@@ -273,8 +264,7 @@ var informationSection = (function() {
     displayMember: displayMember,
     showMentionList: showMentionList,
     hideMember: hideMember,
-    hideSection: hideSection,
-    showSection: showSection
+    hideSection: hideSection
   };
 })();
 

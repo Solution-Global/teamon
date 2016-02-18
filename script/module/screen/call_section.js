@@ -281,7 +281,7 @@ var callSection = (function() {
   }
 
   function _makeCall() {
-    var peer = catalogSection.getCurrentTargetUser(constants.DIRECT_CHAT);
+    var peer = activeChatInfo.chatRoomId;
     if (peer === undefined) {
       console.error("No peer selected!");
     }

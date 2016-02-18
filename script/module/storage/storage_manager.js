@@ -29,6 +29,15 @@ var storageManage = (function(compress) {
     }
   }
 
+  function removeKey(key) {
+    if (typeof key !== 'string') {
+      console.error('Miss the key!');
+      return;
+    }
+
+    localStorage.removeItem(key);
+  }
+
   function setValue(key, value) {
     if (typeof key !== 'string') {
       console.error('Miss the key!');
@@ -44,6 +53,7 @@ var storageManage = (function(compress) {
 
   return {
     getValue : getValue,
+    removeKey: removeKey,
     setValue : setValue
   }
 });

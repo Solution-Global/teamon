@@ -1,0 +1,431 @@
+<div data-id ="12">
+<div class="modal-dialog">
+  <div class="modal-content animated bounceInRight">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      <h4 class="modal-title">Call History Deatil </h4>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div id="history-detail">
+          <script id="callDetail-template" type="text/template">
+            <div class="form-group"><label class="col-lg-2 control-label">Caller</label>
+              <div class="col-lg-10"><p class="form-control-static">{{callerLoginId}}</p></div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group"><label class="col-lg-2 control-label">Callee</label>
+              <div class="col-lg-10"><p class="form-control-static">{{calleeLoginId}}</p></div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div class="form-group"><label class="col-lg-2 control-label">Memo</label>
+              <div class="col-lg-10"><p class="form-control-static">{{memo}}</p></div>
+            </div>
+            <div class="hr-line-dashed"></div>
+            <div>
+              <button type="button" class="play btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> PLAY</button>
+            </div>
+          </script>
+        </div>
+        <div id="history-play" class="hide">
+          <div id="player">
+            <div id="videoBoxWrapper">
+              <div id="videoBox">
+                <div id="callerVideoWrapper">
+                  <video id="callerVideo" width="200px" height="380px">
+                    <source src="" type='video/webm;'>
+                  </video>
+                </div>
+                <div id="calleeVideoWrapper">
+                  <video id="calleeVideo" width="200px" height="380px">
+                    <source src="" type='video/webm;'>
+                  </video>
+                </div>
+              </div>
+            </div>
+            <div id="ctrlBox">
+              <div id="timelineBoxWrapper">
+              <div id="timelineBox">
+                <span id="timeAlert">00:00:00</span>
+                <div id="curTime">00:00:00</div>
+                <div id="timelineWrapper">
+                  <div id="timeline">
+                    <div id="playhead" draggable="true"></div>
+                    <div id="playhead_tail"></div>
+                  </div>
+                </div>
+                <div id="duration">00:00:00</div>
+              </div>
+              </div>
+              <div id="btnBoxWrapper">
+                <div id="btnBox">
+                  <button id="playBtn" class="playBtn" onclick="play();"></button>
+                  <button id="loadBtn" class="loadBtn" onclick="initializeVideo();"></button>
+                  <button id="volumeBtn" class="volumeBtn" onclick="mute();"></button>
+                  <div id="volumelineWrapper">
+                    <div id="volumeline">
+                      <div id="volumehead" draggable="true"></div>
+                      <div id="volumehead_tail"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="callerTime"></div>
+          <div id="calleeTime"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+      <button type="button" id="invite-channel-submit" class="btn btn-primary" type="submit">Invite</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    var callHistoryId = getModalData("callhistoryid");
+
+    var params = {
+      "callHistoryId": callHistoryId
+    };
+
+    restResourse.callHistory.getCallHistory(params,
+      function(data, response) {
+        // Success
+        if(response.statusCode === 200) {
+          var $historyDetail = $("#history-detail")
+          var callDetailTemplate = $historyDetail.find('#callDetail-template').html();
+          var callDetailData = {
+            "callerLoginId" : catalogSection.getUserObj(data.caller).loginId,
+            "calleeLoginId" : catalogSection.getUserObj(data.callee).loginId,
+            "memo" : data.memo ? data.memo : "-"
+          };
+
+          $historyDetail.append(Mustache.render(callDetailTemplate, callDetailData));
+
+          $historyDetail.find(".play").bind("click", function() {
+            var $historyPlay = $("#history-play");
+            console.log("test");
+            $historyPlay.find("#callerVideo source").attr("src", "http://192.168.1.164:7587/repository/" + callHistoryId + "_caller.webm?resType=cr" );
+            $historyPlay.find("#calleeVideo source").attr("src", "http://192.168.1.164:7587/repository/" + callHistoryId + "_callee.webm?resType=cr");
+            $historyPlay.removeClass("hide");
+          })
+        } else {
+          console.log("[fail search company]" + response.statusMessage);
+        }
+      }
+    );
+  });
+
+  // constants
+  var callerVideo = document.getElementById('callerVideo'),
+  	calleeVideo = document.getElementById('calleeVideo'),
+  	playhead = document.getElementById('playhead'),
+  	playhead_tail = document.getElementById('playhead_tail'),
+  	timelineWrapper = document.getElementById('timelineWrapper'),
+  	timeAlert = document.getElementById('timeAlert'),
+  	volumehead = document.getElementById('volumehead'),
+  	volumehead_tail = document.getElementById('volumehead_tail'),
+  	volumelineWrapper = document.getElementById('volumelineWrapper');
+
+  // init
+  $('#duration').text(transTimeFmt(callerVideo.duration));
+  mute();mute();
+
+  // addEventListener
+  callerVideo.addEventListener('timeupdate', timeUpdate, false);
+  callerVideo.addEventListener('ended', initializeVideo, false);
+  timelineWrapper.addEventListener('click', timelineClick, false);
+  volumelineWrapper.addEventListener('click', volumelineClick, false);
+
+  // while dragging playhead
+  $(playhead).draggable({
+  	axis: 'x',
+  	cursor: 'pointer',
+  	start: function(event, ui){
+  		callerVideo.removeEventListener('timeupdate', timeUpdate, false);
+  	},
+  	drag: function(event, ui){
+  		var timelineWidth = timelineWrapper.offsetWidth;
+
+  		if(ui.position.left > 0 && ui.position.left < timelineWidth){
+  			playhead_tail.style.width = ui.position.left + 'px';
+  			callerVideo.currentTime = callerVideo.duration * (ui.position.left/timelineWidth);
+  		}
+  		if(ui.position.left <= 0){
+  			ui.position.left = 0;
+  			playhead_tail.style.width = ui.position.left + 'px';
+  			callerVideo.currentTime = 0;
+  		}
+  		if(ui.position.left >= timelineWidth){
+  			ui.position.left = timelineWidth;
+  			playhead_tail.style.width = ui.position.left + 'px';
+  			callerVideo.currentTime = callerVideo.duration;
+  		}
+  		calleeVideo.currentTime = callerVideo.currentTime;
+  	},
+  	stop: function(event, ui){
+  		callerVideo.addEventListener('timeupdate', timeUpdate, false);
+  	}
+  });
+
+  // while dragging volumehead
+  $(volumehead).draggable({
+  	axis: 'x',
+  	cursor: 'pointer',
+  	drag: function(event, ui){
+  		var volumelineWidth = volumelineWrapper.offsetWidth;
+
+  		if(ui.position.left > 0 && ui.position.left < volumelineWidth){
+  			volumehead_tail.style.width = ui.position.left + 'px';
+  			callerVideo.volume = (ui.position.left / volumelineWidth);
+  			calleeVideo.volume = callerVideo.volume;
+  		}
+  		if(ui.position.left <= 0){
+  			ui.position.left = 0;
+  			volumehead_tail.style.width = ui.position.left + 'px';
+  			callerVideo.volume = 0;
+  			calleeVideo.volume = 0;
+  		}
+  		if(ui.position.left >= volumelineWidth){
+  			ui.position.left = volumelineWidth;
+  			volumehead_tail.style.width = ui.position.left + 'px';
+  			callerVideo.volume = 1;
+  			calleeVideo.volume = 1;
+  		}
+  	},
+  	stop: function(event, ui){
+  		console.log('volume: '+ callerVideo.volume);
+  	}
+  });
+
+  // show timeline's timeAlert
+  $(timelineWrapper).hover(
+  	function(){
+  		$(this).mousemove(function(event){
+  			$('#timeAlert').show();
+  			moveTimeAlert(event);
+  		});
+  	}, function(){
+  		$(this).mouseout(function(){
+  			$('#timeAlert').hide();
+  		});
+  	}
+  );
+
+  // Time track, current time progress
+  function timeUpdate(){
+  	var playRatio;
+
+  	// test
+  // 	$('#callerTime').text(callerVideo.currentTime);
+  // 	$('#calleeTime').text(calleeVideo.currentTime);
+
+  	// time text progress
+  	$('#curTime').text(transTimeFmt(callerVideo.currentTime));
+  	if($('#duration').text() === '00:00:00')
+  		$('#duration').text(transTimeFmt(callerVideo.duration));
+
+  	// caller, callee time synchronizing
+  	if(callerVideo.duration > 0 && calleeVideo.duration >= 0)
+  		calleeVideo.currentTime = callerVideo.currentTime;
+
+  	// playhead, tail progress
+  	playRatio = (callerVideo.currentTime / callerVideo.duration);
+  	$(playhead).offset({ left: (timelineWrapper.offsetLeft + (timelineWrapper.offsetWidth * playRatio)) });
+  	playhead_tail.style.width = (playRatio * 100) + '%';
+  }
+
+  // manipulate current time, playhead, tail
+  function timelineClick(event){
+  	movePlayhead(event)
+  	callerVideo.currentTime = callerVideo.duration * clickPercent(event);
+  	calleeVideo.currentTime = callerVideo.currentTime;
+  }
+
+  //  manipulate volume, head, tail
+  function volumelineClick(event){
+  	moveVolumehead(event);
+  	callerVideo.volume = vClickPercent(event);
+  	calleeVideo.volume = callerVideo.volume;
+
+  	console.log('volume: '+ callerVideo.volume);
+  }
+
+  // return click as decimal(.77) of the total timelineWidth
+  function clickPercent(event){
+  	return (event.clientX + window.scrollX - timelineWrapper.offsetLeft) / timelineWrapper.offsetWidth;
+  }
+
+  // return click as decimal(.77) of the total volumelineWidth
+  function vClickPercent(event){
+  	return (event.clientX + window.scrollX - volumelineWrapper.offsetLeft) / volumelineWrapper.offsetWidth;
+  }
+
+  // when dragging playhead
+  function movePlayhead(event){
+  	var timelineLeft = timelineWrapper.offsetLeft;
+  	var timelineWidth = timelineWrapper.offsetWidth;
+  	var relativeX = (event.clientX + window.scrollX) - timelineLeft;
+
+  	//		|----o-----|
+  	if(relativeX > 0 && relativeX < timelineWidth){
+  		$(playhead).offset({ left: timelineLeft + relativeX });
+  		playhead_tail.style.width = relativeX + 'px';
+  	}
+  	// o	|----------|
+  	if(relativeX <= 0){
+  		$(playhead).offset({ left: timelineLeft });
+  		playhead_tail.style.width = 0 + 'px';
+  	}
+  	//		|----------|	o
+  	if(relativeX >= timelineWidth){
+  		$(playhead).offset({ left: timelineWidth });
+  		playhead_tail.style.width = timelineWidth + 'px';
+  	}
+  }
+
+  //when click or drag volumehead
+  function moveVolumehead(event){
+  	var volumelineLeft = volumelineWrapper.offsetLeft;
+  	var volumelineWidth = volumelineWrapper.offsetWidth;
+  	var relativeX = (event.clientX + window.scrollX) - volumelineLeft;
+
+  	//		|----o-----|
+  	if(relativeX > 0 && relativeX < volumelineWidth){
+  		$(volumehead).offset({ left: volumelineLeft + relativeX });
+  		volumehead_tail.style.width = relativeX + 'px';
+  	}
+  	// o	|----------|
+  	if(relativeX <= 0){
+  		$(volumehead).offset({ left: volumelineLeft });
+  		volumehead_tail.style.width = 0 + 'px';
+  	}
+  	//		|----------|	o
+  	if(relativeX >= volumelineWidth){
+  		$(volumehead).offset({ left: volumelineLeft + volumelineWidth });
+  		volumehead_tail.style.width = volumelineWidth + 'px';
+  	}
+  }
+
+  // show time alert when dragging playhead
+  function moveTimeAlert(event){
+  	var longTime = callerVideo.duration * clickPercent(event);
+
+  	//	|----o-----|
+  	if(clickPercent(event) > 0 && clickPercent(event) < 1){
+  		$('#timeAlert').text(transTimeFmt(longTime));
+  		$('#timeAlert').css('left', event.clientX);	// position: fixed;
+  	}
+  	// o	|----------|
+  	if(clickPercent(event) <= 0){
+  		$('#timeAlert').text(transTimeFmt(0));
+  		$('#timeAlert').css('left', (timelineWrapper.offsetLeft - window.scrollX));
+  	}
+  	//		|----------|	o
+  	if(clickPercent(event) >= 1){
+  		$('#timeAlert').text(transTimeFmt(callerVideo.duration));
+  		$('#timeAlert').css('left', (timelineWrapper.offsetRight - window.scrollX));
+  	}
+  	$('#timeAlert').css('top', (timelineWrapper.offsetTop - window.scrollY - 20)); // position: fixed;
+  }
+
+  // longTime -> hh:mm:ss
+  function transTimeFmt(longTime){
+  	if(isNaN(longTime) || longTime === null || longTime === undefined)
+  		return '00:00:00'
+
+  	var sec = parseInt(longTime),
+  		min = 0,
+  		hour = 0;
+  	// setting hour, min, sec
+  	if(sec >= 60){
+  		min = parseInt(sec / 60);
+  		sec = parseInt(sec % 60);
+  	}
+  	if(min >= 60){
+  		hour = parseInt(min / 60);
+  		min = parseInt(min % 60);
+  	}
+  	// setting hh, mm, ss
+  	if(sec < 10){
+  		sec = '0' + sec;
+  	}
+  	if(min < 10){
+  		min = '0' + min;
+  	}
+  	if(hour < 10){
+  		hour = '0' + hour;
+  	}
+
+  	// return hh:mm:ss
+  	return hour + ':' + min + ':' + sec;
+  }
+
+  // video control buttons
+  function play(){
+  	if(callerVideo.paused){
+  		callerVideo.play();
+  		calleeVideo.play();
+  		$('#playBtn').attr('class', '');
+  		$('#playBtn').attr('class', 'pauseBtn');
+  	}else{
+  		callerVideo.pause();
+  		calleeVideo.pause();
+  		$('#playBtn').attr('class', '');
+  		$('#playBtn').attr('class', 'playBtn');
+  	}
+  }
+  function pause(){
+  	calleeVideo.pause();
+  	callerVideo.pause();
+  	$('#playBtn').attr('class', '');
+  	$('#playBtn').attr('class', 'playBtn');
+  }
+  function initializeVideo(){
+  	pause();
+  	callerVideo.currentTime = 0;
+  	calleeVideo.currentTime = 0;
+  	$('#curTime').text(transTimeFmt(callerVideo.currentTime));
+  	$('#duration').text(transTimeFmt(callerVideo.duration));
+  	$(playhead).offset({ left: timelineWrapper.offsetLeft });
+  	playhead_tail.style.width = 0 + '%';
+  // 	$('#playBtn').attr('class', '');
+  // 	$('#playBtn').attr('class', 'playBtn');
+  // 	callerVideo.load();
+  // 	calleeVideo.load();
+
+  	// test
+  // 	$('#callerTime').text(callerVideo.currentTime);
+  // 	$('#calleeTime').text(calleeVideo.currentTime);
+  }
+  function mute(){
+  	var volumelineLeft = volumelineWrapper.offsetLeft;
+  	var volumelineWidth = volumelineWrapper.offsetWidth;
+  	var volumeWidth = volumelineWidth * callerVideo.volume;
+  	if(callerVideo.muted){
+  		$(volumehead).offset({ left: volumelineLeft + volumeWidth });
+  		volumehead_tail.style.width = volumeWidth + 'px';
+  		callerVideo.muted = false;
+  		calleeVideo.muted = false;
+  		$('#volumeBtn').attr('class', '');
+  		$('#volumeBtn').attr('class', 'volumeBtn');
+  	}else{
+  		$(volumehead).offset({ left: volumelineLeft });
+  		volumehead_tail.style.width = 0 + 'px';
+  		callerVideo.muted = true;
+  		calleeVideo.muted = true;
+  		$('#volumeBtn').attr('class', '');
+  		$('#volumeBtn').attr('class', 'muteBtn');
+  	}
+  }
+  function callerMute(){
+  	callerVideo.muted = callerVideo.muted ? false : true;
+  }
+  function calleeMute(){
+  	calleeVideo.muted = calleeVideo.muted ? false : true;
+  }
+
+</script>

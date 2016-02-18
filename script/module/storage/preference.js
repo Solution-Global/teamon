@@ -28,7 +28,7 @@ var preference = (function(storage, emplId) {
     storageManager.setValue(keyName, JSON.stringify(preferenceJson));
   }
 
-  function getPerference(key) {
+  function getPreference(key) {
     if (typeof key !== 'string') {
       console.error('Miss the key!');
       return;
@@ -37,7 +37,7 @@ var preference = (function(storage, emplId) {
     return preferenceJson[key];
   }
 
-  function setPerference(key, value) {
+  function setPreference(key, value) {
     if (typeof key !== 'string') {
       console.error('Miss the key!');
       return;
@@ -53,8 +53,8 @@ var preference = (function(storage, emplId) {
   }
 
   return {
-    setPerference: setPerference,
-    getPerference: getPerference
+    setPreference: setPreference,
+    getPreference: getPreference
   };
 });
 
