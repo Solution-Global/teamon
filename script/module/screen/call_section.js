@@ -57,6 +57,8 @@ var callSection = (function() {
     callClient.on('pluginerror', _gwError);
 
     callClient.initialize(myPref.emplId);
+
+    hideSection(); // hide basically 
   }
 
   function _onRegistered(username) {
