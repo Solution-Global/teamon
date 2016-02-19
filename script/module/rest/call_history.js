@@ -16,7 +16,8 @@ CallHistory.prototype.getListByCondition = function(params, callback) {
     "limit": params.limit ? params.limit : constants.COMMON_SEARCH_COUNT,
     "offset": params.offset ? params.offset : constants.COMMON_SEARCH_OFFSET,
     "sIdx": params.sIdx ? params.sIdx : "callstart",
-    "sOrder": params.sOrder ? params.sOrder : constants.COMMON_SEARCH_ORDER_DESC
+    "sOrder": params.sOrder ? params.sOrder : constants.COMMON_SEARCH_ORDER_DESC,
+    "allowViceVersa": params.allowViceVersa ? params.allowViceVersa : "true"
   }
   // optional parameters (빈 문자열 전송 방지)
   if (params.beginDate) {

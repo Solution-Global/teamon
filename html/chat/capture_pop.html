@@ -16,7 +16,7 @@
 					<button id="crop-upload-image" type="button" class="btn btn-primary">Upload cropped image</button>
         </div>
         <div style="margin: 10px; overflow: auto; height: 100%">
-					<div>
+					<div style="margin: 0 auto; ">
           	<img id="capture-chosen" />
 					</div>
         </div>
@@ -38,7 +38,7 @@
 <script type="text/javascript" src="../script/dist/ext/image-picker/image-picker.min.js"></script>
 <script type="text/javascript" src="../node_modules/cropper/dist/cropper.min.js"></script>
 <script>
-var desktopCapturer = require('desktop-capturer');
+var desktopCapturer = require('electron').desktopCapturer;
 var topic = activeChatInfo.chatType + "_" + (activeChatInfo.chatType == 0 ? myPref.emplId < activeChatInfo.chatRoomId ? myPref.emplId + "_" + activeChatInfo.chatRoomId : activeChatInfo.chatRoomId + "_" + myPref.emplId : activeChatInfo.chatRoomId);
 var dropzone = new Dropzone("#cropped-form", {
     autoProcessQueue: false,
@@ -52,7 +52,7 @@ var dropzone = new Dropzone("#cropped-form", {
 					file.name = response[0].name;
 					$("#crop-upload-image").closest(".modal-dialog").closest(".modal").modal("hide");
 					var imageUrl = constants.REPOSITORY_URL + file.name + "?coId=" + myPref.coId + "&topic=" + topic + "&emplId=" + myPref.emplId;
-          chatSection.sendMsg("<img src='" + imageUrl + "' class='in-message' /><br/>Captured image uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
+          chatSection.sendMsg("<a href='" + imageUrl + "' target='_blank'><img src='" + imageUrl + "' class='in-message' /></a><br/>Captured image uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
         });
         this.on("error", function(file, response) {
 					console.log("failed to upload cropped image");
