@@ -3,6 +3,8 @@
 var chatSection = (function() {
   const MESSAGE_TYPE_APPEND = 1;
   const MESSAGE_TYPE_PREPEND = 2;
+  const MENTION_FIRST_DELIMITER = "@";
+  const MENTION_LAST_DELIMITER = ": ";
 
   // cache DOM
   var $chatSec;
@@ -28,7 +30,9 @@ var chatSection = (function() {
 
     $mentionText = $inputText.mention({
       users : [],
-      queryBy : ['username'],
+      firstDelimiter: MENTION_FIRST_DELIMITER,
+      lastDelimiter: MENTION_LAST_DELIMITER,
+      queryBy : ['username']
     });
 
      _initCustomScrollbar()
@@ -71,7 +75,9 @@ var chatSection = (function() {
     if (!msg || !msg.trim().length) {
       return;
     }
-    msg = msg.replace(/\n$/, "");
+    // msg = msg.replace(/\n$/, "");
+
+
     if (chatType === undefined && chatRoomId === undefined && activeChatInfo === undefined) {
       console.error("No peer selected!");
       return;
@@ -323,7 +329,7 @@ var chatSection = (function() {
         var userValue = catalogSection.getUserObj(channelValue.memberList[key].emplId);
 
         //본인 제외
-        if(userValue.emplId == myPref.emplId)
+        if(userValue.emplId === myPref.emplId)
           continue;
 
         members.push({

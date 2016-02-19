@@ -34,7 +34,9 @@ var catalogSection = (function() {
     $('#onLoginModal').bind("click", function() {
       var dialogOptions = {
         backdrop : "static",
-        keyboard : "false"
+        keyboard : "false",
+        backgroundOpacity : 1,
+        backgroundColor : "#2f4050"
       };
       openModalDialog("./html/login_popup.html", dialogOptions);
     });
@@ -203,14 +205,15 @@ var catalogSection = (function() {
     console.log("call initUsers[coId:%s]", coId);
     var coId = myPref.coId;
     var params = {
-      "coId": coId
+      "coId": coId,
+      "limit" : constants.COMMON_SEARCH_ALL
     };
 
     restResourse.empl.getListByCoid(params, function(data) {
       if (data.rows) {
         $.each(data.rows, function(idx, row) {
           userCache.set(row.emplId, row); // add each employee into userCache.
-
+          console.log(row);
           if (row.emplId === myPref.emplId)
             return;
 

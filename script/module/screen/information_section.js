@@ -208,8 +208,8 @@ var informationSection = (function() {
             "channel": channel ? channel.name : "unknown",
             "sender": sender.loginId,
             "msgText": row.msg,
-            "date": new Date(row.creTime).format("yyyy/MM/dd"),
-            "time": new Date(row.creTime).format("a hh mm")
+            "date": new Date(row.creTime).format("YYYY/MM/DD"),
+            "time": new Date(row.creTime).format("a hh:mm")
           };
 
           messages.push(message);

@@ -51,7 +51,9 @@ function initLoginStatus() {
   } else {
     var dialogOptions = {
       backdrop : "static",
-      keyboard : "false"
+      keyboard : "false",
+      backgroundOpacity : 1,
+      backgroundColor : "#2f4050"
     };
     openModalDialog("./html/login_popup.html", dialogOptions);
   }

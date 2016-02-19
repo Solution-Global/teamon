@@ -39,6 +39,8 @@
 <script type="text/javascript" src="../node_modules/cropper/dist/cropper.min.js"></script>
 <script>
 var desktopCapturer = require('desktop-capturer');
+//var desktopCapturer = require('electron').desktopCapturer;
+
 var topic = activeChatInfo.chatType + "_" + (activeChatInfo.chatType == 0 ? myPref.emplId < activeChatInfo.chatRoomId ? myPref.emplId + "_" + activeChatInfo.chatRoomId : activeChatInfo.chatRoomId + "_" + myPref.emplId : activeChatInfo.chatRoomId);
 var dropzone = new Dropzone("#cropped-form", {
     autoProcessQueue: false,

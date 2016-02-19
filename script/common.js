@@ -89,7 +89,7 @@ function getModalData(key) {
 function openModalDialog(fileName, options, data) {
   var dialogId = randomHashCode();
 	var defaultOptions = {
-    show : true
+    show : false
 	};
 
   var div = $("<div>").attr("id", dialogId).addClass("modal inmodal").attr("role", "dialog");
@@ -106,9 +106,18 @@ function openModalDialog(fileName, options, data) {
   var rtMsg = jQuery.trim(data);
   div.html(rtMsg);
   div.modal(options ? $.extend({}, defaultOptions, options) : defaultOptions);
-	div.on("hidden.bs.modal", function() {
-		$(this).remove();
-	});
+  div.on('shown.bs.modal', function (e) {
+    if(options && options.backgroundOpacity) {
+      $(".modal-backdrop.in").css({ "opacity": options.backgroundOpacity });
+    }
+    if(options && options.backgroundColor) {
+      $(".modal-backdrop").css({ "background-color": options.backgroundColor });
+    }
+  });
+  div.modal('show');
+  div.on("hidden.bs.modal", function() {
+  	$(this).remove();
+  });
 	return div;
 }
 
