@@ -41,6 +41,7 @@ var chatSection = (function() {
      $("#capture-btn").click(function() {
        openModalDialog("./html/chat/capture_pop.html");
      });
+
   }
 
   function _initCustomScrollbar() {
@@ -171,6 +172,7 @@ var chatSection = (function() {
     */
 
     switch (commandPayload.type) {
+      // group 관련
       case constants.GROUP_CREATE:
         catalogSection.displayChannel(commandPayload);
       break;
@@ -196,6 +198,10 @@ var chatSection = (function() {
             informationSection.hideMember(commandPayload.member);
           }
         }
+      break;
+      // call 관련
+      case constants.CALL_SHARE_CHID:
+        callSection.setCallHistoryId(commandPayload.callHistoryId);
       break;
       default:
       console.error("invalid command[%s]", commandPayload.type);
@@ -310,7 +316,7 @@ var chatSection = (function() {
 
     callSection.hideSection();
     showSection(); // chat Area
-    
+
     screenshareSection.hideSection();
     catalogSection.hideAlram(chatType, chatRoomId); // init Alram
     headerSection.setTitle(chatType, chatRoomName);
@@ -327,7 +333,7 @@ var chatSection = (function() {
 
         members.push({
           "username" : userValue.loginId,
-          "image": "../img/profile_img" + userValue.emplId + ".jpg"
+          "image": "../img/profile_img" + userValue.emplId % 10 + ".jpg"
         });
       }
 

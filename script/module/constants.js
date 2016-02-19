@@ -15,12 +15,9 @@ define("COMMON_SEARCH_ORDER_DESC", "desc");
 define("DIRECT_CHAT", 0);
 define("GROUP_CHAT", 1);
 
-define("GROUP_CREATE", 0);
-define("GROUP_ADD_MEMBER", 1);
-define("GROUP_REMOVE_MEMBER", 2);
-
 // [API]
-define("API_URL", "http://192.168.1.164:7587/rest");
+var API_HOST_PORT = "http://192.168.1.164:7587";
+define("API_URL", API_HOST_PORT + "/rest");
 define("API_HEADER_X_UANGEL_USER", "system");
 define("API_HEADER_X_UANGEL_CHANNEL", "Desktop App");
 define("API_HEADER_X_UANGEL_AUTHID", "test");
@@ -41,12 +38,19 @@ define("TOPIC_PRESENCE_KEEPALIVE", "/presence/keepalive");
 define("TOPIC_MSG", "/msg");
 define("TOPIC_COMMAND", "/command");
 
+// command 토픽 메시지 payload type
+// group 관련
+define("GROUP_CREATE", 0);
+define("GROUP_ADD_MEMBER", 1);
+define("GROUP_REMOVE_MEMBER", 2);
+// call 관련
+define("CALL_SHARE_CHID", 100);   // 발신자가 생성한 call history id 값을 수신자에게 공유
+
 // [call]
-// define("CALL_GW_URL", "wss://192.168.5.54:8989/janus");    // videocall
 define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");    // sip gw
 define("SIP_PROXY", "sip:192.168.5.53:5062");
 define("SIP_DOMAIN", "192.168.5.53");
 
 // [file]
-define("UPLOAD_URL", "http://192.168.1.164:7587/upload/");
-define("REPOSITORY_URL", "http://192.168.1.164:7587/repository/");
+define("UPLOAD_URL", API_HOST_PORT + "/upload/");
+define("REPOSITORY_URL", API_HOST_PORT + "/repository/");

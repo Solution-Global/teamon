@@ -50,7 +50,7 @@ var informationSection = (function() {
     var aboutUserData = {
       "loginId" : userValue.loginId,
       "imgAlt" : userValue.loginId,
-      "img": "../img/profile_img" + userValue.emplId + ".jpg",
+      "img": "../img/profile_img" + userValue.emplId % 10 + ".jpg",
     };
 
     $title.html("About this conversation");
@@ -81,7 +81,7 @@ var informationSection = (function() {
 
       var callHistoryList = commonGridValue.rows;
       $.each(callHistoryList, function(idx, callHistoryRow) {
-        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("YYYY/MM/DD a HH:mm");
+        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("M/D H:mm");
       });
 
       var callHistoryData = {
@@ -91,7 +91,6 @@ var informationSection = (function() {
       $contentArea.append(Mustache.render(callHistoryTemplate, callHistoryData));
       $contentArea.find(".onDetailHistoryModal").bind("click", function() {
         var callHistoryId = $(this).closest("li").data("callhistoryid") ;
-        console.log(callHistoryId);
         var sendingData = {"callhistoryid" : callHistoryId };
         openModalDialog("./html/information/popup/detail_callhistory_popup.html", null, sendingData);
       });
@@ -134,7 +133,7 @@ var informationSection = (function() {
         "loginId" : userValue.loginId,
         "emplId" : userValue.emplId,
         "imgAlt" : userValue.loginId,
-        "img": "../img/profile_img" + userValue.emplId + ".jpg",
+        "img": "../img/profile_img" + userValue.emplId % 10 + ".jpg",
       });
     }
 
@@ -204,13 +203,13 @@ var informationSection = (function() {
           var channel = catalogSection.getChannelObj(row.peer2);
           var message = {
             "msgId": row.chatId,
-            "img": "../img/profile_img" + row.spkrId + ".jpg",
+            "img": "../img/profile_img" + row.spkrId % 10 + ".jpg",
             "imgAlt": sender.loginId,
             "channel": channel ? channel.name : "unknown",
             "sender": sender.loginId,
             "msgText": row.msg,
             "date": new Date(row.creTime).format("yyyy/MM/dd"),
-            "time": new Date(row.creTime).format("a hh mm")
+            "time": new Date(row.creTime).format("A hh mm")
           };
 
           messages.push(message);
@@ -238,7 +237,7 @@ var informationSection = (function() {
     var $contentArea = $informationSec.find('.content_area');
     for(var key in members) {
       var userValue = catalogSection.getUserObj(members[key]);
-      var imgUrl = "../img/profile_img" + userValue.emplId + ".jpg";
+      var imgUrl = "../img/profile_img" + userValue.emplId % 10 + ".jpg";
       $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.loginId + "'>" + userValue.loginId + "</a></li>");
     }
   }

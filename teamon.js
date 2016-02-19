@@ -4,7 +4,6 @@ var path = require('path');
 
 var APP_NAME = 'TeamOn';
 var INDEX = 'file://' + path.join(__dirname, '/html/main.html');
-// var INDEX = 'file://' + path.join(__dirname, '/call/videocalltest.html');
 
 // Ignores certificate related errors.
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true');

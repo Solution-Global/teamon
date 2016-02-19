@@ -112,7 +112,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     var message = {
       "msgId": params.chatId,
       "mode": sendMode ? "right" : "left", // send : right or receive : left
-      "img": "../img/profile_img" + imgIdx + ".jpg",
+      "img": "../img/profile_img" + imgIdx % 10 + ".jpg",
       "imgAlt": sender,
       "sender": sender,
       "msgText": params.msg,

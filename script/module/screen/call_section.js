@@ -57,6 +57,8 @@ var callSection = (function() {
     callClient.on('pluginerror', _gwError);
 
     callClient.initialize(myPref.emplId);
+
+    hideSection(); // hide basically
   }
 
   function _onRegistered(username) {
@@ -144,8 +146,7 @@ var callSection = (function() {
       var peerName = (peerObj !== null) ? peerObj.loginId : peer;
       msg = peerName + " accepted the call!";
 
-      // TODO 현재는 발신자만 call history 생성 -> 레코드에 대한 caller, callee 정책 결정 후 처리
-      // call history 생성 트리거 (3초 이내 종료 호에 대해서는 무시)
+      // call history 생성 트리거 : 발신자가 call history 생성하여 공유 (3초 이내 종료 호에 대해서는 무시)
       if (callHistoryTimeout !== null) {
         clearTimeout(callHistoryTimeout);
       }
@@ -167,22 +168,46 @@ var callSection = (function() {
 
       restResourse.callHistory.createCallHistory(args, function(data) {
         callHistoryId = data.callHistoryId;
+        _shareCallHistoryIdToPeer(calleeId, callHistoryId);
         console.log("current call history id:%d [data:%O]", callHistoryId, data);
       });
     }
   }
 
-  function _updateCallHistory(callMemo) {
+  // call history는 발신자가 레코드를 생성하여 수신자에게 공유 (DB 레코드에서 히스토리 정보 공유 및 자신의 메모 정보 업데이트 가능)
+  function _shareCallHistoryIdToPeer(calleeId, callHistoryId) {
+    var paramsForExistMember = {
+      "type": constants.CALL_SHARE_CHID,
+      "callHistoryId": callHistoryId
+    }
+    chatModule.sendCommand(calleeId, paramsForExistMember);
+  }
+
+  function _updateCallHistory() {
     if ($videos.is(":visible")) {
       var args = {
-        "callhid": callHistoryId,
-        "memo": callMemo,
-        "callTime": Math.ceil((new Date().getTime() - callStartTime.getTime()) / 1000)
+        "callhid": callHistoryId
       }
 
-      restResourse.callHistory.updateCallHistory(args, function(data) {
-        console.log("successfully updated call history! [memo:%s, callTime:%d]", args.memo, args.callTime);
-      });
+      var updateCallHistory = false;
+      if (callerId === myPref.emplId) {
+        args.memo = $callMemo.val();
+        args.callTime = Math.ceil((new Date().getTime() - callStartTime.getTime()) / 1000);
+        updateCallHistory = true;
+      } else if (calleeId === myPref.emplId) {
+        // TODO 현재는 필드 분리가 안되어 있어 caller만 메모 남김
+        // args.memo = $callMemo.val();
+        args.memo = "";
+        if (args.memo.length) {
+          updateCallHistory = true;
+        }
+      }
+
+      if (updateCallHistory) {
+        restResourse.callHistory.updateCallHistory(args, function(data) {
+          console.log("successfully updated call history! [memo:%s, callTime:%d]", args.memo, args.callTime);
+        });
+      }
     }
   }
 
@@ -231,14 +256,11 @@ var callSection = (function() {
       callHistoryTimeout = null;
     }
 
-    var callMemo = $callMemo.val();
-    if (callMemo.trim().length) {
-      if (callHistoryId !== null) {
-        _updateCallHistory(callMemo);
-        callHistoryId = null;
-      }
-      $callMemo.val('');
+    if (callHistoryId !== null) {
+      _updateCallHistory(callMemo);
+      callHistoryId = null;
     }
+    $callMemo.val("");
 
     $videos.hide();
   }
@@ -307,12 +329,20 @@ var callSection = (function() {
     $callSec.show();
   }
 
+  function setCallHistoryId(callHId) {
+    // 통화 중인 경우에만 call history id 설정
+    if (callerId !== null && calleeId != null) {
+      callHistoryId = callHId;
+    }
+  }
+
   return {
     initCallSection: initCallSection,
     loadCallSection: loadCallSection,
     showCallInfo: showCallInfo,
     hideSection: hideSection,
     showSection: showSection,
+    setCallHistoryId: setCallHistoryId
   };
 })();
 

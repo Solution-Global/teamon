@@ -256,6 +256,7 @@ var catalogSection = (function() {
       informationSection.hideSection();
       chatSection.hideSection();
       callSection.hideSection();
+      screenshareSection.hideSection();
     }
   }
 
