@@ -2,9 +2,6 @@
 
 var remote = require('remote');
 var screen = require ('screen');
-var BrowserWindow = remote.require("browser-window");
-var myWindow = remote.getCurrentWindow();
-var app = remote.require('app');
 var desktopCapturer = require('electron').desktopCapturer;
 
 var desktopSharing = false;
@@ -13,8 +10,7 @@ var dispSize = screen.getPrimaryDisplay().size;
 var calleeEmplId = null;
 var desktopStream = null;
 var peer;
-var call;
-
+var mediaConnection;
 var $screenshareSec;
 
 var screenshareSection = (function() {
@@ -31,39 +27,41 @@ var screenshareSection = (function() {
       console.log('peer id : ' + peer.id);
     });
 
-    // Receiving a call
+    // When callee receives a call
     peer.on('call', function(call){
       // Answer the call automatically (instead of prompting user) for demo purposes
-      console.log('got a call!! from ' + calleeEmplId);
+      console.log('got a call!! from ' + activeChatInfo.chatRoomId);
 
-      $('.screenshare_section').show();
-      $('.information_section').hide();
-      desktopSharing = true;
       call.answer(window.localStream);
       displayScreen(call);
+      showSection();
+      informationSection.hideSection();
     });
 
-    peer.on('error', function(err){
-      alert(err.message);
-      // Return to step 2 if error occurs
-    });
+    peer.on('error', function(err) {
+      console.error(err.message);
+      closeScreenshare();
 
-    peer.on('close', function(){
-      hideSection();
-      chatSection.showSection();
-      informationSection.showSection();
+      // Close media connection to generate 'close' event
+      if (mediaConnection) {
+        mediaConnection.close();
+      }
+
+      // Close media connection to generate 'close' event
+      if (window.existingCall) {
+        window.existingCall.close();
+      }
     });
   }
 
-  function closeScreenshare()
-  {
+  function closeScreenshare() {
     hideSection();
     chatSection.showSection();
     informationSection.showSection();
     desktopSharing = false;
   }
 
-  function displayScreen (call) {
+  function displayScreen(call) {
     // Hang up on an existing call if present
     if (window.existingCall) {
       window.existingCall.close();
@@ -81,9 +79,13 @@ var screenshareSection = (function() {
       $('#my-video').hide();
     });
 
+    // Close event from callee to caller
+    call.on('close', function() {
+      closeScreenshare();
+    });
+
     // UI stuff
     window.existingCall = call;
-    call.on('close', closeScreenshare);
   }
 
   function initScreenshareSection() {
@@ -112,7 +114,7 @@ var screenshareSection = (function() {
       for (var i = 0; i < sources.length; ++i) {
         // Disable selecting Team ON application to avoid reflected window
         if (!sources[i].name.startsWith("Team ON")) {
-          addSource(sources[i]);
+            addSource(sources[i]);
           }
       }
     });
@@ -125,10 +127,9 @@ var screenshareSection = (function() {
     } else {
       desktopSharing = false;
 
-      if (localStream) {
-        localStream.getTracks().forEach(function (track) { track.stop(); });
+      if (window.localStream) {
+        window.localStream.getTracks().forEach(function (track) { track.stop(); });
       }
-      localStream = null;
 
       showSources();
       refresh();
@@ -170,10 +171,17 @@ var screenshareSection = (function() {
   }
 
   function gotStream(stream) {
-      console.log('gotStream');
       window.localStream = stream;
-      call = peer.call(calleeEmplId, window.localStream);
+
+      // If peer is disconnected, reconnect peer.
+      if (peer.disconnected) {
+        peer.reconnect();
+      }
+
+      mediaConnection = peer.call(calleeEmplId, window.localStream);
+
       $('#my-video').prop('src', URL.createObjectURL(stream));
+      $('.fullScreen').hide();
       $('#peer-video').hide();
 
       stream.onended = function() {
@@ -182,7 +190,12 @@ var screenshareSection = (function() {
         }
       };
 
-      call.on('close', closeScreenshare);
+      // Close event from caller to callee
+      mediaConnection.on('close', function() {
+        desktopSharing = false;
+        closeScreenshare();
+      });
+
       chatSection.hideSection();
       callSection.hideSection();
       informationSection.hideSection();
@@ -199,18 +212,18 @@ var screenshareSection = (function() {
     });
 
     $('.cancelScreenShare').click(function() {
-      console.log('cancelScreenShare');
-      //window.existingCall.close();
       hideSection();
       chatSection.showSection();
       informationSection.showSection();
 
-      if (window.existingCall) {
-        window.existingCall.close();
+      // Close media connection to generate 'close' event
+      if (mediaConnection) {
+        mediaConnection.close();
       }
 
-      if (!peer.disconnected) {
-        peer.destroy();
+      // Close media connection to generate 'close' event
+      if (window.existingCall) {
+        window.existingCall.close();
       }
     });
   }
