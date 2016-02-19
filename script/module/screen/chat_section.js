@@ -178,6 +178,7 @@ var chatSection = (function() {
     */
 
     switch (commandPayload.type) {
+      // group 관련
       case constants.GROUP_CREATE:
         catalogSection.displayChannel(commandPayload);
       break;
@@ -203,6 +204,10 @@ var chatSection = (function() {
             informationSection.hideMember(commandPayload.member);
           }
         }
+      break;
+      // call 관련
+      case constants.CALL_SHARE_CHID:
+        callSection.setCallHistoryId(commandPayload.callHistoryId);
       break;
       default:
       console.error("invalid command[%s]", commandPayload.type);
@@ -320,7 +325,7 @@ var chatSection = (function() {
 
     screenshareSection.hideSection();
     catalogSection.hideAlram(chatType, chatRoomId); // init Alram
-    headerSection.setTitle(chatType, chatRoomName);
+    headerSection.setTitle(chatRoomName);
 
     if(chatType === constants.GROUP_CHAT) {
       var channelValue = catalogSection.getChannelObj(chatRoomId);

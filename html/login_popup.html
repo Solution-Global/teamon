@@ -8,7 +8,7 @@
 		<div class="modal-body">
 			<div class="row">
 				<div class="col-sm-6 b-r">
-					<form role="form" id="loginForm" onsubmit="return false;">
+					<form role="form" id="login-form" onsubmit="return false;">
 						<div class="form-group">
 							<label>Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
 						</div>
@@ -32,6 +32,12 @@
 						<a href="#" id="onRegisterEmplModal"><i class="fa fa-sign-in big-icon"></i></a>
 					</p>
 				</div>
+				<div class="col-sm-12">
+					<div id="login-alert" class="alert alert-danger alert-dismissable hide">
+						<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+						We couldn't find your ID and Password.
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="modal-footer">
@@ -42,7 +48,7 @@
 <script>
 $(document).ready(function() {
 	// set validation for login Form
-	$("#loginForm").validate({
+	$("#login-form").validate({
 		rules: {
 			company: {
 				required: true,
@@ -71,7 +77,9 @@ $(document).ready(function() {
 });
 
 function loginSubmit() {
-  var $loginForm = $("#loginForm");
+  var $loginForm = $("#login-form");
+	var $loginAlert = $("#login-alert");
+	$loginAlert.addClass("hide");
   if(!$loginForm.valid())
     return;
 
@@ -86,7 +94,7 @@ function loginSubmit() {
   restResourse.login.login(params,
 	  function(data) {
 	    if(!data.emplId) {
-	      console.error("login Fail!!");
+	      $loginAlert.removeClass("hide");
 	      return;
 	    }
 
@@ -103,6 +111,8 @@ function loginSubmit() {
 				// logout 후 login 시도
 				catalogSection.reloadSection();
 				chatSection.reloadSection();
+				callSection.reloadSection();
+				headerSection.realodSection();
 			} else {
 				// 처음 login 시도
 				initScreenSection();

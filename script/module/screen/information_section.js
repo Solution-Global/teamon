@@ -8,8 +8,7 @@ var informationSection = (function() {
   function _initialize() {
     $informationSec = $("#information-section");
 
-    // Close ibox function
-    $informationSec.find(".aside-close-link").click(function() {
+    $informationSec.delegate(".aside-close-link", "click", function() {
       adjustAsideArea();
     });
   }
@@ -57,8 +56,10 @@ var informationSection = (function() {
     $contentArea.find("#about-user").append(Mustache.render(aboutUserTemplate, aboutUserData));
 
     $contentArea.find(".call").click(function() {
+      hideSection(); // information Section
+      adjustSectionSize($("#call-section"), 8);
+      adjustSectionSize($("#chat-section"), 4);
       callSection.showSection();
-      chatSection.hideSection(); // chat Area
       callSection.showCallInfo(emplId, userValue.loginId);
     });
 
@@ -81,7 +82,7 @@ var informationSection = (function() {
 
       var callHistoryList = commonGridValue.rows;
       $.each(callHistoryList, function(idx, callHistoryRow) {
-        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("YYYY/MM/DD a HH:mm");
+        callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("M/D H:mm");
       });
 
       var callHistoryData = {

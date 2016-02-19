@@ -121,6 +121,15 @@ function openModalDialog(fileName, options, data) {
 	return div;
 }
 
+function adjustSectionSize($target, size) {
+  var colXs = "col-xs-" + size,
+    colSm = "col-sm-" + size,
+    colMd = "col-md-" + size,
+    colLg = "col-lg-" + size;
+
+  $target.removeClass("col-*").addClass(colXs).addClass(colSm).addClass(colMd).addClass(colLg);
+}
+
 randomHashCode = function() {
 	return hashCode((new Date().getTime() * Math.random()).toString());
 };

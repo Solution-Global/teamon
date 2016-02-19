@@ -11,13 +11,17 @@ var headerSec = (function() {
     $titleArea = $headerSec.find(".title_area");
     $title = $headerSec.find(".tit");
 
-    $headerSec.find(".call-menulink").click(function() {
+    $headerSec.find(".information-menulink").click(function() {
       informationSection.adjustAsideArea(true);
     });
 
     $headerSec.find(".mention").click(function() {
       informationSection.showMentionList();
     });
+  }
+
+  function realodSection() {
+    setTitle("");
   }
 
   function initHeaderSection() {
@@ -28,13 +32,14 @@ var headerSec = (function() {
     loadHtml("./html/header/header_section.html", $("#header-section"));
   }
 
-  function setTitle(chatType, text) {
+  function setTitle(text) {
     $title.html(text);
   }
 
   return {
     initHeaderSection: initHeaderSection,
     loadHeaderSection: loadHeaderSection,
+    realodSection: realodSection,
     setTitle: setTitle
   };
 })();

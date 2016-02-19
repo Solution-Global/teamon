@@ -358,3 +358,9 @@ img.in-message {
 	max-width: 300px;
 	max-height: 200px;
 }
+.hr-line-dashed {
+	margin: 10px 0;
+}
+.alert {
+	margin: 0 !important;
+}
