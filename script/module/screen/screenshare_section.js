@@ -22,7 +22,7 @@ var screenshareSection = (function() {
 
     // PeerJS object
     //var peer = new Peer({ key: 'lwjd5qra8257b9', debug: 3});
-    peer = new Peer(myEmployeeId, {key: 'lwjd5qra8257b9'});
+    peer = new Peer(myEmployeeId, {key: 'ucron0jh3o0qkt9'});
 
     peer.on('open', function(){
       console.log('peer id : ' + peer.id);
