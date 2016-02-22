@@ -1,28 +1,17 @@
 <div class="content_area">
-	<h2> Call area </h2>
-	<div class="info_area">
-		<h3 class="tit">&nbsp;</h3>
+	<div class="info_area hide">
+		<h2 class="tit">&nbsp;</h2>
 	</div>
-	<br/>
-	<div id="videos">
-		<div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">Remote UA</h3>
-				</div>
-				<div class="video-panel-remote-body" id="videoremote"></div>
+	<div id="videos" class="row" style="margin:auto 10px">
+		<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+			<div class="video-panel-remote-body" id="videoremote">
 			</div>
 		</div>
-		<div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title inline">You</h3>
-					<button type="button" class="btn btn-danger btn-sm btn_hangup" id="hangup"><i class="fa fa-phone fa-rotate-135"></i>&nbsp; Hangup</button>
-				</div>
-				<div class="video-panel-local-body" id="videolocal"></div>
-			</div>
+		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+			<button type="button" class="btn btn-danger" id="hangup"><i class="fa fa-phone fa-rotate-125"></i>&nbsp; Hangup</button>
+			<div class="video-panel-local-body" id="videolocal"></div>
 		</div>
-		<div>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<textarea class="callmemo-input form-control" id="callMemo" placeholder="통화중 간단 메모"></textarea>
 		</div>
 	</div>

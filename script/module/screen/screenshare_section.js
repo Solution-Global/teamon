@@ -2,9 +2,6 @@
 
 var remote = require('remote');
 var screen = require ('screen');
-var BrowserWindow = remote.require("browser-window");
-var myWindow = remote.getCurrentWindow();
-var app = remote.require('app');
 var desktopCapturer = require('electron').desktopCapturer;
 
 var desktopSharing = false;
@@ -13,9 +10,9 @@ var dispSize = screen.getPrimaryDisplay().size;
 var calleeEmplId = null;
 var desktopStream = null;
 var peer;
-var call;
-
+var mediaConnection;
 var $screenshareSec;
+var isSwitchSectionOn = false;
 
 var screenshareSection = (function() {
 
@@ -31,39 +28,48 @@ var screenshareSection = (function() {
       console.log('peer id : ' + peer.id);
     });
 
-    // Receiving a call
+    // When callee receives a call
     peer.on('call', function(call){
       // Answer the call automatically (instead of prompting user) for demo purposes
-      console.log('got a call!! from ' + calleeEmplId);
+      console.log('got a call!! from ' + activeChatInfo.chatRoomId);
 
-      $('.screenshare_section').show();
-      $('.information_section').hide();
-      desktopSharing = true;
       call.answer(window.localStream);
       displayScreen(call);
     });
 
-    peer.on('error', function(err){
-      alert(err.message);
-      // Return to step 2 if error occurs
-    });
+    peer.on('error', function(err) {
+      console.error(err.message);
+      closeScreenshare();
 
-    peer.on('close', function(){
-      hideSection();
-      chatSection.showSection();
-      informationSection.showSection();
+      // Close media connection to generate 'close' event
+      if (mediaConnection) {
+        mediaConnection.close();
+      }
+
+      // Close media connection to generate 'close' event
+      if (window.existingCall) {
+        window.existingCall.close();
+      }
     });
   }
 
-  function closeScreenshare()
-  {
+  function closeScreenshare() {
+    console.log("[closeScreenshare]" + desktopSharing);
     hideSection();
+    adjustSectionSize(chatSection.getSection(), 9);
+    adjustSectionSize(informationSection.getSection(), 3);
     chatSection.showSection();
     informationSection.showSection();
+
     desktopSharing = false;
+    if(isSwitchSectionOn) {
+      isSwitchSectionOn = false;
+      chatSection.getSection().insertAfter($screenshareSec); // 위치 변경
+    }
   }
 
-  function displayScreen (call) {
+  function displayScreen(call) {
+    console.log("[displayScreen]" + desktopSharing);
     // Hang up on an existing call if present
     if (window.existingCall) {
       window.existingCall.close();
@@ -71,19 +77,27 @@ var screenshareSection = (function() {
 
     // Wait for stream on the call, then set peer video display
     call.on('stream', function(stream){
+      console.log("[stream~~~]" + URL.createObjectURL(stream));
+
       initilizeButtons();
-      chatSection.hideSection();
       callSection.hideSection();
       informationSection.hideSection();
+      adjustSectionSize(screenshareSection.getSection(), 8);
+      adjustSectionSize(chatSection.getSection(), 4);
       showSection();
 
       $('#peer-video').prop('src', URL.createObjectURL(stream));
+      $('#peer-video').load();
       $('#my-video').hide();
+    });
+
+    // Close event from callee to caller
+    call.on('close', function() {
+      closeScreenshare();
     });
 
     // UI stuff
     window.existingCall = call;
-    call.on('close', closeScreenshare);
   }
 
   function initScreenshareSection() {
@@ -108,27 +122,28 @@ var screenshareSection = (function() {
   }
 
   function showSources() {
+    console.log("[showSources]" + desktopSharing);
     desktopCapturer.getSources({ types:['window'] }, function(error, sources) {
       for (var i = 0; i < sources.length; ++i) {
         // Disable selecting Team ON application to avoid reflected window
         if (!sources[i].name.startsWith("Team ON")) {
-          addSource(sources[i]);
+            addSource(sources[i]);
           }
       }
     });
   }
 
   function toggle() {
+    console.log("[toggle]" + desktopSharing);
     if (!desktopSharing) {
       var id = ($('.picture').val()).replace(/window|screen/g, function(match) { return match + ":"; });
       onAccessApproved(id);
     } else {
       desktopSharing = false;
 
-      if (localStream) {
-        localStream.getTracks().forEach(function (track) { track.stop(); });
+      if (window.localStream) {
+        window.localStream.getTracks().forEach(function (track) { track.stop(); });
       }
-      localStream = null;
 
       showSources();
       refresh();
@@ -136,6 +151,7 @@ var screenshareSection = (function() {
   }
 
   function onAccessApproved(desktop_id) {
+    console.log("[onAccessApproved]" + desktopSharing);
     var screenshareWidth = $screenshareSec.find('.content_area').outerWidth(true);
     var screenshareHeight = $screenshareSec.find('.content_area').outerHeight(true);
 
@@ -170,10 +186,19 @@ var screenshareSection = (function() {
   }
 
   function gotStream(stream) {
-      console.log('gotStream');
+      console.log("[gotStream]" + desktopSharing);
       window.localStream = stream;
-      call = peer.call(calleeEmplId, window.localStream);
+
+      // If peer is disconnected, reconnect peer.
+      if (peer.disconnected) {
+        peer.reconnect();
+      }
+
+      mediaConnection = peer.call(calleeEmplId, window.localStream);
+
       $('#my-video').prop('src', URL.createObjectURL(stream));
+      $('#my-video').load();
+      $('.fullScreen').hide();
       $('#peer-video').hide();
 
       stream.onended = function() {
@@ -182,10 +207,10 @@ var screenshareSection = (function() {
         }
       };
 
-      call.on('close', closeScreenshare);
-      chatSection.hideSection();
-      callSection.hideSection();
-      informationSection.hideSection();
+      // Close event from caller to callee
+      mediaConnection.on('close', function() {
+        closeScreenshare();
+      });
   }
 
   function getUserMediaError(e) {
@@ -199,18 +224,16 @@ var screenshareSection = (function() {
     });
 
     $('.cancelScreenShare').click(function() {
-      console.log('cancelScreenShare');
-      //window.existingCall.close();
-      hideSection();
-      chatSection.showSection();
-      informationSection.showSection();
+      closeScreenshare();
 
-      if (window.existingCall) {
-        window.existingCall.close();
+      // Close media connection to generate 'close' event
+      if (mediaConnection) {
+        mediaConnection.close();
       }
 
-      if (!peer.disconnected) {
-        peer.destroy();
+      // Close media connection to generate 'close' event
+      if (window.existingCall) {
+        window.existingCall.close();
       }
     });
   }
@@ -222,7 +245,6 @@ var screenshareSection = (function() {
     console.log('Screen share to ' + calleeName + ' , calleeId : ' + calleeId);
 
     initilizeButtons();
-    informationSection.hideSection();
     $('select').empty();
     showSources();
     $('#screenModal').show();
@@ -230,13 +252,22 @@ var screenshareSection = (function() {
     $('.enableScreenCapture').click(function() {
       toggle();
       $('#screenModal').hide();
+      informationSection.hideSection();
+      adjustSectionSize(screenshareSection.getSection(), 4); // local의  screanSection은 크기는 작도록 설정
+      adjustSectionSize(chatSection.getSection(), 8);
+      $screenshareSec.insertAfter(chatSection.getSection()); // 위치 변경
+      isSwitchSectionOn = true;
+      showSection();
     });
 
     $('.cancelScreenModal').click(function() {
-      $('#screenModal').hide();
-      hideSection();
-      chatSection.showSection();
-      informationSection.showSection();
+       $('#screenModal').hide();
+      // hideSection();
+      // adjustSectionSize(chatSection.getSection(), 9);
+      // adjustSectionSize(informationSection.getSection(), 3);
+      // chatSection.showSection();
+      // informationSection.showSection();
+      closeScreenshare();
     });
 
     calleeEmplId = calleeId;
@@ -268,11 +299,16 @@ var screenshareSection = (function() {
     $screenshareSec.hide();
   }
 
+  function getSection() {
+    return $screenshareSec;
+  }
+
   return {
     initScreenshareSection: initScreenshareSection,
     showDialog: showDialog,
     loadScreenshareSection: loadScreenshareSection,
     showSection: showSection,
+    getSection: getSection,
     hideSection: hideSection
   };
 })();

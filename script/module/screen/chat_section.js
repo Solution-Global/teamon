@@ -320,10 +320,6 @@ var chatSection = (function() {
       $(row).remove();
     });
 
-    callSection.hideSection();
-    showSection(); // chat Area
-
-    screenshareSection.hideSection();
     catalogSection.hideAlram(chatType, chatRoomId); // init Alram
     headerSection.setTitle(chatRoomName);
 
@@ -370,6 +366,10 @@ var chatSection = (function() {
     $chatSec.show();
   }
 
+  function getSection() {
+    return $chatSec;
+  }
+
   function reloadSection() {
     finalize();
 
@@ -385,6 +385,7 @@ var chatSection = (function() {
     resizeInChatSection: resizeInChatSection,
     hideSection : hideSection,
     showSection : showSection,
+    getSection: getSection,
     reloadSection: reloadSection,
     sendMsg: sendMsg,
     recvMsg: recvMsg,

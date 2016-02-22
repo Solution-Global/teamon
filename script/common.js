@@ -127,6 +127,7 @@ function adjustSectionSize($target, size) {
     colMd = "col-md-" + size,
     colLg = "col-lg-" + size;
 
+  $target.removeClass(); 
   $target.removeClass("col-*").addClass(colXs).addClass(colSm).addClass(colMd).addClass(colLg);
 }
 

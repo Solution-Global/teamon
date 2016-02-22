@@ -58,10 +58,17 @@ var catalogSection = (function() {
         "chatRoomId" : $targetList.data("emplid")
       };
 
+
       myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
       chatSection.changeChatView(constants.DIRECT_CHAT, $targetList.data("emplid"), $targetList.data("loginid"));
 
-      // informationSection.showCallInfo($targetList.data("emplid"), $targetList.data("loginid"));
+      callSection.hideSection();
+      screenshareSection.hideSection();
+
+      adjustSectionSize(informationSection.getSection(), 3);
+      adjustSectionSize(chatSection.getSection(), 9);
+
+      chatSection.showSection();
       informationSection.showAboutUser();
     });
 
@@ -77,6 +84,14 @@ var catalogSection = (function() {
       };
       myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
       chatSection.changeChatView(constants.GROUP_CHAT, $targetList.data("channelid"), $targetList.data("name"));
+
+      callSection.hideSection();
+      screenshareSection.hideSection();
+
+      adjustSectionSize(informationSection.getSection(), 3);
+      adjustSectionSize(chatSection.getSection(), 9);
+
+      chatSection.showSection();
       informationSection.showAboutChannel();
     });
   }

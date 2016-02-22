@@ -9,20 +9,10 @@ var informationSection = (function() {
     $informationSec = $("#information-section");
 
     $informationSec.delegate(".aside-close-link", "click", function() {
-      adjustAsideArea();
+      hideSection();
+      adjustSectionSize(chatSection.getSection(), 12);
+      chatSection.showSection();
     });
-  }
-
-  function adjustAsideArea(isOpen) {
-    var chatSection = $('#chat-section');
-    var asideIbox = $("#information-section .ibox");
-    if(isOpen || chatSection.hasClass("col-xs-12 col-lg-12")) {
-      chatSection.removeClass("col-xs-12 col-lg-12").addClass( "col-xs-9 col-lg-9" );
-      asideIbox.show(500);
-    } else {
-      chatSection.removeClass("col-xs-9 col-lg-9").addClass( "col-xs-12 col-lg-12" );
-      asideIbox.hide();
-    }
   }
 
   function initAsideSection() {
@@ -57,16 +47,13 @@ var informationSection = (function() {
 
     $contentArea.find(".call").click(function() {
       hideSection(); // information Section
-      adjustSectionSize($("#call-section"), 8);
-      adjustSectionSize($("#chat-section"), 4);
+      adjustSectionSize(callSection.getSection(), 8);
+      adjustSectionSize(chatSection.getSection(), 4);
       callSection.showSection();
       callSection.showCallInfo(emplId, userValue.loginId);
     });
 
     $contentArea.find(".screenShare").click(function() {
-      callSection.hideSection();
-      chatSection.hideSection();
-      screenshareSection.showSection();
       screenshareSection.showDialog(emplId);
     });
 
@@ -256,6 +243,10 @@ var informationSection = (function() {
     $informationSec.show();
   }
 
+  function getSection() {
+    return $informationSec;
+  }
+
   function _informationSectionScroll() {
     $informationSec.find(".ibox-content").mCustomScrollbar({
       axis:"y",
@@ -269,12 +260,12 @@ var informationSection = (function() {
     resizeInformationSection: resizeInformationSection,
     showAboutChannel: showAboutChannel,
     showAboutUser: showAboutUser,
-    adjustAsideArea: adjustAsideArea,
     displayMember: displayMember,
     showMentionList: showMentionList,
     hideMember: hideMember,
     hideSection: hideSection,
-    showSection: showSection
+    showSection: showSection,
+    getSection: getSection
   };
 })();
 

@@ -12,7 +12,7 @@ var headerSec = (function() {
     $title = $headerSec.find(".tit");
 
     $headerSec.find(".information-menulink").click(function() {
-      informationSection.adjustAsideArea(true);
+      // informationSection.adjustAsideArea(true);
     });
 
     $headerSec.find(".mention").click(function() {

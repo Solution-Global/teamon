@@ -217,7 +217,7 @@ var callSection = (function() {
 
   function _onLocalStream(stream) {
     if ($('#myvideo').length === 0) {
-      $('#videolocal').append('<video class="rounded centered" id="myvideo" width=200 height=100% autoplay muted="muted"/>');
+      $('#videolocal').append('<video class="rounded centered" id="myvideo" style="width:100%" autoplay muted="muted"/>');
     }
     attachMediaStream($('#myvideo').get(0), stream);
     $("#myvideo").get(0).muted = "muted";
@@ -232,7 +232,7 @@ var callSection = (function() {
 
   function _onRemoteStream(stream) {
     if ($('#remotevideo').length === 0) {
-      $('#videoremote').append('<video class="rounded centered" id="remotevideo" width=250 height=100% autoplay/>');
+      $('#videoremote').append('<video class="rounded centered" id="remotevideo" style="width:100%" autoplay/>');
     }
     attachMediaStream($('#remotevideo').get(0), stream);
     var videoTracks = stream.getVideoTracks();
@@ -277,6 +277,8 @@ var callSection = (function() {
     var userName = (userObj !== null) ? userObj.loginId : username;
     var msg = "Call hung up by " + userName + " (" + reason + ")!";
     $info.html(msg);
+
+    _closeCallSection();
   }
 
   function _onDeclining(code, reason) {
@@ -320,9 +322,18 @@ var callSection = (function() {
     callClient.makeCall(peer);
   }
 
+  function _closeCallSection() {
+    hideSection();
+    adjustSectionSize(chatSection.getSection(), 9);
+    adjustSectionSize(informationSection.getSection(), 3);
+    chatSection.showSection();
+    informationSection.showSection();
+  }
+
   function _localHangup() {
     callClient.localHangup();
     $videos.hide();
+    _closeCallSection();
   }
 
   function hideSection() {
@@ -331,6 +342,10 @@ var callSection = (function() {
 
   function showSection() {
     $callSec.show();
+  }
+
+  function getSection() {
+    return $callSec;
   }
 
   function setCallHistoryId(callHId) {
@@ -347,6 +362,7 @@ var callSection = (function() {
     showCallInfo: showCallInfo,
     hideSection: hideSection,
     showSection: showSection,
+    getSection: getSection,
     setCallHistoryId: setCallHistoryId
   };
 })();
