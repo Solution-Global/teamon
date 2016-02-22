@@ -343,6 +343,7 @@ var chatSection = (function() {
     }
 
     var messageArray = myMessage.getAllChatMessage(activeChatInfo.chatType, activeChatInfo.chatRoomId); // get previous messages
+    console.log(messageArray);
     if(messageArray) {
       _displayMessages(MESSAGE_TYPE_APPEND, messageArray);
     }

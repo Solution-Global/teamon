@@ -123,10 +123,20 @@ var callSection = (function() {
       if (isConfirm) {
         callClient.answerCall(doAudio, doVideo);
         swal.close();
-
-        chatSection.hideSection(); // chat Area
-        callSection.showSection();
         screenshareSection.hideSection();
+        informationSection.hideSection(); // information Section
+
+        activeChatInfo = {
+          "chatType" : constants.DIRECT_CHAT,
+          "chatRoomId" : callerObj.emplId
+        }; // answer button을 클릭 후 active chat info 설정 해줘야 chatting 정보 읽어옴
+
+        chatSection.changeChatView(constants.DIRECT_CHAT, callerObj.emplId, callerObj.loginId);
+        adjustSectionSize(callSection.getSection(), 8);
+        adjustSectionSize(chatSection.getSection(), 4);
+        callSection.showSection();
+        chatSection.showSection();
+
       } else {
         callClient.declineCall();
         swal.close();
@@ -327,6 +337,7 @@ var callSection = (function() {
     adjustSectionSize(chatSection.getSection(), 9);
     adjustSectionSize(informationSection.getSection(), 3);
     chatSection.showSection();
+    informationSection.showAboutUser();
     informationSection.showSection();
   }
 

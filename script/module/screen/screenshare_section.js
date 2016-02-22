@@ -54,7 +54,6 @@ var screenshareSection = (function() {
   }
 
   function closeScreenshare() {
-    console.log("[closeScreenshare]" + desktopSharing);
     hideSection();
     adjustSectionSize(chatSection.getSection(), 9);
     adjustSectionSize(informationSection.getSection(), 3);
@@ -69,7 +68,6 @@ var screenshareSection = (function() {
   }
 
   function displayScreen(call) {
-    console.log("[displayScreen]" + desktopSharing);
     // Hang up on an existing call if present
     if (window.existingCall) {
       window.existingCall.close();
@@ -77,8 +75,6 @@ var screenshareSection = (function() {
 
     // Wait for stream on the call, then set peer video display
     call.on('stream', function(stream){
-      console.log("[stream~~~]" + URL.createObjectURL(stream));
-
       initilizeButtons();
       callSection.hideSection();
       informationSection.hideSection();
@@ -87,7 +83,7 @@ var screenshareSection = (function() {
       showSection();
 
       $('#peer-video').prop('src', URL.createObjectURL(stream));
-      $('#peer-video').load();
+      $('#peer-video').show();
       $('#my-video').hide();
     });
 
@@ -122,7 +118,6 @@ var screenshareSection = (function() {
   }
 
   function showSources() {
-    console.log("[showSources]" + desktopSharing);
     desktopCapturer.getSources({ types:['window'] }, function(error, sources) {
       for (var i = 0; i < sources.length; ++i) {
         // Disable selecting Team ON application to avoid reflected window
@@ -134,7 +129,6 @@ var screenshareSection = (function() {
   }
 
   function toggle() {
-    console.log("[toggle]" + desktopSharing);
     if (!desktopSharing) {
       var id = ($('.picture').val()).replace(/window|screen/g, function(match) { return match + ":"; });
       onAccessApproved(id);
@@ -151,7 +145,6 @@ var screenshareSection = (function() {
   }
 
   function onAccessApproved(desktop_id) {
-    console.log("[onAccessApproved]" + desktopSharing);
     var screenshareWidth = $screenshareSec.find('.content_area').outerWidth(true);
     var screenshareHeight = $screenshareSec.find('.content_area').outerHeight(true);
 
@@ -186,31 +179,30 @@ var screenshareSection = (function() {
   }
 
   function gotStream(stream) {
-      console.log("[gotStream]" + desktopSharing);
-      window.localStream = stream;
+    window.localStream = stream;
 
-      // If peer is disconnected, reconnect peer.
-      if (peer.disconnected) {
-        peer.reconnect();
+    // If peer is disconnected, reconnect peer.
+    if (peer.disconnected) {
+      peer.reconnect();
+    }
+
+    mediaConnection = peer.call(calleeEmplId, window.localStream);
+
+    $('#my-video').prop('src', URL.createObjectURL(stream));
+    $('#my-video').show();
+    $('.fullScreen').hide();
+    $('#peer-video').hide();
+
+    stream.onended = function() {
+      if (desktopSharing) {
+        toggle();
       }
+    };
 
-      mediaConnection = peer.call(calleeEmplId, window.localStream);
-
-      $('#my-video').prop('src', URL.createObjectURL(stream));
-      $('#my-video').load();
-      $('.fullScreen').hide();
-      $('#peer-video').hide();
-
-      stream.onended = function() {
-        if (desktopSharing) {
-          toggle();
-        }
-      };
-
-      // Close event from caller to callee
-      mediaConnection.on('close', function() {
-        closeScreenshare();
-      });
+    // Close event from caller to callee
+    mediaConnection.on('close', function() {
+      closeScreenshare();
+    });
   }
 
   function getUserMediaError(e) {
@@ -261,12 +253,7 @@ var screenshareSection = (function() {
     });
 
     $('.cancelScreenModal').click(function() {
-       $('#screenModal').hide();
-      // hideSection();
-      // adjustSectionSize(chatSection.getSection(), 9);
-      // adjustSectionSize(informationSection.getSection(), 3);
-      // chatSection.showSection();
-      // informationSection.showSection();
+      $('#screenModal').hide();
       closeScreenshare();
     });
 

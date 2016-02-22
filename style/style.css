@@ -4978,12 +4978,11 @@ dd.project-people {
   text-transform: uppercase;
 }
 /* Chat view */
-/*
 .message-input {
-  height: 90px !important;
+  height: 34px !important;
   resize:none;
 }
-*/
+
 .chat-avatar {
   white: 30px;
   height: 30px;
