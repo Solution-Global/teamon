@@ -21,6 +21,6 @@ Company.prototype.getCompanyByName = function(params, callback) {
     }).on('error', function(err) {
     console.error('something went wrong on the request', err.request.options);
   });
-}
+};
 
-module.exports = Company
+module.exports = Company;

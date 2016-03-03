@@ -16,7 +16,7 @@ define("DIRECT_CHAT", 0);
 define("GROUP_CHAT", 1);
 
 // [API]
-var API_HOST_PORT = "http://192.168.1.164:7587";
+var API_HOST_PORT = "http://127.0.0.1:8082";
 define("API_URL", API_HOST_PORT + "/rest");
 define("API_HEADER_X_UANGEL_USER", "system");
 define("API_HEADER_X_UANGEL_CHANNEL", "Desktop App");

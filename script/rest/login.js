@@ -47,4 +47,4 @@ Login.prototype.logout = function(emplId) {
   });
 };
 
-module.exports = Login
+module.exports = Login;

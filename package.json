@@ -1,56 +1,38 @@
 {
   "name": "teamon",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Unified desktop app for team communications and collaborations.",
-  "main": "teamon.js",
+  "main": "script/app.js",
+  "scripts": {
+    "app": "electron .",
+    "web": "node script/server.js"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Solution-Global/teamon.git"
+    "url": "git+https://github.com/Solution-Global/teamon.git"
   },
+  "author": "Solution-Global",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/Solution-Global/teamon/issues"
   },
-  "scripts": {
-    "dev": "electron .",
-    "clean": "npm run clean:win",
-    "clean:win": "rm -rf release/win",
-    "pack": "npm run pack:win",
-    "asar": "npm run asar:win",
-    "build": "npm run build:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.35.0 --icon=assets/win/teamon.ico --prune --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
-    "asar:win": "asar pack release/win/teamon-win32-x64/resources/app release/win/teamon-win32-x64/resources/app.asar && rm -rf release/win/teamon-win32-x64/resources/app",
-    "build:win": "npm run pack:win && npm run asar:win && electron-builder release/win/teamon-win32-x64 --platform=win --out=release/win --config=packager.json",
-    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.35.0 --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
-    "asar:osx": "asar pack release/osx/teamon-osx/resources/app release/osx/teamon-osx/resources/app.asar && rm -rf release/osx/teamon-osx/resources/app",
-    "build:osx": "npm run pack:osx && npm run asar:osx && electron-builder release/osx/teamon-osx --platform=osx --out=release/osx --config=packager.json"
-  },
-  "author": "Solution-Global",
-  "private": true,
-  "license": "ISC",
+  "homepage": "https://github.com/Solution-Global/teamon#readme",
   "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
+    "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-jshint": "0.11.3",
     "asar": "0.9.0",
     "electron-builder": "2.6.0",
     "electron-packager": "5.1.1",
     "electron-prebuilt": ">0.36.0",
-    "grunt": "0.4.5",
-    "grunt-contrib-jshint": "0.11.3"
+    "mime-types": "2.1.10",
+    "http-proxy": "1.13.2"
   },
   "dependencies": {
     "jquery": "2.1.4",
-    "jquery-mousewheel": "3.1.13",
     "jquery-ui": "1.10.5",
-    "jsonfile": "2.2.3",
-    "malihu-custom-scrollbar-plugin": "3.1.3",
     "bootstrap": "3.3.6",
-    "metismenu": "2.4.0",
-    "mqtt": "1.6.3",
-    "mustache": "2.2.0",
-    "lz-string": "1.4.4",
-    "node-rest-client": "1.5.1",
-    "dropzone": "4.2.0",
-    "cropper": "2.2.5",
-    "moment": "2.11.2",
-    "moment-timezone": "0.5.0",
-    "autosize": "3.0.15"
+    "node-rest-client": "1.5.1"
   }
 }

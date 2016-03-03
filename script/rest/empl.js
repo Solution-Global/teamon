@@ -29,12 +29,11 @@ Empl.prototype.getListByCoid = function(params, callback) {
     }).on('error',function(err){
       console.error('something went wrong on the request', err.request.options);
     });
-  }
+  };
 
   Empl.prototype.createEmpl = function(params, callback) {
     var self = this;
-    console.log("createEmpl - [company]" + params.company + "[loginId]" + params.loginId + "[name]" + params.name
-      + "[dept]" + params.dept + "[mobile]" + params.mobile  + "[office]" + params.office);
+    console.log("createEmpl - [company]" + params.company + "[loginId]" + params.loginId + "[name]" + params.name + "[dept]" + params.dept + "[mobile]" + params.mobile  + "[office]" + params.office);
     var args = {
       data: $.param({
         "company": params.company,
@@ -54,6 +53,6 @@ Empl.prototype.getListByCoid = function(params, callback) {
       }).on('error', function(err) {
       console.error('something went wrong on the request', err.request.options);
     });
-  }
+  };
 
-module.exports =  Empl
+module.exports = Empl;
