@@ -20,7 +20,7 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
   var mainWindow = new BrowserWindow({
     width: 950,
-    height: 700
+    height: 710
   });
   mainWindow.loadURL(INDEX);
   // Open the DevTools.
