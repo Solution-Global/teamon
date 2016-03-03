@@ -1,11 +1,13 @@
 window.$ = window.jQuery = require('jquery');
 require('jquery-ui');
 require('bootstrap');
-
-var constants = require("C:/electron/teamon/script/constants.js");
 var fs = require('fs');
-var EmplRes = require("C:/electron/teamon/script/rest/empl");
-var LoginRes = require("C:/electron/teamon/script/rest/login");
+
+
+
+var constants = require("./script/constants.js");
+var EmplRes = require("./script/rest/empl.js");
+var LoginRes = require("./script/rest/login.js");
 
 function initialize(){
   restResourse = {
@@ -13,7 +15,7 @@ function initialize(){
     login : new LoginRes()
   };
 
-  console.log("call Teamon in teamon.js");
+  console.log("call Teamon in teamon.js" + __dirname);
   var self = this;
 
   var dialogOptions = {

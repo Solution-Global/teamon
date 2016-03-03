@@ -6,7 +6,7 @@ module.exports = function(grunt) {
     browserify: {
       js: {
         // A single entry point for our app
-        src: 'script/teamon.js',
+        src: 'teamon.js',
         // Compile to a single file to add a script tag for in your HTML
         dest: 'dist/script/teamon_bundle.js',
       },

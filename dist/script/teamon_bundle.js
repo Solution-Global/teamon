@@ -40819,7 +40819,7 @@ exports.Client = function (options){
 	self.responseConfig = self.options.responseConfig || {};
 
 	this.methods={};
-
+	
 
 	// Client Request to be passed to ConnectManager and returned
 	// for each REST method invocation
@@ -40829,7 +40829,7 @@ exports.Client = function (options){
 
 
 	util.inherits(ClientRequest, events.EventEmitter);
-
+	
 
 	ClientRequest.prototype.end = function(){
 		if(this._httpRequest) {
@@ -40888,7 +40888,7 @@ exports.Client = function (options){
 			 } else if (self.options.user && !self.options.password){
 			 	// some sites only needs user with no password to authenticate
 			 	result.auth = self.options.user;
-			 }
+			 }	
 
 
 			// configure proxy connection to establish a tunnel
@@ -40949,7 +40949,7 @@ exports.Client = function (options){
 				var keyValue = key + "=" + encodeURIComponent(args[key]);
 				if (counter > 1) keyValue = '&'.concat(keyValue);
 				result = result.concat(keyValue);
-
+				
 				counter++;
 			}
 
@@ -40962,9 +40962,9 @@ exports.Client = function (options){
 			for (var placeholder in args.path){
 				var regex = new RegExp("\\$\\{" + placeholder + "\\}","i");
 				result = result.replace(regex,args.path[placeholder]);
-
+				
 			}
-
+			
 			return result;
 
 		},
@@ -40991,30 +40991,30 @@ exports.Client = function (options){
 			options.method = method,
 			options.clientRequest = clientRequest,
 			options.headers= options.headers || {};
-
+			
 			debug("args = ", args);
 			debug("args.data = ", args !== undefined?args.data:undefined);
 			// no args passed
 			if (typeof args === 'function'){
 				callback = args;
 				//add Content-length to POST/PUT/DELETE/PATCH methods
-				if (method === 'POST' || method === 'PUT' || method === 'DELETE' || method === 'PATCH'){
-					options.headers['Content-Length'] = 0;
+				if (method === 'POST' || method === 'PUT' || method === 'DELETE' || method === 'PATCH'){					
+					options.headers['Content-Length'] = 0;					 	
 				}
 			} else if (typeof args === 'object') {
 				// add headers and POST/PUT/DELETE/PATCH data to connect options to be passed
 				// with request, but without deleting other headers like non-tunnel proxy headers
 				if (args.headers){
 					for (var headerName in args.headers){
-						options.headers[headerName] = args.headers[headerName];
+						options.headers[headerName] = args.headers[headerName];	
 					}
-
+							
 				}
-
+				
 				//always set Content-length header
 				//set Content lentgh for some servers to work (nginx, apache)
 				if (args.data !== undefined){
-					options.data = args.data;
+					options.data = args.data;					
 					options.headers['Content-Length'] = Buffer.byteLength((typeof args.data === 'string' ? args.data:JSON.stringify(args.data)), 'utf8');
 				}else{
 					options.headers['Content-Length'] = 0;
@@ -41030,7 +41030,7 @@ exports.Client = function (options){
 		        // override client config, by the moment just for request response config
 		        this.overrideClientConfig(options,args);
 			}
-
+			
 
 			debug("options post connect",options);
 			debug("FINAL SELF object  ====>", self);
@@ -41041,8 +41041,6 @@ exports.Client = function (options){
 				// normal connection and direct proxy connections (no tunneling)
 				ConnectManager.normal(options,callback);
 			}
-
-			console.log(options);
 		},
 		mergeMimeTypes:function(mimetypes){
 			// merge mime-types passed as options to client
@@ -41057,7 +41055,7 @@ exports.Client = function (options){
 	},
 	Method = function(url, method){
 		var httpMethod = self[method.toLowerCase()];
-
+			
 		    return  function(args,callback){
 					var completeURL = url;
 					//no args
@@ -41083,7 +41081,7 @@ exports.Client = function (options){
 
 
 	this.get = function(url, args, callback){
-		var clientRequest = new ClientRequest();
+		var clientRequest = new ClientRequest();		
 		Util.connect('GET', url, args, callback, clientRequest);
 		return clientRequest;
 	};
@@ -41096,7 +41094,6 @@ exports.Client = function (options){
 
 	this.put = function(url, args, callback){
 		var clientRequest = new ClientRequest();
-		console.log("call put~~~ ");
 		Util.connect('PUT', url, args, callback, clientRequest);
 		return clientRequest;
 	};
@@ -41128,7 +41125,7 @@ exports.Client = function (options){
 	ConnectManager.on('error',function(err){
 		self.emit('error',err);
 	});
-
+	
 	// merge mime types with connect manager
 	Util.mergeMimeTypes(self.mimetypes);
 	debug("ConnectManager", ConnectManager);
@@ -41147,7 +41144,7 @@ exports.Client = function (options){
 				result = this.xmlctype[i].toLowerCase() === content.toLowerCase();
 				if (result) break;
 			}
-
+			
 			return result;
 		},
 		"isJSON":function(content){
@@ -41158,7 +41155,7 @@ exports.Client = function (options){
 				result = this.jsonctype[i].toLowerCase() === content.toLowerCase();
 				if (result) break;
 			}
-
+			
 			return result;
 		},
 		"isValidData":function(data){
@@ -41171,14 +41168,14 @@ exports.Client = function (options){
 					clientRequest.emit('requestTimeout',req);
 				});
 			}
-
+				
 
 			if(config.noDelay)
 				req.setNoDelay(config.noDelay);
 
 			if(config.keepAlive)
 				req.setSocketKeepAlive(config.noDelay,config.keepAliveDelay || 0);
-
+			
 		},
 		"configureResponse":function(res,config, clientRequest){
 			if (config.timeout){
@@ -41189,11 +41186,11 @@ exports.Client = function (options){
 			}
 		},
 		"handleEnd":function(res,buffer,callback){
-
+			
 			var self = this,
 				content = res.headers["content-type"],
 				encoding = res.headers["content-encoding"];
-
+			
 			debug("content-type: ", content);
 			debug("content-encoding: ",encoding);
 
@@ -41246,19 +41243,17 @@ exports.Client = function (options){
 			}else{
 				result = JSON.stringify(data);
 			}
-			return result;
+			return result; 
 		},
 		"proxy":function(options, callback){
 
-			console.log("call proxy");
-
 			debug("proxy options",options.proxy);
-
+			
 			// creare a new proxy tunnel, and use to connect to API URL
 			var proxyTunnel = http.request(options.proxy),
 				self = this;
-
-
+		
+			
 			proxyTunnel.on('connect',function(res, socket, head){
 				debug("proxy connected",socket);
 
@@ -41270,7 +41265,7 @@ exports.Client = function (options){
 					clientRequest = options.clientRequest,
 					requestConfig = options.requestConfig,
 					responseConfig = options.responseConfig;
-
+				
 				//remove "protocol" and "clientRequest" option from options, cos is not allowed by http/hppts node objects
 				delete options.protocol;
 				delete options.clientRequest;
@@ -41279,8 +41274,6 @@ exports.Client = function (options){
 
 				// add request options to request returned to calling method
 				clientRequest.options = options;
-
-				console.log(options);
 
 				var request = protocol.request(options, function(res){
 						//configure response
@@ -41310,7 +41303,7 @@ exports.Client = function (options){
 							}
 						});
 				});
-
+				
 
 
 				// configure request and add it to clientRequest
@@ -41328,7 +41321,7 @@ exports.Client = function (options){
 					if (clientRequest !== undefined && typeof clientRequest === 'object'){
 						// add request as property of error
 						err.request = clientRequest;
-
+						
 						// request error handler
 						clientRequest.emit('error',err);
 					}else{
@@ -41347,11 +41340,9 @@ exports.Client = function (options){
 			});
 
 			proxyTunnel.end();
-
+			
 		},
 		"normal":function(options, callback){
-
-				console.log("call normal");
 
 				var buffer = [],
 				protocol = (options.protocol === "http")?http:https,
@@ -41359,11 +41350,7 @@ exports.Client = function (options){
 				requestConfig = options.requestConfig,
 				responseConfig = options.responseConfig,
 				self = this;
-
-				console.log("options.protocol ~~~~~~~~~~~~~~~~~~~~~");
-				console.log(options.protocol );
-
-
+				
 				//remove "protocol" and "clientRequest" option from options, cos is not allowed by http/hppts node objects
 				delete options.protocol;
 				delete options.clientRequest;
@@ -41374,23 +41361,9 @@ exports.Client = function (options){
 				// add request options to request returned to calling method
 				clientRequest.options = options;
 
-				console.log("options~~~~~~~~~~~~~~~~~~~~~");
-				console.log(options);
-
-				console.log("options.protocol ~~~~~~~~~~~~~~~~~~~~~");
-				console.log(options.protocol );
-
-				console.log("protocol~~~~~~~~~~~~~~~~~~~~~");
-				console.log(protocol);
-
-
 				var request = protocol.request(options, function(res){
 						//configure response
 						self.configureResponse(res,responseConfig, clientRequest);
-
-						console.log(clientRequest);
-						console.log(responseConfig);
-						console.log(res);
 
 						// concurrent data chunk handler
 						res.on('data',function(chunk){
@@ -41398,12 +41371,6 @@ exports.Client = function (options){
 						});
 
 						res.on('end',function(){
-
-							console.log("end~~~~~~~~~~~~~~~~");
-							console.log(callback);
-							console.log(buffer);
-							console.log(res);
-
 
 							self.handleEnd(res,buffer,callback);
 
@@ -41423,10 +41390,7 @@ exports.Client = function (options){
 							}
 						});
 				});
-
-				console.log("request-------------------------------------");
-				console.log(request);
-
+			 
 				// configure request and add it to clientRequest
 				// and add it to request returned
 				self.configureRequest(request,requestConfig, clientRequest);
@@ -41436,9 +41400,6 @@ exports.Client = function (options){
 
 				// handle request errors and handle them by request or general error handler
 				request.on('error',function(err){
-
-					console.log(clientRequest);
-
 					debug('request error', clientRequest);
 					if (clientRequest !== undefined && typeof clientRequest === 'object'){
 						// add request as property of error
@@ -41457,7 +41418,7 @@ exports.Client = function (options){
 			if(options.data) request.write(this.prepareData(options.data));
 
 			request.end();
-
+			 
 		}
 	};
 
@@ -46413,33 +46374,28 @@ function baseIsEqualDeep(object, other, equalFunc, customizer, bitmask, stack) {
 
   if (!objIsArr) {
     objTag = getTag(object);
-    if (objTag == argsTag) {
-      objTag = objectTag;
-    } else if (objTag != objectTag) {
-      objIsArr = isTypedArray(object);
-    }
+    objTag = objTag == argsTag ? objectTag : objTag;
   }
   if (!othIsArr) {
     othTag = getTag(other);
-    if (othTag == argsTag) {
-      othTag = objectTag;
-    } else if (othTag != objectTag) {
-      othIsArr = isTypedArray(other);
-    }
+    othTag = othTag == argsTag ? objectTag : othTag;
   }
   var objIsObj = objTag == objectTag && !isHostObject(object),
       othIsObj = othTag == objectTag && !isHostObject(other),
       isSameTag = objTag == othTag;
 
-  if (isSameTag && !(objIsArr || objIsObj)) {
-    return equalByTag(object, other, objTag, equalFunc, customizer, bitmask);
+  if (isSameTag && !objIsObj) {
+    stack || (stack = new Stack);
+    return (objIsArr || isTypedArray(object))
+      ? equalArrays(object, other, equalFunc, customizer, bitmask, stack)
+      : equalByTag(object, other, objTag, equalFunc, customizer, bitmask, stack);
   }
-  var isPartial = bitmask & PARTIAL_COMPARE_FLAG;
-  if (!isPartial) {
+  if (!(bitmask & PARTIAL_COMPARE_FLAG)) {
     var objIsWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
         othIsWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
 
     if (objIsWrapped || othIsWrapped) {
+      stack || (stack = new Stack);
       return equalFunc(objIsWrapped ? object.value() : object, othIsWrapped ? other.value() : other, customizer, bitmask, stack);
     }
   }
@@ -46447,7 +46403,7 @@ function baseIsEqualDeep(object, other, equalFunc, customizer, bitmask, stack) {
     return false;
   }
   stack || (stack = new Stack);
-  return (objIsArr ? equalArrays : equalObjects)(object, other, equalFunc, customizer, bitmask, stack);
+  return equalObjects(object, other, equalFunc, customizer, bitmask, stack);
 }
 
 module.exports = baseIsEqualDeep;
@@ -46915,9 +46871,9 @@ var UNORDERED_COMPARE_FLAG = 1,
  * @param {Array} array The array to compare.
  * @param {Array} other The other array to compare.
  * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Function} [customizer] The function to customize comparisons.
- * @param {number} [bitmask] The bitmask of comparison flags. See `baseIsEqual` for more details.
- * @param {Object} [stack] Tracks traversed `array` and `other` objects.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {number} bitmask The bitmask of comparison flags. See `baseIsEqual` for more details.
+ * @param {Object} stack Tracks traversed `array` and `other` objects.
  * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
  */
 function equalArrays(array, other, equalFunc, customizer, bitmask, stack) {
@@ -46977,6 +46933,7 @@ module.exports = equalArrays;
 },{"./_arraySome":111}],147:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     Uint8Array = require('./_Uint8Array'),
+    equalArrays = require('./_equalArrays'),
     mapToArray = require('./_mapToArray'),
     setToArray = require('./_setToArray');
 
@@ -46999,7 +46956,7 @@ var arrayBufferTag = '[object ArrayBuffer]';
 
 /** Used to convert symbols to primitives and strings. */
 var symbolProto = Symbol ? Symbol.prototype : undefined,
-    symbolValueOf = Symbol ? symbolProto.valueOf : undefined;
+    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
 
 /**
  * A specialized version of `baseIsEqualDeep` for comparing objects of
@@ -47013,11 +46970,12 @@ var symbolProto = Symbol ? Symbol.prototype : undefined,
  * @param {Object} other The other object to compare.
  * @param {string} tag The `toStringTag` of the objects to compare.
  * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Function} [customizer] The function to customize comparisons.
- * @param {number} [bitmask] The bitmask of comparison flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {number} bitmask The bitmask of comparison flags. See `baseIsEqual` for more details.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
  * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
  */
-function equalByTag(object, other, tag, equalFunc, customizer, bitmask) {
+function equalByTag(object, other, tag, equalFunc, customizer, bitmask, stack) {
   switch (tag) {
     case arrayBufferTag:
       if ((object.byteLength != other.byteLength) ||
@@ -47052,19 +47010,28 @@ function equalByTag(object, other, tag, equalFunc, customizer, bitmask) {
       var isPartial = bitmask & PARTIAL_COMPARE_FLAG;
       convert || (convert = setToArray);
 
+      if (object.size != other.size && !isPartial) {
+        return false;
+      }
+      // Assume cyclic values are equal.
+      var stacked = stack.get(object);
+      if (stacked) {
+        return stacked == other;
+      }
       // Recursively compare objects (susceptible to call stack limits).
-      return (isPartial || object.size == other.size) &&
-        equalFunc(convert(object), convert(other), customizer, bitmask | UNORDERED_COMPARE_FLAG);
+      return equalArrays(convert(object), convert(other), equalFunc, customizer, bitmask | UNORDERED_COMPARE_FLAG, stack.set(object, other));
 
     case symbolTag:
-      return !!Symbol && (symbolValueOf.call(object) == symbolValueOf.call(other));
+      if (symbolValueOf) {
+        return symbolValueOf.call(object) == symbolValueOf.call(other);
+      }
   }
   return false;
 }
 
 module.exports = equalByTag;
 
-},{"./_Symbol":105,"./_Uint8Array":106,"./_mapToArray":171,"./_setToArray":175}],148:[function(require,module,exports){
+},{"./_Symbol":105,"./_Uint8Array":106,"./_equalArrays":146,"./_mapToArray":171,"./_setToArray":175}],148:[function(require,module,exports){
 var baseHas = require('./_baseHas'),
     keys = require('./keys');
 
@@ -47079,9 +47046,9 @@ var PARTIAL_COMPARE_FLAG = 2;
  * @param {Object} object The object to compare.
  * @param {Object} other The other object to compare.
  * @param {Function} equalFunc The function to determine equivalents of values.
- * @param {Function} [customizer] The function to customize comparisons.
- * @param {number} [bitmask] The bitmask of comparison flags. See `baseIsEqual` for more details.
- * @param {Object} [stack] Tracks traversed `object` and `other` objects.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {number} bitmask The bitmask of comparison flags. See `baseIsEqual` for more details.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
  * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
  */
 function equalObjects(object, other, equalFunc, customizer, bitmask, stack) {
@@ -47200,7 +47167,7 @@ var isNative = require('./isNative');
  * @returns {*} Returns the function if it's native, else `undefined`.
  */
 function getNative(object, key) {
-  var value = object == null ? undefined : object[key];
+  var value = object[key];
   return isNative(value) ? value : undefined;
 }
 
@@ -47543,8 +47510,6 @@ function isKeyable(value) {
 module.exports = isKeyable;
 
 },{}],164:[function(require,module,exports){
-var isFunction = require('./isFunction');
-
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -47557,14 +47522,14 @@ var objectProto = Object.prototype;
  */
 function isPrototype(value) {
   var Ctor = value && value.constructor,
-      proto = (isFunction(Ctor) && Ctor.prototype) || objectProto;
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
 
   return value === proto;
 }
 
 module.exports = isPrototype;
 
-},{"./isFunction":194}],165:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 var isObject = require('./isObject');
 
 /**
@@ -47960,9 +47925,24 @@ function stringToPath(string) {
 module.exports = stringToPath;
 
 },{"./toString":209}],182:[function(require,module,exports){
-var copyObject = require('./_copyObject'),
+var assignValue = require('./_assignValue'),
+    copyObject = require('./_copyObject'),
     createAssigner = require('./_createAssigner'),
+    isArrayLike = require('./isArrayLike'),
+    isPrototype = require('./_isPrototype'),
     keys = require('./keys');
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
 
 /**
  * Assigns own enumerable properties of source objects to the destination
@@ -47995,12 +47975,20 @@ var copyObject = require('./_copyObject'),
  * // => { 'a': 1, 'c': 3, 'e': 5 }
  */
 var assign = createAssigner(function(object, source) {
-  copyObject(source, keys(source), object);
+  if (nonEnumShadows || isPrototype(source) || isArrayLike(source)) {
+    copyObject(source, keys(source), object);
+    return;
+  }
+  for (var key in source) {
+    if (hasOwnProperty.call(source, key)) {
+      assignValue(object, key, source[key]);
+    }
+  }
 });
 
 module.exports = assign;
 
-},{"./_copyObject":141,"./_createAssigner":143,"./keys":202}],183:[function(require,module,exports){
+},{"./_assignValue":112,"./_copyObject":141,"./_createAssigner":143,"./_isPrototype":164,"./isArrayLike":191,"./keys":202}],183:[function(require,module,exports){
 var baseAssign = require('./_baseAssign'),
     baseCreate = require('./_baseCreate');
 
@@ -48325,8 +48313,7 @@ var getLength = require('./_getLength'),
  * // => false
  */
 function isArrayLike(value) {
-  return value != null &&
-    !(typeof value == 'function' && isFunction(value)) && isLength(getLength(value));
+  return value != null && isLength(getLength(value)) && !isFunction(value);
 }
 
 module.exports = isArrayLike;
@@ -48378,14 +48365,14 @@ var objectProto = Object.prototype;
 var hasOwnProperty = objectProto.hasOwnProperty;
 
 /**
- * Checks if `value` is empty. A value is considered empty unless it's an
- * `arguments` object, array, string, or jQuery-like collection with a length
- * greater than `0` or an object with own enumerable properties.
+ * Checks if `value` is an empty collection or object. A value is considered
+ * empty if it's an `arguments` object, array, string, or jQuery-like collection
+ * with a length of `0` or has no own enumerable properties.
  *
  * @static
  * @memberOf _
  * @category Lang
- * @param {Array|Object|string} value The value to inspect.
+ * @param {*} value The value to check.
  * @returns {boolean} Returns `true` if `value` is empty, else `false`.
  * @example
  *
@@ -48454,8 +48441,8 @@ var objectToString = objectProto.toString;
  */
 function isFunction(value) {
   // The use of `Object#toString` avoids issues with the `typeof` operator
-  // in Safari 8 which returns 'object' for typed array constructors, and
-  // PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  // in Safari 8 which returns 'object' for typed array and weak map constructors,
+  // and PhantomJS 1.9 which returns 'function' for `NodeList` instances.
   var tag = isObject(value) ? objectToString.call(value) : '';
   return tag == funcTag || tag == genTag;
 }
@@ -49087,7 +49074,7 @@ var INFINITY = 1 / 0;
 
 /** Used to convert symbols to primitives and strings. */
 var symbolProto = Symbol ? Symbol.prototype : undefined,
-    symbolToString = Symbol ? symbolProto.toString : undefined;
+    symbolToString = symbolProto ? symbolProto.toString : undefined;
 
 /**
  * Converts `value` to a string if it's not one. An empty string is returned
@@ -49118,7 +49105,7 @@ function toString(value) {
     return '';
   }
   if (isSymbol(value)) {
-    return Symbol ? symbolToString.call(value) : '';
+    return symbolToString ? symbolToString.call(value) : '';
   }
   var result = (value + '');
   return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
@@ -49316,14 +49303,17 @@ var RestCommon = (function(){
 module.exports = RestCommon;
 
 },{"../constants":210,"node-rest-client":75}],214:[function(require,module,exports){
+(function (__dirname){
 window.$ = window.jQuery = require('jquery');
 require('jquery-ui');
 require('bootstrap');
-
-var constants = require("C:/electron/teamon/script/constants.js");
 var fs = require('fs');
-var EmplRes = require("C:/electron/teamon/script/rest/empl");
-var LoginRes = require("C:/electron/teamon/script/rest/login");
+
+
+
+var constants = require("./script/constants.js");
+var EmplRes = require("./script/rest/empl.js");
+var LoginRes = require("./script/rest/login.js");
 
 function initialize(){
   restResourse = {
@@ -49331,7 +49321,7 @@ function initialize(){
     login : new LoginRes()
   };
 
-  console.log("call Teamon in teamon.js");
+  console.log("call Teamon in teamon.js" + __dirname);
   var self = this;
 
   var dialogOptions = {
@@ -49348,4 +49338,5 @@ $(document).ready(function() {
   initialize();
 });
 
-},{"C:/electron/teamon/script/constants.js":210,"C:/electron/teamon/script/rest/empl":211,"C:/electron/teamon/script/rest/login":212,"bootstrap":1,"fs":14,"jquery":74,"jquery-ui":73}]},{},[214]);
+}).call(this,"/")
+},{"./script/constants.js":210,"./script/rest/empl.js":211,"./script/rest/login.js":212,"bootstrap":1,"fs":14,"jquery":74,"jquery-ui":73}]},{},[214]);

@@ -40,14 +40,14 @@ http.createServer( function (request, response) {
 
           switch (contentType) {
             case 'application/font-woff2':
-              responseHeardrs['Vary'] = 'Accept-Encoding';
-              responseHeardrs['Accept-Ranges'] = 'bytes';
-              responseHeardrs['Content-Length'] = data.length / 8;
+              // responseHeardrs['Accept-Ranges'] = 'bytes';
+              // responseHeardrs['Content-Length'] = data.length / 8;
               break;
           }
         }
 
         response.writeHead(200, responseHeardrs);
+
 
          // Write the content of the file to response body
          response.write(data.toString());
