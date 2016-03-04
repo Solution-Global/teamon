@@ -2,8 +2,8 @@
 // Constructor functions should always be called with the new operator.
 var RestCommon = require("./rest_common");
 
-var Login = (function() {
-  this.restCommon = new RestCommon();
+var Login = (function(params) {
+  this.restCommon = new RestCommon(params);
   this.path ="/frontend/user/login";
 });
 

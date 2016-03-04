@@ -122,8 +122,8 @@ function loginSubmit() {
 	    myPreference.setPreference("company", params.company);
 	    myPreference.setPreference("loginId", params.loginId);
 	    myPreference.setPreference("emplId", data.emplId);
-			myPreference.setPreference("apiAuthKey", data.apiAuthKey);
-	    myPreference.setPreference("coId", data.coId); // Save to the pref file once at the end of the config job.
+			myPreference.setPreference("apiAuthKey", ""); // TODO data.apiAuthKey 추가
+	    myPreference.setPreference("coId", data.coId);
 
 	  	$loginForm.closest(".modal-dialog").closest(".modal").modal("hide");
   });

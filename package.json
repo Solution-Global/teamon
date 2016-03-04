@@ -5,7 +5,7 @@
   "main": "script/app.js",
   "scripts": {
     "app": "electron .",
-    "web": "node script/server.js"
+    "web": "node web/server.js"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,8 @@
     "connect": "3.4.1",
     "connect-proxy-layer": "0.1.2",
     "serve-static": "1.10.2",
-    "lz-string": "1.4.4"
+    "lz-string": "1.4.4",
+    "morgan": "1.7.0"
   },
   "dependencies": {
     "jquery": "2.1.4",

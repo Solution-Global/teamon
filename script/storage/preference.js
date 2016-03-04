@@ -52,9 +52,14 @@ var preference = (function(storage, emplId) {
     _writeAll();
   }
 
+  function removePreference() {
+    storageManager.removeKey(keyName);
+  }
+
   return {
     setPreference: setPreference,
-    getPreference: getPreference
+    getPreference: getPreference,
+    removePreference : removePreference
   };
 });
 

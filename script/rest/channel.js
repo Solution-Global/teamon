@@ -1,7 +1,7 @@
 var restCommon = require("./rest_common");
 
-var Channel = (function() {
-  this.restCommon = new restCommon();
+var Channel = (function(params) {
+  this.restCommon = new restCommon(params);
   this.path = "/frontend/communication/channel";
 });
 

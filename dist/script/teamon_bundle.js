@@ -49637,15 +49637,6 @@ define("COMMON_SEARCH_ORDER_DESC", "desc");
 define("DIRECT_CHAT", 0);
 define("GROUP_CHAT", 1);
 
-// [API]
-var API_HOST_PORT = "http://127.0.0.1:8082";
-define("API_URL", API_HOST_PORT + "/rest");
-define("API_HEADER_X_UANGEL_USER", "system");
-define("API_HEADER_X_UANGEL_CHANNEL", "Desktop App");
-define("API_HEADER_X_UANGEL_AUTHID", "test");
-define("API_HEADER_X_UANGEL_AUTHKEY", "e7575605-3d58-491f-8413-d11f5a2c7c3c");
-define("API_HEADER_Content_Type", "application/x-www-form-urlencoded");
-
 // [msg]
 // mqtt
 define("MQTT_URL", "mqtt://192.168.1.164:2883");
@@ -49674,14 +49665,14 @@ define("SIP_PROXY", "sip:192.168.5.53:5062");
 define("SIP_DOMAIN", "192.168.5.53");
 
 // [file]
-define("UPLOAD_URL", API_HOST_PORT + "/upload/");
-define("REPOSITORY_URL", API_HOST_PORT + "/repository/");
+// define("UPLOAD_URL", API_HOST_PORT + "/upload/");
+// define("REPOSITORY_URL", API_HOST_PORT + "/repository/");
 
 },{}],212:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
-var CallHistory = (function() {
-  this.restCommon = new restCommon();
+var CallHistory = (function(url) {
+  this.restCommon = new restCommon(url);
   this.path = "/frontend/communication/callhistory";
 });
 
@@ -49801,8 +49792,8 @@ module.exports = CallHistory;
 },{"./rest_common":218}],213:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
-var Channel = (function() {
-  this.restCommon = new restCommon();
+var Channel = (function(params) {
+  this.restCommon = new restCommon(params);
   this.path = "/frontend/communication/channel";
 });
 
@@ -49908,8 +49899,8 @@ module.exports = Channel;
 },{"./rest_common":218}],214:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
-var Chat = (function() {
-  this.restCommon = new restCommon();
+var Chat = (function(params) {
+  this.restCommon = new restCommon(params);
   this.path = "/frontend/communication/chat";
 });
 
@@ -49982,8 +49973,8 @@ module.exports = Chat;
 },{"./rest_common":218}],215:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
-var Company = (function() {
-  this.restCommon = new restCommon();
+var Company = (function(params) {
+  this.restCommon = new restCommon(params);
   this.path = "/frontend/user/company";
 });
 
@@ -50011,8 +50002,8 @@ module.exports = Company;
 // Constructor functions should always be called with the new operator.
 var RestCommon = require("./rest_common");
 
-var Empl = (function() {
-  this.restCommon = new RestCommon();
+var Empl = (function(params) {
+  this.restCommon = new RestCommon(params);
   this.path ="/frontend/user/employee";
 });
 
@@ -50070,8 +50061,8 @@ module.exports = Empl;
 // Constructor functions should always be called with the new operator.
 var RestCommon = require("./rest_common");
 
-var Login = (function() {
-  this.restCommon = new RestCommon();
+var Login = (function(params) {
+  this.restCommon = new RestCommon(params);
   this.path ="/frontend/user/login";
 });
 
@@ -50119,17 +50110,17 @@ module.exports = Login;
 
 },{"./rest_common":218}],218:[function(require,module,exports){
 var Client = require('node-rest-client').Client;
-var RestCommon = (function(user, channel, authid, authkey){
+var RestCommon = (function(params){
   this.client = new Client();
   this.commonHeaders = {
-    "X-UANGEL-USER" : constants.API_HEADER_X_UANGEL_USER,
-    "X-UANGEL-CHANNEL" : constants.API_HEADER_X_UANGEL_CHANNEL,
-    "X-UANGEL-AUTHID" : constants.API_HEADER_X_UANGEL_AUTHID,
-    "X-UANGEL-AUTHKEY" : constants.API_HEADER_X_UANGEL_AUTHKEY,
-    "Content-Type" : constants.API_HEADER_Content_Type,
+    "X-UANGEL-USER" : params.loginId,
+    "X-UANGEL-CHANNEL" : params.channel,
+    "X-UANGEL-AUTHID" : params.loginId,
+    "X-UANGEL-AUTHKEY" : params.authkey,
+    "Content-Type" : "application/x-www-form-urlencoded",
     "X-Requested-With" : 'XMLHttpRequest'
   };
-  this.apiurl = constants.API_URL;
+  this.apiurl = params.url;
 });
 
 module.exports = RestCommon;
@@ -50189,9 +50180,14 @@ var preference = (function(storage, emplId) {
     _writeAll();
   }
 
+  function removePreference() {
+    storageManager.removeKey(keyName);
+  }
+
   return {
     setPreference: setPreference,
-    getPreference: getPreference
+    getPreference: getPreference,
+    removePreference : removePreference
   };
 });
 
@@ -50268,6 +50264,7 @@ var fs = require('fs');
 
 constants = require("./script/constants"); // global var
 storageManager = require('./script/storage/storage_manager')(false); // global var
+preferenceManager = require('./script/storage/preference'); // global var
 
 // REST
 var emplRes = require("./script/rest/empl");
@@ -50277,17 +50274,46 @@ var channelRes = require("./script/rest/channel");
 var callHistoryRes = require("./script/rest/call_history");
 var companyRes = require("./script/rest/company");
 
-var preferenceManager = require('./script/storage/preference');
-
 function initialize(){
+  var aplUrl;
+  if(window && window.process && window.process.type) {
+    // For desktop
+    runningChannel = constants.CHANNEL_APP;
+    aplUrl = "http://192.168.1.164:7587/rest";
+  } else {
+    // For WEB
+    runningChannel = constants.CHANNEL_WEB;
+    aplUrl = "https://127.0.0.1:8082/rest/";
+  }
+
+  var params = {
+      "url" : aplUrl,
+      "channel" :  runningChannel,
+      "loginId" : "system",
+      "authkey" : "authKeydfjaksdjfaksjd"
+  };
+
   restResourse = {
-    empl : new emplRes(),
-    login : new loginRes(),
-    chat : new chatRes(),
-    channel : new channelRes(),
-    callHistory : new callHistoryRes(),
-    company : new companyRes()
+    empl : new emplRes(params),
+    login : new loginRes(params),
+    chat : new chatRes(params),
+    channel : new channelRes(params),
+    callHistory : new callHistoryRes(params),
+    company : new companyRes(params)
   }; // global var
+
+  loginInfo = null; // global var
+
+  // Window Close Event
+  $(window).on('beforeunload', function() {
+    console.log("Closing window");
+    
+    // chatSection.finalize();
+
+    if(!storageManager.getValue("remeberLoginId")) {
+      myPreference.removePreference();
+    }
+  });
 
   initLoginStatus();
 }

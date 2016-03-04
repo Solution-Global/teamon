@@ -20,7 +20,7 @@ function openModalDialog(url, options, data) {
 	$("body").append(div);
 
   var rtMsg;
-  if(typeof require !== 'function') {
+  if(runningChannel === constants.CHANNEL_WEB) {
     // For Browser
     data = "<div>test</div>";
     $.ajax({
