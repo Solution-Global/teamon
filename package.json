@@ -26,11 +26,10 @@
     "electron-builder": "2.6.0",
     "electron-packager": "5.1.1",
     "electron-prebuilt": ">0.36.0",
-    "mime-types": "2.1.10",
-    "http-proxy": "1.13.2",
     "connect": "3.4.1",
     "connect-proxy-layer": "0.1.2",
-    "serve-static": "1.10.2"
+    "serve-static": "1.10.2",
+    "morgan": "1.7.0"
   },
   "dependencies": {
     "jquery": "2.1.4",
