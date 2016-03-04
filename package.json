@@ -29,7 +29,8 @@
     "connect": "3.4.1",
     "connect-proxy-layer": "0.1.2",
     "serve-static": "1.10.2",
-    "morgan": "1.7.0"
+    "morgan": "1.7.0",
+    "app-root-path": "1.0.0"
   },
   "dependencies": {
     "jquery": "2.1.4",
