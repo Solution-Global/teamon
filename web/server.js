@@ -11,7 +11,6 @@ const tlsOptions = {
   cert: fs.readFileSync(__dirname + '/teamon_cert.pem')
 };
 
-console.log(appRootPath);
 // TODO
 // log to file rotate
 var logFormat = ':remote-addr - [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time';
