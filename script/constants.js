@@ -6,6 +6,9 @@ function define(name, value) {
 }
 
 // [Common]
+define("CHANNEL_WEB", "WEB");
+define("CHANNEL_APP", "APP");
+
 define("COMMON_SEARCH_ALL", -1);
 define("COMMON_SEARCH_COUNT", 10);
 define("COMMON_SEARCH_OFFSET", 0);
@@ -14,15 +17,6 @@ define("COMMON_SEARCH_ORDER_DESC", "desc");
 
 define("DIRECT_CHAT", 0);
 define("GROUP_CHAT", 1);
-
-// [API]
-var API_HOST_PORT = "http://127.0.0.1:8082";
-define("API_URL", API_HOST_PORT + "/rest");
-define("API_HEADER_X_UANGEL_USER", "system");
-define("API_HEADER_X_UANGEL_CHANNEL", "Desktop App");
-define("API_HEADER_X_UANGEL_AUTHID", "test");
-define("API_HEADER_X_UANGEL_AUTHKEY", "e7575605-3d58-491f-8413-d11f5a2c7c3c");
-define("API_HEADER_Content_Type", "application/x-www-form-urlencoded");
 
 // [msg]
 // mqtt
@@ -52,5 +46,5 @@ define("SIP_PROXY", "sip:192.168.5.53:5062");
 define("SIP_DOMAIN", "192.168.5.53");
 
 // [file]
-define("UPLOAD_URL", API_HOST_PORT + "/upload/");
-define("REPOSITORY_URL", API_HOST_PORT + "/repository/");
+// define("UPLOAD_URL", API_HOST_PORT + "/upload/");
+// define("REPOSITORY_URL", API_HOST_PORT + "/repository/");

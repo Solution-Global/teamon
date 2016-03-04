@@ -7,7 +7,7 @@
 		</div>
 		<div class="modal-body">
 			<div class="row">
-				<div class="col-sm-6 b-r">
+				<div class="col-sm-12 b-r">
 					<form role="form" id="login-form" onsubmit="return false;">
 						<div class="form-group">
 							<label>Company</label><input name="company" type="text" placeholder="Enter company" class="form-control" value="uangel">
@@ -23,15 +23,6 @@
 						</div>
 					</form>
 				</div>
-				<div class="col-sm-6">
-					<h4>Not a member?</h4>
-					<p>
-						 You can create an account:
-					</p>
-					<p class="text-center">
-						<a href="#" id="onRegisterEmplModal"><i class="fa fa-sign-in big-icon"></i></a>
-					</p>
-				</div>
 				<div class="col-sm-12">
 					<div id="login-alert" class="alert alert-danger alert-dismissable hide">
 						<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
@@ -41,6 +32,7 @@
 			</div>
 		</div>
 		<div class="modal-footer">
+			<a href="#" id="onRegisterEmplModal">Create account</a>
 			<button type="button" id="login-submit" class="btn btn-primary" type="submit">Sign In</button>
 		</div>
 	</div>
@@ -71,7 +63,7 @@ $(document).ready(function() {
 	});
 
 	$('#onRegisterEmplModal').click(function() {
-		openModalDialog("./html/register_empl_popup.html");
+		openModalDialog("./user/register_empl_popup.html");
 	});
 
 });
@@ -98,14 +90,18 @@ function loginSubmit() {
 	      return;
 	    }
 
-			// var isAlreadyLogin = myPref ? true : false;
-			//
-			// myPref = {
-	    //   "company": params.company,
-	    //   "loginId": params.loginId,
-	    //   "emplId": data.emplId ? Number(data.emplId) : null,
-	    //   "coId": data.coId ? Number(data.coId) : null
-	    // };
+			// set the personal pref info first to use it around the app.
+			myPreference = new preferenceManager(storageManager, data.emplId); // init preference
+
+			var isAlreadyLogin = loginInfo ? true : false;
+
+			loginInfo = {
+	      "company": params.company,
+	      "loginId": params.loginId,
+				"apiAuthKey": data.apiAuthKey,
+	      "emplId": data.emplId ? Number(data.emplId) : null,
+	      "coId": data.coId ? Number(data.coId) : null
+	    };
 
 			// if(isAlreadyLogin) {
 			// 	// logout 후 login 시도
@@ -117,19 +113,17 @@ function loginSubmit() {
 			// 	// 처음 login 시도
 			// 	initScreenSection();
 			// }
-			//
-			// // set the personal pref info first to use it around the app.
-			// myPreference = preferenceManager(storageManager, data.emplId); // init preference
-			//
-	    // if(rememberMe.is(":checked"))
-	    //   storageManager.setValue("remeberEmplId", data.emplId);
-			// else
-			// 	storageManager.removeKey("remeberEmplId");
-			//
-	    // myPreference.setPreference("company", params.company);
-	    // myPreference.setPreference("loginId", params.loginId);
-	    // myPreference.setPreference("emplId", data.emplId);
-	    // myPreference.setPreference("coId", data.coId); // Save to the pref file once at the end of the config job.
+
+	    if(rememberMe.is(":checked"))
+	      storageManager.setValue("remeberLoginId", data.loginId);
+			else
+				storageManager.removeKey("remeberLoginId");
+
+	    myPreference.setPreference("company", params.company);
+	    myPreference.setPreference("loginId", params.loginId);
+	    myPreference.setPreference("emplId", data.emplId);
+			myPreference.setPreference("apiAuthKey", ""); // TODO data.apiAuthKey 추가
+	    myPreference.setPreference("coId", data.coId);
 
 	  	$loginForm.closest(".modal-dialog").closest(".modal").modal("hide");
   });

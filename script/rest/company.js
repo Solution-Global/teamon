@@ -1,8 +1,7 @@
-var constants = require("../constants");
 var restCommon = require("./rest_common");
 
-var Company = (function() {
-  this.restCommon = new restCommon();
+var Company = (function(params) {
+  this.restCommon = new restCommon(params);
   this.path = "/frontend/user/company";
 });
 
