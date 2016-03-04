@@ -21,8 +21,7 @@ var screenshareSection = (function() {
     var myEmployeeId = myPref.emplId;
 
     // PeerJS object
-    //var peer = new Peer({ key: 'lwjd5qra8257b9', debug: 3});
-    peer = new Peer(myEmployeeId, {key: 'ucron0jh3o0qkt9'});
+    peer = new Peer(myEmployeeId, {host: '192.168.1.164', port: 9000, secure: true, key: 'teamon'});
 
     peer.on('open', function(){
       console.log('peer id : ' + peer.id);
