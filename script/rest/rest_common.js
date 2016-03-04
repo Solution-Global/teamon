@@ -1,7 +1,5 @@
-var constants = require("../constants");
-
 var Client = require('node-rest-client').Client;
-var RestCommon = (function(){
+var RestCommon = (function(user, channel, authid, authkey){
   this.client = new Client();
   this.commonHeaders = {
     "X-UANGEL-USER" : constants.API_HEADER_X_UANGEL_USER,

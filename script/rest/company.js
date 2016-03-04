@@ -1,4 +1,3 @@
-var constants = require("../constants");
 var restCommon = require("./rest_common");
 
 var Company = (function() {
