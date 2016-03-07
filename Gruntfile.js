@@ -11,6 +11,18 @@ module.exports = function(grunt) {
         // Compile to a single file to add a script tag for in your HTML
         dest: 'dist/script/teamon_bundle.js',
       },
+      options: {
+        watch : true
+      }
+    },
+    watch: {
+      scripts: {
+        files: ['teamon.js'],
+        tasks: ['browserify'],
+        options: {
+          spawn: false,
+        },
+      },
     },
     // copy: {
     //   all: {
@@ -25,9 +37,10 @@ module.exports = function(grunt) {
   // Load the npm installed tasks
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   //grunt.loadNpmTasks('grunt-contrib-copy');
 
   // The default tasks to run when you type: grunt
   // grunt.registerTask('default', ['jshint:all','browserify', 'copy']);
-  grunt.registerTask('default', ['jshint:all','browserify']);
+  grunt.registerTask('default', ['jshint:all','browserify', 'watch']);
 };
