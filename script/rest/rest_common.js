@@ -2,13 +2,22 @@ var Client = require('node-rest-client').Client;
 var RestCommon = (function(params){
   this.client = new Client();
   this.commonHeaders = {
-    "X-UANGEL-USER" : params.loginId,
-    "X-UANGEL-CHANNEL" : params.channel,
-    "X-UANGEL-AUTHID" : params.loginId,
-    "X-UANGEL-AUTHKEY" : params.authkey,
     "Content-Type" : "application/x-www-form-urlencoded",
-    "X-Requested-With" : 'XMLHttpRequest'
+    "X-Requested-With" : "XMLHttpRequest"
   };
+
+  if(params.email) {
+    this.commonHeaders['X-UANGEL-USER'] = params.email;
+    this.commonHeaders['X-UANGEL-AUTHID'] = params.email;
+  }
+
+  if(params.channel) {
+    this.commonHeaders['X-UANGEL-CHANNEL'] = params.channel;
+  }
+  if(params.authKey) {
+    this.commonHeaders['X-UANGEL-AUTHKEY'] = params.authKey;
+  }
+
   this.apiurl = params.url;
 });
 

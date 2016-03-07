@@ -1,7 +1,7 @@
 var restCommon = require("./rest_common");
 
-var CallHistory = (function(url) {
-  this.restCommon = new restCommon(url);
+var CallHistory = (function(params) {
+  this.restCommon = new restCommon(params);
   this.path = "/frontend/communication/callhistory";
 });
 

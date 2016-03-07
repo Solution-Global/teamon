@@ -9,23 +9,20 @@ var Login = (function(params) {
 
 Login.prototype.login = function(params, callback) {
   var self = this;
-  console.log("login - [company]" + params.company + "[loginid]" + params.loginId + "[password]" + params.password);
+  console.log("login - [team]" + params.team + "[loginid]" + params.email);
   var args = {
     path : {
-      "company" : params.company,
-      "loginId" : params.loginId
+      "team" : params.team,
+      "email" : params.email
     },
     data: $.param({
       "password" : params.password,
-      "jSession" : "Desktop",
-      "hostIp" : "192.168.2.10",
-      "port" : "3232",
-      "client" : "junit test"
+      "client" : params.client
     }),
     headers: self.restCommon.commonHeaders
   };
 
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${company}/${loginId}", args,
+  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${team}/${email}", args,
     function(data, response){
       callback(data);
   }).on('error',function(err){

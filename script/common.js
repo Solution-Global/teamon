@@ -22,7 +22,6 @@ function openModalDialog(url, options, data) {
   var rtMsg;
   if(runningChannel === constants.CHANNEL_WEB) {
     // For Browser
-    data = "<div>test</div>";
     $.ajax({
       type: 'GET',
       url: url,
@@ -60,3 +59,34 @@ randomHashCode = function() {
 hashCode = function(s) {
 	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0);
 };
+
+function loadHtml(url, target) {
+  var div = target;
+  if(typeof target === 'string') {
+    div = $("#" + target);
+  }
+  var data;
+
+  if(runningChannel === constants.CHANNEL_WEB) {
+    // For Browser
+    $.ajax({
+      type: 'GET',
+      url: url,
+      async: false,
+      success: function(html) {
+        data = html;
+      }
+    });
+  } else {
+    // For desktop
+    data = fs.readFileSync(url, 'utf-8');
+  }
+
+  var rtMsg = jQuery.trim(data);
+  div.html(rtMsg);
+}
+
+function generateTopic(emplId1, emplId2) {
+  var emplIds = [emplId1, emplId2];
+  return Math.min.apply(null, emplIds) + "_" + Math.max.apply(null, emplIds);
+}

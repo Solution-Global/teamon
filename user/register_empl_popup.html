@@ -1,25 +1,22 @@
 <div class="modal-dialog">
   <div class="modal-content animated bounceInRight">
     <div class="modal-header">
-      <h4 class="modal-title">Register employee</h4>
+      <h3 class="modal-title">Create an account</h3>
     </div>
     <div class="modal-body">
       <div class="row">
         <form role="form" id="registerEmplForm" onsubmit="return false;">
           <div class="form-group">
-            <label>* Company</label><input name="company" type="text" placeholder="Enter company" class="form-control">
+            <label>* Team</label><input name="team" type="text" placeholder="Enter team" class="form-control">
           </div>
           <div class="form-group">
-            <label>* ID</label><input name="loginId" type="text" placeholder="Enter ID" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>* Password</label><input name="password" type="password" placeholder="Password" class="form-control">
+            <label>* Email</label><input name="email" type="email" placeholder="Enter e-mail" class="form-control">
           </div>
           <div class="form-group">
             <label>* Name</label><input name="name" type="text" placeholder="Enter name" class="form-control">
           </div>
           <div class="form-group">
-            <label>Department</label><input name="dept" type="text" placeholder="Enter department" class="form-control">
+            <label>* Password</label><input name="password" type="password" placeholder="Password" class="form-control">
           </div>
           <div class="form-group">
             <label>Mobile</label><input name="mobile" type="text" placeholder="Enter mobile number" class="form-control">
@@ -27,6 +24,10 @@
           <div class="form-group">
             <label>Office</label><input name="office" type="text" placeholder="Enter office number" class="form-control">
           </div>
+          <div id="register-empl-alert" class="alert alert-danger alert-dismissable hide">
+    				<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+    				Failed to create account.
+    			</div>
         </form>
       </div>
     </div>
@@ -42,11 +43,11 @@
 
     $registerEmplForm.validate({
       rules: {
-        company: {
+        team: {
           required: true,
           minlength: 4
         },
-        loginId: {
+        email: {
           required: true,
           minlength: 4
         },
@@ -60,7 +61,7 @@
       }
     });
 
-    $registerEmplForm.find('[name=company]').focusout(function() {
+    $registerEmplForm.find('[name=team]').focusout(function() {
       var $register = $(this);
       var name = $register.val();
       if(!name)
@@ -69,15 +70,15 @@
         "name": $register.val(),
       };
 
-      restResourse.company.getCompanyByName(params,
+      restResourse.team.getTeamByName(params,
         function(data, response) {
           // Success
           if(response.statusCode === 200) {
-            if(!data.coId) {
-              $register.after("<label id='company-error' class='error' for='company'>Invaid Comapny</label>");
+            if(!data.teamId) {
+              $register.after("<label id='team-error' class='error' for='team'>Invaid team</label>");
             }
           } else {
-            console.log("[fail search company]" + response.statusMessage);
+            console.log("[fail search team]" + response.statusMessage);
           }
         }
       );
@@ -90,22 +91,27 @@
 
   function registerEmplSbumit() {
     var $registerEmplForm = $("#registerEmplForm");
+    var $registerEmplAlert = $("#register-empl-alert").addClass("hide");
     if(!$registerEmplForm.valid())
       return;
 
     var params = {
-      "company": $registerEmplForm.find("[name=company]").val(),
-      "loginId": $registerEmplForm.find("[name=loginId]").val(),
-      "password": $registerEmplForm.find("[name=password]").val(),
+      "team": $registerEmplForm.find("[name=team]").val(),
       "name": $registerEmplForm.find("[name=name]").val(),
-      "dept": $registerEmplForm.find("[name=dept]").val(),
+      "email": $registerEmplForm.find("[name=email]").val(),
+      "password": $registerEmplForm.find("[name=password]").val(),
       "mobile": $registerEmplForm.find("[name=mobile]").val(),
       "office": $registerEmplForm.find("[name=office]").val()
     };
 
     restResourse.empl.createEmpl(params,
-      function(data) {
-        $registerEmplForm.closest(".modal-dialog").closest(".modal").modal("hide");
+      function(data, response ) {
+        // Success
+        if(response.statusCode === 200) {
+          $registerEmplForm.closest(".modal-dialog").closest(".modal").modal("hide");
+        } else {
+          $registerEmplAlert.removeClass("hide");
+        }
     });
   }
 </script>

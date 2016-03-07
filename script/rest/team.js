@@ -1,13 +1,13 @@
 var restCommon = require("./rest_common");
 
-var Company = (function(params) {
+var Team = (function(params) {
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/user/company";
+  this.path = "/frontend/user/Team";
 });
 
-Company.prototype.getCompanyByName = function(params, callback) {
+Team.prototype.getTeamByName = function(params, callback) {
   var self = this;
-  console.log("getCompanyByName - [name]" + params.name);
+  console.log("getTeamByName - [name]" + params.name);
   var args = {
     path: {
       "name": params.name
@@ -22,4 +22,4 @@ Company.prototype.getCompanyByName = function(params, callback) {
   });
 };
 
-module.exports = Company;
+module.exports = Team;

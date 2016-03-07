@@ -1,0 +1,165 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+  <div class="sidebar-collapse">
+    <ul class="nav metismenu" id="side-menu">
+      <li class="nav-header">
+      <div class="profile-element">
+        <span>
+        <img alt="image" src="../img/logo_uangel.png"/>
+        </span>
+      </div>
+      <div class="public-area">
+        <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="#" id="onLoginModal"><i class="fa fa-power-off"></i> Sign-out</a>
+      </div>
+      </li>
+      <li class="active">
+      <a class="channels-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
+      <div class="chat-channels">
+        <ul id="channels-list" class="nav nav-second-level">
+          <script id="channel-template" type="text/template">
+            <li data-channelid="{{channelId}}" data-name="{{name}}">
+              <a href="#">{{name}}
+                <span class="badge badge-warning right hide alarm"></span>
+              </a>
+            </li>
+          </script>
+        </ul>
+      </div>
+      </li>
+      <li class="active">
+      <a class="users-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Users</span></a>
+      <div class="chat-users">
+        <ul id="users-list" class="nav nav-second-level">
+          <script id="user-template" type="text/template">
+            <li data-topic="{{topic}}"class="chat-user">
+              <a href="#">
+                <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
+                <div class="chat-user-name ellipsis">
+                  {{name}}
+                  <span class="badge badge-warning right hide alarm"></span>
+                </div>
+              </a>
+            </li>
+          </script>
+        </ul>
+      </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+$(document).ready(function() {
+  $userListContext = $('#users-list');
+  $channelListContext = $('#channels-list');
+
+  // set event for direct chatting
+  $userListContext.delegate("li", "click", function() {
+    $channelListContext.find("li.active").removeClass("active");
+    $userListContext.find("li.active").removeClass("active");
+    var $targetList = $(this);
+    $targetList.addClass("active");
+    activeTopic = {
+      "chatType" : constants.DIRECT_CHAT,
+      "topic" : $targetList.data("emplid")
+    };
+
+    myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
+    changeChatView();
+
+    // callSection.hideSection();
+    // screenshareSection.hideSection();
+    //
+    // adjustSectionSize(informationSection.getSection(), 3);
+    // adjustSectionSize(chatSection.getSection(), 9);
+    //
+    // chatSection.showSection();
+    // informationSection.showAboutUser();
+  });
+
+  // // set event for group chatting
+  // $channelListContext.delegate("li", "click", function() {
+  //   $channelListContext.find("li.active").removeClass("active");
+  //   $userListContext.find("li.active").removeClass("active");
+  //   var $targetList = $(this);
+  //   $targetList.addClass("active");
+  //   activeChatInfo = {
+  //     "chatType" : constants.GROUP_CHAT,
+  //     "chatRoomId" : $targetList.data("channelid")
+  //   };
+  //   myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
+  //   chatSection.changeChatView(constants.GROUP_CHAT, $targetList.data("channelid"), $targetList.data("name"));
+  //
+  //   callSection.hideSection();
+  //   screenshareSection.hideSection();
+  //
+  //   adjustSectionSize(informationSection.getSection(), 3);
+  //   adjustSectionSize(chatSection.getSection(), 9);
+  //
+  //   chatSection.showSection();
+  //   informationSection.showAboutChannel();
+  // });
+
+  initUsers();
+});
+
+function initUsers() {
+  console.log("call initUsers[teamId:%s]", teamId);
+
+  $userListContext = $('#users-list');
+  $channelListContext = $('#channels-list');
+  userTemplate = $userListContext.find('#user-template').html();
+
+
+  var teamId = loginInfo.teamId;
+  console.log(loginInfo);
+  console.log(teamId);
+  var params = {
+    "teamId": teamId,
+    "limit" : constants.COMMON_SEARCH_ALL
+  };
+
+  restResourse.empl.getListByTeamId(params, function(data) {
+    if (data.rows) {
+      console.log(data.rows);
+
+      $.each(data.rows, function(idx, row) {
+        // userCache.set(row.emplId, row); // add each employee into userCache. TODO
+
+        if (row.emplId === loginInfo.emplId)
+          return;
+
+          console.log(row);
+
+        // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
+        var imgIdx = row.emplId % 10;
+        //var imgFile = "file://" + path.join(__dirname, '../../../img/profile_img' + imgIdx + '.jpg');
+        var userData = {
+            "topic" : generateTopic(loginInfo.emplId, row.emplId),
+            "name" : row.name,
+            "emplId": row.emplId,
+            "img": "../img/profile_no.jpg",
+            "imgAlt": row.name
+        };
+        $userListContext.append(Mustache.render(userTemplate, userData));
+      });
+
+      //_activeChatView(constants.DIRECT_CHAT); TODO
+    }
+
+    // // init scroll
+    // var scrollHeight = $(window).height() - 230;
+    // $userArea.mCustomScrollbar({
+    //   axis:"y",
+    //   setWidth: "auto",
+    //   setHeight:  scrollHeight * 0.7,
+    //   theme:"3d"
+    // });
+    //
+    // //sync Message
+    // myMessage.syncChatMessage(constants.DIRECT_CHAT);
+  });
+}
+
+</script>

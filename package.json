@@ -31,12 +31,14 @@
     "connect-proxy-layer": "0.1.2",
     "serve-static": "1.10.2",
     "lz-string": "1.4.4",
-    "morgan": "1.7.0"
+    "morgan": "1.7.0",
+    "mqtt": "1.6.3"
   },
   "dependencies": {
     "jquery": "2.1.4",
     "jquery-ui": "1.10.5",
     "bootstrap": "3.3.6",
-    "node-rest-client": "1.5.1"
+    "node-rest-client": "1.5.1",
+    "mustache": "2.2.0"
   }
 }

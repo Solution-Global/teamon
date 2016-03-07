@@ -5,9 +5,9 @@
   key : preference_[activeEmplId]
   value : format is JSON.
   {
-    "company": "uangle",
+    "team": "uangle",
     "LoginId": jerry,
-    "coId": 1
+    "teamId": 1
   }
 */
 
