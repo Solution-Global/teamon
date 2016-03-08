@@ -74,7 +74,7 @@ function loginSubmit() {
 	    }
 
 			// set the personal pref info first to use it around the app.
-			myPreference = new preferenceManager(storageManager, data.emplId); // init preference
+			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
 
 			var isAlreadyLogin = loginInfo ? true : false;
 
@@ -82,7 +82,8 @@ function loginSubmit() {
 	      "email": data.email,
 				"emplId": data.emplId ? Number(data.emplId) : null,
 				"authKey": data.authKey,
-	      "teamId": data.teamId ? Number(data.teamId) : null
+	      "teamId": data.teamId ? Number(data.teamId) : null,
+				"name": data.name
 	    };
 
 			initAPI(); // init API
@@ -99,14 +100,17 @@ function loginSubmit() {
 		 	}
 
 	    if($keepMe.is(":checked"))
-	      storageManager.setValue("keepEmplId", data.emplId);
+	      localStorageManager.setValue("keepEmplId", data.emplId);
 			else
-				storageManager.removeKey("keepEmplId");
+				localStorageManager.removeKey("keepEmplId");
 
 	    myPreference.setPreference("teamId", data.teamId);
 	    myPreference.setPreference("email", data.email);
 	    myPreference.setPreference("authKey", data.authKey);
 	    myPreference.setPreference("emplId", data.emplId);
+			myPreference.setPreference("name", data.name);
+
+			sessionStorageManager.setValue("sessionEmplId", data.emplId);
 
 	  	$loginForm.closest(".modal-dialog").closest(".modal").modal("hide");
   });

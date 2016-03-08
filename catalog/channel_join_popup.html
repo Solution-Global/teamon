@@ -97,7 +97,7 @@
             chatModule.sendCommand(members[key], params);
           }
 
-          chatSection.sendMsg("Join Channel - " + pinupMessage, constants.GROUP_CHAT, data.channelId); // 가입 메시지 전송
+          chatSection.sendMsg("Join Channel - " + pinupMessage, constants.CHANNEL_CHAT, data.channelId); // 가입 메시지 전송
           $channelForm.closest(".modal-dialog").closest(".modal").modal("hide");
         } else {
           console.log("[fail creating channel]" + response.statusMessage);

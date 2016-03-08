@@ -5,24 +5,25 @@ var Chat = (function(params) {
   this.path = "/frontend/communication/chat";
 });
 
-Chat.prototype.getListByPeers = function(params, callBackRequiredValues, callback) {
+Chat.prototype.getListByCondition = function(params, callBackRequiredValues, callback) {
   var self = this;
-  console.log("getListByCoid - [coId]" + params.coId + "[chatType]" + params.chatType + "[peer1]" + params.peer1 + "[peer2]" + params.peer2 + "[lastMsgId]" + params.lastMsgId + "[firstMsgId]" + params.firstMsgId);
+  console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[topic]" + params.topic + "[senderId]" + params.senderId + "[lastMsgId]" + params.lastMsgId + "[firstMsgId]" + params.firstMsgId);
   var args = {
     path: {
-      "coId": params.coId
+      "teamId": params.teamId,
+      "emplId": params.emplId
     },
     parameters: {
-      "chatType": params.chatType,
-      "peer1": params.peer1 ? params.peer1 : constants.COMMON_SEARCH_ALL,
-      "peer2": params.peer2,
+      "topic": params.topic,
+      "emplId": params.emplId,
+      "senderId": params.senderId ? params.senderId : constants.COMMON_DB_NUMBER_NULL_STR,
       "lastMsgId": params.lastMsgId ? params.lastMsgId : constants.COMMON_SEARCH_ALL,
       "firstMsgId": params.firstMsgId ? params.firstMsgId : constants.COMMON_SEARCH_ALL,
       "msgCount": params.msgCount ? params.msgCount : constants.COMMON_SEARCH_COUNT
     },
     headers: self.restCommon.commonHeaders
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${coId}", args,
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/team/${teamId}/searchby/${emplId}", args,
     function(data, response) {
       callback(data, callBackRequiredValues);
     }).on('error', function(err) {
@@ -49,14 +50,12 @@ Chat.prototype.getMentionList = function(params, callback) {
 
 Chat.prototype.postMsg = function(params, callback) {
   var self = this;
-  console.log("postMsg - [coId]" + params.coId + "[chatType]" + params.chatType + "[peer1]" + params.peer1 + "[peer2]" + params.peer2 + "[spkrid]" + params.spkrid + "[msg]" + params.msg);
+  console.log("postMsg - [teamId]" + params.teamId  + "[topic]" + params.topic + "[emplId]" + params.emplId + "[msg]" + params.msg);
   var args = {
     data: $.param({
-      "coId": params.coId,
-      "chatType": params.chatType,
-      "peer1": params.peer1 ? params.peer1 : constants.COMMON_SEARCH_ALL,
-      "peer2": params.peer2,
-      "spkrid": params.spkrid,
+      "teamId": params.teamId,
+      "topic": params.topic,
+      "emplId": params.emplId,
       "msg": params.msg
     }),
     headers: self.restCommon.commonHeaders

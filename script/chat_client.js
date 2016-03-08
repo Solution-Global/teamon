@@ -1,42 +1,33 @@
 var mqtt = require('mqtt');
 var chat = (function() {
-  var myPref;
+  var clientChatInfo = {};
 
-  function configMyInfo(coid, emplid, loginid, recvCallback) {
-    myPref = {};
-    myPref.coid = coid;
-    myPref.emplid = emplid;
-    myPref.loginid = loginid;
-    myPref.recvCallback = recvCallback;
+  function configMyInfo(teamId, emplId, recvCallback) {
+    clientChatInfo.teamId = teamId;
+    clientChatInfo.emplId = emplId;
+    clientChatInfo.recvCallback = recvCallback;
 
-    console.log('coid:%i, emplid:%i, loginid:%s, recvCallback:%s', coid, emplid, loginid, recvCallback.name);
+    console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
 
-    if ((myPref.client = _createMQTTClient()) === null) {
+    if ((clientChatInfo.client = _createMQTTClient()) === null) {
       console.error("Failed to initialize MQTT client");
       return;
     }
   }
 
-  function _getMsgTopicPrefix(connType, partid) {
+  function _getMsgTopicPrefix(connType, topic) {
     var myTopic;
     if (connType === constants.DIRECT_CHAT) {
-      myTopic = "{peer}/";
-      if (myPref.emplid < partid) {
-        myTopic += myPref.emplid + "_" + partid;
-      } else {
-        myTopic += partid + "_" + myPref.emplid;
-      }
-    } else if (connType === constants.GROUP_CHAT) {
+      myTopic = "{peer}/" + topic;
+    } else if (connType === constants.CHANNEL_CHAT) {
       myTopic = partid;
-    } else {
-      return null;
     }
 
-    return myPref.coid + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
+    return clientChatInfo.teamId + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
   }
 
   function _getCommandTopicPrefix(receiver) {
-    return myPref.coid + constants.TOPIC_COMMAND + "/" + receiver;
+    return clientChatInfo.teamId + constants.TOPIC_COMMAND + "/" + receiver;
   }
 
   function _createMQTTClient() {
@@ -55,23 +46,23 @@ var chat = (function() {
 
   function _mqttConnected() {
     // topic array: presence, msg(direct, group)
-    var topicArray = [myPref.coid + constants.TOPIC_PRESENCE_ALL,
-      myPref.coid + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + myPref.emplid + "/+",
-      myPref.coid + constants.TOPIC_MSG + "/" + constants.GROUP_CHAT + "/+",
-      myPref.coid + constants.TOPIC_COMMAND + "/" + myPref.emplid
+    var topicArray = [clientChatInfo.teamId + constants.TOPIC_PRESENCE_ALL,
+      clientChatInfo.teamId + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + clientChatInfo.emplId + "/+",
+      clientChatInfo.teamId + constants.TOPIC_MSG + "/" + constants.CHANNEL_CHAT + "/+",
+      clientChatInfo.teamId + constants.TOPIC_COMMAND + "/" + clientChatInfo.emplId
     ];
 
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
-    myPref.client.subscribe(topicArray);
+    clientChatInfo.client.subscribe(topicArray);
 
     // presence/online
-    // myPref.client.publish(myPref.coid + constants.TOPIC_PRESENCE_ONLINE, myPref.emplid.toString());
+    // clientChatInfo.client.publish(clientChatInfo.teamId + constants.TOPIC_PRESENCE_ONLINE, clientChatInfo.emplId.toString());
   }
 
   function _mqttReceived(topic, payload) {
     var payloadStr = payload.toString();
     console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
-    myPref.recvCallback(myPref.emplid, topic, payloadStr);
+    clientChatInfo.recvCallback(clientChatInfo.emplId, topic, payloadStr);
   }
 
   function _publishMsg(data, params) {
@@ -88,68 +79,55 @@ var chat = (function() {
       }
     */
 
-    var receiver;
-    if(params.chatType === constants.DIRECT_CHAT) {
-      receiver = (params.spkrid === params.peer1) ? params.peer2 : params.peer1;
-    } else {
-      receiver = params.peer2;
-    }
     var msgPayload = {
-      chatType: params.chatType,
-      coid: params.coId,
-      publisher: params.spkrid,
-      receiver: receiver,
-      lastmsgid: data.lastmsgid,
-      msgid: data.msgid,
+      teamId: params.teamId,
+      senderId: params.emplId,
+      topic: params.topic,
+      chatId: data.chatId,
       time: data.time,
       msg: params.msg
     };
 
     var msgPayloadStr = JSON.stringify(msgPayload);
-    var topicPrefix = _getMsgTopicPrefix(params.chatType, receiver);
-    if (topicPrefix !== null) {
-      if (params.chatType === constants.DIRECT_CHAT) {
-        // 상대방 토픽으로 전송
-        var receiverTopic = topicPrefix.replace("{peer}", receiver);
-        myPref.client.publish(receiverTopic, msgPayloadStr);
-        console.log('_publishMsg to the receiver [topic:%s, msg:%s]', receiverTopic, msgPayloadStr);
+    var chatType = getChatType(params.topic);
 
-        // 자신의 토픽으로 전송
-        var myTopic = topicPrefix.replace("{peer}", params.spkrid);
-        myPref.client.publish(myTopic, msgPayloadStr);
-        console.log('_publishMsg to myself [topic:%s, msg:%s]', myTopic, msgPayloadStr);
+    if (chatType === constants.DIRECT_CHAT) {
+      var topicPrefix = _getMsgTopicPrefix(chatType, params.topic);
+      var topicEmplIds = params.topic.split("_");
+      var receiverId;
+      if (params.emplId == Number(topicEmplIds[0]))
+        receiverId = Number(topicEmplIds[1]);
+      else
+        receiverId = Number(topicEmplIds[0]);
 
-      } else if (params.chatType === constants.GROUP_CHAT) {
-        // 채팅방으로 토픽으로 전송
-        myPref.client.publish(topicPrefix, msgPayloadStr);
-        console.log('_publishMsg to the channel members [topic:%s, msg:%s]', topicPrefix, msgPayloadStr);
-      }
+      // 상대방 토픽으로 전송
+
+      var receiverTopic = topicPrefix.replace("{peer}", receiverId);
+      clientChatInfo.client.publish(receiverTopic, msgPayloadStr);
+
+      // 자신의 토픽으로 전송
+      var myTopic = topicPrefix.replace("{peer}", params.emplId);
+      clientChatInfo.client.publish(myTopic, msgPayloadStr);
+
+    } else if (params.chatType === constants.CHANNEL_CHAT) {
+      // 채팅방으로 토픽으로 전송
+      clientChatInfo.client.publish(params.topic, msgPayloadStr);
     }
   }
 
   function sendCommand(receiver, commandPayload) {
     var topicPrefix = _getCommandTopicPrefix(receiver);
     var commandPayloadStr = JSON.stringify(commandPayload);
-    myPref.client.publish(topicPrefix, commandPayloadStr);
+    clientChatInfo.client.publish(topicPrefix, commandPayloadStr);
     console.log('sendCommand to the channel members [topic:%s, msg:%s]', topicPrefix, commandPayloadStr);
   }
 
-  function sendMsg(chatType, receiver, msg) {
+  function sendMsg(topic, msg) {
     // API 전송 성공 후 콜백함수에서 Publish 처리
-    var peer1, peer2;
-
-    if(chatType === constants.DIRECT_CHAT) {
-      peer1 = (myPref.emplid < receiver) ? myPref.emplid : receiver;
-      peer2 = (myPref.emplid < receiver) ? receiver : myPref.emplid;
-    } else {
-      peer2 = receiver;
-    }
     var params = {
-      "coId": myPref.coid,
-      "chatType": chatType,
-      "peer1": peer1,
-      "peer2": peer2,
-      "spkrid": myPref.emplid,
+      "teamId": clientChatInfo.teamId,
+      "topic": topic,
+      "emplId": clientChatInfo.emplId,
       "msg": msg
     };
 
@@ -157,7 +135,7 @@ var chat = (function() {
   }
 
   function finalize() {
-    myPref.client.end();
+    clientChatInfo.client.end();
   }
 
   return {

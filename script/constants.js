@@ -10,13 +10,14 @@ define("CHANNEL_WEB", "WEB");
 define("CHANNEL_APP", "APP");
 
 define("COMMON_SEARCH_ALL", -1);
+define("COMMON_DB_NUMBER_NULL_STR", "-999999");
 define("COMMON_SEARCH_COUNT", 10);
 define("COMMON_SEARCH_OFFSET", 0);
 define("COMMON_SEARCH_ORDER_ASC", "asc");
 define("COMMON_SEARCH_ORDER_DESC", "desc");
 
 define("DIRECT_CHAT", 0);
-define("GROUP_CHAT", 1);
+define("CHANNEL_CHAT", 1);
 
 // [msg]
 // mqtt

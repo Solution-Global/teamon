@@ -90,3 +90,30 @@ function generateTopic(emplId1, emplId2) {
   var emplIds = [emplId1, emplId2];
   return Math.min.apply(null, emplIds) + "_" + Math.max.apply(null, emplIds);
 }
+
+function getChatType(topic) {
+  if(topic.startsWith("#")){
+    return constants.CHANNEL_CHAT;
+  } else {
+    return constants.DIRECT_CHAT;
+  }
+}
+
+/* Date prototype */
+Date.prototype.add = function(offset, unit) {
+	if (!unit)
+		throw "unit is undefined";
+	return moment(this).tz(timezone).add(offset, unit).toDate();
+};
+
+Date.prototype.format = function(formatStr) {
+	if (!formatStr)
+		throw "the format is not defined";
+	return moment(this).tz(timezone).format(formatStr);
+};
+
+Date.prototype.parse = function(dateStr, formatStr) {
+	if (!formatStr)
+		throw "the format is not defined";
+	return moment(dateStr, formatStr).tz(timezone);
+};

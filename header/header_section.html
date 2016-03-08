@@ -23,6 +23,12 @@
 </div>
 <script>
   $(document).ready(function() {
+    var $headerSec = $("#header-section");
+    var $titleArea = $headerSec.find(".title_area");
+    var $title = $headerSec.find(".tit");
 
+    setHearderTitle = function(text) {
+      $title.html(text);
+    }
   });
 </script>

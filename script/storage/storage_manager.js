@@ -2,7 +2,7 @@
 
 var LZString = require('lz-string');
 
-var storageManage = (function(compress) {
+var storageManage = (function(storageType, compress) {
   var isCompress = compress;
 
   function getValue(key) {
@@ -10,7 +10,13 @@ var storageManage = (function(compress) {
       return;
     }
 
-    var value = localStorage.getItem(key);
+    var value;
+    if(storageType === "L") {
+      value = localStorage.getItem(key);
+    } else {
+      value = sessionStorage.getItem(key);
+    }
+
     if (value != null && isCompress) {
       value = LZString.decompress(value);
     }
@@ -35,7 +41,11 @@ var storageManage = (function(compress) {
       return;
     }
 
-    localStorage.removeItem(key);
+    if(storageType === "L") {
+      localStorage.removeItem(key);
+    } else {
+      sessionStorage.removeItem(key);
+    }
   }
 
   function setValue(key, value) {
@@ -46,9 +56,13 @@ var storageManage = (function(compress) {
 
     value = String(value);
     if(isCompress)
-      localStorage.setItem(key, LZString.compress(value));
-    else
+      value = LZString.compress(value);
+
+    if(storageType === "L") {
       localStorage.setItem(key, value);
+    } else {
+      sessionStorage.setItem(key, value);
+    }
   }
 
   return {
