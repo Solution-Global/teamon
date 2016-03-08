@@ -1,4 +1,5 @@
-@import url("google-font/font.css");
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700");
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,300,500,700");
 /*
  *
  *   INSPINIA - Responsive Admin Theme
@@ -159,20 +160,16 @@ h5 {
   font-size: 12px;
 }
 .nav-header {
-  padding: 25px 25px;
-  /* background: url("patterns/header-profile.png") no-repeat;*/
-  text-align: center;
-  width:280px;
+  padding: 33px 25px;
+  background: url("patterns/header-profile.png") no-repeat;
 }
 .pace-done .nav-header {
   transition: all 0.4s;
 }
-/*
 .nav > li.active {
   border-left: 4px solid #19aa8d;
   background: #293846;
 }
-*/
 .nav.nav-second-level > li.active {
   border: none;
 }
@@ -1464,10 +1461,9 @@ a.list-group-item.active:focus {
 .no-padding .list-group {
   margin-bottom: 0;
 }
-.panel-border {
+.list-group-item {
   background-color: inherit;
-  border: 1px solid #a6a6a6;
-  border-radius: 2px;
+  border: 1px solid #e7eaec;
   display: block;
   margin-bottom: -1px;
   padding: 10px 15px;
@@ -3150,7 +3146,6 @@ body.tour-open .animated {
   min-height: 150px;
   min-width: 150px;
 }
-
 .resizable-panels .ibox .ibox-content {
   height: calc(100% - 49px);
 }
@@ -3379,10 +3374,10 @@ a:focus {
   margin-top: 15px;
   margin-bottom: 15px;
 }
-/*video {
+video {
   width: 100% !important;
   height: auto !important;
-}*/
+}
 /* GALLERY */
 .gallery > .row > div {
   margin-bottom: 15px;
@@ -3797,7 +3792,9 @@ table.table-mail tr td {
 .unread td {
   background-color: #f9f8f8;
 }
-
+.ibox-content {
+  clear: both;
+}
 .ibox-heading {
   background-color: #f3f6fb;
   border-bottom: none;
@@ -4979,37 +4976,27 @@ dd.project-people {
 }
 /* Chat view */
 .message-input {
-  height: 34px !important;
-  resize:none;
+  height: 90px !important;
 }
-
 .chat-avatar {
-  white: 30px;
-  height: 30px;
+  white: 36px;
+  height: 36px;
   float: left;
-  border-radius: 50%;
+  margin-right: 10px;
 }
 .chat-user-name {
-  padding: 6px;
+  padding: 10px;
 }
-/*
 .chat-user {
-  padding: 8px 20px 8px 50px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e7eaec;
 }
-.chat-users {
-  overflow-y: auto;
-  height: 600px;
-}
-
-.chat-users li a{
-    padding-left: 10px;
-    color: #a7b1c2;
-    font-weight: 600;
+.chat-user a {
+  color: inherit;
 }
 .chat-view {
   z-index: 20012;
 }
-/*
 .chat-users,
 .chat-statistic {
   margin-left: -30px;
@@ -5020,7 +5007,6 @@ dd.project-people {
     margin-left: 0;
   }
 }
-*/
 .chat-view .ibox-content {
   padding: 0;
 }
@@ -5028,12 +5014,11 @@ dd.project-people {
   padding: 10px 20px;
 }
 .message-avatar {
-  height: 55px;
-  width: 55px;
+  height: 48px;
+  width: 48px;
   border: 1px solid #e7eaec;
   border-radius: 4px;
   margin-top: 1px;
-  border-radius: 50%;
 }
 .chat-discussion .chat-message.left .message-avatar {
   float: left;
@@ -5076,7 +5061,12 @@ dd.project-people {
 .chat-discussion {
   background: #eee;
   padding: 15px;
+  height: 400px;
   overflow-y: auto;
+}
+.chat-users {
+  overflow-y: auto;
+  height: 400px;
 }
 .chat-message-form .form-group {
   margin-bottom: 0;
@@ -7217,13 +7207,11 @@ body.rtls .file-box {
 body.rtls ul.notes li {
   float: right;
 }
-/*
 body.rtls .chat-users,
 body.rtls .chat-statistic {
   margin-right: -30px;
   margin-left: auto;
 }
-*/
 body.rtls .dropdown-menu > li > a {
   text-align: right;
 }
@@ -7261,14 +7249,12 @@ body.rtls .footer.fixed {
   margin-right: 220px;
   margin-left: 0;
 }
-/*
 @media (max-width: 992px) {
   body.rtls .chat-users,
   body.rtls .chat-statistic {
     margin-right: 0;
   }
 }
-*/
 body.rtls.mini-navbar .footer.fixed,
 body.body-small.mini-navbar .footer.fixed {
   margin: 0 70px 0 0;
@@ -8131,13 +8117,13 @@ body.md-skin {
 @media (min-width: 768px) {
   #page-wrapper {
     position: inherit;
-    margin: 0 0 0 280px;
+    margin: 0 0 0 220px;
     min-height: 1200px;
   }
   .navbar-static-side {
     z-index: 2001;
     position: absolute;
-    width: 280px;
+    width: 220px;
   }
   .navbar-top-links .dropdown-messages,
   .navbar-top-links .dropdown-tasks,

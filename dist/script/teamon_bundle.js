@@ -44660,6 +44660,9 @@ function plural(ms, n, name) {
     if (chunk === null) {
       return end(parser)
     }
+    if (typeof chunk === 'object') {
+      chunk = chunk.toString()
+    }
     var i = 0
     var c = ''
     while (true) {
@@ -50669,7 +50672,7 @@ var Login = (function(params) {
 
 Login.prototype.login = function(params, callback) {
   var self = this;
-  console.log("login - [team]" + params.team + "[loginid]" + params.email);
+  console.debug("login - [team] " + params.team + "[email] " + params.email);
   var args = {
     path : {
       "team" : params.team,
@@ -50684,7 +50687,10 @@ Login.prototype.login = function(params, callback) {
 
   self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${team}/${email}", args,
     function(data, response){
-      callback(data);
+      if (response.statusCode == 200 || response.statusCode == 201)
+        callback(data);
+      else
+        callback(null, data);
   }).on('error',function(err){
     console.error('something went wrong on the request', err.request.options);
   });
@@ -50711,8 +50717,9 @@ var Client = require('node-rest-client').Client;
 var RestCommon = (function(params){
   this.client = new Client();
   this.commonHeaders = {
-    "Content-Type" : "application/x-www-form-urlencoded",
-    "X-Requested-With" : "XMLHttpRequest"
+    "X-Requested-With" : "XMLHttpRequest",
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
   };
 
   if(params.email) {

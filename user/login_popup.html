@@ -3,21 +3,17 @@
     <div>
       <h3>Welcome to TEAMON</h3>
       <p>Login in. To see it in action.</p>
-			<div id="login-alert" class="alert alert-danger alert-dismissable hide">
-				<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-				We couldn't find your ID and Password.
-			</div>
-      <form role="form" id="login-form" onsubmit="return false;">
+      <form role="form" id="login-form">
           <div class="form-group">
-              <input name="email" type="email" class="form-control" placeholder="Enter Email" value="jingjignea@uangel.com">
+              <input name="email" type="email" class="form-control" placeholder="Enter Email"/>
           </div>
           <div class="form-group">
-              <input name="password" type="password" class="form-control" placeholder="Password" value="qwer1234">
+              <input name="password" type="password" class="form-control" placeholder="Password"/>
           </div>
 					<div class="form-group">
-              <label><input name="keepMe" type="checkbox" class="i-checks"> Keep me signed in </label>
+              <label><input name="keepMe" type="checkbox" class="i-checks" /> Keep me signed in </label>
           </div>
-          <button type="button" id="login-submit" class="btn btn-primary block full-width m-b">Login</button>
+          <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
 					<a class="btn btn-sm btn-white btn-block" id="onRegisterEmplModal">Create an account</a>
           <a href="#"><small>Forgot password?</small></a>
       </form>
@@ -30,85 +26,76 @@ $(document).ready(function() {
 	// set validation for login Form
 	$("#login-form").validate({
 		rules: {
-			loginId: {
-				required: true,
-				minlength: 4
+			email: {
+				required: true
 			},
 			password: {
-				required: true,
-				minlength: 4
+				required: true
 			}
 		}
 	});
 
 	// set event for login action
-	$('#login-submit').click(function() {
-		loginSubmit();
+	$('#login-form').submit(function(event) {
+		event.preventDefault();
+
+		var $loginAlert = $("#login-alert").addClass("hide");
+		if(!$(this).valid())
+			return;
+
+		var params = $(this).serializeObject();
+		params.team = "uangel";
+		params.client = runningChannel;
+
+		restResourse.login.login(params,
+			function(data, error) {
+				if(!data) {
+					toastr.warning(error.userMessage);
+					return;
+				}
+
+				// set the personal pref info first to use it around the app.
+				myPreference = new preferenceManager(storageManager, data.emplId); // init preference
+
+				var isAlreadyLogin = loginInfo ? true : false;
+
+				loginInfo = {
+					"email": data.email,
+					"emplId": data.emplId ? Number(data.emplId) : null,
+					"authKey": data.authKey,
+					"teamId": data.teamId ? Number(data.teamId) : null
+				};
+
+				initAPI(); // init API
+
+				if(isAlreadyLogin) {
+					// logout 후 login 시도
+					// 	catalogSection.reloadSection();
+					// 	chatSection.reloadSection();
+					// 	callSection.reloadSection();
+					// 	headerSection.realodSection();
+				} else {
+					// 처음 login 시도
+					initScreenSection();
+				}
+
+				if(params.keepMe)
+					storageManager.setValue("keepEmplId", data.emplId);
+				else
+					storageManager.removeKey("keepEmplId");
+
+				myPreference.setPreference("teamId", data.teamId);
+				myPreference.setPreference("email", data.email);
+				myPreference.setPreference("authKey", data.authKey);
+				myPreference.setPreference("emplId", data.emplId);
+
+				$('#login-form').closest(".modal-dialog").closest(".modal").modal("hide");
+				params = null;
+		});
 	});
 
 	$('#onRegisterEmplModal').click(function() {
 		openModalDialog("./user/register_empl_popup.html");
 	});
 });
-
-function loginSubmit() {
-	var $loginForm = $("#login-form");
-	var $loginAlert = $("#login-alert").addClass("hide");
-	if(!$loginForm.valid())
-    return;
-
-  var $keepMe = $loginForm.find("[name=keepMe]");
-
-  var params = {
-    "team": "uangel",
-    "email": $loginForm.find("[name=email]").val(),
-    "password": $loginForm.find("[name=password]").val(),
-		"client": runningChannel
-  };
-
-  restResourse.login.login(params,
-	  function(data) {
-	    if(!data.email) {
-				$loginAlert.removeClass("hide");
-	      return;
-	    }
-
-			// set the personal pref info first to use it around the app.
-			myPreference = new preferenceManager(storageManager, data.emplId); // init preference
-
-			var isAlreadyLogin = loginInfo ? true : false;
-
-			loginInfo = {
-	      "email": data.email,
-				"emplId": data.emplId ? Number(data.emplId) : null,
-				"authKey": data.authKey,
-	      "teamId": data.teamId ? Number(data.teamId) : null
-	    };
-
-			initAPI(); // init API
-
-			if(isAlreadyLogin) {
-		 		// logout 후 login 시도
-				// 	catalogSection.reloadSection();
-				// 	chatSection.reloadSection();
-				// 	callSection.reloadSection();
-				// 	headerSection.realodSection();
-		 	} else {
-		 		// 처음 login 시도
-		 		initScreenSection();
-		 	}
-
-	    if($keepMe.is(":checked"))
-	      storageManager.setValue("keepEmplId", data.emplId);
-			else
-				storageManager.removeKey("keepEmplId");
-
-	    myPreference.setPreference("teamId", data.teamId);
-	    myPreference.setPreference("email", data.email);
-	    myPreference.setPreference("authKey", data.authKey);
-	    myPreference.setPreference("emplId", data.emplId);
-
-	  	$loginForm.closest(".modal-dialog").closest(".modal").modal("hide");
-  });
-}
 </script>

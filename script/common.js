@@ -90,3 +90,32 @@ function generateTopic(emplId1, emplId2) {
   var emplIds = [emplId1, emplId2];
   return Math.min.apply(null, emplIds) + "_" + Math.max.apply(null, emplIds);
 }
+
+// simple plugin definition
+(function($) {
+	$.fn.serializeObject = function() {
+		var o = {};
+		var a = this.serializeArray();
+		$.each(a, function() {
+			if (this.value == null || this.value == "")
+				return;
+			if (o[this.name]) {
+				if (!o[this.name].push) {
+					o[this.name] = [o[this.name]];
+				}
+				o[this.name].push(this.value || "");
+			} else {
+				o[this.name] = this.value || "";
+			}
+		});
+		return o;
+	}
+
+	// selects elements that have same "name" attribute
+	$.fn.nameFind = function(selector) {
+		if ("*^$~!|".indexOf(selector.charAt(0)) > -1)
+			return $(this).find("[name"+selector.charAt(0)+"="+selector.substr(1)+"]");
+		else
+			return $(this).find("[name="+selector+"]");
+	}
+})(jQuery);

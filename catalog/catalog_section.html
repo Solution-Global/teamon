@@ -1,20 +1,22 @@
-<nav class="navbar-default navbar-static-side" role="navigation">
-  <div class="sidebar-collapse">
-    <ul class="nav metismenu" id="side-menu">
-      <li class="nav-header">
+<div class="sidebar-collapse">
+  <ul class="nav metismenu" id="side-menu">
+    <li class="nav-header">
       <div class="profile-element">
         <span>
-        <img alt="image" src="../img/logo_uangel.png"/>
+        <img alt="image" src="/img/logo_uangel.png"/>
         </span>
+        <div class="public-area">
+          <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+          <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+          <a href="#" id="onLoginModal"><i class="fa fa-power-off"></i> Sign-out</a>
+        </div>
       </div>
-      <div class="public-area">
-        <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a href="#" id="onLoginModal"><i class="fa fa-power-off"></i> Sign-out</a>
+      <div class="logo-element">
+        UANGEL
       </div>
-      </li>
-      <li class="active">
-      <a class="channels-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
+    </li>
+    <li>
+      <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
       <div class="chat-channels">
         <ul id="channels-list" class="nav nav-second-level">
           <script id="channel-template" type="text/template">
@@ -26,9 +28,9 @@
           </script>
         </ul>
       </div>
-      </li>
-      <li class="active">
-      <a class="users-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Users</span></a>
+    </li>
+    <li>
+      <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
       <div class="chat-users">
         <ul id="users-list" class="nav nav-second-level">
           <script id="user-template" type="text/template">
@@ -44,10 +46,9 @@
           </script>
         </ul>
       </div>
-      </li>
-    </ul>
-  </div>
-</nav>
+    </li>
+  </ul>
+</div>
 
 <script>
 $(document).ready(function() {
@@ -105,32 +106,26 @@ $(document).ready(function() {
 });
 
 function initUsers() {
-  console.log("call initUsers[teamId:%s]", teamId);
+  //console.log("call initUsers[teamId:%s]", loginInfo.teamId);
 
   $userListContext = $('#users-list');
   $channelListContext = $('#channels-list');
   userTemplate = $userListContext.find('#user-template').html();
 
 
-  var teamId = loginInfo.teamId;
-  console.log(loginInfo);
-  console.log(teamId);
   var params = {
-    "teamId": teamId,
+    "teamId": loginInfo.teamId,
     "limit" : constants.COMMON_SEARCH_ALL
   };
 
   restResourse.empl.getListByTeamId(params, function(data) {
     if (data.rows) {
-      console.log(data.rows);
-
       $.each(data.rows, function(idx, row) {
         // userCache.set(row.emplId, row); // add each employee into userCache. TODO
 
+        // exclude myself
         if (row.emplId === loginInfo.emplId)
           return;
-
-          console.log(row);
 
         // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
         var imgIdx = row.emplId % 10;

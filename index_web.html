@@ -1,54 +1,52 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-  <meta name="viewport" content="width=device-width">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Team ON | The ultimate messenger</title>
-  <link rel="shortcut icon" href="./favicon.ico" />
-  <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="./node_modules/jquery-ui/themes/base/minified/jquery-ui.min.css"/>
-  <link rel="stylesheet" href="./style/font-awesome/css/font-awesome.min.css" media="screen"/>
-	<link rel="stylesheet" href="./style/animate.css"/>
-	<link rel="stylesheet" href="./style/style.css"/>
-	<link rel="stylesheet" href="./style/custom.css"/>
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="/node_modules/jquery-ui/themes/base/minified/jquery-ui.min.css"/>
+  <link rel="stylesheet" href="/style/plugins/toastr/toastr.min.css"/>
+  <link rel="stylesheet" href="/style/font-awesome/css/font-awesome.min.css"/>
+  <link rel="stylesheet" href="/style/animate.css"/>
+  <link rel="stylesheet" href="/style/style.css"/>
+  <link rel="stylesheet" href="/style/custom.css"/>
 </head>
-<body style="overflow-y: hidden">
-  <div id="wrap">
-    <!-- 목록 -->
-    <div id="catalog-section">
-    </div>
-    <!-- // 목록 -->
-    <div id="page-wrapper" class="gray-bg dashbard-1">
-      <div class="row">
-        <!-- 타이틀 -->
-        <div id="header-section" class="col-lg-12 nopadding">
-        </div>
-        <!-- // 타이틀 -->
+<body>
+  <div id="wrapper">
+    <nav id="catalog-section" class="navbar-default navbar-static-side" role="navigation">
+    </nav>
+    <div id="page-wrapper" class="gray-bg">
+      <div class="row border-bottom">
+        <nav id="header-section" class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0; background-color: #fff">
+        </nav>
+      </div>
+      <div class="row wrapper">
         <div class="col-lg-12">
           <div class="row">
-            <!-- Screen share Section-->
             <div id="screenshare-section" class="col-xs-12 col-lg-12" style="display: none">
             </div>
-            <!-- // Screen share Section -->
-            <!-- Call 영역 -->
             <div id="call-section" class="col-xs-9 col-lg-9" style="display: none">
             </div>
-            <!-- Call 영역 -->
-            <!-- 채팅창 -->
             <div id="chat-section" class="col-xs-9 col-lg-9">
             </div>
-            <!-- // 채팅창 -->
-            <!-- Infomation Section-->
             <div id="information-section" class="col-xs-3 col-lg-3 nopadding">
             </div>
-            <!-- // Information Section -->
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="./dist/script/teamon_bundle.js"></script>
-  <script src="./script/common.js"></script>
-  <script src="./script/lib/jquery.validate.min.js"></script>
+  <script src="/dist/script/teamon_bundle.js"></script>
+  <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="/script/plugins/jquery.validate.min.js"></script>
+  <script src="/script/plugins/toastr/toastr.min.js"></script>
+  <script src="/script/plugins/metisMenu/jquery.metisMenu.js"></script>
+  <script src="/script/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+  <script src="/script/plugins/inspinia.js"></script>
+
+  <script src="/script/common.js"></script>
 </body>
 </html>

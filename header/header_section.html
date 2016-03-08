@@ -1,26 +1,28 @@
-<div class="ibox nopadding">
-  <div class="title_area ibox-title">
-    <h5 class="tit"></h5>
-    <div class="ibox-tools">
-      <input type="text" placeholder=" Search ...">
-      <a href="#"><i class="mention fa fa-at fa-lg"></i></a>
-      <a href="#"><i class="fa fa-star-o fa-lg"></i></a>
-      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-      <i class="fa fa-list fa-lg"></i>
-      </a>
-      <ul class="dropdown-menu dropdown-user">
-        <li><a class="information-menulink">Information</a>
-        </li>
-        <li><a href="#">Your files</a>
-        </li>
-        <li><a href="#">All files</a>
-        </li>
-        <li><a href="#">Help</a>
-        </li>
-      </ul>
-    </div>
-  </div>
+<div id="header-section" class="navbar-header">
+  <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#"><i class="fa fa-bars"></i></a>
+  <form role="search" class="navbar-form-custom" action="#">
+      <div class="form-group">
+          <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">
+      </div>
+  </form>
 </div>
+<ul class="nav navbar-top-links navbar-right">
+  <li>
+    <a href="#"><i class="mention fa fa-at fa-lg"></i></a>
+  </li>
+  <li>
+    <a href="#"><i class="fa fa-star-o fa-lg"></i></a>
+  </li>
+  <li>
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-list fa-lg"></i></a>
+    <ul class="dropdown-menu dropdown-user">
+      <li><a class="information-menulink">Information</a></li>
+      <li><a href="#">Your files</a></li>
+      <li><a href="#">All files</a></li>
+      <li><a href="#">Help</a></li>
+    </ul>
+  </li>
+</ul>
 <script>
   $(document).ready(function() {
 
