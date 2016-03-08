@@ -1,20 +1,22 @@
-<nav class="navbar-default navbar-static-side" role="navigation">
-  <div class="sidebar-collapse">
-    <ul class="nav metismenu" id="side-menu">
-      <li class="nav-header">
+<div class="sidebar-collapse">
+  <ul class="nav metismenu" id="side-menu">
+    <li class="nav-header">
       <div class="profile-element">
         <span>
-        <img alt="image" src="../img/logo_uangel.png"/>
+        <img alt="image" src="/img/logo_uangel.png"/>
         </span>
+        <div class="public-area">
+          <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+          <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+          <a href="#" id="onLoginModal"><i class="fa fa-power-off"></i> Sign-out</a>
+        </div>
       </div>
-      <div class="public-area">
-        <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a href="#" id="onLoginModal"><i class="fa fa-power-off"></i> Sign-out</a>
+      <div class="logo-element">
+        UANGEL
       </div>
-      </li>
-      <li class="active">
-      <a class="channels-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
+    </li>
+    <li>
+      <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
       <div class="chat-channels">
         <ul id="channels-list" class="nav nav-second-level">
           <script id="channel-template" type="text/template">
@@ -26,9 +28,9 @@
           </script>
         </ul>
       </div>
-      </li>
-      <li class="active">
-      <a class="users-link" href="#"><i class="fa fa-th-large"></i><span class="nav-label">Users</span></a>
+    </li>
+    <li>
+      <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
       <div class="chat-users">
         <ul id="users-list" class="nav nav-second-level">
           <script id="user-template" type="text/template">
@@ -44,10 +46,9 @@
           </script>
         </ul>
       </div>
-      </li>
-    </ul>
-  </div>
-</nav>
+    </li>
+  </ul>
+</div>
 
 <script>
 $(document).ready(function() {

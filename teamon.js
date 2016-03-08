@@ -23,7 +23,7 @@ function initialize(){
   } else {
     // For WEB
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "https://127.0.0.1:8082/rest/";
+    aplUrl = "http://127.0.0.1:8082/rest/";
   }
 
   // declare global var

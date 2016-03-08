@@ -9,7 +9,7 @@ var Login = (function(params) {
 
 Login.prototype.login = function(params, callback) {
   var self = this;
-  console.log("login - [team]" + params.team + "[loginid]" + params.email);
+  console.debug("login - [team] " + params.team + "[email] " + params.email);
   var args = {
     path : {
       "team" : params.team,
@@ -24,7 +24,10 @@ Login.prototype.login = function(params, callback) {
 
   self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${team}/${email}", args,
     function(data, response){
-      callback(data);
+      if (response.statusCode == 200 || response.statusCode == 201)
+        callback(data);
+      else
+        callback(null, data);
   }).on('error',function(err){
     console.error('something went wrong on the request', err.request.options);
   });

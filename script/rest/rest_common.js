@@ -2,8 +2,9 @@ var Client = require('node-rest-client').Client;
 var RestCommon = (function(params){
   this.client = new Client();
   this.commonHeaders = {
-    "Content-Type" : "application/x-www-form-urlencoded",
-    "X-Requested-With" : "XMLHttpRequest"
+    "X-Requested-With" : "XMLHttpRequest",
+    "Accept": "application/json",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
   };
 
   if(params.email) {

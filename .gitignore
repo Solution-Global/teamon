@@ -33,3 +33,4 @@ tags
 # Build
 release
 tool
+dist/script/teamon_bundle.js
