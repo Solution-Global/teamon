@@ -39,11 +39,11 @@ var chatSection = (function() {
      $mcsbContainer = $contentArea.find('.mCSB_container'); // set this value after _initCustomScrollbar
 
      $("#fileupload-btn").click(function() {
-       openModalDialog("./html/chat/fileupload_pop.html");
+       openModalDialog("/html/chat/fileupload_pop.html");
      });
 
      $("#capture-btn").click(function() {
-       openModalDialog("./html/chat/capture_pop.html");
+       openModalDialog("/html/chat/capture_pop.html");
      });
 
   }
@@ -305,7 +305,7 @@ var chatSection = (function() {
   }
 
   function loadChatSection() {
-    loadHtml("./html/chat/chat_section.html", $("#chat-section"));
+    loadHtml("/html/chat/chat_section.html", $("#chat-section"));
   }
 
   function changeChatView(chatType, chatRoomId, chatRoomName) {

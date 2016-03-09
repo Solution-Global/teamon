@@ -230,7 +230,7 @@ var screenshareSection = (function() {
   }
 
   function showDialog(calleeId) {
-    openModalDialog("./html/screenshare/popup/screenshare_popup.html");
+    openModalDialog("/html/screenshare/popup/screenshare_popup.html");
     var calleeObj = catalogSection.getUserObj(calleeId);
     var calleeName = (calleeObj !== null) ? calleeObj.loginId : calleeId;
     console.log('Screen share to ' + calleeName + ' , calleeId : ' + calleeId);
@@ -274,7 +274,7 @@ var screenshareSection = (function() {
   }
 
   function loadScreenshareSection() {
-    loadHtml("./html/screenshare/screenshare.html", $("#screenshare-section"));
+    loadHtml("/html/screenshare/screenshare.html", $("#screenshare-section"));
   }
 
   function showSection() {

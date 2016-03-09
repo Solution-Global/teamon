@@ -29,7 +29,7 @@ var headerSec = (function() {
   }
 
   function loadHeaderSection() {
-    loadHtml("./html/header/header_section.html", $("#header-section"));
+    loadHtml("/html/header/header_section.html", $("#header-section"));
   }
 
   function setTitle(text) {

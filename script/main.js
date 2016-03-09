@@ -55,7 +55,7 @@ function initLoginStatus() {
       backgroundOpacity : 1,
       backgroundColor : "#2f4050"
     };
-    openModalDialog("./html/login_popup.html", dialogOptions);
+    openModalDialog("/html/login_popup.html", dialogOptions);
   }
 }
 

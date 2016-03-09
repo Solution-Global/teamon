@@ -1,7 +1,7 @@
 {
   "name": "teamon",
   "version": "0.1.0",
-  "description": "Unified desktop app for team communications and collaborations.",
+  "description": "Unified desktop app for team communication and collaboration.",
   "main": "teamon.js",
   "repository": {
     "type": "git",
@@ -17,16 +17,12 @@
     "pack": "npm run pack:win",
     "asar": "npm run asar:win",
     "build": "npm run build:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.35.0 --icon=assets/win/teamon.ico --prune --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
-    "asar:win": "asar pack release/win/teamon-win32-x64/resources/app release/win/teamon-win32-x64/resources/app.asar && rm -rf release/win/teamon-win32-x64/resources/app",
-    "build:win": "npm run pack:win && npm run asar:win && electron-builder release/win/teamon-win32-x64 --platform=win --out=release/win --config=packager.json",
-    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.35.0 --ignore=release --ignore=assets --ignore=tool --ignore=.gitignore --ignore=packager.json --ignore=README.md --ignore=\"\\.?tags.*\" --ignore LICENSE --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=\"script/[a-zA-Z]*\\.js\" ",
-    "asar:osx": "asar pack release/osx/teamon-osx/resources/app release/osx/teamon-osx/resources/app.asar && rm -rf release/osx/teamon-osx/resources/app",
-    "build:osx": "npm run pack:osx && npm run asar:osx && electron-builder release/osx/teamon-osx --platform=osx --out=release/osx --config=packager.json"
+    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.36.8 --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite",
+    "asar:win": "asar pack release/win/teamon-win32-x64/resources/app release/win/teamon-win32-x64/resources/app.asar --unpack-dir *.node && rm -rf release/win/teamon-win32-x64/resources/app",
+    "build:win": "npm run pack:win && npm run asar:win && electron-builder release/win/teamon-win32-x64 --platform=win32 --out=release/win --config=packager.json"
   },
   "author": "Solution-Global",
-  "private": true,
-  "license": "ISC",
+  "license": "GPL",
   "devDependencies": {
     "asar": "0.9.0",
     "electron-builder": "2.6.0",

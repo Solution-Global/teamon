@@ -312,7 +312,7 @@ var callSection = (function() {
   }
 
   function loadCallSection() {
-    loadHtml("./html/call/call_section.html", $("#call-section"));
+    loadHtml("/html/call/call_section.html", $("#call-section"));
   }
 
   function showCallInfo(chatId, username) {

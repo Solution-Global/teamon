@@ -28,7 +28,7 @@ var catalogSection = (function() {
     channeTemplate = $channelListContext.find('#channel-template').html();
 
     $('#onChannelJoinModal').bind("click", function() {
-      openModalDialog("./html/catalog/popup/channel_join_popup.html");
+      openModalDialog("/html/catalog/popup/channel_join_popup.html");
     });
 
     $('#onLoginModal').bind("click", function() {
@@ -38,7 +38,7 @@ var catalogSection = (function() {
         backgroundOpacity : 1,
         backgroundColor : "#2f4050"
       };
-      openModalDialog("./html/login_popup.html", dialogOptions);
+      openModalDialog("/html/login_popup.html", dialogOptions);
     });
 
     _initUsers();
@@ -156,7 +156,7 @@ var catalogSection = (function() {
   }
 
   function loadCatalogSection() {
-    loadHtml("./html/catalog/catalog_section.html", $("#catalog-section"));
+    loadHtml("/html/catalog/catalog_section.html", $("#catalog-section"));
   }
 
   function _initChannels() {
