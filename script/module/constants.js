@@ -54,3 +54,8 @@ define("SIP_DOMAIN", "192.168.5.53");
 // [file]
 define("UPLOAD_URL", API_HOST_PORT + "/upload/");
 define("REPOSITORY_URL", API_HOST_PORT + "/repository/");
+
+// peerjs server
+define("PEERJS_HOST", "211.253.26.248");
+define("PEERJS_PORT", "9000");
+define("PEERJS_KEY", "teamon");
