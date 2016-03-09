@@ -28,7 +28,7 @@ var informationSection = (function() {
   }
 
   function showAboutUser(callHistoryData) {
-    loadHtml("./html/information/about_user.html", $informationSec);
+    loadHtml("/html/information/about_user.html", $informationSec);
     var aboutUserTemplate = $informationSec.find('#aboutUser-template').html();
     var callHistoryTemplate = $informationSec.find('#callHistory-template').html();
     var $title = $informationSec.find(".title");
@@ -80,7 +80,7 @@ var informationSection = (function() {
       $contentArea.find(".onDetailHistoryModal").bind("click", function() {
         var callHistoryId = $(this).closest("li").data("callhistoryid") ;
         var sendingData = {"callhistoryid" : callHistoryId };
-        openModalDialog("./html/information/popup/detail_callhistory_popup.html", null, sendingData);
+        openModalDialog("/html/information/popup/detail_callhistory_popup.html", null, sendingData);
       });
     });
 
@@ -90,7 +90,7 @@ var informationSection = (function() {
   }
 
   function showAboutChannel() {
-    loadHtml("./html/information/about_channel.html", $informationSec);
+    loadHtml("/html/information/about_channel.html", $informationSec);
     var aboutChannelTemplate = $informationSec.find('#aboutChannel-template').html();
     var $title = $informationSec.find(".title");
     var $contentArea = $informationSec.find('.content_area');
@@ -129,7 +129,7 @@ var informationSection = (function() {
     $contentArea.prepend(Mustache.render(aboutChannelTemplate, aboutChannelData));
 
     $("#onInviteChannelModal").bind("click", function() {
-      openModalDialog("./html/information/popup/invite_channel_popup.html");
+      openModalDialog("/html/information/popup/invite_channel_popup.html");
     });
 
     $contentArea.find(".leaveChannel").click(function() {
@@ -172,7 +172,7 @@ var informationSection = (function() {
   }
 
   function showMentionList(messages) {
-    loadHtml("./html/information/mention_list.html", $informationSec);
+    loadHtml("/html/information/mention_list.html", $informationSec);
 
     var mentionTemplate = $informationSec.find('#mention-template').html();
     var mentionDateLineTemplate = $informationSec.find('#mention-dateline-template').html();

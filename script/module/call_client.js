@@ -149,7 +149,7 @@ CallClient.prototype._registerUsername = function(userid) {
   // Try a registration
   var register = {
     "request": "register",
-    "secret": "",
+    "secret": "1234",
     "proxy": constants.SIP_PROXY,
     "username": "sip:agent" + userid + "@" + constants.SIP_DOMAIN
   };

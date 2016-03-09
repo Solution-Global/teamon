@@ -77,7 +77,7 @@ function loadHtml(fileName, target) {
     div = $("#" + target);
   }
 
-  var data = fs.readFileSync(fileName, 'utf-8');
+  var data = fs.readFileSync(path.resolve(__dirname, ".." + fileName), 'utf-8');
   var rtMsg = jQuery.trim(data);
   div.html(rtMsg);
 }
@@ -102,7 +102,7 @@ function openModalDialog(fileName, options, data) {
   }
 
 	$("body").append(div);
-  var data = fs.readFileSync(fileName, 'utf-8');
+  var data = fs.readFileSync(path.resolve(__dirname, ".." + fileName), 'utf-8');
   var rtMsg = jQuery.trim(data);
   div.html(rtMsg);
   div.modal(options ? $.extend({}, defaultOptions, options) : defaultOptions);
@@ -127,7 +127,7 @@ function adjustSectionSize($target, size) {
     colMd = "col-md-" + size,
     colLg = "col-lg-" + size;
 
-  $target.removeClass(); 
+  $target.removeClass();
   $target.removeClass("col-*").addClass(colXs).addClass(colSm).addClass(colMd).addClass(colLg);
 }
 
