@@ -45,278 +45,263 @@
   </div>
 </div>
 <script>
+$(document).ready(function() {
+var $chatSec = $("#chat-section");
+  var $contentArea = $chatSec.find('.content_area');
+  var $inputText = $chatSec.find('.message-input');
+  var $btnSend = $chatSec.find('.btn_send');
+  var msgTemplate = $('#msg-template').html();
+  var dateLineTemplate = $('#dateline-template').html();
 
-  $(document).ready(function() {
-    var $chatSec = $("#chat-section");
-    var $contentArea = $chatSec.find('.content_area');
-    var $inputText = $chatSec.find('.message-input');
-    var $btnSend = $chatSec.find('.btn_send');
-    var msgTemplate = $('#msg-template').html();
-    var dateLineTemplate = $('#dateline-template').html();
+  $inputText.on('keyup', _keyupInputText);
+  var $mentionText = $inputText.mention({
+    users : [],
+    firstDelimiter: constants.MENTION_FIRST_DELIMITER,
+    lastDelimiter: constants.MENTION_LAST_DELIMITER,
+    queryBy : ['username']
+  });
 
-    const MESSAGE_TYPE_APPEND = 1;
-    const MESSAGE_TYPE_PREPEND = 2;
-    const MENTION_FIRST_DELIMITER = "@";
-    const MENTION_LAST_DELIMITER = ": ";
-
-    $inputText.on('keyup', _keyupInputText);
-    var $mentionText = $inputText.mention({
-      users : [],
-      firstDelimiter: MENTION_FIRST_DELIMITER,
-      lastDelimiter: MENTION_LAST_DELIMITER,
-      queryBy : ['username']
-    });
-
-    $contentArea.mCustomScrollbar({
-      axis:"y",
-      setWidth: "auto",
-      theme:"3d",
-      callbacks:{
-        onScroll:function(){
-          if(this.mcs.top === 0) {
-            _getPreviousMessage(this.mcs.draggerTop);
-          }
+  $contentArea.mCustomScrollbar({
+    axis:"y",
+    setWidth: "auto",
+    theme:"3d",
+    callbacks:{
+      onScroll:function(){
+        if(this.mcs.top === 0) {
+          _getPreviousMessage(this.mcs.draggerTop);
         }
-      },
-      scrollInertia : 0
-    }).mCustomScrollbar("scrollTo", "bottom");
-    $mcsbContainer = $contentArea.find('.mCSB_container'); // set this value after initing custom scrollbar
+      }
+    },
+    scrollInertia : 0
+  }).mCustomScrollbar("scrollTo", "bottom");
+  $mcsbContainer = $contentArea.find('.mCSB_container'); // set this value after initing custom scrollbar
 
-    $("#fileupload-btn").click(function() {
-      openModalDialog("./fileupload_pop.html");
+  var _getPreviousMessage = function() {
+    myMessage.getPreviousChatMessage(activeChatInfo.topic, function(messageArray) {
+      _displayMessages(constants.MESSAGE_TYPE_PREPEND, messageArray);
     });
+  };
 
-    if(runningChannel === constants.CHANNEL_APP) {
-      $("#capture-btn").click(function() {
-        openModalDialog("./capture_pop.html");
-      });
+  _receiveMsg = function(myId, topic, payloadStr) {
+    var topicArray = topic.split('/');
+    if (topicArray.length < 2) {
+      console.error("Invalid topic format[%s], payload:%s", topic, payloadStr);
+      return;
     }
 
-    var _getPreviousMessage = function() {
-      myMessage.getPreviousChatMessage(activeTopic.topic, function(messageArray) {
-        _displayMessages(MESSAGE_TYPE_PREPEND, messageArray);
-      });
-    };
+    var topicType = "/" + topicArray[1];
+    if (topicType === constants.TOPIC_MSG) {
+      _handleMsg(myId, payloadStr);
+    } else if (topicType === constants.TOPIC_PRESENCE) {
+      _handlePresence(topic, payloadStr);
+    } else if (topicType === constants.TOPIC_COMMAND) {
+      _handleCommand(topicArray[2], payloadStr);
+    } else {
+      console.error("Invalid topic format[%s], payload:", topic, payloadStr);
+    }
+  };
 
-    var _recvMsg = function(myId, topic, payloadStr) {
-      var topicArray = topic.split('/');
-      if (topicArray.length < 2) {
-        console.error("Invalid topic format[%s], payload:%s", topic, payloadStr);
-        return;
-      }
+  var _handleCommand = function(receiver, payloadStr) {
+    console.info("_handleCommand information %s, %s", receiver, payloadStr);
 
-      var topicType = "/" + topicArray[1];
-      if (topicType === constants.TOPIC_MSG) {
-        _handleMsg(myId, payloadStr);
-      } else if (topicType === constants.TOPIC_PRESENCE) {
-        _handlePresence(topic, payloadStr);
-      } else if (topicType === constants.TOPIC_COMMAND) {
-        _handleCommand(topicArray[2], payloadStr);
-      } else {
-        console.error("Invalid topic format[%s], payload:", topic, payloadStr);
-      }
-    };
+    if(receiver != loginInfo.emplId) {
+      console.error("reciver not match %s, %s", reciver, loginInfo.emplId);
+      return;
+    }
 
-    var _handleCommand = function(receiver, payloadStr) {
-      console.info("_handleCommand information %s, %s", receiver, payloadStr);
-
-      if(receiver != myPref.emplId) {
-        console.error("reciver not match %s, %s", reciver, myPref.emplId);
-        return;
-      }
-
-      var commandPayload = JSON.parse(payloadStr);
-      /*
-        msgPayload = {
-          type:  // COMMAND 타입 (client 담당)
-          ...  // 각 command 타입에 따른 return value
+    var commandPayload = JSON.parse(payloadStr);
+    switch (commandPayload.type) {
+      // group 관련
+      case constants.GROUP_CREATE:
+        displayChannel(commandPayload);
+      break;
+      case constants.GROUP_ADD_MEMBER:
+        reloadChannelCache(commandPayload.channelId);
+        // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
+        if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
+          displayChannelMember(commandPayload.newMembers);
         }
-      */
+      break;
+      case constants.GROUP_REMOVE_MEMBER:
+        reloadChannelCache(commandPayload.channelId);
 
-      switch (commandPayload.type) {
-        // group 관련
-        case constants.GROUP_CREATE:
-          catalogSection.displayChannel(commandPayload);
-        break;
-        case constants.GROUP_ADD_MEMBER:
-          catalogSection.reloadChannelCache(commandPayload.channelId);
-          // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
-          if(activeTopic && activeTopic.chatRoomId === commandPayload.channelId) {
-            informationSection.displayMember(commandPayload.newMembers);
+        if(loginInfo.emplId === commandPayload.member) {
+          // 화면 닫기 & 리스트제거
+          hideInformationArea();
+          hideChatArea();
+          hideScreenShareArea();
+          removeChannel(commandPayload.channelId);
+        } else {
+          if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
+            removeChannelMember(commandPayload.member);
           }
-        break;
-        case constants.GROUP_REMOVE_MEMBER:
-          catalogSection.reloadChannelCache(commandPayload.channelId);
+        }
+      break;
+      // call 관련
+      case constants.CALL_SHARE_CHID:
+        callSection.setCallHistoryId(commandPayload.callHistoryId);
+      break;
+      default:
+      console.error("invalid command[%s]", commandPayload.type);
+      return;
+    }
+  };
 
-          if(myPref.emplId === commandPayload.member) {
-            // 화면 닫기 & 리스트제거
-            informationSection.hideSection();
-            chatSection.hideSection();
-            catalogSection.removeChannel(commandPayload.channelId);
-            screenshareSection.hideSection();
-          } else {
-            if(activeTopic && activeTopic.chatRoomId === commandPayload.channelId) {
-              // 사용자 제거
-              informationSection.hideMember(commandPayload.member);
-            }
-          }
-        break;
-        // call 관련
-        case constants.CALL_SHARE_CHID:
-          callSection.setCallHistoryId(commandPayload.callHistoryId);
-        break;
-        default:
-        console.error("invalid command[%s]", commandPayload.type);
-        return;
-      }
+  var _handleMsg = function(myId, payloadStr) {
+    // Format : Object {teamId: 1, senderId: 13, topic: "13_14", time: 1457520386391, msg: "2111"}
+    var msgPayload = JSON.parse(payloadStr);
+    var params = {
+      senderId : msgPayload.senderId,
+      chatId : msgPayload.chatid,
+      msg : msgPayload.msg,
+      name: "unknown",
+      creTime : msgPayload.time
     };
 
-    var _handleMsg = function(myId, payloadStr) {
-      var msgPayload = JSON.parse(payloadStr);
-      var chatType = getChatType(msgPayload.topic);
-      // {"teamid":1,"publisher":13,"topic":"8_13","chatId":9,"time":1457417955367,"msg":"test"}
+    var message = myMessage.madeMessageUnit(params);
 
-      // var userObj = catalogSection.getUserObj(msgPayload.publisher);
-      var params = {
-        senderId : msgPayload.senderid,
-        chatId : msgPayload.chatid,
-        msg : msgPayload.msg,
-        name: "unknown",
-        creTime : msgPayload.time
-      };
+    if(activeChatInfo && activeChatInfo.topic  === msgPayload.topic) {
+      _displayMessages(constants.MESSAGE_TYPE_APPEND, message);
+      $contentArea.mCustomScrollbar("scrollTo", "bottom");
+    } else {
+      setChattingAlarmCnt(msgPayload.topic);
+    }
 
-      var message = myMessage.madeMessageUnit(params);
+    myMessage.appendChatMessage(message, msgPayload.topic);
+  };
 
-      if(activeTopic && activeTopic.topic  === msgPayload.topic) {
-        _displayMessages(MESSAGE_TYPE_APPEND, message);
+  var _handlePresence = function(topic, payloadStr) {
+    // TODO : display presence info
+    console.info("topic[%s], payload:", topic, payloadStr);
+  };
+
+  var _displayMessages = function(type, value) {
+    var messageTags = $mcsbContainer.find(".chat-message");
+
+    if(Array.isArray(value)) {
+      if(constants.MESSAGE_TYPE_APPEND === type) {
+        for (var key = 0; key < value.length; key++) {
+          if(value[key - 1] && value[key - 1].date != value[key].date) {
+            $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
+          }
+          $mcsbContainer.append(Mustache.render(msgTemplate, value[key]));
+        }
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       } else {
-        setChattingAlarmCnt(chatType, msgPayload.topic);
-      }
+        // prepend mode
+        var firstDate = messageTags ? messageTags.first().data("date") : undefined;
+        for (var key = (value.length-1); key > -1; key--) {
+          $mcsbContainer.prepend(Mustache.render(msgTemplate, value[key]));
 
-      myMessage.appendChatMessage(message, msgPayload.topic);
-    };
-
-    var _handlePresence = function(topic, payloadStr) {
-      // todo : display presence info
-      console.info("topic[%s], payload:", topic, payloadStr);
-    };
-
-    var _displayMessages = function(type, value) {
-      var messageTags = $mcsbContainer.find(".chat-message");
-
-      //$contentArea.mCustomScrollbar("scrollTo", "bottom");
-
-      if(Array.isArray(value)) {
-        if(MESSAGE_TYPE_APPEND === type) {
-          for (var key = 0; key < value.length; key++) {
+          if (key === (value.length-1)) {
+            if(firstDate && value[key].date != firstDate) {
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
+            }
+          } else {
             if(value[key - 1] && value[key - 1].date != value[key].date) {
-              $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
-            }
-            $mcsbContainer.append(Mustache.render(msgTemplate, value[key]));
-          }
-          $contentArea.mCustomScrollbar("scrollTo", "bottom");
-        } else {
-          // prepend mode
-          var firstDate = messageTags ? messageTags.first().data("date") : undefined;
-          for (var key = (value.length-1); key > -1; key--) {
-            $mcsbContainer.prepend(Mustache.render(msgTemplate, value[key]));
-
-            if (key === (value.length-1)) {
-              if(firstDate && value[key].date != firstDate) {
-                $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
-              }
-            } else {
-              if(value[key - 1] && value[key - 1].date != value[key].date) {
-                $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
-              }
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
             }
           }
         }
+      }
 
-      } else {
-        if(MESSAGE_TYPE_APPEND === type) {
-          var lastDate = messageTags ? messageTags.last().data("date"): undefined;
-          if(lastDate && value.date != lastDate) {
-            $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value.date}));
-          }
-          $mcsbContainer.append(Mustache.render(msgTemplate, value));
-          $contentArea.mCustomScrollbar("scrollTo", "bottom");
+    } else {
+      if(constants.MESSAGE_TYPE_APPEND === type) {
+        var lastDate = messageTags ? messageTags.last().data("date"): undefined;
+        if(lastDate && value.date != lastDate) {
+          $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value.date}));
         }
+        $mcsbContainer.append(Mustache.render(msgTemplate, value));
+        $contentArea.mCustomScrollbar("scrollTo", "bottom");
       }
-    };
+    }
+  };
 
-    var _keyupInputText = function(event) {
-      // mention이 활성화 되어 있으면 send 전송을 막는다.
-      if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
-        $btnSend.click();
+  var _keyupInputText = function(event) {
+    // mention이 활성화 되어 있으면 send 전송을 막는다.
+    if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
+      $btnSend.click();
+    }
+  };
+
+  changeChatView = function() {
+    var topic = activeChatInfo.topic,
+        chatRoomName = activeChatInfo.name;
+
+    // remove chatting texts
+    $.each($contentArea.find(".chat-message"), function(idx, row) {
+      $(row).remove();
+    });
+
+    $.each($contentArea.find(".date_line"), function(idx, row) {
+      $(row).remove();
+    });
+
+    hideChattingAlram(topic); // init Alram
+    setHearderTitle(chatRoomName);
+
+    var chatType = getChatType(topic);
+    if(chatType === constants.CHANNEL_CHAT) {
+      var channelValue = channelCache.get(activeChatInfo.channelId);
+      var members = []; // for mention
+      for(var key in channelValue.memberList) {
+        var userValue = userCache.get(channelValue.memberList[key].emplId);
+
+        //본인 제외
+        if(userValue.emplId === loginInfo.emplId)
+          continue;
+
+        members.push({
+          "username" : userValue.name,
+          "image": "../img/profile_no.jpg"
+        });
       }
-    };
 
-    // global var
-    changeChatView = function() {
-      var chatType = activeTopic.chatType,
-          topic = activeTopic.topic,
-          chatRoomName = activeTopic.name;
+      $mentionText.mention("updateUsers", members);
+    }
 
-      console.log("chatType:%s, topic:%s",activeTopic.chatType, activeTopic.topic);
+    var messageArray = myMessage.getAllChatMessage(activeChatInfo.topic); // get previous messages
+    if(messageArray) {
+      _displayMessages(constants.MESSAGE_TYPE_APPEND, messageArray);
+    }
+  };
 
-      // remove chatting texts
-      $.each($contentArea.find(".chat-message"), function(idx, row) {
-        $(row).remove();
-      });
+  // init mqtt
+  chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId, _receiveMsg);
 
-      $.each($contentArea.find(".date_line"), function(idx, row) {
-        $(row).remove();
-      });
+  // bind events
+  $btnSend.on('click', function() {
+    if (activeChatInfo.topic === undefined) {
+      console.error("No peer selected!");
+      return;
+    }
+    var msg = $inputText.val();
 
-      hideChattingAlram(chatType, topic); // init Alram
-      setHearderTitle(chatRoomName);
+    if (!msg || !msg.trim().length) {
+      return;
+    }
+    // msg = msg.replace(/\n$/, "");
 
-      // if(chatType === constants.CHANNEL_CHAT) {
-      //   var channelValue = catalogSection.getChannelObj(chatRoomId);
-      //   var members = []; // for mention
-      //   for(var key in channelValue.memberList) {
-      //     var userValue = catalogSection.getUserObj(channelValue.memberList[key].emplId);
-      //
-      //     //본인 제외
-      //     if(userValue.emplId === myPref.emplId)
-      //       continue;
-      //
-      //     members.push({
-      //       "username" : userValue.loginId,
-      //       "image": "../img/profile_img" + userValue.emplId % 10 + ".jpg"
-      //     });
-      //   }
-      //
-      //   $mentionText.mention("updateUsers", members);
-      // }
+    chatModule.sendMsg(activeChatInfo.topic, msg);
+    $inputText.val("").focus();
+    }
+  );
 
-      var messageArray = myMessage.getAllChatMessage(activeTopic.topic); // get previous messages
-      if(messageArray) {
-        _displayMessages(MESSAGE_TYPE_APPEND, messageArray);
-      }
-    };
-
-    // init
-    chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId, _recvMsg); // init mqtt
-
-    // bind events
-    $btnSend.on('click', function() {
-      if (activeTopic.topic === undefined) {
-        console.error("No peer selected!");
-        return;
-      }
-      var msg = $inputText.val();
-
-      if (!msg || !msg.trim().length) {
-        return;
-      }
-      // msg = msg.replace(/\n$/, "");
-
-      chatModule.sendMsg(activeTopic.topic, msg);
-      $inputText.val("").focus();
-      }
-    );
+  $inputText.on('keyup', function(event){
+    // mention이 활성화 되어 있으면 send 전송을 막는다.
+    if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
+      $btnSend.click();
+    }
   });
+
+  $("#fileupload-btn").click(function() {
+    openModalDialog("./fileupload_pop.html");
+  });
+
+  if(runningChannel === constants.CHANNEL_APP) {
+    $("#capture-btn").click(function() {
+      openModalDialog("./capture_pop.html");
+    });
+  }
+});
 </script>

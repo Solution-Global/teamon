@@ -50002,6 +50002,8 @@ function parseAuthOptions (opts) {
  */
 function connect (brokerUrl, opts) {
 
+  console.log(opts);
+
   if (('object' === typeof brokerUrl) && !opts) {
     opts = brokerUrl;
     brokerUrl = null;
@@ -50080,6 +50082,8 @@ function connect (brokerUrl, opts) {
 
     return protocols[opts.protocol](client, opts);
   }
+
+  console.log("!!! connect!!!");
 
   return new MqttClient(wrapper, opts);
 }
@@ -63342,13 +63346,17 @@ var chat = (function() {
   var clientChatInfo = {};
 
   function configMyInfo(teamId, emplId, recvCallback) {
-    clientChatInfo.teamId = teamId;
-    clientChatInfo.emplId = emplId;
-    clientChatInfo.recvCallback = recvCallback;
+    if(!clientChatInfo.client || !clientChatInfo.client.connected) {
+      clientChatInfo.teamId = teamId;
+      clientChatInfo.emplId = emplId;
+      clientChatInfo.recvCallback = recvCallback;
 
-    console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
+      console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
 
+<<<<<<< HEAD
     if (!clientChatInfo.client) {
+=======
+>>>>>>> 33607126619c18e590245c13da25565e36764f02
       if ((clientChatInfo.client = _createMQTTClient()) === null) {
         console.error("Failed to initialize MQTT client");
         return;
@@ -63361,7 +63369,7 @@ var chat = (function() {
     if (connType === constants.DIRECT_CHAT) {
       myTopic = "{peer}/" + topic;
     } else if (connType === constants.CHANNEL_CHAT) {
-      myTopic = partid;
+      myTopic = topic;
     }
 
     return clientChatInfo.teamId + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
@@ -63376,7 +63384,11 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
+<<<<<<< HEAD
       protocol: "wss"
+=======
+      protocol:"wss"
+>>>>>>> 33607126619c18e590245c13da25565e36764f02
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);
@@ -63420,7 +63432,6 @@ var chat = (function() {
         msg:       // 발신 메시지 (client 담당)
       }
     */
-
     var msgPayload = {
       teamId: params.teamId,
       senderId: params.emplId,
@@ -63432,9 +63443,9 @@ var chat = (function() {
 
     var msgPayloadStr = JSON.stringify(msgPayload);
     var chatType = getChatType(params.topic);
+    var topicPrefix = _getMsgTopicPrefix(chatType, params.topic);
 
     if (chatType === constants.DIRECT_CHAT) {
-      var topicPrefix = _getMsgTopicPrefix(chatType, params.topic);
       var topicEmplIds = params.topic.split("_");
       var receiverId;
       if (params.emplId == Number(topicEmplIds[0]))
@@ -63443,7 +63454,6 @@ var chat = (function() {
         receiverId = Number(topicEmplIds[0]);
 
       // 상대방 토픽으로 전송
-
       var receiverTopic = topicPrefix.replace("{peer}", receiverId);
       clientChatInfo.client.publish(receiverTopic, msgPayloadStr);
 
@@ -63451,9 +63461,9 @@ var chat = (function() {
       var myTopic = topicPrefix.replace("{peer}", params.emplId);
       clientChatInfo.client.publish(myTopic, msgPayloadStr);
 
-    } else if (params.chatType === constants.CHANNEL_CHAT) {
+    } else if (chatType === constants.CHANNEL_CHAT) {
       // 채팅방으로 토픽으로 전송
-      clientChatInfo.client.publish(params.topic, msgPayloadStr);
+      clientChatInfo.client.publish(topicPrefix, msgPayloadStr);
     }
   }
 
@@ -63514,7 +63524,11 @@ define("CHANNEL_CHAT", 1);
 
 // [msg]
 // mqtt
+<<<<<<< HEAD
 define("MQTT_URL", "mqtts://192.168.1.164:2883");
+=======
+define("MQTT_URL", "wss://192.168.1.164:2883");
+>>>>>>> 33607126619c18e590245c13da25565e36764f02
 
 // topic
 define("TOPIC_PRESENCE", "/presence");
@@ -63531,73 +63545,32 @@ define("TOPIC_COMMAND", "/command");
 define("GROUP_CREATE", 0);
 define("GROUP_ADD_MEMBER", 1);
 define("GROUP_REMOVE_MEMBER", 2);
+
 // call 관련
 define("CALL_SHARE_CHID", 100);   // 발신자가 생성한 call history id 값을 수신자에게 공유
-
-// [call]
 define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");    // sip gw
 define("SIP_PROXY", "sip:192.168.5.53:5062");
 define("SIP_DOMAIN", "192.168.5.53");
+
+// information 영역 관련
+define("INFO_AREA_ABOUT_USER", "about_user.html");
+define("INFO_AREA_ABOUT_CHANNEL", "about_channel.html");
+define("INFO_AREA_MENTION", "mention_list.html");
+
+// chatting 관련
+define("MESSAGE_TYPE_APPEND", 1);
+define("MESSAGE_TYPE_PREPEND", 2);
+define("MENTION_FIRST_DELIMITER", "@");
+define("MENTION_LAST_DELIMITER", ": ");
+
+// channel 관련
+define("CHANNEL_TOPIC_DELIMITER", "$");
 
 // [file]
 // define("UPLOAD_URL", API_HOST_PORT + "/upload/");
 // define("REPOSITORY_URL", API_HOST_PORT + "/repository/");
 
 },{}],277:[function(require,module,exports){
-var Cache = function() {
-  var memory = {};
-
-  function get(key) {
-    if (typeof(memory[key]) !== 'undefined')
-      return memory[key];
-
-    return null;
-  }
-
-  function set(key, value) {
-    memory[key] = value;
-  }
-
-  function getKeyArray() {
-    var cacheArray = [];
-
-    for (var key in memory) {
-      if (memory.hasOwnProperty(key)) {
-        cacheArray.push(key);
-      }
-    };
-
-    return cacheArray;
-  }
-
-  function getValueArray() {
-    var cacheArray = [];
-
-    for (var key in memory) {
-      if (memory.hasOwnProperty(key)) {
-        cacheArray.push(memory[key]);
-      }
-    };
-
-    return cacheArray;
-  }
-
-  function initCache() {
-    memory = {};
-  }
-
-  return {
-    get: get,
-    set: set,
-    getKeyArray: getKeyArray,
-    getValueArray: getValueArray,
-    initCache: initCache
-  };
-};
-
-module.exports = Cache;
-
-},{}],278:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
 var CallHistory = (function(params) {
@@ -63607,7 +63580,7 @@ var CallHistory = (function(params) {
 
 CallHistory.prototype.getListByCondition = function(params, callback) {
   var self = this;
-  console.log("getListByCondition - [coId]" + params.coId + "[caller]" + params.caller + "[callee]" + params.callee);
+  console.log("getListByCondition - [teamId]" + params.teamId + "[caller]" + params.caller + "[callee]" + params.callee);
 
   var parameters = {
     "caller": params.caller,
@@ -63628,12 +63601,12 @@ CallHistory.prototype.getListByCondition = function(params, callback) {
 
   var args = {
     path: {
-      "coId": params.coId
+      "teamId": params.teamId
     },
     parameters: parameters,
     headers: self.restCommon.commonHeaders
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${coId}", args,
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${teamId}", args,
     function(data, response) {
       callback(data);
     }).on('error', function(err) {
@@ -63643,10 +63616,10 @@ CallHistory.prototype.getListByCondition = function(params, callback) {
 
 CallHistory.prototype.createCallHistory = function(params, callback) {
   var self = this;
-  console.log("createCallHistory - [coId]" + params.coId + "[caller]" + params.caller + "[callee]" + params.callee);
+  console.log("createCallHistory - [teamId]" + params.teamId + "[caller]" + params.caller + "[callee]" + params.callee);
 
   var parameters = {
-    "coId": params.coId,
+    "teamId": params.teamId,
     "caller": params.caller,
     "callee": params.callee,
     "callStart": params.callStart,
@@ -63718,7 +63691,7 @@ CallHistory.prototype.getCallHistory = function(params, callback) {
 
 module.exports = CallHistory;
 
-},{"./rest_common":283}],279:[function(require,module,exports){
+},{"./rest_common":282}],278:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
 var Channel = (function(params) {
@@ -63728,17 +63701,17 @@ var Channel = (function(params) {
 
 Channel.prototype.getChannelList = function(params, callback) {
   var self = this;
-  console.log("getListByCoid - [coId]" + params.coId + "[memberIncluded]" + params.memberIncluded);
+  console.log("getChannelList - [teamId]" + params.teamId + "[memberIncluded]" + params.memberIncluded);
   var args = {
     path: {
-      "coId": params.coId
+      "teamId": params.teamId
     },
     parameters: {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
     },
     headers: self.restCommon.commonHeaders
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${coId}", args,
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${teamId}", args,
     function(data, response) {
       callback(data);
     }).on('error', function(err) {
@@ -63766,12 +63739,31 @@ Channel.prototype.getChannel = function(params, callback) {
   });
 };
 
+Channel.prototype.getChannelByName = function(params, callback) {
+  var self = this;
+  console.log("getChannelByName - [name]" + params.name + "[teamId]" + params.teamId + "[memberIncluded]" + params.memberIncluded);
+  var args = {
+    parameters: {
+      "name": params.name,
+      "teamId": params.teamId,
+      "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
+    },
+    headers: self.restCommon.commonHeaders
+  };
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/name", args,
+    function(data, response) {
+      callback(data, response);
+    }).on('error', function(err) {
+    console.error('something went wrong on the request', err.request.options);
+  });
+};
+
 Channel.prototype.createChannel = function(params, callback) {
   var self = this;
-  console.log("createChannel - [coId]" + params.coId + "[name]" + params.name + "[members]" + params.members + "[pinupMessage]" + params.pinupMessage);
+  console.log("createChannel - [teamId]" + params.teamId + "[name]" + params.name + "[members]" + params.members + "[pinupMessage]" + params.pinupMessage);
   var args = {
     data: $.param({
-      "coId": params.coId,
+      "teamId": params.teamId,
       "name": params.name,
       "members": params.members.toString(),
       "pinupMessage": params.pinupMessage
@@ -63815,7 +63807,7 @@ Channel.prototype.removeMember = function(params, callback) {
     headers: self.restCommon.commonHeaders
   };
 
-  self.restCommon.client.delete(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
+  self.restCommon.client.post(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
     function(data, response) {
       callback(response, params);
     }).on('error', function(err) {
@@ -63825,7 +63817,7 @@ Channel.prototype.removeMember = function(params, callback) {
 
 module.exports = Channel;
 
-},{"./rest_common":283}],280:[function(require,module,exports){
+},{"./rest_common":282}],279:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
 var Chat = (function(params) {
@@ -63835,7 +63827,7 @@ var Chat = (function(params) {
 
 Chat.prototype.getListByCondition = function(params, callBackRequiredValues, callback) {
   var self = this;
-  console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[topic]" + params.topic + "[senderId]" + params.senderId + "[lastMsgId]" + params.lastMsgId + "[firstMsgId]" + params.firstMsgId);
+  console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[topic]" + params.topic + "[senderId]" + params.senderId + "[lastChatId]" + params.lastChatId + "[firstChatId]" + params.firstChatId);
   var args = {
     path: {
       "teamId": params.teamId,
@@ -63845,8 +63837,8 @@ Chat.prototype.getListByCondition = function(params, callBackRequiredValues, cal
       "topic": params.topic,
       "emplId": params.emplId,
       "senderId": params.senderId ? params.senderId : constants.COMMON_DB_NUMBER_NULL_STR,
-      "lastMsgId": params.lastMsgId ? params.lastMsgId : constants.COMMON_SEARCH_ALL,
-      "firstMsgId": params.firstMsgId ? params.firstMsgId : constants.COMMON_SEARCH_ALL,
+      "lastChatId": params.lastChatId ? params.lastChatId : constants.COMMON_SEARCH_ALL,
+      "firstChatId": params.firstChatId ? params.firstChatId : constants.COMMON_SEARCH_ALL,
       "msgCount": params.msgCount ? params.msgCount : constants.COMMON_SEARCH_COUNT
     },
     headers: self.restCommon.commonHeaders
@@ -63898,7 +63890,7 @@ Chat.prototype.postMsg = function(params, callback) {
 
 module.exports = Chat;
 
-},{"./rest_common":283}],281:[function(require,module,exports){
+},{"./rest_common":282}],280:[function(require,module,exports){
 // By convention, we name a constructor function by capitalizing the first letter.
 // Constructor functions should always be called with the new operator.
 var RestCommon = require("./rest_common");
@@ -63956,7 +63948,7 @@ Empl.prototype.getListByTeamId = function(params, callback) {
 
 module.exports = Empl;
 
-},{"./rest_common":283}],282:[function(require,module,exports){
+},{"./rest_common":282}],281:[function(require,module,exports){
 // By convention, we name a constructor function by capitalizing the first letter.
 // Constructor functions should always be called with the new operator.
 var RestCommon = require("./rest_common");
@@ -64008,7 +64000,7 @@ Login.prototype.logout = function(emplId) {
 
 module.exports = Login;
 
-},{"./rest_common":283}],283:[function(require,module,exports){
+},{"./rest_common":282}],282:[function(require,module,exports){
 var Client = require('node-rest-client').Client;
 var RestCommon = (function(params){
   this.client = new Client();
@@ -64035,7 +64027,7 @@ var RestCommon = (function(params){
 
 module.exports = RestCommon;
 
-},{"node-rest-client":140}],284:[function(require,module,exports){
+},{"node-rest-client":140}],283:[function(require,module,exports){
 var restCommon = require("./rest_common");
 
 var Team = (function(params) {
@@ -64062,7 +64054,7 @@ Team.prototype.getTeamByName = function(params, callback) {
 
 module.exports = Team;
 
-},{"./rest_common":283}],285:[function(require,module,exports){
+},{"./rest_common":282}],284:[function(require,module,exports){
 (function (__dirname){
 /*
   - Lacal storage 에 저장 되는 message 관련 포맷
@@ -64171,6 +64163,11 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     return message;
   }
 
+  function _setChatMessage(params) {
+    params.keyType = KEY_TYPE_CHAT_MESSAGES;
+    _writeAll(params);
+  }
+
   // 메시지 첫 메시지 아이디 저장하기
   function _setChatFirstChatId(params) {
     params.keyType = KEY_TYPE_CHAT_FIRST_CHAT_ID;
@@ -64224,13 +64221,11 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       message = message.slice(1, message.length - 1);
     }
 
-    params.keyType = KEY_TYPE_CHAT_MESSAGES;
-    var storredMessages = _readAll(params);
+    var storredMessages = getAllChatMessage(params.topic);
     if (storredMessages) {
       storredMessages = (message + ",") + storredMessages;
       params.value = storredMessages;
-      params.keyType = KEY_TYPE_CHAT_MESSAGES;
-      _writeAll(params);
+      _setChatMessage(params);
       params.value = value[0].chatId;
       _setChatFirstChatId(params);
     }
@@ -64254,8 +64249,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       firstChatId = value.chatId;
     }
 
-    params.keyType = KEY_TYPE_CHAT_MESSAGES; // add param
-    var storredMessages = _readAll(params);
+    var storredMessages = getAllChatMessage(params.topic);
 
     if (storredMessages) {
       storredMessages = storredMessages + ("," + messageJsonFormat);
@@ -64266,8 +64260,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     }
 
     params.value = storredMessages; // modify param
-    params.keyType = KEY_TYPE_CHAT_MESSAGES; // modifiy param
-    _writeAll(params);
+    _setChatMessage(params);
     params.value = lastChatId;
     _setChatLastChatId(params);
   }
@@ -64283,10 +64276,12 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     var firstChatId = _getChatFirstChatId({
       "topic": topic
     });
+
     if (firstChatId) {
       restPrams.firstChatId = firstChatId;
     }
 
+    console.log(restPrams);
     restResourse.chat.getListByCondition(restPrams, {}, function(msgData) {
       if (msgData.length > 0) {
         var messageArray = new Array();
@@ -64313,7 +64308,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
           continue;
         topic = generateTopic(myPref.emplId, targetArray[key].emplId);
       } else {
-        topic = targetArray[key].channelId;
+        topic = targetArray[key].name;
       }
       restPrams.topic = topic;
 
@@ -64346,7 +64341,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
 module.exports = message;
 
 }).call(this,"/script\\storage")
-},{}],286:[function(require,module,exports){
+},{}],285:[function(require,module,exports){
 'use strict';
 
 /*
@@ -64414,7 +64409,7 @@ var preference = (function(storage, emplId) {
 
 module.exports = preference;
 
-},{}],287:[function(require,module,exports){
+},{}],286:[function(require,module,exports){
 'use strict';
 
 var LZString = require('lz-string');
@@ -64491,7 +64486,61 @@ var storageManage = (function(storageType, compress) {
 
 module.exports = storageManage;
 
-},{"lz-string":76}],288:[function(require,module,exports){
+},{"lz-string":76}],287:[function(require,module,exports){
+var Cache = function() {
+  var memory = {};
+
+  function get(key) {
+    if (typeof(memory[key]) !== 'undefined')
+      return memory[key];
+
+    return null;
+  }
+
+  function set(key, value) {
+    memory[key] = value;
+  }
+
+  function getKeyArray() {
+    var cacheArray = [];
+
+    for (var key in memory) {
+      if (memory.hasOwnProperty(key)) {
+        cacheArray.push(key);
+      }
+    }
+
+    return cacheArray;
+  }
+
+  function getValueArray() {
+    var cacheArray = [];
+
+    for (var key in memory) {
+      if (memory.hasOwnProperty(key)) {
+        cacheArray.push(memory[key]);
+      }
+    }
+
+    return cacheArray;
+  }
+
+  function initCache() {
+    memory = {};
+  }
+
+  return {
+    get: get,
+    set: set,
+    getKeyArray: getKeyArray,
+    getValueArray: getValueArray,
+    initCache: initCache
+  };
+};
+
+module.exports = Cache;
+
+},{}],288:[function(require,module,exports){
 window.$ = window.jQuery = require('jquery');
 require('jquery-ui');
 require('bootstrap');
@@ -64505,7 +64554,7 @@ constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
 messageManager = require('./script/storage/message.js'); // global var
 chatModule = require('./script/chat_client.js'); // global var
-cacheManager = require('./script/lib/cache'); // global var
+cacheManager = require('./script/uCache'); // global var
 
 timezone = "Asia/Seoul";
 
@@ -64517,7 +64566,7 @@ function initialize(){
   } else {
     // For WEB
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "http://127.0.0.1:8082/rest/";
+    aplUrl = "http://192.168.1.164:8082/rest/";
   }
 
   // declare global var
@@ -64529,6 +64578,70 @@ function initialize(){
 
   initAPI(); // 로그인전에 기본으로 사용할 API 초기화 설정
   initLoginStatus();
+  // resizeSection();
+  // $(window).resize(function() {
+  //   resizeSection();
+  // });
+}
+
+// function resizeSection() {
+//   var windowHeight = $(window).height();
+//   var headerHeight = $("#header-section").outerHeight(true);
+//   var $informationSec = $("#information-section");
+//   var $catalogSec = $("#catalog-section");
+//   var $chatSec = $("#chat-section");
+//
+//   var informationHeaderHeight =  $informationSec.find(".ibox-title").outerHeight(true);
+//   var informationHeight =  windowHeight - headerHeight - informationHeaderHeight;
+//   $informationSec.find(".ibox-content").css("height", informationHeight);
+//
+//   var headerHeight = $("#header-section").outerHeight(true);
+//   var chatInputHeight = $chatSec.find(".ibox-footer").outerHeight(true);
+//   var chatHeight =  windowHeight - headerHeight - chatInputHeight - 1;
+//
+//   var catalogHeaderHeight = $catalogSec.find(".nav-header").outerHeight(true);
+//   var catalogChannelsHeight = $catalogSec.find(".channels-link").outerHeight(true);
+//   var catalogUsersHeight = $catalogSec.find(".users-link").outerHeight(true);
+//
+//     // 마지막의 3,2,1 오차 pixel.
+//   var scrollHeight = windowHeight - catalogHeaderHeight - catalogChannelsHeight - catalogUsersHeight - 3;
+//
+//   $catalogSec.find('.chat-channels').css("height", scrollHeight * 0.3 );
+//   $catalogSec.find('.chat-users').css("height", scrollHeight * 0.7 );
+// }
+
+function initLoginStatus() {
+  var keepEmplId = localStorageManager.getValue("keepEmplId");
+  var sessionEmplId = sessionStorageManager.getValue("sessionEmplId");
+
+  console.log("initLoginStatus[keepEmplId:%s, sessionEmplId:%s]", keepEmplId, sessionEmplId);
+
+  if(keepEmplId || sessionEmplId) {
+    if(keepEmplId) {
+      myPreference = new preferenceManager(localStorageManager, keepEmplId); // init preference
+      sessionStorageManager.setValue("sessionEmplId", keepEmplId);
+    } else {
+      myPreference = new preferenceManager(localStorageManager, sessionEmplId); // init preference
+    }
+
+    loginInfo = {
+      "email": myPreference.getPreference("email"),
+      "authKey": myPreference.getPreference("authKey"),
+      "teamId": Number(myPreference.getPreference("teamId")),
+      "emplId": Number(myPreference.getPreference("emplId")),
+      "name": myPreference.getPreference("name"),
+    };
+    initAPI();
+    loadAllArea();
+  } else {
+    var dialogOptions = {
+      backdrop : "static",
+      keyboard : "false",
+      backgroundOpacity : 1,
+      backgroundColor : "#2f4050"
+    };
+    openModalDialog("./user/login_popup.html", dialogOptions);
+  }
 }
 
 initAPI = function() {
@@ -64539,8 +64652,7 @@ initAPI = function() {
   restResourse = {}; // global var
   var params = {
       "url" : aplUrl,
-      "channel" :  runningChannel,
-      "loginId" : "guest"
+      "channel" :  runningChannel
     };
 
   if(loginInfo) {
@@ -64563,51 +64675,68 @@ initAPI = function() {
     restResourse.login = new loginRes(params);
     restResourse.team = new teamRes(params);
   }
-}; // gloabl function
+};
 
-initScreenSection = function() {
+loadAllArea = function() {
+  loadHtml("./chat/chat_section.html", $("#chat-section"));
   loadHtml("./catalog/catalog_section.html", $("#catalog-section"));
   loadHtml("./header/header_section.html", $("#header-section"));
-  loadHtml("./chat/chat_section.html", $("#chat-section"));
-}; // gloabl function
+  // loadHtml("./screenshare/screenshare-section.html", $("#screenshare-section"));
+  // loadHtml("./call/call-section.html", $("#call-section"));
+};
 
-function initLoginStatus() {
-  var keepEmplId = localStorageManager.getValue("keepEmplId");
-  var sessionEmplId = sessionStorageManager.getValue("sessionEmplId");
+showCatalogArea = function() {
+  $("#catalog-section").show();
+};
 
-  console.log("initLoginStatus[keepEmplId:%s]", keepEmplId);
+showHeaderArea = function() {
+  $("#header-section").show();
+};
 
-  if(keepEmplId || sessionEmplId) {
-    if(keepEmplId) {
-      myPreference = new preferenceManager(localStorageManager, keepEmplId); // init preference
-      sessionStorageManager.setValue("sessionEmplId", keepEmplId);
-    } else {
-      myPreference = new preferenceManager(localStorageManager, sessionEmplId); // init preference
-    }
+showChatArea = function() {
+  $("#chat-section").show();
+};
 
-    loginInfo = {
-      "email": myPreference.getPreference("email"),
-      "authKey": myPreference.getPreference("authKey"),
-      "teamId": Number(myPreference.getPreference("teamId")),
-      "emplId": Number(myPreference.getPreference("emplId")),
-      "name": myPreference.getPreference("name"),
-    };
+showScreenShareArea = function() {
+  $("#screenshare-section").show();
+};
 
-    initAPI();
-    initScreenSection();
-  } else {
-    var dialogOptions = {
-      backdrop : "static",
-      keyboard : "false",
-      backgroundOpacity : 1,
-      backgroundColor : "#2f4050"
-    };
-    openModalDialog("./user/login_popup.html", dialogOptions);
-  }
-}
+showCallArea = function() {
+  $("#call-section").show();
+};
+
+showInformationArea = function(fileName) {
+  $("#information-section").html("");
+  loadHtml("./information/" + fileName, $("#information-section"));
+  $("#information-section").show();
+};
+
+hideCatalogArea = function() {
+  $("#catalog-section").hide();
+};
+
+hideHeaderArea = function() {
+  $("#header-section").hide();
+};
+
+hideChatArea = function() {
+  $("#chat-section").hide();
+};
+
+hideScreenShareArea = function() {
+  $("#screenshare-section").hide();
+};
+
+hideCallArea = function() {
+  $("#call-section").hide();
+};
+
+hideInformationArea = function() {
+  $("#information-section").hide();
+};
 
 $(document).ready(function() {
   initialize();
 });
 
-},{"./script/chat_client.js":275,"./script/constants":276,"./script/lib/cache":277,"./script/rest/call_history":278,"./script/rest/channel":279,"./script/rest/chat":280,"./script/rest/empl":281,"./script/rest/login":282,"./script/rest/team":284,"./script/storage/message.js":285,"./script/storage/preference":286,"./script/storage/storage_manager":287,"bootstrap":1,"fs":14,"jquery":75,"jquery-ui":74,"malihu-custom-scrollbar-plugin":77,"moment-timezone":80,"mustache":139,"path":39}]},{},[288]);
+},{"./script/chat_client.js":275,"./script/constants":276,"./script/rest/call_history":277,"./script/rest/channel":278,"./script/rest/chat":279,"./script/rest/empl":280,"./script/rest/login":281,"./script/rest/team":283,"./script/storage/message.js":284,"./script/storage/preference":285,"./script/storage/storage_manager":286,"./script/uCache":287,"bootstrap":1,"fs":14,"jquery":75,"jquery-ui":74,"malihu-custom-scrollbar-plugin":77,"moment-timezone":80,"mustache":139,"path":39}]},{},[288]);

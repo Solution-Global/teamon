@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="col-lg-8">
-          <p> <strong>#{{channel}}</strong></p>
+          <p> <strong>{{channel}}</strong></p>
           <p>{{sender}} - {{time}}</p>
         </div>
         <div class="col-lg-12">
@@ -35,3 +35,53 @@
     </script>
   </div>
 </div>
+<script>
+$(document).ready(function() {
+  var $informationSec = $("#information-section");
+  var mentionTemplate = $informationSec.find('#mention-template').html();
+  var mentionDateLineTemplate = $informationSec.find('#mention-dateline-template').html();
+  var $title = $informationSec.find(".title");
+  var $contentArea = $informationSec.find('.content_area');
+
+  var params = {
+    "emplId": loginInfo.emplId
+  };
+
+  restResourse.chat.getMentionList(params, function(data) {
+    if (data) {
+      var messages = [];
+      $.each(data, function(idx, row) {
+        var sender = userCache.get(row.senderId);
+        var message = {
+          "chatId": row.chatId,
+          "img": "./img/profile_no.jpg",
+          "imgAlt": sender.name,
+          "channel": row.topic,
+          "sender": sender.name,
+          "msgText": row.msg,
+          "date": new Date(row.creTime).format("YYYY/MM/DD"),
+          "time": new Date(row.creTime).format("a hh:mm")
+        };
+
+        messages.push(message);
+      });
+
+      $contentArea.empty();
+      $title.html("Mention For" + loginInfo.name);
+      for (var key = 0; key < messages.length; key++) {
+        if(key === 0) {
+          $contentArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
+        }
+        if(messages[key - 1] && messages[key - 1].date != messages[key].date) {
+          $contentArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
+        }
+        $contentArea.append(Mustache.render(mentionTemplate, messages[key]));
+      }
+    }
+  });
+
+  // resizeInformationSection();
+  //_informationSectionScroll();
+  $informationSec.show();
+});
+</script>

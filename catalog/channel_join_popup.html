@@ -35,49 +35,43 @@
   </div>
 </div>
 <script>
-  $(document).ready(function() {
-    var $channelForm = $("#channelForm");
+$(document).ready(function() {
+  var $channelForm = $("#channelForm");
 
-    // set validation for login Form
-    $channelForm.validate({
-      rules: {
-        name: {
-          required: true,
-          minlength: 6
-        },
-        members: {
-          required: true,
-          min: 1
-        }
+  // set validation for login Form
+  $channelForm.validate({
+    rules: {
+      name: {
+        required: true,
+        minlength: 3
+      },
+      members: {
+        required: true,
+        min: 1
       }
-    });
-
-    var userArray = catalogSection.getUsers();
-    var chosenSelect = $channelForm.find(".chosen-select");
-    for(var key in userArray) {
-      // if (userArray[key].emplId === myPref.emplId)
-      //   continue;
-      chosenSelect.append("<option value='" + userArray[key].emplId + "'>" + userArray[key].loginId + "</option>");
     }
-    chosenSelect.chosen({width:"100%"});
-
-    // set event for new create channel
-    $("#channel-join-submit").bind("click", function() {
-      channelJoinSubmit();
-    });
   });
 
-  function channelJoinSubmit() {
-    var $channelForm = $("#channelForm");
+  var userArray = userCache.getValueArray();
+  var chosenSelect = $channelForm.find(".chosen-select");
+  for(var key in userArray) {
+    // if (userArray[key].emplId === loginInfo.emplId)
+    //   continue;
+    chosenSelect.append("<option value='" + userArray[key].emplId + "'>" + userArray[key].name + "</option>");
+  }
+  chosenSelect.chosen({width:"100%"});
+
+  // set event for new create channel
+  $("#channel-join-submit").bind("click", function() {
     if(!$channelForm.valid())
       return;
 
-    var name = $channelForm.find("[name=name]").val();
+    var name = constants.CHANNEL_TOPIC_DELIMITER + $channelForm.find("[name=name]").val();
     var members = $channelForm.find("[name=members]").val();
     var pinupMessage = $channelForm.find("[name=pinupMessage]").val();
 
     var params = {
-      "coId": myPref.coId,
+      "teamId": loginInfo.teamId,
       "name": name,
       "members": members,
       "pinupMessage": pinupMessage
@@ -89,20 +83,21 @@
         if(response.statusCode === 200) {
           var params = {
             "type": constants.GROUP_CREATE,
-            "channelId": data.channelId,
-            "name" : name
+            "teamId" : loginInfo.teamId,
+            "topic" : name
           }
 
           for(var key in members) {
             chatModule.sendCommand(members[key], params);
           }
 
-          chatSection.sendMsg("Join Channel - " + pinupMessage, constants.CHANNEL_CHAT, data.channelId); // 가입 메시지 전송
+          chatModule.sendMsg(name, "Join Channel - " + pinupMessage);
           $channelForm.closest(".modal-dialog").closest(".modal").modal("hide");
         } else {
           console.log("[fail creating channel]" + response.statusMessage);
         }
       }
     );
-  }
+  });
+});
 </script>

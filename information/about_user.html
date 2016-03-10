@@ -13,18 +13,21 @@
     <div id="about-user" class="row m-b-lg">
       <script id="aboutUser-template" type="text/template">
       <div class="col-lg-4 text-center">
-          <h3>{{loginId}}</h3>
+          <h3>{{name}}</h3>
           <div class="m-b-sm">
             <img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 62px">
           </div>
         </div>
         <div class="col-lg-8">
           <strong>About me</strong>
-          <p>My name is "{{loginId}}". I am working at the Solutin development.</p>
+          <p>My name is "{{name}}".</p>
+          <!--
           <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> CALL</button>
+        -->
         </div>
       </script>
     </div>
+    <!--
     <script id="callHistory-template" type="text/template">
       <div class="hr-line-dashed"></div>
       <div>
@@ -41,5 +44,71 @@
       <h4><i class="fa fa-lg text-primary"></i> Screen share <a href="#"></a></h4>
       <button type="button" class="screenShare btn btn-primary btn-sm btn-block"><i class="fa"></i> SCREEN SHARE</button>
     </div>
+    -->
   </div>
 </div>
+<script>
+$(document).ready(function() {
+  var $informationSec = $("#information-section");
+  var aboutUserTemplate = $informationSec.find('#aboutUser-template').html();
+  var callHistoryTemplate = $informationSec.find('#callHistory-template').html();
+  var $title = $informationSec.find(".title");
+  var $contentArea = $informationSec.find('.content_area');
+
+  var emplId = activeChatInfo.emplId;
+  var userValue = userCache.get(emplId);
+  var aboutUserData = {
+    "name" : userValue.name,
+    "imgAlt" : userValue.name,
+    "img": "./img/profile_no.jpg"
+  };
+
+  $title.html("About this conversation");
+  $contentArea.find("#about-user").append(Mustache.render(aboutUserTemplate, aboutUserData));
+
+  $contentArea.find(".call").click(function() {
+    hideInformationArea(); // information Section
+    // adjustSectionSize(callSection.getSection(), 8);
+    // adjustSectionSize(chatSection.getSection(), 4);
+    showCallArea();
+    //callSection.showCallInfo(emplId, userValue.loginId);
+  });
+
+  $contentArea.find(".screenShare").click(function() {
+    //screenshareSection.showDialog(emplId);
+  });
+
+  // var restPrams = {
+  //   "teamId": loginInfo.teamId,
+  //   "caller": loginInfo.emplId,
+  //   "callee": activeChatInfo.emplId
+  // };
+  //
+  // restResourse.callHistory.getListByCondition(restPrams, function(commonGridValue) {
+  //   console.log("commonGridValue[totalPage:%d, totalRecords:%d]", commonGridValue.totalPage, commonGridValue.totalRecords);
+  //
+  //   var callHistoryList = commonGridValue.rows;
+  //   $.each(callHistoryList, function(idx, callHistoryRow) {
+  //     callHistoryRow.callStart = new Date(callHistoryRow.callStart).format("M/D H:mm");
+  //   });
+  //
+  //   var callHistoryData = {
+  //     "callHistoryList" : callHistoryList
+  //   };
+  //
+  //   $contentArea.append(Mustache.render(callHistoryTemplate, callHistoryData));
+  //   $contentArea.find(".onDetailHistoryModal").bind("click", function() {
+  //     var callHistoryId = $(this).closest("li").data("callhistoryid") ;
+  //     var sendingData = {"callhistoryid" : callHistoryId };
+  //     openModalDialog("./information/detail_callhistory_popup.html", null, sendingData);
+  //   });
+  // });
+
+  // resizeInformationSection();
+  // $informationSec.find(".ibox-content").mCustomScrollbar({
+  //   axis:"y",
+	// 	setWidth: "auto",
+  //   theme:"3d"
+  // });
+});
+</script>

@@ -5,13 +5,13 @@
       <p>Login in. To see it in action.</p>
       <form role="form" id="login-form">
           <div class="form-group">
-              <input name="email" type="email" class="form-control" placeholder="Enter Email"/>
+              <input name="email" type="email" class="form-control" placeholder="Enter Email" value="jingjignea@uangel.com"/>
           </div>
           <div class="form-group">
-              <input name="password" type="password" class="form-control" placeholder="Password"/>
+              <input name="password" type="password" class="form-control" placeholder="Password" value="qwer1234"/>
           </div>
 					<div class="form-group">
-              <label><input name="keepMe" type="checkbox" class="i-checks" /> Keep me signed in </label>
+              <label><input id="keepMe" name="keepMe" type="checkbox" class="i-checks" /> Keep me signed in </label>
           </div>
           <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
 					<a class="btn btn-sm btn-white btn-block" id="onRegisterEmplModal">Create an account</a>
@@ -74,7 +74,7 @@ $(document).ready(function() {
 				//     headerSection.realodSection();
 			} else {
 				// 처음 login 시도
-				initScreenSection();
+				loadAllArea();
 			}
 
 	    if(params.keepMe)

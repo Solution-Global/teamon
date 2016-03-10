@@ -24,13 +24,18 @@
   </li>
 </ul>
 <script>
-  $(document).ready(function() {
-    var $headerSec = $("#header-section");
-    var $titleArea = $headerSec.find(".title_area");
-    var $title = $headerSec.find(".tit");
+$(document).ready(function() {
+  var $headerSec = $("#header-section");
+  var $titleArea = $headerSec.find(".title_area");
+  var $title = $headerSec.find(".tit");
 
-    setHearderTitle = function(text) {
-      $title.html(text);
-    }
+  setHearderTitle = function(text) {
+    $title.html(text);
+  }
+
+  //bind events
+  $headerSec.find(".mention").click(function() {
+    showInformationArea(constants.INFO_AREA_MENTION);
   });
+});
 </script>

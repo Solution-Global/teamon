@@ -23,7 +23,7 @@
          <ul class="members category-list nopadding">
           {{#members}}
           <li data-emplid="{{emplId}}">
-            <span><img class="member-avatar" src="{{img}}" alt="{{imgAlt}}"> {{loginId}}</span>
+            <span><img class="member-avatar" src="{{img}}" alt="{{imgAlt}}"> {{name}}</span>
           </li>
           {{/members}}
         </ul>
@@ -35,3 +35,101 @@
     </script>
   </div>
 </div>
+<script>
+$(document).ready(function() {
+  var $informationSec = $("#information-section");
+  var aboutChannelTemplate = $informationSec.find('#aboutChannel-template').html();
+  var $title = $informationSec.find(".title");
+  var $contentArea = $informationSec.find('.content_area');
+
+  var channelId = activeChatInfo.channelId;
+  var channelValue = channelCache.get(channelId);
+  var existMembers;
+
+  for(var key in channelValue.memberList) {
+    var emplId = channelValue.memberList[key].emplId;
+    if(!existMembers)
+      existMembers = emplId;
+    else
+      existMembers += "," + channelValue.memberList[key].emplId;
+  }
+  var membersArray = String(existMembers).split(",");
+  var memberCount = membersArray.length;
+
+  $title.html("About " + channelValue.name);
+  var aboutChannelData = {
+    "pinupMessage": channelValue.pinupMessage || "There are no purpose.",
+    "memberCount": memberCount,
+    "members":[]
+  };
+
+  for(var key in membersArray) {
+    var userValue = userCache.get(membersArray[key]);
+    aboutChannelData.members.push({
+      "name" : userValue.name,
+      "emplId" : userValue.emplId,
+      "imgAlt" : userValue.name,
+      "img": "./img/profile_no.jpg",
+    });
+  }
+
+  $contentArea.empty();
+  $contentArea.prepend(Mustache.render(aboutChannelTemplate, aboutChannelData));
+
+  $("#onInviteChannelModal").bind("click", function() {
+    openModalDialog("./information/invite_channel_popup.html");
+  });
+
+  $contentArea.find(".leaveChannel").click(function() {
+    var params = {
+      "channelId": channelId,
+      "members": loginInfo.emplId,
+    };
+
+    restResourse.channel.removeMember(params,
+      function(response) {
+        if(response.statusCode === 200) {
+
+          var channelValue = channelCache.get(channelId);
+          if(channelValue) {
+            var members;
+            for(var key in channelValue.memberList) {
+              var emplId = channelValue.memberList[key].emplId;
+
+              var params = {
+                "type": constants.GROUP_REMOVE_MEMBER,
+                "channelId": channelId,
+                "member": loginInfo.emplId
+              }
+
+              chatModule.sendCommand(emplId, params);
+            }
+          }
+
+          chatModule.sendMsg(activeChatInfo.topic, "left - " + loginInfo.name);
+        } else {
+          console.log("[fail add memeber]" + response.statusMessage);
+        }
+      }
+    );
+  });
+
+  displayChannelMember = function(members) {
+    for(var key in members) {
+      var userValue = userCache.get(members[key]);
+      var imgUrl = "./img/profile_no.jpg";
+      $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.name + "'>" + userValue.name + "</a></li>");
+    }
+  }
+
+  removeChannelMember = function(member) {
+    $contentArea.find(".members [data-emplid='" + member + "']").remove();
+  }
+
+  // $informationSec.find(".ibox-content").mCustomScrollbar({
+  //   axis:"y",
+	// 	setWidth: "auto",
+  //   theme:"3d"
+  // });
+});
+</script>
