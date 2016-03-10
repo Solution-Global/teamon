@@ -3,9 +3,9 @@
     <div class="modal-header">
       <h3 class="modal-title">Create an account</h3>
     </div>
-    <div class="modal-body">
-      <div class="row">
-        <form role="form" id="registerEmplForm">
+    <form role="form" id="registerEmplForm">
+      <div class="modal-body">
+        <div class="row">
           <input type="hidden" name="team" value="uangel" />
           <div class="form-group">
             <label>* Email</label><input name="email" type="email" placeholder="Enter e-mail" class="form-control">
@@ -22,17 +22,13 @@
           <div class="form-group">
             <label>Office</label><input name="office" type="text" placeholder="Enter office number" class="form-control">
           </div>
-          <div id="register-empl-alert" class="alert alert-danger alert-dismissable hide">
-    				<button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-    				Failed to create account.
-    			</div>
-        </form>
+        </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-      <button type="submit" class="btn btn-primary" type="submit">Sign up</button>
-    </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Sign up</button>
+      </div>
+    </form>
   </div>
 </div>
 <script>
@@ -55,33 +51,8 @@
       }
     });
 
-    /*
-    // validate team name
-    $registerEmplForm.find('[name=team]').focusout(function() {
-      var $register = $(this);
-      var name = $register.val();
-      if(!name)
-        return;
-      var params = {
-        "name": $register.val(),
-      };
-
-      restResourse.team.getTeamByName(params,
-        function(data, response) {
-          // Success
-          if(response.statusCode === 200) {
-            if(!data.teamId) {
-              $register.after("<label id='team-error' class='error' for='team'>Invaid team</label>");
-            }
-          } else {
-            console.log("[fail search team]" + response.statusMessage);
-          }
-        }
-      );
-    });
-    */
-
-    $("#registerEmplForm").submit(function() {
+    $("#registerEmplForm").submit(function(event) {
+      event.preventDefault();
       if(!$(this).valid())
         return;
 
@@ -92,6 +63,7 @@
           // Success
           if(response.statusCode === 200) {
             $("#registerEmplForm").closest(".modal-dialog").closest(".modal").modal("hide");
+            toastr.info("The account[" + params.email + "] created successfully. Why don't you sign in now?");
           } else {
             toastr.error("Failed to create account.");
           }
