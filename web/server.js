@@ -15,9 +15,9 @@ const tlsOptions = {
 // log to file rotate
 var logFormat = ':remote-addr - [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time';
 var app = connect()
-  .use("/rest", cpl('http://192.168.1.164:7587/rest/'))
-  .use(logger(logFormat))
-  .use(serveStatic(appRootPath.path));
+  .use("/rest/", cpl('http://192.168.1.164:7587/rest/'))
+  .use(logger(logFormat, {stream: accessLogStream}))
+  .use(serveStatic(appRootPath.path, {index: "index_web.html"}));
 
 https.createServer(tlsOptions, app).listen(8082, function() {
   console.log('server running on 8082');
