@@ -21,7 +21,7 @@ define("CHANNEL_CHAT", 1);
 
 // [msg]
 // mqtt
-define("MQTT_URL", "mqtt://192.168.1.164:2883");
+define("MQTT_URL", "mqtts://192.168.1.164:2883");
 
 // topic
 define("TOPIC_PRESENCE", "/presence");

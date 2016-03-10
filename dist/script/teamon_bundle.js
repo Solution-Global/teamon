@@ -49210,6 +49210,7 @@ function MqttClient (streamBuilder, options) {
   // Mark disconnected on stream close
   this.on('close', function () {
     this.connected = false;
+    clearTimeout(this.connackTimer);
   });
 
   // Setup ping timer
@@ -49362,7 +49363,7 @@ MqttClient.prototype._checkDisconnecting = function (callback) {
     if (callback) {
       callback(new Error('client disconnecting'));
     } else {
-      this.emit(new Error('client disconnecting'));
+      this.emit('error', new Error('client disconnecting'));
     }
   }
   return this.disconnecting;
@@ -50072,6 +50073,7 @@ function connect (brokerUrl, opts) {
 
       opts.host = opts.servers[client._reconnectCount].host;
       opts.port = opts.servers[client._reconnectCount].port;
+      opts.hostname = opts.host;
 
       client._reconnectCount++;
     }
@@ -50183,6 +50185,7 @@ function buildBuilder (client, opts) {
 }
 
 function buildBuilderBrowser (mqttClient, opts) {
+  console.log(opts);
   var url, parsed;
   if ('undefined' !== typeof (document)) { // for Web Workers! P.S: typeof(document) !== undefined may be becoming the faster one these days.
     parsed = _URL.parse(document.URL);
@@ -50222,7 +50225,7 @@ function buildBuilderBrowser (mqttClient, opts) {
   }
 
   url = opts.protocol + '://' + opts.hostname + ':' + opts.port + opts.path;
-
+console.log(url);
   return websocket(url, 'mqttv3.1');
 }
 
@@ -50233,7 +50236,7 @@ if ('browser' !== process.title) {
 }
 
 }).call(this,require('_process'))
-},{"_process":40,"url":70,"websocket-stream":137}],88:[function(require,module,exports){
+},{"_process":40,"url":70,"websocket-stream":136}],88:[function(require,module,exports){
 (function (process){
 'use strict';
 var Readable = require('readable-stream').Readable,
@@ -54263,52 +54266,7 @@ module.exports.obj = through2(function (options, transform, flush) {
 
 }).call(this,require('_process'))
 },{"_process":40,"readable-stream/transform":134,"util":72,"xtend":138}],136:[function(require,module,exports){
-
-/**
- * Module dependencies.
- */
-
-var global = (function() { return this; })();
-
-/**
- * WebSocket constructor.
- */
-
-var WebSocket = global.WebSocket || global.MozWebSocket;
-
-/**
- * Module exports.
- */
-
-module.exports = WebSocket ? ws : null;
-
-/**
- * WebSocket constructor.
- *
- * The third `opts` options object gets ignored in web browsers, since it's
- * non-standard, and throws a TypeError if passed to the constructor.
- * See: https://github.com/einaros/ws/issues/227
- *
- * @param {String} uri
- * @param {Array} protocols (optional)
- * @param {Object) opts (optional)
- * @api public
- */
-
-function ws(uri, protocols, opts) {
-  var instance;
-  if (protocols) {
-    instance = new WebSocket(uri, protocols);
-  } else {
-    instance = new WebSocket(uri);
-  }
-  return instance;
-}
-
-if (WebSocket) ws.prototype = WebSocket.prototype;
-
-},{}],137:[function(require,module,exports){
-(function (process,Buffer){
+(function (process,global,Buffer){
 var through = require('through2')
 var duplexify = require('duplexify')
 var WS = require('ws')
@@ -54317,7 +54275,10 @@ module.exports = WebSocketStream
 
 function WebSocketStream(target, protocols, options) {
   var stream, socket
-  var socketWrite = process.title === 'browser' ? socketWriteBrowser : socketWriteNode
+
+  var isBrowser = process.title === 'browser'
+  var isNative = !!global.WebSocket
+  var socketWrite = isBrowser ? socketWriteBrowser : socketWriteNode
   var proxy = through.obj(socketWrite, socketEnd)
 
   if (protocols && !Array.isArray(protocols) && 'object' === typeof protocols) {
@@ -54330,6 +54291,7 @@ function WebSocketStream(target, protocols, options) {
 
   // browser only: sets the maximum socket buffer size before throttling
   var bufferSize = options.browserBufferSize || 1024 * 512
+
   // browser only: how long to wait when throttling
   var bufferTimeout = options.browserBufferTimeout || 1000
 
@@ -54338,7 +54300,14 @@ function WebSocketStream(target, protocols, options) {
     socket = target
   // otherwise make a new one
   } else {
-    socket = new WS(target, protocols, options)
+    // special constructor treatment for native websockets in browsers, see
+    // https://github.com/maxogden/websocket-stream/issues/82
+    if (isNative && isBrowser) {
+      socket = new WS(target, protocols)
+    } else {
+      socket = new WS(target, protocols, options)
+    }
+
     socket.binaryType = 'arraybuffer'
   }
 
@@ -54411,8 +54380,11 @@ function WebSocketStream(target, protocols, options) {
   return stream
 }
 
-}).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":40,"buffer":30,"duplexify":110,"through2":135,"ws":136}],138:[function(require,module,exports){
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+},{"_process":40,"buffer":30,"duplexify":110,"through2":135,"ws":137}],137:[function(require,module,exports){
+module.exports = window.WebSocket || window.MozWebSocket
+
+},{}],138:[function(require,module,exports){
 arguments[4][73][0].apply(exports,arguments)
 },{"dup":73}],139:[function(require,module,exports){
 /*!
@@ -57775,6 +57747,9 @@ function plural(ms, n, name) {
     }
     if (chunk === null) {
       return end(parser)
+    }
+    if (typeof chunk === 'object') {
+      chunk = chunk.toString()
     }
     var i = 0
     var c = ''
@@ -63373,9 +63348,11 @@ var chat = (function() {
 
     console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
 
-    if ((clientChatInfo.client = _createMQTTClient()) === null) {
-      console.error("Failed to initialize MQTT client");
-      return;
+    if (!clientChatInfo.client) {
+      if ((clientChatInfo.client = _createMQTTClient()) === null) {
+        console.error("Failed to initialize MQTT client");
+        return;
+      }
     }
   }
 
@@ -63399,6 +63376,7 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
+      protocol: "wss"
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);
@@ -63536,7 +63514,7 @@ define("CHANNEL_CHAT", 1);
 
 // [msg]
 // mqtt
-define("MQTT_URL", "mqtt://192.168.1.164:2883");
+define("MQTT_URL", "mqtts://192.168.1.164:2883");
 
 // topic
 define("TOPIC_PRESENCE", "/presence");

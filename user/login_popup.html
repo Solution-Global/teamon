@@ -77,7 +77,7 @@ $(document).ready(function() {
 				initScreenSection();
 			}
 
-	    if($keepMe.is(":checked"))
+	    if(params.keepMe)
 	      localStorageManager.setValue("keepEmplId", data.emplId);
 			else
 				localStorageManager.removeKey("keepEmplId");
