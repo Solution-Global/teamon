@@ -64205,7 +64205,8 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       message = message.slice(1, message.length - 1);
     }
 
-    var storredMessages = getAllChatMessage(params.topic);
+    params.keyType = KEY_TYPE_CHAT_MESSAGES;
+    var storredMessages = _readAll(params);
     if (storredMessages) {
       storredMessages = (message + ",") + storredMessages;
       params.value = storredMessages;
@@ -64233,8 +64234,8 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       firstChatId = value.chatId;
     }
 
-    var storredMessages = getAllChatMessage(params.topic);
-
+    params.keyType = KEY_TYPE_CHAT_MESSAGES;
+    var storredMessages = _readAll(params);
     if (storredMessages) {
       storredMessages = storredMessages + ("," + messageJsonFormat);
     } else {
@@ -64550,7 +64551,7 @@ function initialize(){
   } else {
     // For WEB
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "http://192.168.1.164:8082/rest/";
+    aplUrl = "http://192.168.2.114:8082/rest/";
   }
 
   // declare global var
