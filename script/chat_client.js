@@ -38,11 +38,7 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
-<<<<<<< HEAD
       protocol: "wss"
-=======
-      protocol:"wss"
->>>>>>> 33607126619c18e590245c13da25565e36764f02
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);
