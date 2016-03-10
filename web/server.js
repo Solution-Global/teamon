@@ -9,12 +9,10 @@ var FileStreamRotator = require('file-stream-rotator')
 var appRootPath = require('app-root-path');
 
 const tlsOptions = {
-  key: fs.readFileSync(__dirname + '/teamon_key.pem'),
-  cert: fs.readFileSync(__dirname + '/teamon_cert.pem')
+  key: fs.readFileSync('/data2/TEAMON/mqtt/teamon.key'),
+  cert: fs.readFileSync('/data2/TEAMON/mqtt/teamon.crt')
 };
 
-// TODO
-// log to file rotate
 var logFormat = ':remote-addr - [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time';
 var logDirectory = appRootPath.path + '/logs';
 
