@@ -204,7 +204,7 @@ CallClient.prototype._onCallAccepted = function(peer, jsep) {
     });
   }
 
-  self.emit('oncallaccepted', peer.replace("agent", ""), doAudio, doVideo);
+  self.emit('oncallaccepted', (peer === null || peer === undefined) ? null : peer.replace("agent", ""), doAudio, doVideo);
 }
 
 CallClient.prototype._onErrorMessage = function(errorCode, error) {
@@ -347,8 +347,8 @@ CallClient.prototype.answerCall = function(doAudio, doVideo) {
         "jsep": jsep
       });
 
-      // sip 버전의 경우 answerCall 성공시 accepted 이벤트가 전달되지 않아 내부 처리
-      self.emit('oncallaccepted', null, doAudio, doVideo);
+      // sip 버전의 경우 answerCall 성공시 accepted 이벤트가 전달되지 않아 내부 처리 -> 3월 10일 이후 정상 처리되어 제거
+      // self.emit('oncallaccepted', null, doAudio, doVideo);
     },
     error: function(error) {
       console.error("WebRTC error:%s", JSON.stringify(error));

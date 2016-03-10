@@ -52,9 +52,11 @@ define("CALL_SHARE_CHID", 100);   // 발신자가 생성한 call history id 값�
 // [call]
 // 사내 janus
 // define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");
+// define("SIP_PROXY", "sip:192.168.5.53:5062");
 // define("SIP_DOMAIN", "192.168.5.53");
 // ubiz janus
 define("CALL_GW_URL", "wss://211.253.26.248:8989/janus");
+define("SIP_PROXY", "sip:172.27.0.33:5062");
 define("SIP_DOMAIN", "172.27.0.33");
 
 // [file]
