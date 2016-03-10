@@ -91,13 +91,40 @@ function generateTopic(emplId1, emplId2) {
   return Math.min.apply(null, emplIds) + "_" + Math.max.apply(null, emplIds);
 }
 
+function getChatType(topic) {
+  if(topic.startsWith("#")){
+    return constants.CHANNEL_CHAT;
+  } else {
+    return constants.DIRECT_CHAT;
+  }
+}
+
+/* Date prototype */
+Date.prototype.add = function(offset, unit) {
+	if (!unit)
+		throw "unit is undefined";
+	return moment(this).tz(timezone).add(offset, unit).toDate();
+};
+
+Date.prototype.format = function(formatStr) {
+	if (!formatStr)
+		throw "the format is not defined";
+	return moment(this).tz(timezone).format(formatStr);
+};
+
+Date.prototype.parse = function(dateStr, formatStr) {
+	if (!formatStr)
+		throw "the format is not defined";
+	return moment(dateStr, formatStr).tz(timezone);
+};
+
 // simple plugin definition
 (function($) {
 	$.fn.serializeObject = function() {
 		var o = {};
 		var a = this.serializeArray();
 		$.each(a, function() {
-			if (this.value == null || this.value == "")
+			if (this.value === null || this.value === "")
 				return;
 			if (o[this.name]) {
 				if (!o[this.name].push) {
@@ -109,7 +136,7 @@ function generateTopic(emplId1, emplId2) {
 			}
 		});
 		return o;
-	}
+	};
 
 	// selects elements that have same "name" attribute
 	$.fn.nameFind = function(selector) {
@@ -117,5 +144,5 @@ function generateTopic(emplId1, emplId2) {
 			return $(this).find("[name"+selector.charAt(0)+"="+selector.substr(1)+"]");
 		else
 			return $(this).find("[name="+selector+"]");
-	}
+	};
 })(jQuery);

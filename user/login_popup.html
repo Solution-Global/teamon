@@ -54,43 +54,44 @@ $(document).ready(function() {
 					return;
 				}
 
-				// set the personal pref info first to use it around the app.
-				myPreference = new preferenceManager(storageManager, data.emplId); // init preference
+			// set the personal pref info first to use it around the app.
+			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
+			var isAlreadyLogin = loginInfo ? true : false;
+			loginInfo = {
+	      "email": data.email,
+				"emplId": data.emplId ? Number(data.emplId) : null,
+				"authKey": data.authKey,
+	      "teamId": data.teamId ? Number(data.teamId) : null,
+				"name": data.name
+	    };
 
-				var isAlreadyLogin = loginInfo ? true : false;
+			initAPI(); // init API
+			if(isAlreadyLogin) {
+				// logout 후 login 시도
+				//     catalogSection.reloadSection();
+				//     chatSection.reloadSection();
+				//     callSection.reloadSection();
+				//     headerSection.realodSection();
+			} else {
+				// 처음 login 시도
+				initScreenSection();
+			}
 
-				loginInfo = {
-					"email": data.email,
-					"emplId": data.emplId ? Number(data.emplId) : null,
-					"authKey": data.authKey,
-					"teamId": data.teamId ? Number(data.teamId) : null
-				};
+	    if($keepMe.is(":checked"))
+	      localStorageManager.setValue("keepEmplId", data.emplId);
+			else
+				localStorageManager.removeKey("keepEmplId");
 
-				initAPI(); // init API
+	    myPreference.setPreference("teamId", data.teamId);
+	    myPreference.setPreference("email", data.email);
+	    myPreference.setPreference("authKey", data.authKey);
+	    myPreference.setPreference("emplId", data.emplId);
+			myPreference.setPreference("name", data.name);
 
-				if(isAlreadyLogin) {
-					// logout 후 login 시도
-					// 	catalogSection.reloadSection();
-					// 	chatSection.reloadSection();
-					// 	callSection.reloadSection();
-					// 	headerSection.realodSection();
-				} else {
-					// 처음 login 시도
-					initScreenSection();
-				}
+			sessionStorageManager.setValue("sessionEmplId", data.emplId);
 
-				if(params.keepMe)
-					storageManager.setValue("keepEmplId", data.emplId);
-				else
-					storageManager.removeKey("keepEmplId");
-
-				myPreference.setPreference("teamId", data.teamId);
-				myPreference.setPreference("email", data.email);
-				myPreference.setPreference("authKey", data.authKey);
-				myPreference.setPreference("emplId", data.emplId);
-
-				$('#login-form').closest(".modal-dialog").closest(".modal").modal("hide");
-				params = null;
+			$('#login-form').closest(".modal-dialog").closest(".modal").modal("hide");
+			params = null;
 		});
 	});
 

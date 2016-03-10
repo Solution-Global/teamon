@@ -1,20 +1,19 @@
 window.$ = window.jQuery = require('jquery');
 require('jquery-ui');
 require('bootstrap');
+require('malihu-custom-scrollbar-plugin')($);
 
 fs = require('fs');
+path = require('path');
+moment = require('moment-timezone');
 Mustache = require('mustache');
 constants = require("./script/constants"); // global var
-storageManager = require('./script/storage/storage_manager')(false); // global var
 preferenceManager = require('./script/storage/preference'); // global var
+messageManager = require('./script/storage/message.js'); // global var
+chatModule = require('./script/chat_client.js'); // global var
+cacheManager = require('./script/lib/cache'); // global var
 
-// REST
-var emplRes = require("./script/rest/empl");
-var loginRes = require("./script/rest/login");
-var chatRes = require("./script/rest/chat");
-var channelRes = require("./script/rest/channel");
-var callHistoryRes = require("./script/rest/call_history");
-var teamRes = require("./script/rest/team");
+timezone = "Asia/Seoul";
 
 function initialize(){
   if(window && window.process && window.process.type) {
@@ -24,30 +23,25 @@ function initialize(){
   } else {
     // For WEB
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "https://127.0.0.1:8082/rest/";
+    aplUrl = "http://127.0.0.1:8082/rest/";
   }
 
   // declare global var
   loginInfo = null;
   activeChatInfo = null;
+  var storageManager = require('./script/storage/storage_manager'); // global var
+  localStorageManager = storageManager("L", false);
+  sessionStorageManager = storageManager("S", false);
 
   initAPI(); // 로그인전에 기본으로 사용할 API 초기화 설정
-
-  // Window Close Event
-  $(window).on('beforeunload', function() {
-    console.log("Closing window");
-
-    // chatSection.finalize(); // TODO clear chat, call and screen share.
-
-    if(!storageManager.getValue("keepEmplId")) {
-      myPreference.removePreference();
-    }
-  });
-
   initLoginStatus();
 }
 
 initAPI = function() {
+  var emplRes = require("./script/rest/empl");
+  var loginRes = require("./script/rest/login");
+  var teamRes = require("./script/rest/team");
+
   restResourse = {}; // global var
   var params = {
       "url" : aplUrl,
@@ -56,6 +50,10 @@ initAPI = function() {
     };
 
   if(loginInfo) {
+    var chatRes = require("./script/rest/chat");
+    var channelRes = require("./script/rest/channel");
+    var callHistoryRes = require("./script/rest/call_history");
+
     params.authKey = loginInfo.authKey;
     params.email = loginInfo.email;
 
@@ -66,6 +64,7 @@ initAPI = function() {
     restResourse.channel = new channelRes(params);
     restResourse.callHistory = new callHistoryRes(params);
   } else {
+    // 로그인 전 개인 인증 AuthKey를 전달 하지 않는다.
     restResourse.empl =  new emplRes(params);
     restResourse.login = new loginRes(params);
     restResourse.team = new teamRes(params);
@@ -79,17 +78,25 @@ initScreenSection = function() {
 }; // gloabl function
 
 function initLoginStatus() {
-  var keepEmplId = storageManager.getValue("keepEmplId");
+  var keepEmplId = localStorageManager.getValue("keepEmplId");
+  var sessionEmplId = sessionStorageManager.getValue("sessionEmplId");
+
   console.log("initLoginStatus[keepEmplId:%s]", keepEmplId);
 
-  if(keepEmplId) {
-    myPreference = new preferenceManager(storageManager, keepEmplId); // init preference
+  if(keepEmplId || sessionEmplId) {
+    if(keepEmplId) {
+      myPreference = new preferenceManager(localStorageManager, keepEmplId); // init preference
+      sessionStorageManager.setValue("sessionEmplId", keepEmplId);
+    } else {
+      myPreference = new preferenceManager(localStorageManager, sessionEmplId); // init preference
+    }
 
     loginInfo = {
       "email": myPreference.getPreference("email"),
       "authKey": myPreference.getPreference("authKey"),
-      "teamId": myPreference.getPreference("teamId"),
-      "emplId": myPreference.getPreference("emplId")
+      "teamId": Number(myPreference.getPreference("teamId")),
+      "emplId": Number(myPreference.getPreference("emplId")),
+      "name": myPreference.getPreference("name"),
     };
 
     initAPI();
