@@ -19,7 +19,7 @@ var Cache = function() {
       if (memory.hasOwnProperty(key)) {
         cacheArray.push(key);
       }
-    };
+    }
 
     return cacheArray;
   }
@@ -31,7 +31,7 @@ var Cache = function() {
       if (memory.hasOwnProperty(key)) {
         cacheArray.push(memory[key]);
       }
-    };
+    }
 
     return cacheArray;
   }

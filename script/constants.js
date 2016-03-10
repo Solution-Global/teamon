@@ -21,7 +21,7 @@ define("CHANNEL_CHAT", 1);
 
 // [msg]
 // mqtt
-define("MQTT_URL", "mqtt://192.168.1.164:2883");
+define("MQTT_URL", "wss://192.168.1.164:2883");
 
 // topic
 define("TOPIC_PRESENCE", "/presence");
@@ -38,13 +38,26 @@ define("TOPIC_COMMAND", "/command");
 define("GROUP_CREATE", 0);
 define("GROUP_ADD_MEMBER", 1);
 define("GROUP_REMOVE_MEMBER", 2);
+
 // call 관련
 define("CALL_SHARE_CHID", 100);   // 발신자가 생성한 call history id 값을 수신자에게 공유
-
-// [call]
 define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");    // sip gw
 define("SIP_PROXY", "sip:192.168.5.53:5062");
 define("SIP_DOMAIN", "192.168.5.53");
+
+// information 영역 관련
+define("INFO_AREA_ABOUT_USER", "about_user.html");
+define("INFO_AREA_ABOUT_CHANNEL", "about_channel.html");
+define("INFO_AREA_MENTION", "mention_list.html");
+
+// chatting 관련
+define("MESSAGE_TYPE_APPEND", 1);
+define("MESSAGE_TYPE_PREPEND", 2);
+define("MENTION_FIRST_DELIMITER", "@");
+define("MENTION_LAST_DELIMITER", ": ");
+
+// channel 관련
+define("CHANNEL_TOPIC_DELIMITER", "$");
 
 // [file]
 // define("UPLOAD_URL", API_HOST_PORT + "/upload/");

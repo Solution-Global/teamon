@@ -7,7 +7,7 @@ var CallHistory = (function(params) {
 
 CallHistory.prototype.getListByCondition = function(params, callback) {
   var self = this;
-  console.log("getListByCondition - [coId]" + params.coId + "[caller]" + params.caller + "[callee]" + params.callee);
+  console.log("getListByCondition - [teamId]" + params.teamId + "[caller]" + params.caller + "[callee]" + params.callee);
 
   var parameters = {
     "caller": params.caller,
@@ -28,12 +28,12 @@ CallHistory.prototype.getListByCondition = function(params, callback) {
 
   var args = {
     path: {
-      "coId": params.coId
+      "teamId": params.teamId
     },
     parameters: parameters,
     headers: self.restCommon.commonHeaders
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${coId}", args,
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${teamId}", args,
     function(data, response) {
       callback(data);
     }).on('error', function(err) {
@@ -43,10 +43,10 @@ CallHistory.prototype.getListByCondition = function(params, callback) {
 
 CallHistory.prototype.createCallHistory = function(params, callback) {
   var self = this;
-  console.log("createCallHistory - [coId]" + params.coId + "[caller]" + params.caller + "[callee]" + params.callee);
+  console.log("createCallHistory - [teamId]" + params.teamId + "[caller]" + params.caller + "[callee]" + params.callee);
 
   var parameters = {
-    "coId": params.coId,
+    "teamId": params.teamId,
     "caller": params.caller,
     "callee": params.callee,
     "callStart": params.callStart,

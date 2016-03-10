@@ -3,12 +3,12 @@
     <li class="nav-header">
       <div class="profile-element">
         <span>
-        <img alt="image" src="/img/logo_uangel.png"/>
+        <img alt="image" src="./img/logo_uangel.png"/>
         </span>
         <div class="public-area">
           <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
           <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-          <a href="#" id="onLoginModal"><i class="fa fa-power-off"></i> Sign-out</a>
+          <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
         </div>
       </div>
       <div class="logo-element">
@@ -20,8 +20,8 @@
       <div class="chat-channels">
         <ul id="channels-list" class="nav nav-second-level">
           <script id="channel-template" type="text/template">
-            <li data-channelid="{{channelId}}" data-name="{{name}}">
-              <a href="#">{{name}}
+            <li data-channelid="{{channelId}}" data-topic="{{topic}}">
+              <a href="#">{{topic}}
                 <span class="badge badge-warning right hide alarm"></span>
               </a>
             </li>
@@ -34,7 +34,7 @@
       <div class="chat-users">
         <ul id="users-list" class="nav nav-second-level">
           <script id="user-template" type="text/template">
-            <li data-topic="{{topic}}" data-name="{{name}}" class="chat-user">
+            <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
               <a href="#">
                 <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
                 <div class="chat-user-name ellipsis">
@@ -52,9 +52,8 @@
 
 <script>
 $(document).ready(function() {
-  userCache = new cacheManager();
-  channelCache = new cacheManager();
-
+  userCache = new cacheManager(); // user list 저장
+  channelCache = new cacheManager(); // channel list 저장
   myMessage = messageManager(localStorageManager, loginInfo, userCache, channelCache); // global var
 
   var $catalogSec = $("#catalog-section");
@@ -62,6 +61,8 @@ $(document).ready(function() {
   var $channelListContext = $('#channels-list');
   var userTemplate = $('#user-template').html();
   var channeTemplate = $('#channel-template').html();
+  var $userArea = $catalogSec.find('.chat-users');
+  var $channelArea = $catalogSec.find('.chat-channels');
 
   // set event for direct chatting
   $userListContext.delegate("li", "click", function() {
@@ -69,22 +70,24 @@ $(document).ready(function() {
     $userListContext.find("li.active").removeClass("active");
     var $targetList = $(this);
     $targetList.addClass("active");
-    activeTopic = {
+    activeChatInfo = {
       "topic" : $targetList.data("topic"),
-      "name" : $targetList.data("name")
+      "name" : $targetList.data("name"),
+      "emplId" : $targetList.data("emplid")
     };
 
     myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
-    changeChatView();
 
-    // callSection.hideSection();
-    // screenshareSection.hideSection();
-    //
+    hideCallArea();
+    hideScreenShareArea();
+
     // adjustSectionSize(informationSection.getSection(), 3);
     // adjustSectionSize(chatSection.getSection(), 9);
-    //
-    // chatSection.showSection();
-    // informationSection.showAboutUser();
+
+    showChatArea();
+    showInformationArea(constants.INFO_AREA_ABOUT_USER);
+
+    changeChatView();
   });
 
   // set event for group chatting
@@ -93,150 +96,214 @@ $(document).ready(function() {
     $userListContext.find("li.active").removeClass("active");
     var $targetList = $(this);
     $targetList.addClass("active");
-    activeTopic = {
+    activeChatInfo = {
       "topic" : $targetList.data("topic"),
-      "name" : $targetList.data("name")
+      "channelId" : $targetList.data("channelid")
     };
     myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
-    chatSection.changeChatView(constants.CHANNEL_CHAT, $targetList.data("channelid"), $targetList.data("name"));
 
-    callSection.hideSection();
-    screenshareSection.hideSection();
+    hideCallArea();
+    hideScreenShareArea();
 
-    adjustSectionSize(informationSection.getSection(), 3);
-    adjustSectionSize(chatSection.getSection(), 9);
+    // adjustSectionSize(informationSection.getSection(), 3);
+    // adjustSectionSize(chatSection.getSection(), 9);
 
-    chatSection.showSection();
-    informationSection.showAboutChannel();
+    showChatArea();
+    showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
+
+    changeChatView();
   });
 
-  var _initUsers = (function() {
-    var teamId = loginInfo.teamId;
-    var params = {
-      "teamId": teamId,
-      "limit" : constants.COMMON_SEARCH_ALL
-    };
-
-    restResourse.empl.getListByTeamId(params, function(data) {
-      if (data.rows) {
-        $.each(data.rows, function(idx, row) {
-           userCache.set(row.emplId, row); // add each employee into userCache.
-
-          if (row.emplId === loginInfo.emplId)
-            return;
-
-          // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
-          var imgFile;
-          if(runningChannel === constants.CHANNEL_APP) {
-              imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
-          } else {
-              imgFile = "../img/profile_no.jpg";
-          }
-
-          var userData = {
-              "topic" : generateTopic(loginInfo.emplId, row.emplId),
-              "name" : row.name,
-              "emplId": row.emplId,
-              "img": imgFile,
-              "imgAlt": row.name
-          };
-          $userListContext.append(Mustache.render(userTemplate, userData));
-        });
-
-        //_activeChatView(constants.DIRECT_CHAT); TODO
-      }
-
-      // // init scroll
-      // var scrollHeight = $(window).height() - 230;
-      // $userArea.mCustomScrollbar({
-      //   axis:"y",
-      //   setWidth: "auto",
-      //   setHeight:  scrollHeight * 0.7,
-      //   theme:"3d"
-      // });
-      //
-      //sync Message
-      myMessage.syncChatMessage(constants.DIRECT_CHAT, userCache.getValueArray());
-    });
-  })();
-
-  // var _initChannels = function() {
-  //   var teamId = loginInfo.teamId;
-  //   var params = {
-  //     "teamId": teamId,
-  //     "memberIncluded": true
-  //   };
-  //
-  //   restResourse.channel.getChannelList(params, function(data) {
-  //     if(data) {
-  //       $.each(data, function(idx, row) {
-  //         var members;
-  //         var isIncludingMember = false;
-  //         for(var key in row.memberList) {
-  //           var member = row.memberList[key];
-  //
-  //           if(!isIncludingMember && loginInfo.emplId === member.emplId) {
-  //             isIncludingMember = true;
-  //           }
-  //
-  //           if(members) {
-  //             members += "," + member.emplId;
-  //           } else {
-  //             members =  member.emplId;
-  //           }
-  //         }
-  //         // 본인이 속한 channel list 표시
-  //         if(!isIncludingMember)
-  //           return;
-  //
-  //         channelCache.set(row.channelId, row); // add each employee into channelCache.
-  //
-  //         var channelData = {
-  //             "channelId": row.channelId,
-  //             "name": row.name,
-  //         };
-  //         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
-  //       });
-  //
-  //       // _activeChatView(constants.CHANNEL_CHAT);
-  //     }
-
-      // init scroll
-      // var scrollHeight = $(window).height() - 230;
-      // $channelArea.mCustomScrollbar({
-      //   axis:"y",
-      //   setWidth: "auto",
-      //   setHeight:  scrollHeight * 0.3,
-      //   theme:"3d",
-      // });
-      //
-      // //sync Message
-      // myMessage.syncChatMessage(constants.GROUP_CHAT);
-
-  //   });
-  // })();
-
-
-  var _getActiveTarget = function (chatType, topic) {
-    if (chatType === constants.DIRECT_CHAT)
-      return $userListContext.find("[data-emplid='" + topic + "']");
-    else
-      return $channelListContext.find("[data-channelid='" + topic + "']");
+  // init User List
+  var params = {
+    "teamId": loginInfo.teamId,
+    "limit" : constants.COMMON_SEARCH_ALL
   };
 
-  hideChattingAlram = function(chatType, topic) {
-    var $activeTarget = _getActiveTarget(chatType, topic);
+  restResourse.empl.getListByTeamId(params, function(data) {
+    if (data.rows) {
+      $.each(data.rows, function(idx, row) {
+         userCache.set(row.emplId, row); // add each employee into userCache.
+
+        if (row.emplId === loginInfo.emplId)
+          return;
+
+        // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
+        var imgFile;
+        if(runningChannel === constants.CHANNEL_APP) {
+            imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+        } else {
+            imgFile = "./img/profile_no.jpg";
+        }
+
+        var userData = {
+            "topic" : generateTopic(loginInfo.emplId, row.emplId),
+            "name" : row.name,
+            "emplId": row.emplId,
+            "img": imgFile,
+            "imgAlt": row.name
+        };
+        $userListContext.append(Mustache.render(userTemplate, userData));
+      });
+
+      // _activeChatView();
+    }
+
+    // init scroll
+    $userArea.mCustomScrollbar({
+      axis:"y",
+      setWidth: "auto",
+      theme:"3d"
+    });
+
+    //sync Message
+    myMessage.syncChatMessage(constants.DIRECT_CHAT, userCache.getValueArray());
+  });
+
+
+  // init Channel List
+  params.memberIncluded = true;
+  restResourse.channel.getChannelList(params, function(data) {
+    if(data) {
+      $.each(data, function(idx, row) {
+        var members;
+        var isIncludingMember = false;
+        for(var key in row.memberList) {
+          var member = row.memberList[key];
+
+          if(!isIncludingMember && loginInfo.emplId === member.emplId) {
+            isIncludingMember = true;
+          }
+
+          if(members) {
+            members += "," + member.emplId;
+          } else {
+            members =  member.emplId;
+          }
+        }
+
+        // 본인이 속한 channel list 표시
+        if(!isIncludingMember)
+          return;
+
+        channelCache.set(row.channelId, row); // add each employee into channelCache.
+
+        var channelData = {
+            "channelId": row.channelId,
+            "topic": row.name,
+        };
+        $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
+      });
+
+      // _activeChatView();
+    }
+
+    //init scroll
+    $channelArea.mCustomScrollbar({
+      axis:"y",
+      setWidth: "auto",
+      theme:"3d",
+    });
+
+    //sync Message
+    myMessage.syncChatMessage(constants.GROUP_CHAT, channelCache.getValueArray());
+  });
+
+  var _activeChatView = function() {
+    var lastChatInfo = myPreference.getPreference("lastChatInfo");
+    if(lastChatInfo) {
+      lastChatInfo = JSON.parse(lastChatInfo);
+      var $activeTarget = _getActiveTarget(lastChatInfo.topic);
+      $activeTarget.trigger("click");
+    } else {
+      // 마지막으로 저장된 chatting 정보가 없을 경우
+      hideChatArea();
+      hideCallArea();
+      hideScreenShareArea();
+      hideInformationArea();
+    }
+  }
+
+  var _getActiveTarget = function (topic) {
+    if (getChatType(topic) === constants.DIRECT_CHAT)
+      return $userListContext.find("[data-topic='" + topic + "']");
+    else
+      return $channelListContext.find("[data-topic='" + topic + "']");
+  };
+
+  hideChattingAlram = function(topic) {
+    var $activeTarget = _getActiveTarget(topic);
     var alarmArea = $activeTarget.find(".alarm");
     alarmArea.addClass("hide");
     alarmArea.html("");
   };
 
-  setChattingAlarmCnt = function (chatType, topic) {
-    var $activeTarget = _getActiveTarget(chatType, topic);
+  setChattingAlarmCnt = function (topic) {
+    var $activeTarget = _getActiveTarget(topic);
     var alarmArea = $activeTarget.find(".alarm");
     var cnt = alarmArea.text();
     alarmArea.html(cnt ? Number(cnt) + 1 : "1");
     alarmArea.removeClass("hide");
   };
+
+  displayChannel = function(channel) {
+    var params = {
+      "teamId": channel.teamId,
+      "name": channel.topic,
+      "memberIncluded": true
+    };
+
+    restResourse.channel.getChannelByName(params, function(data, response) {
+      if(response.statusCode === 200) {
+        var channelData = {
+          "channelId": data.channelId,
+          "topic": data.name
+        };
+        $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
+
+        reloadChannelCache(data.channelId);
+      } else {
+        console.error("fail! getChannelByName ");
+      }
+    });
+  }
+
+  removeChannel = function(channelId) {
+    $channelListContext.find("[data-channelid='" + channelId + "']").remove();
+    reloadChannelCache(channelId);
+  }
+
+  reloadChannelCache = function(channelId) {
+    var params = {
+      "channelId": channelId,
+      "memberIncluded": true
+    };
+
+    restResourse.channel.getChannel(params, function(data, response) {
+      if(response.statusCode === 200) {
+        if(data.channelId) {
+          channelCache.set(channelId, data);
+        }
+      } else {
+        console.error("fail channel reload!!");
+      }
+    });
+  }
+
+  // bind Event
+  $('#onChannelJoinModal').bind("click", function() {
+    openModalDialog("./catalog/channel_join_popup.html");
+  });
+
+  $('#onLogOut').bind("click", function() {
+    var dialogOptions = {
+      backdrop : "static",
+      keyboard : "false",
+      backgroundOpacity : 1,
+      backgroundColor : "#2f4050"
+    };
+    openModalDialog("./user/login_popup.html", dialogOptions);
+    //TODO session, close chat and call connection
+  });
 });
 </script>

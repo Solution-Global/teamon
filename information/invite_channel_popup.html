@@ -28,31 +28,31 @@
   </div>
 </div>
 <script>
-  $(document).ready(function() {
-    var $inviteChannelForm = $("#inviteChannelForm");
-    var existMembers = getExistMebers(activeChatInfo.chatRoomId);
-    var membersArray = String(existMembers).split(",");
-    var chosenSelect = $inviteChannelForm.find(".chosen-select");
-    var userArray = catalogSection.getUsers();
-    for(var key in userArray) {
-      var userValue = userArray[key];
-      var isMember = membersArray.indexOf(String(userValue.emplId));
-      if(isMember < 0)
-        chosenSelect.append("<option value='" + userValue.emplId + "'>" + userValue.loginId + "</option>");
-    }
-    chosenSelect.chosen({width:"100%"});
+$(document).ready(function() {
+  var $inviteChannelForm = $("#inviteChannelForm");
+  var channelId = activeChatInfo.channelId;
+  var channelValue = channelCache.get(channelId);
+  var existMembers;
+  for(var key in channelValue.memberList) {
+    var emplId = channelValue.memberList[key].emplId;
+    if(!existMembers)
+      existMembers = emplId;
+    else
+      existMembers += "," + channelValue.memberList[key].emplId;
+  }
+  var membersArray = String(existMembers).split(",");
+  var chosenSelect = $inviteChannelForm.find(".chosen-select");
+  var userArray = userCache.getValueArray();
+  for(var key in userArray) {
+    var userValue = userArray[key];
+    var isMember = membersArray.indexOf(String(userValue.emplId));
+    if(isMember < 0)
+      chosenSelect.append("<option value='" + userValue.emplId + "'>" + userValue.name + "</option>");
+  }
+  chosenSelect.chosen({width:"100%"});
 
-    // set event for new create channel
-    $("#invite-channel-submit").bind("click", function() {
-      inviteChannelSubmit()
-    });
-  });
-
-  function inviteChannelSubmit() {
-    var channelId = activeChatInfo.chatRoomId;
-    var channelValue = catalogSection.getChannelObj(channelId);
-    var existMembers = getExistMebers(channelId);
-    var $inviteChannelForm = $("#inviteChannelForm");
+  // set event for new create channel
+  $("#invite-channel-submit").bind("click", function() {
     var newMembers = $inviteChannelForm.find("[name=members]").val();
     var params = {
       "channelId": channelId,
@@ -70,11 +70,11 @@
             "name" : channelValue.name
           }
 
-          var loginIds = "";
+          var names = "";
           for(var key in newMembers) {
             chatModule.sendCommand(newMembers[key], paramsForNewMember);
-            var memberInfo = catalogSection.getUserObj(newMembers[key]);
-            loginIds += " #" + memberInfo.loginId;
+            var memberInfo = userCache.get(newMembers[key]);
+            names += " #" + memberInfo.name;
           }
 
           // 기존 사용자에게 멤버 추가
@@ -84,11 +84,11 @@
             "newMembers": newMembers
           }
 
-          for(var member in existMembers) {
-            chatModule.sendCommand(member, paramsForExistMember);
+          for(var key in membersArray) {
+            chatModule.sendCommand(membersArray[key], paramsForExistMember);
           }
 
-          chatSection.sendMsg("Invite members - " + loginIds, constants.CHANNEL_CHAT, channelId); // 멤버 추가 메시지 전송
+          chatModule.sendMsg(activeChatInfo.topic, "Invite members - " + names); // 멤버 추가 메시지 전송
 
           // form reset
           $inviteChannelForm.each(function() {
@@ -101,18 +101,6 @@
         }
       }
     );
-  }
-
-  function getExistMebers(channelId) {
-    var channelValue = catalogSection.getChannelObj(channelId);
-    var existMembers;
-    for(var key in channelValue.memberList) {
-      var emplId = channelValue.memberList[key].emplId;
-      if(!existMembers)
-        existMembers = emplId;
-      else
-        existMembers += "," + channelValue.memberList[key].emplId;
-    }
-    return existMembers;
-  }
+  });
+});
 </script>

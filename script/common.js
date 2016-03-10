@@ -92,7 +92,7 @@ function generateTopic(emplId1, emplId2) {
 }
 
 function getChatType(topic) {
-  if(topic.startsWith("#")){
+  if(topic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)){
     return constants.CHANNEL_CHAT;
   } else {
     return constants.DIRECT_CHAT;

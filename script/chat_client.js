@@ -3,15 +3,17 @@ var chat = (function() {
   var clientChatInfo = {};
 
   function configMyInfo(teamId, emplId, recvCallback) {
-    clientChatInfo.teamId = teamId;
-    clientChatInfo.emplId = emplId;
-    clientChatInfo.recvCallback = recvCallback;
+    if(!clientChatInfo.client || !clientChatInfo.client.connected) {
+      clientChatInfo.teamId = teamId;
+      clientChatInfo.emplId = emplId;
+      clientChatInfo.recvCallback = recvCallback;
 
-    console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
+      console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
 
-    if ((clientChatInfo.client = _createMQTTClient()) === null) {
-      console.error("Failed to initialize MQTT client");
-      return;
+      if ((clientChatInfo.client = _createMQTTClient()) === null) {
+        console.error("Failed to initialize MQTT client");
+        return;
+      }
     }
   }
 
@@ -20,7 +22,7 @@ var chat = (function() {
     if (connType === constants.DIRECT_CHAT) {
       myTopic = "{peer}/" + topic;
     } else if (connType === constants.CHANNEL_CHAT) {
-      myTopic = partid;
+      myTopic = topic;
     }
 
     return clientChatInfo.teamId + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
@@ -35,6 +37,7 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
+      protocol:"wss"
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);
@@ -78,7 +81,6 @@ var chat = (function() {
         msg:       // 발신 메시지 (client 담당)
       }
     */
-
     var msgPayload = {
       teamId: params.teamId,
       senderId: params.emplId,
@@ -90,9 +92,9 @@ var chat = (function() {
 
     var msgPayloadStr = JSON.stringify(msgPayload);
     var chatType = getChatType(params.topic);
+    var topicPrefix = _getMsgTopicPrefix(chatType, params.topic);
 
     if (chatType === constants.DIRECT_CHAT) {
-      var topicPrefix = _getMsgTopicPrefix(chatType, params.topic);
       var topicEmplIds = params.topic.split("_");
       var receiverId;
       if (params.emplId == Number(topicEmplIds[0]))
@@ -101,7 +103,6 @@ var chat = (function() {
         receiverId = Number(topicEmplIds[0]);
 
       // 상대방 토픽으로 전송
-
       var receiverTopic = topicPrefix.replace("{peer}", receiverId);
       clientChatInfo.client.publish(receiverTopic, msgPayloadStr);
 
@@ -109,9 +110,9 @@ var chat = (function() {
       var myTopic = topicPrefix.replace("{peer}", params.emplId);
       clientChatInfo.client.publish(myTopic, msgPayloadStr);
 
-    } else if (params.chatType === constants.CHANNEL_CHAT) {
+    } else if (chatType === constants.CHANNEL_CHAT) {
       // 채팅방으로 토픽으로 전송
-      clientChatInfo.client.publish(params.topic, msgPayloadStr);
+      clientChatInfo.client.publish(topicPrefix, msgPayloadStr);
     }
   }
 

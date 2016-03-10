@@ -7,17 +7,17 @@ var Channel = (function(params) {
 
 Channel.prototype.getChannelList = function(params, callback) {
   var self = this;
-  console.log("getListByCoid - [coId]" + params.coId + "[memberIncluded]" + params.memberIncluded);
+  console.log("getChannelList - [teamId]" + params.teamId + "[memberIncluded]" + params.memberIncluded);
   var args = {
     path: {
-      "coId": params.coId
+      "teamId": params.teamId
     },
     parameters: {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
     },
     headers: self.restCommon.commonHeaders
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${coId}", args,
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${teamId}", args,
     function(data, response) {
       callback(data);
     }).on('error', function(err) {
@@ -45,12 +45,31 @@ Channel.prototype.getChannel = function(params, callback) {
   });
 };
 
+Channel.prototype.getChannelByName = function(params, callback) {
+  var self = this;
+  console.log("getChannelByName - [name]" + params.name + "[teamId]" + params.teamId + "[memberIncluded]" + params.memberIncluded);
+  var args = {
+    parameters: {
+      "name": params.name,
+      "teamId": params.teamId,
+      "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
+    },
+    headers: self.restCommon.commonHeaders
+  };
+  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/name", args,
+    function(data, response) {
+      callback(data, response);
+    }).on('error', function(err) {
+    console.error('something went wrong on the request', err.request.options);
+  });
+};
+
 Channel.prototype.createChannel = function(params, callback) {
   var self = this;
-  console.log("createChannel - [coId]" + params.coId + "[name]" + params.name + "[members]" + params.members + "[pinupMessage]" + params.pinupMessage);
+  console.log("createChannel - [teamId]" + params.teamId + "[name]" + params.name + "[members]" + params.members + "[pinupMessage]" + params.pinupMessage);
   var args = {
     data: $.param({
-      "coId": params.coId,
+      "teamId": params.teamId,
       "name": params.name,
       "members": params.members.toString(),
       "pinupMessage": params.pinupMessage
@@ -94,7 +113,7 @@ Channel.prototype.removeMember = function(params, callback) {
     headers: self.restCommon.commonHeaders
   };
 
-  self.restCommon.client.delete(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
+  self.restCommon.client.post(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
     function(data, response) {
       callback(response, params);
     }).on('error', function(err) {

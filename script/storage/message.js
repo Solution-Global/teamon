@@ -105,6 +105,11 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     return message;
   }
 
+  function _setChatMessage(params) {
+    params.keyType = KEY_TYPE_CHAT_MESSAGES;
+    _writeAll(params);
+  }
+
   // 메시지 첫 메시지 아이디 저장하기
   function _setChatFirstChatId(params) {
     params.keyType = KEY_TYPE_CHAT_FIRST_CHAT_ID;
@@ -158,13 +163,11 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       message = message.slice(1, message.length - 1);
     }
 
-    params.keyType = KEY_TYPE_CHAT_MESSAGES;
-    var storredMessages = _readAll(params);
+    var storredMessages = getAllChatMessage(params.topic);
     if (storredMessages) {
       storredMessages = (message + ",") + storredMessages;
       params.value = storredMessages;
-      params.keyType = KEY_TYPE_CHAT_MESSAGES;
-      _writeAll(params);
+      _setChatMessage(params);
       params.value = value[0].chatId;
       _setChatFirstChatId(params);
     }
@@ -188,8 +191,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       firstChatId = value.chatId;
     }
 
-    params.keyType = KEY_TYPE_CHAT_MESSAGES; // add param
-    var storredMessages = _readAll(params);
+    var storredMessages = getAllChatMessage(params.topic);
 
     if (storredMessages) {
       storredMessages = storredMessages + ("," + messageJsonFormat);
@@ -200,8 +202,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     }
 
     params.value = storredMessages; // modify param
-    params.keyType = KEY_TYPE_CHAT_MESSAGES; // modifiy param
-    _writeAll(params);
+    _setChatMessage(params);
     params.value = lastChatId;
     _setChatLastChatId(params);
   }
@@ -217,10 +218,12 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
     var firstChatId = _getChatFirstChatId({
       "topic": topic
     });
+
     if (firstChatId) {
       restPrams.firstChatId = firstChatId;
     }
 
+    console.log(restPrams);
     restResourse.chat.getListByCondition(restPrams, {}, function(msgData) {
       if (msgData.length > 0) {
         var messageArray = new Array();
@@ -247,7 +250,7 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
           continue;
         topic = generateTopic(myPref.emplId, targetArray[key].emplId);
       } else {
-        topic = targetArray[key].channelId;
+        topic = targetArray[key].name;
       }
       restPrams.topic = topic;
 
