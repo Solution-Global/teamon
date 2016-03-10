@@ -7,12 +7,10 @@ var fs = require('fs');
 var appRootPath = require('app-root-path');
 
 const tlsOptions = {
-  key: fs.readFileSync(__dirname + '/teamon_key.pem'),
-  cert: fs.readFileSync(__dirname + '/teamon_cert.pem')
+  key: fs.readFileSync('/data2/TEAMON/mqtt/teamon.key'),
+  cert: fs.readFileSync('/data2/TEAMON/mqtt/teamon.crt')
 };
 
-// TODO
-// log to file rotate
 var logFormat = ':remote-addr - [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time';
 var app = connect()
   .use("/rest/", cpl('http://192.168.1.164:7587/rest/'))

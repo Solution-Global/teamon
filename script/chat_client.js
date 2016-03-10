@@ -10,6 +10,7 @@ var chat = (function() {
 
       console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
 
+    if (!clientChatInfo.client) {
       if ((clientChatInfo.client = _createMQTTClient()) === null) {
         console.error("Failed to initialize MQTT client");
         return;
@@ -37,7 +38,7 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
-      protocol:"wss"
+      protocol: "wss"
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);

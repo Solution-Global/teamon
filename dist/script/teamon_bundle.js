@@ -50189,6 +50189,7 @@ function buildBuilder (client, opts) {
 }
 
 function buildBuilderBrowser (mqttClient, opts) {
+  console.log(opts);
   var url, parsed;
   if ('undefined' !== typeof (document)) { // for Web Workers! P.S: typeof(document) !== undefined may be becoming the faster one these days.
     parsed = _URL.parse(document.URL);
@@ -50228,7 +50229,7 @@ function buildBuilderBrowser (mqttClient, opts) {
   }
 
   url = opts.protocol + '://' + opts.hostname + ':' + opts.port + opts.path;
-
+console.log(url);
   return websocket(url, 'mqttv3.1');
 }
 
@@ -57751,6 +57752,9 @@ function plural(ms, n, name) {
     if (chunk === null) {
       return end(parser)
     }
+    if (typeof chunk === 'object') {
+      chunk = chunk.toString()
+    }
     var i = 0
     var c = ''
     while (true) {
@@ -63349,6 +63353,10 @@ var chat = (function() {
 
       console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
 
+<<<<<<< HEAD
+    if (!clientChatInfo.client) {
+=======
+>>>>>>> 33607126619c18e590245c13da25565e36764f02
       if ((clientChatInfo.client = _createMQTTClient()) === null) {
         console.error("Failed to initialize MQTT client");
         return;
@@ -63376,7 +63384,11 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
+<<<<<<< HEAD
+      protocol: "wss"
+=======
       protocol:"wss"
+>>>>>>> 33607126619c18e590245c13da25565e36764f02
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);
@@ -63512,7 +63524,11 @@ define("CHANNEL_CHAT", 1);
 
 // [msg]
 // mqtt
+<<<<<<< HEAD
+define("MQTT_URL", "mqtts://192.168.1.164:2883");
+=======
 define("MQTT_URL", "wss://192.168.1.164:2883");
+>>>>>>> 33607126619c18e590245c13da25565e36764f02
 
 // topic
 define("TOPIC_PRESENCE", "/presence");
