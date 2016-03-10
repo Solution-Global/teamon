@@ -1,4 +1,5 @@
 var https = require('https');
+var http = require('http');
 var connect = require('connect');
 var serveStatic = require('serve-static');
 var cpl = require('connect-proxy-layer');
@@ -31,6 +32,6 @@ var app = connect()
   .use(logger(logFormat, {stream: accessLogStream}))
   .use(serveStatic(appRootPath.path, {index: "index_web.html"}));
 
-https.createServer(tlsOptions, app).listen(8082, function() {
+http.createServer(app).listen(8082, function() {
   console.log('server running on 8082');
 });
