@@ -3,13 +3,13 @@
 var RestCommon = require("./rest_common");
 
 var Login = (function(params) {
+  params.path ="frontend/user/login";
   this.restCommon = new RestCommon(params);
-  this.path ="/frontend/user/login";
 });
 
 Login.prototype.login = function(params, callback) {
   var self = this;
-  console.debug("login - [team] " + params.team + "[email] " + params.email);
+  console.debug("login - [tea1m] " + params.team + "[email] " + params.email);
   var args = {
     path : {
       "team" : params.team,
@@ -18,19 +18,9 @@ Login.prototype.login = function(params, callback) {
     data: $.param({
       "password" : params.password,
       "client" : params.client
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
-
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${team}/${email}", args,
-    function(data, response){
-      if (response.statusCode == 200 || response.statusCode == 201)
-        callback(data);
-      else
-        callback(null, data);
-  }).on('error',function(err){
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.put("/${team}/${email}", args, callback);
 };
 
 Login.prototype.logout = function(emplId) {
@@ -39,12 +29,9 @@ Login.prototype.logout = function(emplId) {
   var args = {
     path : {
       "emplId" : emplId
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${emplId}", args,
-    function(data, response){
-  });
+  self.restCommon.put("/${emplId}", args);
 };
 
 module.exports = Login;

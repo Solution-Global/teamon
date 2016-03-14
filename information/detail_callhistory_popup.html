@@ -93,36 +93,30 @@
     };
     restResourse.callHistory.getCallHistory(params,
       function(data, response) {
-        // Success
-        if(response.statusCode === 200) {
-          var callDetailTemplate = $historyDetail.find('#callDetail-template').html();
-          var callDetailData = {
-            "callerLoginId" : catalogSection.getUserObj(data.caller).loginId,
-            "calleeLoginId" : catalogSection.getUserObj(data.callee).loginId,
-            "calltime" : data.calltime,
-            "callStart" : new Date(data.callStart).format("YYYY/MM/DD a hh:mm"),
-            "memo" : data.memo ? data.memo : ""
-          };
+        var callDetailTemplate = $historyDetail.find('#callDetail-template').html();
+        var callDetailData = {
+          "callerLoginId" : catalogSection.getUserObj(data.caller).loginId,
+          "calleeLoginId" : catalogSection.getUserObj(data.callee).loginId,
+          "calltime" : data.calltime,
+          "callStart" : new Date(data.callStart).format("YYYY/MM/DD a hh:mm"),
+          "memo" : data.memo ? data.memo : ""
+        };
 
-          $historyDetail.append(Mustache.render(callDetailTemplate, callDetailData));
-          $historyDetail.find(".play").bind("click", function() {
-            var $callerVideo = $('#callerVideo');
-            $("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/1_caller.webm?resType=cr");
-            //$("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/" + callHistoryId + "_caller.webm?resType=cr");
-            $callerVideo.load();
+        $historyDetail.append(Mustache.render(callDetailTemplate, callDetailData));
+        $historyDetail.find(".play").bind("click", function() {
+          var $callerVideo = $('#callerVideo');
+          $("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/1_caller.webm?resType=cr");
+          //$("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/" + callHistoryId + "_caller.webm?resType=cr");
+          $callerVideo.load();
 
-            var $calleeVideo = $('#calleeVideo');
-            $("source", $calleeVideo).attr("src", "http://192.168.1.164:7587/repository/1_callee.webm?resType=cr");
-            //$("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/" + callHistoryId + "_caller.webm?resType=cr");
-            $calleeVideo.load();
+          var $calleeVideo = $('#calleeVideo');
+          $("source", $calleeVideo).attr("src", "http://192.168.1.164:7587/repository/1_callee.webm?resType=cr");
+          //$("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/" + callHistoryId + "_caller.webm?resType=cr");
+          $calleeVideo.load();
 
-            initPlay();
-            $historyPlay.removeClass("hide");
-          })
-
-        } else {
-          console.log("[fail search]" + response.statusMessage);
-        }
+          initPlay();
+          $historyPlay.removeClass("hide");
+        })
       }
     );
   });

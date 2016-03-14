@@ -50189,7 +50189,6 @@ function buildBuilder (client, opts) {
 }
 
 function buildBuilderBrowser (mqttClient, opts) {
-  console.log(opts);
   var url, parsed;
   if ('undefined' !== typeof (document)) { // for Web Workers! P.S: typeof(document) !== undefined may be becoming the faster one these days.
     parsed = _URL.parse(document.URL);
@@ -50229,7 +50228,7 @@ function buildBuilderBrowser (mqttClient, opts) {
   }
 
   url = opts.protocol + '://' + opts.hostname + ':' + opts.port + opts.path;
-console.log(url);
+
   return websocket(url, 'mqttv3.1');
 }
 
@@ -57752,9 +57751,6 @@ function plural(ms, n, name) {
     if (chunk === null) {
       return end(parser)
     }
-    if (typeof chunk === 'object') {
-      chunk = chunk.toString()
-    }
     var i = 0
     var c = ''
     while (true) {
@@ -63353,10 +63349,6 @@ var chat = (function() {
 
       console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
 
-<<<<<<< HEAD
-    if (!clientChatInfo.client) {
-=======
->>>>>>> 33607126619c18e590245c13da25565e36764f02
       if ((clientChatInfo.client = _createMQTTClient()) === null) {
         console.error("Failed to initialize MQTT client");
         return;
@@ -63384,11 +63376,7 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
-<<<<<<< HEAD
       protocol: "wss"
-=======
-      protocol:"wss"
->>>>>>> 33607126619c18e590245c13da25565e36764f02
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);
@@ -63524,11 +63512,7 @@ define("CHANNEL_CHAT", 1);
 
 // [msg]
 // mqtt
-<<<<<<< HEAD
-define("MQTT_URL", "mqtts://192.168.1.164:2883");
-=======
 define("MQTT_URL", "wss://192.168.1.164:2883");
->>>>>>> 33607126619c18e590245c13da25565e36764f02
 
 // topic
 define("TOPIC_PRESENCE", "/presence");
@@ -63574,8 +63558,8 @@ define("CHANNEL_TOPIC_DELIMITER", "$");
 var restCommon = require("./rest_common");
 
 var CallHistory = (function(params) {
+  params.path = "frontend/communication/callhistory";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/communication/callhistory";
 });
 
 CallHistory.prototype.getListByCondition = function(params, callback) {
@@ -63603,15 +63587,9 @@ CallHistory.prototype.getListByCondition = function(params, callback) {
     path: {
       "teamId": params.teamId
     },
-    parameters: parameters,
-    headers: self.restCommon.commonHeaders
+    parameters: parameters
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${teamId}", args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/co/${teamId}", args, callback);
 };
 
 CallHistory.prototype.createCallHistory = function(params, callback) {
@@ -63634,15 +63612,10 @@ CallHistory.prototype.createCallHistory = function(params, callback) {
     }
 
   var args = {
-    data: $.param(parameters),
-    headers: self.restCommon.commonHeaders
+    data: $.param(parameters)
   };
-  self.restCommon.client.post(self.restCommon.apiurl + self.path, args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+
+  self.restCommon.post(null, args, callback);
 };
 
 CallHistory.prototype.updateCallHistory = function(params, callback) {
@@ -63661,15 +63634,9 @@ CallHistory.prototype.updateCallHistory = function(params, callback) {
   }
 
   var args = {
-    data: $.param(parameters),
-    headers: self.restCommon.commonHeaders
+    data: $.param(parameters)
   };
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/" + params.callhid, args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.put("/" + params.callhid, args, callback);
 };
 
 CallHistory.prototype.getCallHistory = function(params, callback) {
@@ -63678,15 +63645,9 @@ CallHistory.prototype.getCallHistory = function(params, callback) {
   var args = {
     path: {
       "callHistoryId": params.callHistoryId
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${callHistoryId}", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/${callHistoryId}", args, callback);
 };
 
 module.exports = CallHistory;
@@ -63695,8 +63656,8 @@ module.exports = CallHistory;
 var restCommon = require("./rest_common");
 
 var Channel = (function(params) {
+  params.path = "frontend/communication/channel";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/communication/channel";
 });
 
 Channel.prototype.getChannelList = function(params, callback) {
@@ -63708,15 +63669,9 @@ Channel.prototype.getChannelList = function(params, callback) {
     },
     parameters: {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${teamId}", args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/${teamId}", args, callback);
 };
 
 Channel.prototype.getChannel = function(params, callback) {
@@ -63728,15 +63683,9 @@ Channel.prototype.getChannel = function(params, callback) {
     },
     parameters: {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/channel/${channelId}", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/channel/${channelId}", args, callback);
 };
 
 Channel.prototype.getChannelByName = function(params, callback) {
@@ -63747,15 +63696,9 @@ Channel.prototype.getChannelByName = function(params, callback) {
       "name": params.name,
       "teamId": params.teamId,
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/name", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/name", args, callback);
 };
 
 Channel.prototype.createChannel = function(params, callback) {
@@ -63767,16 +63710,10 @@ Channel.prototype.createChannel = function(params, callback) {
       "name": params.name,
       "members": params.members.toString(),
       "pinupMessage": params.pinupMessage
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
 
-  self.restCommon.client.post(self.restCommon.apiurl + self.path, args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.post(null, args, callback);
 };
 
 Channel.prototype.addMember = function(params, callback) {
@@ -63785,16 +63722,10 @@ Channel.prototype.addMember = function(params, callback) {
   var args = {
     data: $.param({
       "members": params.members.toString()
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
 
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
-    function(data, response) {
-      callback(response, params);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.put( "/" + params.channelId + "/member", args, callback);
 };
 
 Channel.prototype.removeMember = function(params, callback) {
@@ -63803,16 +63734,10 @@ Channel.prototype.removeMember = function(params, callback) {
   var args = {
     data: $.param({
       "members": params.members.toString()
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
 
-  self.restCommon.client.post(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
-    function(data, response) {
-      callback(response, params);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.post( "/" + params.channelId + "/member", args, callback);
 };
 
 module.exports = Channel;
@@ -63821,8 +63746,8 @@ module.exports = Channel;
 var restCommon = require("./rest_common");
 
 var Chat = (function(params) {
+  params.path = "frontend/communication/chat";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/communication/chat";
 });
 
 Chat.prototype.getListByCondition = function(params, callBackRequiredValues, callback) {
@@ -63840,15 +63765,9 @@ Chat.prototype.getListByCondition = function(params, callBackRequiredValues, cal
       "lastChatId": params.lastChatId ? params.lastChatId : constants.COMMON_SEARCH_ALL,
       "firstChatId": params.firstChatId ? params.firstChatId : constants.COMMON_SEARCH_ALL,
       "msgCount": params.msgCount ? params.msgCount : constants.COMMON_SEARCH_COUNT
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/team/${teamId}/searchby/${emplId}", args,
-    function(data, response) {
-      callback(data, callBackRequiredValues);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/team/${teamId}/searchby/${emplId}", args, callback, callBackRequiredValues);
 };
 
 Chat.prototype.getMentionList = function(params, callback) {
@@ -63857,15 +63776,9 @@ Chat.prototype.getMentionList = function(params, callback) {
   var args = {
     path: {
       "emplId": params.emplId
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/mention/${emplId}", args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/mention/${emplId}", args, callback);
 };
 
 Chat.prototype.postMsg = function(params, callback) {
@@ -63877,15 +63790,9 @@ Chat.prototype.postMsg = function(params, callback) {
       "topic": params.topic,
       "emplId": params.emplId,
       "msg": params.msg
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
-  self.restCommon.client.post(self.restCommon.apiurl + self.path, args,
-    function(data, response) {
-      callback(data, params);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.post(self.restCommon.apiurl + self.path, args, callback, params);
 };
 
 module.exports = Chat;
@@ -63896,8 +63803,8 @@ module.exports = Chat;
 var RestCommon = require("./rest_common");
 
 var Empl = (function(params) {
+  params.path ="frontend/user/employee";
   this.restCommon = new RestCommon(params);
-  this.path ="/frontend/user/employee";
 });
 
 Empl.prototype.getListByTeamId = function(params, callback) {
@@ -63912,15 +63819,9 @@ Empl.prototype.getListByTeamId = function(params, callback) {
         "offset" : params.offset ? params.offset : constants.COMMON_SEARCH_OFFSET,
         "sIdx" : params.sIdx ? params.sIdx : "emplid",
         "sOrder" : params.sOrder ? params.sOrder : constants.COMMON_SEARCH_ORDER_ASC
-      },
-      headers: self.restCommon.commonHeaders
+      }
     };
-    self.restCommon.client.get(self.restCommon.apiurl + self.path + "/team/${teamId}", args,
-      function(data, response){
-        callback(data);
-    }).on('error',function(err){
-      console.error('something went wrong on the request', err.request.options);
-    });
+    self.restCommon.get("/team/${teamId}", args, callback);
   };
 
   Empl.prototype.createEmpl = function(params, callback) {
@@ -63934,16 +63835,10 @@ Empl.prototype.getListByTeamId = function(params, callback) {
         "name": params.name,
         "mobile": params.mobile,
         "office": params.office,
-      }),
-      headers: self.restCommon.commonHeaders
+      })
     };
 
-    self.restCommon.client.post(self.restCommon.apiurl + self.path + "/create", args,
-      function(data, response) {
-        callback(data, response);
-      }).on('error', function(err) {
-      console.error('something went wrong on the request', err.request.options);
-    });
+    self.restCommon.post( "/create", args, callback);
   };
 
 module.exports = Empl;
@@ -63954,13 +63849,13 @@ module.exports = Empl;
 var RestCommon = require("./rest_common");
 
 var Login = (function(params) {
+  params.path ="frontend/user/login";
   this.restCommon = new RestCommon(params);
-  this.path ="/frontend/user/login";
 });
 
 Login.prototype.login = function(params, callback) {
   var self = this;
-  console.debug("login - [team] " + params.team + "[email] " + params.email);
+  console.debug("login - [tea1m] " + params.team + "[email] " + params.email);
   var args = {
     path : {
       "team" : params.team,
@@ -63969,19 +63864,9 @@ Login.prototype.login = function(params, callback) {
     data: $.param({
       "password" : params.password,
       "client" : params.client
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
-
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${team}/${email}", args,
-    function(data, response){
-      if (response.statusCode == 200 || response.statusCode == 201)
-        callback(data);
-      else
-        callback(null, data);
-  }).on('error',function(err){
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.put("/${team}/${email}", args, callback);
 };
 
 Login.prototype.logout = function(emplId) {
@@ -63990,12 +63875,9 @@ Login.prototype.logout = function(emplId) {
   var args = {
     path : {
       "emplId" : emplId
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/${emplId}", args,
-    function(data, response){
-  });
+  self.restCommon.put("/${emplId}", args);
 };
 
 module.exports = Login;
@@ -64003,26 +63885,102 @@ module.exports = Login;
 },{"./rest_common":282}],282:[function(require,module,exports){
 var Client = require('node-rest-client').Client;
 var RestCommon = (function(params){
-  this.client = new Client();
-  this.commonHeaders = {
+  var client = new Client();
+  var commonHeaders = {
     "X-Requested-With" : "XMLHttpRequest",
     "Accept": "application/json",
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
   };
 
   if(params.email) {
-    this.commonHeaders['X-UANGEL-USER'] = params.email;
-    this.commonHeaders['X-UANGEL-AUTHID'] = params.email;
+    commonHeaders['X-UANGEL-USER'] = params.email;
+    commonHeaders['X-UANGEL-AUTHID'] = params.email;
   }
 
   if(params.channel) {
-    this.commonHeaders['X-UANGEL-CHANNEL'] = params.channel;
+    commonHeaders['X-UANGEL-CHANNEL'] = params.channel;
   }
   if(params.authKey) {
-    this.commonHeaders['X-UANGEL-AUTHKEY'] = params.authKey;
+    commonHeaders['X-UANGEL-AUTHKEY'] = params.authKey;
   }
 
-  this.apiurl = params.url;
+  var apiurl = params.url;
+  var path = params.path;
+
+  var put = function(url, args, callback, callBackRequiredValues) {
+    args.headers = commonHeaders;
+    var restURL = apiurl + path + (url ? url : "");
+    client.put(restURL, args,
+      function(data, response) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          if(callback) {
+            callback(data, callBackRequiredValues);
+          }
+        } else {
+          toastr.warning(data.userMessage);
+  			}
+      }).on('error',function(err){
+        toastr.error("Something went wrong on the request");
+    });
+  };
+
+  var get = function(url, args, callback, callBackRequiredValues) {
+    args.headers = commonHeaders;
+    var restURL = apiurl + path + (url ? url : "");
+    client.get(restURL, args,
+      function(data, response) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          if(callback) {
+            callback(data, callBackRequiredValues);
+          }
+        } else {
+          toastr.warning(data.userMessage);
+  			}
+      }).on('error',function(err){
+        toastr.error("Something went wrong on the request");
+    });
+  };
+
+  var post = function(url, args, callback, callBackRequiredValues) {
+    args.headers = commonHeaders;
+    var restURL = apiurl + path + (url ? url : "");
+    client.post(restURL, args,
+      function(data, response) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          if(callback) {
+            callback(data, callBackRequiredValues);
+          }
+        } else {
+          toastr.warning(data.userMessage);
+  			}
+      }).on('error',function(err){
+        toastr.error("Something went wrong on the request");
+    });
+  };
+
+  var del = function(url, args, callback, callBackRequiredValues) {
+    args.headers = commonHeaders;
+    var restURL = apiurl + path + (url ? url : "");
+    client.delete(restURL, args,
+      function(data, response) {
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          if(callback) {
+            callback(data, callBackRequiredValues);
+          }
+        } else {
+          toastr.warning(data.userMessage);
+  			}
+      }).on('error',function(err){
+        toastr.error("Something went wrong on the request");
+    });
+  };
+
+  return {
+    "put" : put,
+    "get" : get,
+    "post" : post,
+    "delete" : del
+  };
 });
 
 module.exports = RestCommon;
@@ -64031,8 +63989,8 @@ module.exports = RestCommon;
 var restCommon = require("./rest_common");
 
 var Team = (function(params) {
+  params.path = "frontend/user/Team";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/user/Team";
 });
 
 Team.prototype.getTeamByName = function(params, callback) {
@@ -64041,15 +63999,9 @@ Team.prototype.getTeamByName = function(params, callback) {
   var args = {
     path: {
       "name": params.name
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${name}", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/${name}", args, callback);
 };
 
 module.exports = Team;
@@ -64563,11 +64515,11 @@ function initialize(){
   if(window && window.process && window.process.type) {
     // For desktop
     runningChannel = constants.CHANNEL_APP;
-    aplUrl = "http://192.168.1.164:7587/rest";
+    aplUrl = "https://192.168.1.164:7587/rest";
   } else {
     // For WEB
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "http://192.168.2.114:8082/rest/";
+    aplUrl = "https://192.168.1.164:8082/rest/";
   }
 
   // declare global var
@@ -64584,6 +64536,8 @@ function initialize(){
   //   resizeSection();
   // });
 }
+
+// function reloadInit()
 
 // function resizeSection() {
 //   var windowHeight = $(window).height();

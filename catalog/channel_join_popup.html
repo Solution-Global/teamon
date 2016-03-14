@@ -80,22 +80,18 @@ $(document).ready(function() {
     restResourse.channel.createChannel(params,
       function(data, response) {
         // Success
-        if(response.statusCode === 200) {
-          var params = {
-            "type": constants.GROUP_CREATE,
-            "teamId" : loginInfo.teamId,
-            "topic" : name
-          }
-
-          for(var key in members) {
-            chatModule.sendCommand(members[key], params);
-          }
-
-          chatModule.sendMsg(name, "Join Channel - " + pinupMessage);
-          $channelForm.closest(".modal-dialog").closest(".modal").modal("hide");
-        } else {
-          console.log("[fail creating channel]" + response.statusMessage);
+        var params = {
+          "type": constants.GROUP_CREATE,
+          "teamId" : loginInfo.teamId,
+          "topic" : name
         }
+
+        for(var key in members) {
+          chatModule.sendCommand(members[key], params);
+        }
+
+        chatModule.sendMsg(name, "Join Channel - " + pinupMessage);
+        $channelForm.closest(".modal-dialog").closest(".modal").modal("hide");
       }
     );
   });

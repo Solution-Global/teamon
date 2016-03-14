@@ -88,28 +88,23 @@ $(document).ready(function() {
 
     restResourse.channel.removeMember(params,
       function(response) {
-        if(response.statusCode === 200) {
+        var channelValue = channelCache.get(channelId);
+        if(channelValue) {
+          var members;
+          for(var key in channelValue.memberList) {
+            var emplId = channelValue.memberList[key].emplId;
 
-          var channelValue = channelCache.get(channelId);
-          if(channelValue) {
-            var members;
-            for(var key in channelValue.memberList) {
-              var emplId = channelValue.memberList[key].emplId;
-
-              var params = {
-                "type": constants.GROUP_REMOVE_MEMBER,
-                "channelId": channelId,
-                "member": loginInfo.emplId
-              }
-
-              chatModule.sendCommand(emplId, params);
+            var params = {
+              "type": constants.GROUP_REMOVE_MEMBER,
+              "channelId": channelId,
+              "member": loginInfo.emplId
             }
-          }
 
-          chatModule.sendMsg(activeChatInfo.topic, "left - " + loginInfo.name);
-        } else {
-          console.log("[fail add memeber]" + response.statusMessage);
+            chatModule.sendCommand(emplId, params);
+          }
         }
+
+        chatModule.sendMsg(activeChatInfo.topic, "left - " + loginInfo.name);
       }
     );
   });

@@ -5,10 +5,10 @@
       <p>Login in. To see it in action.</p>
       <form role="form" id="login-form">
           <div class="form-group">
-              <input name="email" type="email" class="form-control" placeholder="Enter Email" value="jingjignea@uangel.com"/>
+              <input name="email" type="email" class="form-control" placeholder="Enter Email"/>
           </div>
           <div class="form-group">
-              <input name="password" type="password" class="form-control" placeholder="Password" value="qwer1234"/>
+              <input name="password" type="password" class="form-control" placeholder="Password"/>
           </div>
 					<div class="form-group">
               <label><input id="keepMe" name="keepMe" type="checkbox" class="i-checks" /> Keep me signed in </label>
@@ -49,10 +49,6 @@ $(document).ready(function() {
 
 		restResourse.login.login(params,
 			function(data, error) {
-				if(!data) {
-					toastr.warning(error.userMessage);
-					return;
-				}
 
 			// set the personal pref info first to use it around the app.
 			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
@@ -65,17 +61,20 @@ $(document).ready(function() {
 				"name": data.name
 	    };
 
-			initAPI(); // init API
 			if(isAlreadyLogin) {
 				// logout 후 login 시도
 				//     catalogSection.reloadSection();
 				//     chatSection.reloadSection();
 				//     callSection.reloadSection();
 				//     headerSection.realodSection();
+				// loadAllArea();
 			} else {
 				// 처음 login 시도
-				loadAllArea();
+				initAPI(); // init API
+				// loadAllArea();
 			}
+
+			loadAllArea();
 
 	    if(params.keepMe)
 	      localStorageManager.setValue("keepEmplId", data.emplId);

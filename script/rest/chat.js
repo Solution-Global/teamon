@@ -1,8 +1,8 @@
 var restCommon = require("./rest_common");
 
 var Chat = (function(params) {
+  params.path = "frontend/communication/chat";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/communication/chat";
 });
 
 Chat.prototype.getListByCondition = function(params, callBackRequiredValues, callback) {
@@ -20,15 +20,9 @@ Chat.prototype.getListByCondition = function(params, callBackRequiredValues, cal
       "lastChatId": params.lastChatId ? params.lastChatId : constants.COMMON_SEARCH_ALL,
       "firstChatId": params.firstChatId ? params.firstChatId : constants.COMMON_SEARCH_ALL,
       "msgCount": params.msgCount ? params.msgCount : constants.COMMON_SEARCH_COUNT
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/team/${teamId}/searchby/${emplId}", args,
-    function(data, response) {
-      callback(data, callBackRequiredValues);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/team/${teamId}/searchby/${emplId}", args, callback, callBackRequiredValues);
 };
 
 Chat.prototype.getMentionList = function(params, callback) {
@@ -37,15 +31,9 @@ Chat.prototype.getMentionList = function(params, callback) {
   var args = {
     path: {
       "emplId": params.emplId
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/mention/${emplId}", args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/mention/${emplId}", args, callback);
 };
 
 Chat.prototype.postMsg = function(params, callback) {
@@ -57,15 +45,9 @@ Chat.prototype.postMsg = function(params, callback) {
       "topic": params.topic,
       "emplId": params.emplId,
       "msg": params.msg
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
-  self.restCommon.client.post(self.restCommon.apiurl + self.path, args,
-    function(data, response) {
-      callback(data, params);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.post(self.restCommon.apiurl + self.path, args, callback, params);
 };
 
 module.exports = Chat;

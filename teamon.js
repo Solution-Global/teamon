@@ -19,11 +19,11 @@ function initialize(){
   if(window && window.process && window.process.type) {
     // For desktop
     runningChannel = constants.CHANNEL_APP;
-    aplUrl = "http://192.168.1.164:7587/rest";
+    aplUrl = "https://192.168.1.164:7587/rest";
   } else {
     // For WEB
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "http://192.168.2.114:8082/rest/";
+    aplUrl = "https://192.168.1.164:8082/rest/";
   }
 
   // declare global var
@@ -40,6 +40,8 @@ function initialize(){
   //   resizeSection();
   // });
 }
+
+// function reloadInit()
 
 // function resizeSection() {
 //   var windowHeight = $(window).height();
