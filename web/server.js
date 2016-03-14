@@ -13,6 +13,11 @@ const tlsOptions = {
   cert: fs.readFileSync('/data2/TEAMON/mqtt/teamon.crt')
 };
 
+// const tlsOptions = {
+//   key: fs.readFileSync(__dirname + '/teamon.key'),
+//   cert: fs.readFileSync(__dirname + '/teamon.crt')
+// };
+
 var logFormat = ':remote-addr - [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time';
 var logDirectory = appRootPath.path + '/logs';
 
@@ -30,6 +35,6 @@ var app = connect()
   .use(logger(logFormat, {stream: accessLogStream}))
   .use(serveStatic(appRootPath.path, {index: "index_web.html"}));
 
-http.createServer(app).listen(8082, function() {
+https.createServer(tlsOptions, app).listen(8082, function() {
   console.log('server running on 8082');
 });

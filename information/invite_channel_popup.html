@@ -61,44 +61,40 @@ $(document).ready(function() {
 
     restResourse.channel.addMember(params,
       function(response) {
-        // Success
-        if(response.statusCode === 200) {
-          // 새로운 추가운 사용자 대상으로 그룹 가입 권고
-          var paramsForNewMember = {
-            "type": constants.GROUP_CREATE,
-            "channelId": channelId,
-            "name" : channelValue.name
-          }
-
-          var names = "";
-          for(var key in newMembers) {
-            chatModule.sendCommand(newMembers[key], paramsForNewMember);
-            var memberInfo = userCache.get(newMembers[key]);
-            names += " #" + memberInfo.name;
-          }
-
-          // 기존 사용자에게 멤버 추가
-          var paramsForExistMember = {
-            "type": constants.GROUP_ADD_MEMBER,
-            "channelId": channelId,
-            "newMembers": newMembers
-          }
-
-          for(var key in membersArray) {
-            chatModule.sendCommand(membersArray[key], paramsForExistMember);
-          }
-
-          chatModule.sendMsg(activeChatInfo.topic, "Invite members - " + names); // 멤버 추가 메시지 전송
-
-          // form reset
-          $inviteChannelForm.each(function() {
-            if(this.className  == "frmClass") this.reset();
-          });
-
-          $inviteChannelForm.closest(".modal-dialog").closest(".modal").modal("hide");
-        } else {
-          console.log("[fail add memeber]" + response.statusMessage);
+        // 새로운 추가운 사용자 대상으로 그룹 가입 권고
+        var paramsForNewMember = {
+          "type": constants.GROUP_CREATE,
+          "channelId": channelId,
+          "name" : channelValue.name
         }
+
+        var names = "";
+        for(var key in newMembers) {
+          chatModule.sendCommand(newMembers[key], paramsForNewMember);
+          var memberInfo = userCache.get(newMembers[key]);
+          names += " #" + memberInfo.name;
+        }
+
+        // 기존 사용자에게 멤버 추가
+        var paramsForExistMember = {
+          "type": constants.GROUP_ADD_MEMBER,
+          "channelId": channelId,
+          "newMembers": newMembers
+        }
+
+        for(var key in membersArray) {
+          chatModule.sendCommand(membersArray[key], paramsForExistMember);
+        }
+
+        chatModule.sendMsg(activeChatInfo.topic, "Invite members - " + names); // 멤버 추가 메시지 전송
+
+        // form reset
+        $inviteChannelForm.each(function() {
+          if(this.className  == "frmClass") this.reset();
+        });
+
+        $inviteChannelForm.closest(".modal-dialog").closest(".modal").modal("hide");
+
       }
     );
   });

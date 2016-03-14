@@ -1,8 +1,8 @@
 var restCommon = require("./rest_common");
 
 var CallHistory = (function(params) {
+  params.path = "frontend/communication/callhistory";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/communication/callhistory";
 });
 
 CallHistory.prototype.getListByCondition = function(params, callback) {
@@ -30,15 +30,9 @@ CallHistory.prototype.getListByCondition = function(params, callback) {
     path: {
       "teamId": params.teamId
     },
-    parameters: parameters,
-    headers: self.restCommon.commonHeaders
+    parameters: parameters
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/co/${teamId}", args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/co/${teamId}", args, callback);
 };
 
 CallHistory.prototype.createCallHistory = function(params, callback) {
@@ -61,15 +55,10 @@ CallHistory.prototype.createCallHistory = function(params, callback) {
     }
 
   var args = {
-    data: $.param(parameters),
-    headers: self.restCommon.commonHeaders
+    data: $.param(parameters)
   };
-  self.restCommon.client.post(self.restCommon.apiurl + self.path, args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+
+  self.restCommon.post(null, args, callback);
 };
 
 CallHistory.prototype.updateCallHistory = function(params, callback) {
@@ -88,15 +77,9 @@ CallHistory.prototype.updateCallHistory = function(params, callback) {
   }
 
   var args = {
-    data: $.param(parameters),
-    headers: self.restCommon.commonHeaders
+    data: $.param(parameters)
   };
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/" + params.callhid, args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.put("/" + params.callhid, args, callback);
 };
 
 CallHistory.prototype.getCallHistory = function(params, callback) {
@@ -105,15 +88,9 @@ CallHistory.prototype.getCallHistory = function(params, callback) {
   var args = {
     path: {
       "callHistoryId": params.callHistoryId
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${callHistoryId}", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/${callHistoryId}", args, callback);
 };
 
 module.exports = CallHistory;

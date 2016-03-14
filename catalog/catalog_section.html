@@ -254,17 +254,13 @@ $(document).ready(function() {
     };
 
     restResourse.channel.getChannelByName(params, function(data, response) {
-      if(response.statusCode === 200) {
-        var channelData = {
-          "channelId": data.channelId,
-          "topic": data.name
-        };
-        $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
+      var channelData = {
+        "channelId": data.channelId,
+        "topic": data.name
+      };
+      $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
 
-        reloadChannelCache(data.channelId);
-      } else {
-        console.error("fail! getChannelByName ");
-      }
+      reloadChannelCache(data.channelId);
     });
   }
 
@@ -280,12 +276,8 @@ $(document).ready(function() {
     };
 
     restResourse.channel.getChannel(params, function(data, response) {
-      if(response.statusCode === 200) {
-        if(data.channelId) {
-          channelCache.set(channelId, data);
-        }
-      } else {
-        console.error("fail channel reload!!");
+      if(data.channelId) {
+        channelCache.set(channelId, data);
       }
     });
   }
@@ -303,7 +295,9 @@ $(document).ready(function() {
       backgroundColor : "#2f4050"
     };
     openModalDialog("./user/login_popup.html", dialogOptions);
-    //TODO session, close chat and call connection
+    //TODO session, close chat and call disconnection
+    localStorageManager.removeKey("keepEmplId");
+    sessionStorageManager.removeKey("sessionEmplId");
   });
 });
 </script>

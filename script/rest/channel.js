@@ -1,8 +1,8 @@
 var restCommon = require("./rest_common");
 
 var Channel = (function(params) {
+  params.path = "frontend/communication/channel";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/communication/channel";
 });
 
 Channel.prototype.getChannelList = function(params, callback) {
@@ -14,15 +14,9 @@ Channel.prototype.getChannelList = function(params, callback) {
     },
     parameters: {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${teamId}", args,
-    function(data, response) {
-      callback(data);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/${teamId}", args, callback);
 };
 
 Channel.prototype.getChannel = function(params, callback) {
@@ -34,15 +28,9 @@ Channel.prototype.getChannel = function(params, callback) {
     },
     parameters: {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/channel/${channelId}", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/channel/${channelId}", args, callback);
 };
 
 Channel.prototype.getChannelByName = function(params, callback) {
@@ -53,15 +41,9 @@ Channel.prototype.getChannelByName = function(params, callback) {
       "name": params.name,
       "teamId": params.teamId,
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/name", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get( "/name", args, callback);
 };
 
 Channel.prototype.createChannel = function(params, callback) {
@@ -73,16 +55,10 @@ Channel.prototype.createChannel = function(params, callback) {
       "name": params.name,
       "members": params.members.toString(),
       "pinupMessage": params.pinupMessage
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
 
-  self.restCommon.client.post(self.restCommon.apiurl + self.path, args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.post(null, args, callback);
 };
 
 Channel.prototype.addMember = function(params, callback) {
@@ -91,16 +67,10 @@ Channel.prototype.addMember = function(params, callback) {
   var args = {
     data: $.param({
       "members": params.members.toString()
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
 
-  self.restCommon.client.put(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
-    function(data, response) {
-      callback(response, params);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.put( "/" + params.channelId + "/member", args, callback);
 };
 
 Channel.prototype.removeMember = function(params, callback) {
@@ -109,16 +79,10 @@ Channel.prototype.removeMember = function(params, callback) {
   var args = {
     data: $.param({
       "members": params.members.toString()
-    }),
-    headers: self.restCommon.commonHeaders
+    })
   };
 
-  self.restCommon.client.post(self.restCommon.apiurl + self.path + "/" + params.channelId + "/member", args,
-    function(data, response) {
-      callback(response, params);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.post( "/" + params.channelId + "/member", args, callback);
 };
 
 module.exports = Channel;

@@ -1,8 +1,8 @@
 var restCommon = require("./rest_common");
 
 var Team = (function(params) {
+  params.path = "frontend/user/Team";
   this.restCommon = new restCommon(params);
-  this.path = "/frontend/user/Team";
 });
 
 Team.prototype.getTeamByName = function(params, callback) {
@@ -11,15 +11,9 @@ Team.prototype.getTeamByName = function(params, callback) {
   var args = {
     path: {
       "name": params.name
-    },
-    headers: self.restCommon.commonHeaders
+    }
   };
-  self.restCommon.client.get(self.restCommon.apiurl + self.path + "/${name}", args,
-    function(data, response) {
-      callback(data, response);
-    }).on('error', function(err) {
-    console.error('something went wrong on the request', err.request.options);
-  });
+  self.restCommon.get("/${name}", args, callback);
 };
 
 module.exports = Team;

@@ -38,12 +38,10 @@
     $("#registerEmplForm").validate({
       rules: {
         email: {
-          required: true,
-          minlength: 4
+          required: true
         },
         name: {
-          required: true,
-          minlength: 4
+          required: true
         },
         password: {
           required: true
@@ -61,12 +59,8 @@
       restResourse.empl.createEmpl(params,
         function(data, response) {
           // Success
-          if(response.statusCode === 200) {
-            $("#registerEmplForm").closest(".modal-dialog").closest(".modal").modal("hide");
-            toastr.info("The account[" + params.email + "] created successfully. Why don't you sign in now?");
-          } else {
-            toastr.error("Failed to create account.");
-          }
+          $("#registerEmplForm").closest(".modal-dialog").closest(".modal").modal("hide");
+          toastr.info("The account[" + params.email + "] created successfully. Why don't you sign in now?");
       });
     });
   });

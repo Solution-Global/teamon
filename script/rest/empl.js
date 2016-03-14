@@ -3,8 +3,8 @@
 var RestCommon = require("./rest_common");
 
 var Empl = (function(params) {
+  params.path ="frontend/user/employee";
   this.restCommon = new RestCommon(params);
-  this.path ="/frontend/user/employee";
 });
 
 Empl.prototype.getListByTeamId = function(params, callback) {
@@ -19,15 +19,9 @@ Empl.prototype.getListByTeamId = function(params, callback) {
         "offset" : params.offset ? params.offset : constants.COMMON_SEARCH_OFFSET,
         "sIdx" : params.sIdx ? params.sIdx : "emplid",
         "sOrder" : params.sOrder ? params.sOrder : constants.COMMON_SEARCH_ORDER_ASC
-      },
-      headers: self.restCommon.commonHeaders
+      }
     };
-    self.restCommon.client.get(self.restCommon.apiurl + self.path + "/team/${teamId}", args,
-      function(data, response){
-        callback(data);
-    }).on('error',function(err){
-      console.error('something went wrong on the request', err.request.options);
-    });
+    self.restCommon.get("/team/${teamId}", args, callback);
   };
 
   Empl.prototype.createEmpl = function(params, callback) {
@@ -41,16 +35,10 @@ Empl.prototype.getListByTeamId = function(params, callback) {
         "name": params.name,
         "mobile": params.mobile,
         "office": params.office,
-      }),
-      headers: self.restCommon.commonHeaders
+      })
     };
 
-    self.restCommon.client.post(self.restCommon.apiurl + self.path + "/create", args,
-      function(data, response) {
-        callback(data, response);
-      }).on('error', function(err) {
-      console.error('something went wrong on the request', err.request.options);
-    });
+    self.restCommon.post( "/create", args, callback);
   };
 
 module.exports = Empl;
