@@ -22,8 +22,12 @@ function initialize(){
     aplUrl = "https://192.168.1.164:7587/rest";
   } else {
     // For WEB
+    console.trace(navigator.userAgent);
+    navigator.geolocation.getCurrentPosition(function(position) {
+      console.trace(position);
+    });
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "https://192.168.1.164:8082/rest/";
+    aplUrl = location.protocol + "//" + location.host + "/rest/";
   }
 
   // declare global var
@@ -165,6 +169,8 @@ showCallArea = function() {
 };
 
 showInformationArea = function(fileName) {
+  if ($('body').hasClass('body-small'))
+    return;
   $("#information-section").html("");
   loadHtml("./information/" + fileName, $("#information-section"));
   $("#information-section").show();

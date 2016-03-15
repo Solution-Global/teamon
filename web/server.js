@@ -9,8 +9,8 @@ var FileStreamRotator = require('file-stream-rotator')
 var appRootPath = require('app-root-path');
 
 const tlsOptions = {
-  key: fs.readFileSync('/data2/TEAMON/mqtt/teamon.key'),
-  cert: fs.readFileSync('/data2/TEAMON/mqtt/teamon.crt')
+  key: fs.readFileSync('../teamon.key'),
+  cert: fs.readFileSync('../teamon.crt')
 };
 
 // const tlsOptions = {

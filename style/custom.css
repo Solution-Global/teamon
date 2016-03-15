@@ -378,6 +378,9 @@ img.in-message {
 	border-radius: 50%;
 }
 
+.chat-discussion {
+	height: inherit;
+}
 .nav-header {
 	background: none;
 }
@@ -385,14 +388,160 @@ img.in-message {
 	#page-wrapper {
 		margin: 0 0 0 280px;
 	}
+	.no-menu #page-wrapper {
+		margin: 0 0 0 0;
+	}
+	.no-menu .navbar-static-side {
+		z-index: auto;
+	}
 	.navbar-static-side {
 		width: 280px;
 	}
 }
 
-@media (max-width: 992px) {
-  .chat-users,
-  .chat-statistic {
-    margin-left: -30px;
-  }
+@media (max-width: 768px) {
+	.body-small.small-navbar .navbar-static-side {
+		display: block;
+		width: 200px;
+	}
+
+	body.body-small.small-navbar #page-wrapper {
+		margin: 0 0 0 200px;
+	}
+
+	body.small-navbar .navbar-top-links > li {
+		display: none;
+	}
+
+	#information-section {
+		display: none;
+	}
+
+	#chat-section {
+		width: 100%;
+	}
+}
+
+body {
+	height: 100%;
+	overflow-y: hidden;
+}
+
+#page-wrapper {
+	height: 100%;
+	min-height: initial;
+}
+
+#teamon-header {
+	position: absolute;
+	height: 61px;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+
+#teamon-content {
+	position: absolute;
+	height: 100%;
+	top: 0;
+	left: 0;
+	width: 100%;
+	padding-top: 61px;
+}
+
+#chat-section {
+	height: 100%;
+	padding: 0;
+}
+
+.chat-view {
+	height: 100%;
+}
+
+.chat-view > .chat-messages {
+	padding-bottom: 91px;
+	height: 100%;
+}
+
+.chat-view > .chat-input {
+	position: absolute;
+	bottom: 0;
+}
+
+.profile-element {
+	text-align: center;
+}
+
+body.small-navbar .logo-element {
+	display: block;
+}
+
+body.small-navbar .profile-element {
+  display: none;
+}
+
+.chat-users {
+	height: auto;
+}
+
+#catalog-section {
+	height: 100%;
+}
+
+#side-menu {
+	height: 100%;
+}
+
+#topic-list {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	padding-top: 154px;
+	top: 0;
+}
+
+.chat-users {
+	margin-left: 0;
+}
+
+.nav-second-level li a {
+	padding-left: 22px;
+}
+#channels-list.nav-second-level li a {
+	padding-left: 42px;
+}
+
+body.small-navbar .nav-header {
+	padding: 0;
+	background-color: #1ab394;
+}
+
+body.small-navbar #topic-list {
+	padding-top: 61px;
+}
+
+body.small-navbar .navbar-static-side .chat-avatar {
+	width: 18px;
+	height: 18px;
+	margin-right: 5px;
+}
+
+body.small-navbar .navbar-static-side .chat-users {
+	margin-left: -10px;
+}
+
+body.small-navbar .navbar-static-side .chat-user {
+	padding: 3px 5px;
+}
+
+body.small-navbar .navbar-static-side .chat-user-name {
+	padding: 2px;
+}
+body.small-navbar .navbar-static-side .nav > li > a {
+	padding: 7px 10px;
+	font-weight: 400;
+}
+body.small-navbar .navbar-static-side .nav-second-level > li > a {
+	padding: 2px 3px;
+	padding-left: 20px;
 }
