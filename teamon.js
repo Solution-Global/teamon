@@ -43,8 +43,6 @@ function initialize(){
   // $(window).resize(function() {
   //   resizeSection();
   // });
-
-  console.log(toastr);
 }
 
 // function reloadInit()
