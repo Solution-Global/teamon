@@ -8,6 +8,8 @@ var fs = require('fs');
 var FileStreamRotator = require('file-stream-rotator')
 var appRootPath = require('app-root-path');
 
+process.title = "teamON";
+
 const tlsOptions = {
   key: fs.readFileSync('../teamon.key'),
   cert: fs.readFileSync('../teamon.crt')
