@@ -127,8 +127,14 @@ $(document).ready(function() {
     console.log("topicArray = %s %s", topic, payloadStr);
 
     var channelValue = channelCache.get(msgPayload.channelId);
-    var members = []; // for mention
-    var userValue = userCache.get(myId);
+    var userValue = userCache.get(msgPayload.senderId);
+    
+    var notiTitle = "New message form " + userValue.name;
+    var notiBody = msgPayload.msg;
+    if (msgPayload.channelId) {
+      notiTitle = "New message in " + channelValue.name;
+      notiBody = userValue.name + ": "  + msgPayload.msg;
+    }
 
     if (!("Notification" in window)) {
       alert("This browser does not support desktop notification");
@@ -137,9 +143,8 @@ $(document).ready(function() {
     // Let's check whether notification permissions have already been granted
     else if (Notification.permission === "granted") {
       var notification = new Notification(
-        "New message in " + msgPayload.channelId,
-        {icon: "../img/profile_no.jpg", body: msgPayload.senderId + ": "
-        + msgPayload.msg, tag: msgPayload.senderId});
+        notiTitle,
+        {icon: "../img/profile_no.jpg", body: notiBody, tag: ""});
 
       console.log("granted: channelId = %s senderId = %s msg = %s",
         msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
@@ -150,9 +155,8 @@ $(document).ready(function() {
         // If the user accepts, let's create a notification
         if (permission === "granted") {
           var notification = new Notification(
-            "New message in " + msgPayload.channelId,
-            {icon: "../img/profile_no.jpg", body: msgPayload.senderId + ": "
-            + msgPayload.msg, tag: msgPayload.senderId});
+            notiTitle,
+            {icon: "../img/profile_no.jpg", body: notiBody, tag: ""});
         }
         console.log("denied: channelId = %s senderId = %s msg = %s",
           msgPayload.channelId, msgPayload.senderId, msgPayload.msg);

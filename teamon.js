@@ -19,11 +19,12 @@ function initialize(){
   if(window && window.process && window.process.type) {
     // For desktop
     runningChannel = constants.CHANNEL_APP;
-    aplUrl = "https://192.168.1.164:7587/rest";
+    aplUrl = "http://192.168.1.164:7587/rest";
+    toastr = require("./script/plugins/toastr/toastr.min.js");
   } else {
     // For WEB
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "https://192.168.1.164:8082/rest/";
+    aplUrl = "https://localhost:8082/rest/";
   }
 
   // declare global var

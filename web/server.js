@@ -5,7 +5,7 @@ var serveStatic = require('serve-static');
 var cpl = require('connect-proxy-layer');
 var logger = require('morgan');
 var fs = require('fs');
-var FileStreamRotator = require('file-stream-rotator')
+var FileStreamRotator = require('file-stream-rotator');
 var appRootPath = require('app-root-path');
 
 const tlsOptions = {
