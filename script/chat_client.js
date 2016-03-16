@@ -43,6 +43,10 @@ var chat = (function() {
     var client = mqtt.connect(constants.MQTT_URL, options);
     client.on('connect', _mqttConnected);
     client.on('message', _mqttReceived);
+    client.on('close', function(event) {
+      if (event.type === 'error')
+        toastr.error('You have invalid certificate. Please install valid certificate and restart browser. If not, you cannot send message.');
+    });
 
     return client;
   }

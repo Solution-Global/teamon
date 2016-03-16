@@ -1,20 +1,21 @@
-<div class="sidebar-collapse">
-  <ul class="nav metismenu" id="side-menu">
-    <li class="nav-header">
-      <div class="profile-element">
-        <span>
-        <img alt="image" src="./img/logo_uangel.png"/>
-        </span>
-        <div class="public-area">
-          <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-          <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-          <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
-        </div>
+<div class="sidebar-collapse" id="side-menu">
+  <div class="nav-header">
+    <div class="profile-element">
+      <span>
+      <img alt="image" src="./img/logo_uangel.png"/>
+      </span>
+      <div class="public-area">
+        <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
       </div>
-      <div class="logo-element">
-        UANGEL
-      </div>
-    </li>
+    </div>
+    <div class="logo-element">
+      UANGEL
+    </div>
+  </div>
+  <div id="topic-list">
+  <ul class="nav metismenu">
     <li>
       <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
       <div class="chat-channels">
@@ -49,6 +50,7 @@
     </li>
   </ul>
 </div>
+</div>
 
 <script>
 $(document).ready(function() {
@@ -78,6 +80,10 @@ $(document).ready(function() {
 
     myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
 
+    // in small-view, hide menu
+    if ($('body').hasClass('body-small'))
+      $('.navbar-minimalize').click();
+
     hideCallArea();
     hideScreenShareArea();
 
@@ -104,6 +110,10 @@ $(document).ready(function() {
 
     hideCallArea();
     hideScreenShareArea();
+
+    // in small-view, hide menu
+    if ($('body').hasClass('body-small'))
+      $('.navbar-minimalize').click();
 
     // adjustSectionSize(informationSection.getSection(), 3);
     // adjustSectionSize(chatSection.getSection(), 9);
@@ -150,10 +160,8 @@ $(document).ready(function() {
     }
 
     // init scroll
-    $userArea.mCustomScrollbar({
-      axis:"y",
-      setWidth: "auto",
-      theme:"3d"
+    $("#topic-list").mCustomScrollbar({
+      axis: "y",
     });
 
     //sync Message
@@ -197,13 +205,6 @@ $(document).ready(function() {
 
       // _activeChatView();
     }
-
-    //init scroll
-    $channelArea.mCustomScrollbar({
-      axis:"y",
-      setWidth: "auto",
-      theme:"3d",
-    });
 
     //sync Message
     myMessage.syncChatMessage(constants.GROUP_CHAT, channelCache.getValueArray());

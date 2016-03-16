@@ -12,19 +12,22 @@ preferenceManager = require('./script/storage/preference'); // global var
 messageManager = require('./script/storage/message.js'); // global var
 chatModule = require('./script/chat_client.js'); // global var
 cacheManager = require('./script/uCache'); // global var
-
+toastr = require("./script/plugins/toastr/toastr.min.js"); // global var
 timezone = "Asia/Seoul";
 
 function initialize(){
   if(window && window.process && window.process.type) {
     // For desktop
     runningChannel = constants.CHANNEL_APP;
-    aplUrl = "http://192.168.1.164:7587/rest";
-    toastr = require("./script/plugins/toastr/toastr.min.js");
+    aplUrl = "http://192.168.1.164:7587/rest/";
   } else {
     // For WEB
+    console.trace(navigator.userAgent);
+    navigator.geolocation.getCurrentPosition(function(position) {
+      console.trace(position);
+    });
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = "https://localhost:8082/rest/";
+    aplUrl = location.protocol + "//" + location.host + "/rest/";
   }
 
   // declare global var
@@ -40,6 +43,8 @@ function initialize(){
   // $(window).resize(function() {
   //   resizeSection();
   // });
+
+  console.log(toastr);
 }
 
 // function reloadInit()
@@ -166,6 +171,8 @@ showCallArea = function() {
 };
 
 showInformationArea = function(fileName) {
+  if ($('body').hasClass('body-small'))
+    return;
   $("#information-section").html("");
   loadHtml("./information/" + fileName, $("#information-section"));
   $("#information-section").show();

@@ -106,11 +106,7 @@ $(document).ready(function () {
     */
 
     // Minimalize menu
-    $('.navbar-minimalize').click(function () {
-        $("body").toggleClass("mini-navbar");
-        SmoothlyMenu();
-
-    });
+    $('.navbar-minimalize').click(switchMenu);
 
     // Tooltips demo
     $('.tooltip-demo').tooltip({
@@ -126,7 +122,7 @@ $(document).ready(function () {
     function fix_height() {
         var heightWithoutNavbar = $("body > #wrapper").height() - 61;
         $(".sidebard-panel").css("min-height", heightWithoutNavbar + "px");
-
+/*
         var navbarHeigh = $('nav.navbar-default').height();
         var wrapperHeigh = $('#page-wrapper').height();
 
@@ -145,7 +141,8 @@ $(document).ready(function () {
                 $('#page-wrapper').css("min-height", $(window).height() - 60 + "px");
             }
         }
-
+*/
+$('#page-wrapper').css("min-height", $(window).height() + "px");
     }
 
     fix_height();
@@ -189,8 +186,10 @@ $(document).ready(function () {
 $(window).bind("resize", function () {
     if ($(this).width() < 769) {
         $('body').addClass('body-small')
+        $('body').removeClass('no-menu')
+        $('#side-menu').show();
     } else {
-        $('body').removeClass('body-small')
+        $('body').removeClass('body-small small-navbar')
     }
 });
 
@@ -263,10 +262,26 @@ function animationHover(element, animation) {
         });
 }
 
+function switchMenu() {
+  if ($('body').hasClass('body-small')) {
+    $('body').toggleClass('small-navbar');
+  } else {
+    if (!$('body').hasClass('small-navbar')) {
+      $('#side-menu').toggle();
+      $('body').toggleClass('no-menu');
+    }
+  }
+}
+
 function SmoothlyMenu() {
     if (!$('body').hasClass('mini-navbar') || $('body').hasClass('body-small')) {
         // Hide menu in order to smoothly turn on when maximize menu
         $('#side-menu').hide();
+        if (!$('body').hasClass('body-small'))
+          $("#topic-list").css("padding-top", "154px");
+        else
+          $("#topic-list").css("padding-top", "61px");
+
         // For smoothly turn on menu
         setTimeout(
             function () {
@@ -281,6 +296,7 @@ function SmoothlyMenu() {
     } else {
         // Remove all inline style from jquery fadeIn function to reset menu state
         $('#side-menu').removeAttr('style');
+        $("#topic-list").css("padding-top", "61px");
     }
 }
 
