@@ -89,6 +89,27 @@ $(document).ready(function() {
       return;
     }
 
+    // var topicType = "/" + topicArray[1];
+    // if (topicType === constants.TOPIC_MSG) {
+    //   _handleMsg(myId, payloadStr);
+    // } else if (topicType === constants.TOPIC_PRESENCE) {
+    //   _handlePresence(topic, payloadStr);
+    // } else if (topicType === constants.TOPIC_COMMAND) {
+    //   _handleCommand(topicArray[2], payloadStr);
+    // } else {
+    //   console.error("Invalid topic format[%s], payload:", topic, payloadStr);
+    // }
+
+    //if (topicArray.length > 3 && myId != topicArray[3] && !$(window).focus()){
+    if ($(window).focus()) {// && myId != payLoadStr.senderId){
+      _handleNotification(myId, topic, topicArray, payloadStr);
+    } else {
+      _handleTopic(myId, topic, topicArray, payloadStr);
+    }
+  };
+
+  var _handleTopic = function(myId, topic, topicArray, payloadStr) {
+    console.log("call _handleTopic %s %s", myId, topicArray[3]);
     var topicType = "/" + topicArray[1];
     if (topicType === constants.TOPIC_MSG) {
       _handleMsg(myId, payloadStr);
@@ -99,6 +120,53 @@ $(document).ready(function() {
     } else {
       console.error("Invalid topic format[%s], payload:", topic, payloadStr);
     }
+  };
+
+  var _handleNotification = function(myId, topic, topicArray, payloadStr) {
+    var msgPayload = JSON.parse(payloadStr);
+    console.log("topicArray = %s %s", topic, payloadStr);
+
+    var channelValue = channelCache.get(msgPayload.channelId);
+    var members = []; // for mention
+    var userValue = userCache.get(myId);
+
+    if (!("Notification" in window)) {
+      alert("This browser does not support desktop notification");
+    }
+
+    // Let's check whether notification permissions have already been granted
+    else if (Notification.permission === "granted") {
+      var notification = new Notification(
+        "New message in " + msgPayload.channelId,
+        {icon: "../img/profile_no.jpg", body: msgPayload.senderId + ": "
+        + msgPayload.msg, tag: msgPayload.senderId});
+
+      console.log("granted: channelId = %s senderId = %s msg = %s",
+        msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
+    }
+    // Otherwise, we need to ask the user for permission
+    else if (Notification.permission !== 'denied') {
+      Notification.requestPermission(function (permission) {
+        // If the user accepts, let's create a notification
+        if (permission === "granted") {
+          var notification = new Notification(
+            "New message in " + msgPayload.channelId,
+            {icon: "../img/profile_no.jpg", body: msgPayload.senderId + ": "
+            + msgPayload.msg, tag: msgPayload.senderId});
+        }
+        console.log("denied: channelId = %s senderId = %s msg = %s",
+          msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
+      });
+    }
+
+    setTimeout(function(){notification.close();}, 3000);
+
+    notification.onclick = function(event) {
+      notification.close();
+      event.preventDefault();
+      _handleTopic(myId, topic, topicArray, payloadStr);
+    }
+
   };
 
   var _handleCommand = function(receiver, payloadStr) {
