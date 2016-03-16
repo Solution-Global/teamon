@@ -2,6 +2,8 @@
 
 **Unified desktop app for team communication and collaboration.**
 
+[![Build Status](https://travis-ci.org/Solution-Global/teamon.svg?branch=master)](https://travis-ci.org/Solution-Global/teamon)
+
 ![screenshot](img/screenshot.png)
 
 ## Install
