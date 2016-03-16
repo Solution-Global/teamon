@@ -43,4 +43,5 @@ module.exports = function(grunt) {
   // The default tasks to run when you type: grunt
   // grunt.registerTask('default', ['jshint:all','browserify', 'copy']);
   grunt.registerTask('default', ['jshint:all','browserify', 'watch']);
+  grunt.registerTask('once', ['jshint:all','browserify']);
 };
