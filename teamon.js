@@ -96,7 +96,7 @@ function initLoginStatus() {
       "teamId": Number(myPreference.getPreference("teamId")),
       "emplId": Number(myPreference.getPreference("emplId")),
       "name": myPreference.getPreference("name"),
-      "browser": uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.gerBrowser().major : ""),
+      "browser": uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : ""),
       "os": uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : ""),
       "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model
     };
