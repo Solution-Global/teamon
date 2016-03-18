@@ -47,7 +47,7 @@ $(document).ready(function() {
 		var uaParser = new UAParser();
 		uaParser.setUA(navigator.userAgent);
 		var os = uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : "");
-		var browser = uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.gerBrowser().major : "");
+		var browser = uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : "");
 		var device = uaParser.getDevice().model == undefined ? "" : uaParser.getDevice().model;
 
 		var params = $(this).serializeObject();
