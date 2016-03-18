@@ -39,7 +39,7 @@ Login.prototype.loggedIn = function(params, callback) {
   };
 
   self.restCommon.put("/loggedIn/${emplId}", args, callback);
-}
+};
 
 Login.prototype.logout = function(params, callback) {
   var self = this;
@@ -55,6 +55,6 @@ Login.prototype.logout = function(params, callback) {
   };
 
   self.restCommon.put("/logout/${emplId}", args, callback);
-}
+};
 
 module.exports = Login;
