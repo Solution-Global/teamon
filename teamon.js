@@ -103,11 +103,7 @@ function initLoginStatus() {
     initAPI();
 
     // let server knows that I've signed in
-    console.info("let server knows that I've signed in");
-    restResourse.loginRes.loggedIn(loginInfo, function(data, response) {
-      console.info(data);
-      console.info(response);
-    });
+    restResourse.login.loggedIn(loginInfo);
 
     loadAllArea();
   } else {
