@@ -9,29 +9,52 @@ var Login = (function(params) {
 
 Login.prototype.login = function(params, callback) {
   var self = this;
-  console.debug("login - [tea1m] " + params.team + "[email] " + params.email);
+  console.debug("login - [team] " + params.team + "[email] " + params.email);
   var args = {
     path : {
       "team" : params.team,
       "email" : params.email
     },
     data: $.param({
-      "password" : params.password,
-      "client" : params.client
+      password : params.password,
+      os: params.os,
+      browser: params.browser,
+      device: params.device
     })
   };
   self.restCommon.put("/${team}/${email}", args, callback);
 };
 
-Login.prototype.logout = function(emplId) {
+Login.prototype.loggedIn = function(params, callback) {
   var self = this;
-  console.log("logout - [emplId]" + emplId);
   var args = {
-    path : {
-      "emplId" : emplId
-    }
+    path: {
+      "emplId": params.emplId,
+    },
+    data: $.param({
+      "os": params.os,
+      "browser": params.browser,
+      "device": params.device
+    })
   };
-  self.restCommon.put("/${emplId}", args);
-};
+
+  self.restCommon.put("/loggedIn/${emplId}", args, callback);
+}
+
+Login.prototype.logout = function(params, callback) {
+  var self = this;
+  var args = {
+    path: {
+      "emplId": params.emplId,
+    },
+    data: $.param({
+      "os": params.os,
+      "browser": params.browser,
+      "device": params.device
+    })
+  };
+
+  self.restCommon.put("/logout/${emplId}", args, callback);
+}
 
 module.exports = Login;

@@ -391,9 +391,6 @@ img.in-message {
 	.no-menu #page-wrapper {
 		margin: 0 0 0 0;
 	}
-	.no-menu .navbar-static-side {
-		z-index: auto;
-	}
 	.navbar-static-side {
 		width: 280px;
 	}
@@ -496,7 +493,7 @@ body.small-navbar .profile-element {
 	position: absolute;
 	height: 100%;
 	width: 100%;
-	padding-top: 154px;
+	margin-top: 154px;
 	top: 0;
 }
 
@@ -544,4 +541,15 @@ body.small-navbar .navbar-static-side .nav > li > a {
 body.small-navbar .navbar-static-side .nav-second-level > li > a {
 	padding: 2px 3px;
 	padding-left: 20px;
+}
+
+.navbar-static-side,
+.nav-header,
+li.active,
+#page-wrapper,
+.footer {
+  -webkit-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+  -o-transition: all 0.4s;
+  transition: all 0.4s;
 }
