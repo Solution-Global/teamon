@@ -6,6 +6,7 @@ function define(name, value) {
 }
 
 // [Common]
+define("APP_NAME", "TeamOn");
 define("CHANNEL_WEB", "WEB");
 define("CHANNEL_APP", "APP");
 

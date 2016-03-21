@@ -1,8 +1,8 @@
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var path = require('path');
+var constants = require('./constants');
 
-var APP_NAME = 'TeamOn';
 var INDEX = 'file://' + path.join(__dirname, '../index_app.html');
 
 // Ignores certificate related errors.
@@ -19,8 +19,9 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
   var mainWindow = new BrowserWindow({
-    width: 950,
-    height: 700
+    width: 1400,
+    height: 700,
+    title: constants.APP_NAME
   });
   mainWindow.loadURL(INDEX);
   // Open the DevTools.

@@ -1,7 +1,5 @@
 var notifier = require('node-notifier');
-var remote = require('electron').remote;
-var BrowserWindow = remote.BrowserWindow;
-var app = remote.app;
+var myWindow = remoteModule.getCurrentWindow();
 
 var noti = (function() {
 
@@ -13,7 +11,7 @@ var noti = (function() {
 
     var notiTitle = "New message form " + userValue.name;
     var notiBody = msgPayload.msg;
-    var notiIcon = "../img/profile_no.jpg";
+    var notiIcon = path.join(__dirname, '../img/profile_no.jpg');
 
     notifier.notify({
       title: notiTitle,
@@ -28,18 +26,10 @@ var noti = (function() {
       msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
 
     notifier.on('click', function(){
-      //app.show(); // for os x
-      app.focus();
-      //BrowserWindow.focus();
+      myWindow.focus();
 
-      // show channel or chat
-      if(getChatType(topic) === constants.CHANNEL_CHAT) {
-        changeActiveChannel(msgPayload, channelValue);
-      } else if (getChatType(topic) === constants.DIRECT_CHAT) {
-        changeActiveUser(msgPayload, userValue);
-      } else {
-        console.error("wrong chat type");
-      }
+      changeTarget(msgPayload.topic);
+
     });
     //notifier.on('timeout', function(notifierObject, options){});
   }
@@ -94,36 +84,19 @@ var noti = (function() {
       event.preventDefault();
       window.focus();
 
-      // show channel or chat
-      if(getChatType(topic) === constants.CHANNEL_CHAT) {
-        changeChannelUser(msgPayload, channelValue);
-      } else if (getChatType(topic) === constants.DIRECT_CHAT) {
-        changeActiveUser(msgPayload, userValue);
-      } else {
-        console.error("wrong chat type");
-      }
+      changeTarget(msgPayload.topic);
     };
   }
 
-  function changeActiveChannel(msgPayload, channelValue) {
-    var $userListContext = $('#users-list');
-    var $channelListContext = $('#channels-list');
+  var _getChangeTarget = function (topic) {
+    var $targetList = null;
+    if (getChatType(topic) === constants.DIRECT_CHAT)
+      $targetList = $("#users-list li[data-topic='"+topic+"']");
+    else
+      $targetList = $("#channels-list li[data-topic='"+topic+"']");
 
-    $channelListContext.find("li.active").removeClass("active");
-    $userListContext.find("li.active").removeClass("active");
-    var $targetList = $("#channels-list li[data-channelid='"+channelValue.channelId+"']");
     $targetList.click();
-  }
-
-  function changeActiveUser(msgPayload, userValue) {
-    var $userListContext = $('#users-list');
-    var $channelListContext = $('#channels-list');
-
-    $channelListContext.find("li.active").removeClass("active");
-    $userListContext.find("li.active").removeClass("active");
-    var $targetList = $("#users-list li[data-emplid='"+userValue.emplId+"']");
-    $targetList.click();
-  }
+  };
 
   return {
     _handleNotification: _handleNotification,

@@ -7,10 +7,12 @@ fs = require('fs');
 path = require('path');
 moment = require('moment-timezone');
 Mustache = require('mustache');
+remoteModule = require('remote');
 constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
 messageManager = require('./script/storage/message'); // global var
 chatModule = require('./script/chat_client'); // global var
+CallClient = require('./script/call_client');
 notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
 toastr = require("./script/plugins/toastr/toastr.min"); // global var
@@ -23,7 +25,6 @@ function initialize(){
     aplUrl = "http://192.168.1.164:7587/rest/";
   } else {
     // For WEB
-    console.trace(navigator.userAgent);
     navigator.geolocation.getCurrentPosition(function(position) {
       console.trace(position);
     });
@@ -44,8 +45,6 @@ function initialize(){
   // $(window).resize(function() {
   //   resizeSection();
   // });
-
-  console.log(toastr);
 }
 
 // function reloadInit()
@@ -90,14 +89,24 @@ function initLoginStatus() {
       myPreference = new preferenceManager(localStorageManager, sessionEmplId); // init preference
     }
 
+    var uaParser = new UAParser();
+    uaParser.setUA(navigator.userAgent);
+
     loginInfo = {
       "email": myPreference.getPreference("email"),
       "authKey": myPreference.getPreference("authKey"),
       "teamId": Number(myPreference.getPreference("teamId")),
       "emplId": Number(myPreference.getPreference("emplId")),
       "name": myPreference.getPreference("name"),
+      "browser": uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : ""),
+      "os": uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : ""),
+      "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model
     };
     initAPI();
+
+    // let server knows that I've signed in
+    restResourse.login.loggedIn(loginInfo);
+
     loadAllArea();
   } else {
     var dialogOptions = {
@@ -148,7 +157,7 @@ loadAllArea = function() {
   loadHtml("./catalog/catalog_section.html", $("#catalog-section"));
   loadHtml("./header/header_section.html", $("#header-section"));
   // loadHtml("./screenshare/screenshare-section.html", $("#screenshare-section"));
-  // loadHtml("./call/call-section.html", $("#call-section"));
+  loadHtml("./call/call_section.html", $("#call-section"));
 };
 
 showCatalogArea = function() {
@@ -172,8 +181,6 @@ showCallArea = function() {
 };
 
 showInformationArea = function(fileName) {
-  if ($('body').hasClass('body-small'))
-    return;
   $("#information-section").html("");
   loadHtml("./information/" + fileName, $("#information-section"));
   $("#information-section").show();

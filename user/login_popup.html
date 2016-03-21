@@ -43,8 +43,18 @@ $(document).ready(function() {
 		if(!$(this).valid())
 			return;
 
+		// get user agent information
+		var uaParser = new UAParser();
+		uaParser.setUA(navigator.userAgent);
+		var os = uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : "");
+		var browser = uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : "");
+		var device = uaParser.getDevice().model == undefined ? "" : uaParser.getDevice().model;
+
 		var params = $(this).serializeObject();
 		params.team = "uangel";
+		params.os = os;
+		params.browser = browser;
+		params.device = device;
 		params.client = runningChannel;
 
 		restResourse.login.login(params,
@@ -58,7 +68,10 @@ $(document).ready(function() {
 				"emplId": data.emplId ? Number(data.emplId) : null,
 				"authKey": data.authKey,
 	      "teamId": data.teamId ? Number(data.teamId) : null,
-				"name": data.name
+				"name": data.name,
+				"browser": browser,
+				"os": os,
+				"device": device
 	    };
 
 			if(isAlreadyLogin) {

@@ -100,6 +100,7 @@ $(document).ready(function() {
   $channelListContext.delegate("li", "click", function() {
     $channelListContext.find("li.active").removeClass("active");
     $userListContext.find("li.active").removeClass("active");
+
     var $targetList = $(this);
     $targetList.addClass("active");
     activeChatInfo = {
@@ -295,6 +296,7 @@ $(document).ready(function() {
       backgroundOpacity : 1,
       backgroundColor : "#2f4050"
     };
+    restResourse.login.logout(loginInfo);
     openModalDialog("./user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection
     localStorageManager.removeKey("keepEmplId");

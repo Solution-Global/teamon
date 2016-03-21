@@ -85,28 +85,37 @@ $(document).ready(function() {
       return;
     }
 
-    // var topicType = "/" + topicArray[1];
-    // if (topicType === constants.TOPIC_MSG) {
-    //   _handleMsg(myId, payloadStr);
-    // } else if (topicType === constants.TOPIC_PRESENCE) {
-    //   _handlePresence(topic, payloadStr);
-    // } else if (topicType === constants.TOPIC_COMMAND) {
-    //   _handleCommand(topicArray[2], payloadStr);
-    // } else {
-    //   console.error("Invalid topic format[%s], payload:", topic, payloadStr);
-    // }
-
     var msgPayload = JSON.parse(payloadStr);
     console.log("myid = %s, senderId = %s msgPayload = %s", myId, msgPayload.senderId, msgPayload);
 
     // 1: check topic type
     // 2: check window.focus()
     // 3: check channelId or senderId
-    console.log("window focus = %s", document.hasFocus());
     var topicType = "/" + topicArray[1];
+    var senderId = msgPayload.topic; // channel chat
+    if (msgPayload.senderId)
+      senderId = msgPayload.senderId;
+
+
+    // get current_chatId
+    var current_chatId = null;
+    var $userListContext = $('#users-list');
+    var $channelListContext = $('#channels-list');
+
+    var currentChannelList = $channelListContext.find("li.active");
+    var currentUserList = $userListContext.find("li.active");
+    if (currentChannelList)
+      current_chatId = currentChannelList.data("channelid");
+    if (currentUserList)
+      current_chatId = currentUserList.data("emplid");
+
+      console.log("window focus = %s current_chatId = %s, myId = %s, senderId = %s",
+          document.hasFocus(), current_chatId, myId, senderId);
+
     // check channelId and senderId
     if (topicType === constants.TOPIC_MSG) {
-      if (!document.hasFocus() && myId != msgPayload.senderId) {
+      if ((!document.hasFocus() && myId != msgPayload.senderId) ||
+        (document.hasFocus() && myId != msgPayload.senderId && current_chatId != msgPayload.senderId)) {
         if(window && window.process && window.process.type) {
           // For desktop
           notifierModule._handleNotification(myId, topic, payloadStr);
