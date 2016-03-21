@@ -24,20 +24,23 @@ define("CHANNEL_CHAT", 1);
 define("MQTT_URL", "wss://192.168.1.164:2883");
 
 // topic
-define("TOPIC_PRESENCE", "/presence");
-define("TOPIC_PRESENCE_ALL", "/presence/+");
 define("TOPIC_PRESENCE_ONLINE", "/presence/online");
 define("TOPIC_PRESENCE_OFFLINE", "/presence/offline");
 define("TOPIC_PRESENCE_STATE", "/presence/state");
 define("TOPIC_PRESENCE_KEEPALIVE", "/presence/keepalive");
+
+define("TOPIC_PRESENCE", "/presence");
 define("TOPIC_MSG", "/msg");
 define("TOPIC_COMMAND", "/command");
 
-// command 토픽 메시지 payload type
-// group 관련
-define("GROUP_CREATE", 0);
-define("GROUP_ADD_MEMBER", 1);
-define("GROUP_REMOVE_MEMBER", 2);
+// presence 관련
+define("PRESENCE_STATUS_ONLINE", 0);
+define("PRESENCE_STATUS_OFFLINE", 1);
+
+// channel 관련
+define("CHANNEL_CREATE", 0);
+define("CHANNEL_ADD_MEMBER", 1);
+define("CHANNEL_REMOVE_MEMBER", 2);
 
 // call 관련
 define("CALL_SHARE_CHID", 100);   // 발신자가 생성한 call history id 값을 수신자에게 공유

@@ -80,16 +80,16 @@ $(document).ready(function() {
 				//     chatSection.reloadSection();
 				//     callSection.reloadSection();
 				//     headerSection.realodSection();
-				// loadAllArea();
+				chatModule.finalize();
 			} else {
 				// 처음 login 시도
 				initAPI(); // init API
-				// loadAllArea();
 			}
 
 			loadAllArea();
+			chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 
-	    if(params.keepMe)
+			if(params.keepMe)
 	      localStorageManager.setValue("keepEmplId", data.emplId);
 			else
 				localStorageManager.removeKey("keepEmplId");
