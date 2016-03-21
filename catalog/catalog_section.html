@@ -39,6 +39,7 @@
               <a href="#">
                 <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
                 <div class="chat-user-name ellipsis">
+                  <span class="badge badge-info right hide presence">ON</span>
                   {{name}}
                   <span class="badge badge-warning right hide alarm"></span>
                 </div>
@@ -207,7 +208,7 @@ $(document).ready(function() {
     }
 
     //sync Message
-    myMessage.syncChatMessage(constants.GROUP_CHAT, channelCache.getValueArray());
+    myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
   });
 
   var _activeChatView = function() {
@@ -234,17 +235,17 @@ $(document).ready(function() {
 
   hideChattingAlram = function(topic) {
     var $activeTarget = _getActiveTarget(topic);
-    var alarmArea = $activeTarget.find(".alarm");
-    alarmArea.addClass("hide");
-    alarmArea.html("");
+    var $alarmArea = $activeTarget.find(".alarm");
+    $alarmArea.addClass("hide");
+    $alarmArea.html("");
   };
 
   setChattingAlarmCnt = function (topic) {
     var $activeTarget = _getActiveTarget(topic);
-    var alarmArea = $activeTarget.find(".alarm");
-    var cnt = alarmArea.text();
-    alarmArea.html(cnt ? Number(cnt) + 1 : "1");
-    alarmArea.removeClass("hide");
+    var $alarmArea = $activeTarget.find(".alarm");
+    var cnt = $alarmArea.text();
+    $alarmArea.html(cnt ? Number(cnt) + 1 : "1");
+    $alarmArea.removeClass("hide");
   };
 
   displayChannel = function(channel) {
@@ -282,6 +283,25 @@ $(document).ready(function() {
       }
     });
   }
+
+  handlePresence = function(payloadStr) {
+    var payload = JSON.parse(payloadStr);
+    if(payloadStr.emplId === loginInfo.emplId) {
+      return;
+    }
+
+    var topic = generateTopic(payload.emplId, loginInfo.emplId)
+    var $activeTarget = _getActiveTarget(topic);
+    var $presenceArea = $activeTarget.find(".presence");
+
+    if(payload.status === constants.PRESENCE_STATUS_ONLINE) {
+      // online
+      $presenceArea.removeClass("hide");
+    } else {
+      // offline
+      $presenceArea.addClass("hide");
+    }
+  };
 
   // bind Event
   $('#onChannelJoinModal').bind("click", function() {

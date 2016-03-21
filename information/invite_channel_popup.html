@@ -63,7 +63,7 @@ $(document).ready(function() {
       function(response) {
         // 새로운 추가운 사용자 대상으로 그룹 가입 권고
         var paramsForNewMember = {
-          "type": constants.GROUP_CREATE,
+          "type": constants.CHANNEL_CREATE,
           "channelId": channelId,
           "name" : channelValue.name
         }
@@ -77,7 +77,7 @@ $(document).ready(function() {
 
         // 기존 사용자에게 멤버 추가
         var paramsForExistMember = {
-          "type": constants.GROUP_ADD_MEMBER,
+          "type": constants.CHANNEL_ADD_MEMBER,
           "channelId": channelId,
           "newMembers": newMembers
         }

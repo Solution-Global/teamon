@@ -17,19 +17,25 @@ var chat = (function() {
     }
   }
 
-  function _getMsgTopicPrefix(connType, topic) {
-    var myTopic;
-    if (connType === constants.DIRECT_CHAT) {
-      myTopic = "{peer}/" + topic;
-    } else if (connType === constants.CHANNEL_CHAT) {
-      myTopic = topic;
+  function _getTopicPrefix(topicType, parmas) {
+    var addtionStr = "";
+    switch (topicType) {
+      case constants.TOPIC_MSG:
+        var myTopic;
+        if (parmas.chatType === constants.DIRECT_CHAT) {
+          myTopic = "{peer}/" + parmas.topic;
+        } else if (parmas.chatType === constants.CHANNEL_CHAT) {
+          myTopic = parmas.topic;
+        }
+
+        addtionStr = "/" + parmas.chatType + "/" + myTopic;
+      break;
+      case constants.TOPIC_COMMAND:
+        addtionStr = "/" + parmas.receiver;
+      break;
     }
 
-    return clientChatInfo.teamId + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
-  }
-
-  function _getCommandTopicPrefix(receiver) {
-    return clientChatInfo.teamId + constants.TOPIC_COMMAND + "/" + receiver;
+    return clientChatInfo.teamId + topicType + addtionStr;
   }
 
   function _createMQTTClient() {
@@ -62,8 +68,7 @@ var chat = (function() {
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
     clientChatInfo.client.subscribe(topicArray);
 
-    // presence/online
-    // clientChatInfo.client.publish(clientChatInfo.teamId + constants.TOPIC_PRESENCE_ONLINE, clientChatInfo.emplId.toString());
+    _sendPresence(constants.PRESENCE_STATUS_ONLINE);
   }
 
   function _mqttReceived(topic, payload) {
@@ -73,18 +78,6 @@ var chat = (function() {
   }
 
   function _publishMsg(data, params) {
-    /*
-      msgPayload = {
-        chatType:  // 채팅 타입 (client 담당)
-        coid:      // company id (client 담당)
-        publisher: // 메시지 발신자 (client 담당)
-        receiver:  // 메시지 수신자, direct인 경우 peer id, group인 경우 group chat id (client 담당)
-        lastmsgid: // 이전 마지막 msg id. (pubreq 담당)
-        msgid:     // DB 저장될 msg id. (pubreq 담당)
-        time:      // 메시지 발신 시간 (pubreq 담당)
-        msg:       // 발신 메시지 (client 담당)
-      }
-    */
     var msgPayload = {
       teamId: params.teamId,
       senderId: params.emplId,
@@ -96,7 +89,11 @@ var chat = (function() {
 
     var msgPayloadStr = JSON.stringify(msgPayload);
     var chatType = getChatType(params.topic);
-    var topicPrefix = _getMsgTopicPrefix(chatType, params.topic);
+    var prefixParmas = {
+      "chatType" : chatType,
+      "topic" : params.topic
+    };
+    var topicPrefix = _getTopicPrefix(constants.TOPIC_MSG, prefixParmas);
 
     if (chatType === constants.DIRECT_CHAT) {
       var topicEmplIds = params.topic.split("_");
@@ -120,8 +117,17 @@ var chat = (function() {
     }
   }
 
+  function _sendPresence(topic, presenceStatus) {
+    var topicPrefix = _getTopicPrefix(topic);
+    var payload = {
+      "emplId": clientChatInfo.emplId,
+      "status" : presenceStatus
+    }
+    clientChatInfo.client.publish(topicPrefix, JSON.stringify(payload));
+  }
+
   function sendCommand(receiver, commandPayload) {
-    var topicPrefix = _getCommandTopicPrefix(receiver);
+    var topicPrefix = _getTopicPrefix(constants.TOPIC_COMMAND, {"receiver" : receiver});
     var commandPayloadStr = JSON.stringify(commandPayload);
     clientChatInfo.client.publish(topicPrefix, commandPayloadStr);
     console.log('sendCommand to the channel members [topic:%s, msg:%s]', topicPrefix, commandPayloadStr);
@@ -140,14 +146,15 @@ var chat = (function() {
   }
 
   function finalize() {
+    _sendPresence(constants.TOPIC_PRESENCE_OFFLINE, constants.PRESENCE_STATUS_OFFLINE);
     clientChatInfo.client.end();
   }
 
   return {
     configMyInfo: configMyInfo,
     sendMsg: sendMsg,
-    finalize: finalize,
-    sendCommand: sendCommand
+    sendCommand: sendCommand,
+    finalize: finalize
   };
 })();
 
