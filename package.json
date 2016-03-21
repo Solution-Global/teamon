@@ -1,6 +1,7 @@
 {
   "name": "teamon",
-  "version": "0.1.0",
+  "productName": "teamon",
+  "version": "0.0.1",
   "description": "Unified desktop app for team communication and collaboration.",
   "main": "teamon.js",
   "repository": {
@@ -11,28 +12,21 @@
     "url": "https://github.com/Solution-Global/teamon/issues"
   },
   "scripts": {
-    "dev": "electron .",
+    "start": "./node_modules/.bin/electron .",
     "clean": "npm run clean:win",
     "clean:win": "rm -rf release/win",
     "pack": "npm run pack:win",
-    "asar": "npm run asar:win",
-    "build": "npm run build:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.36.8 --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite",
-    "asar:win": "asar pack release/win/teamon-win32-x64/resources/app release/win/teamon-win32-x64/resources/app.asar --unpack-dir *.node && rm -rf release/win/teamon-win32-x64/resources/app",
-    "build:win": "npm run pack:win && npm run asar:win && electron-builder release/win/teamon-win32-x64 --platform=win32 --out=release/win --config=packager.json",
-    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.36.8 --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore='node_modules/.bin/(asar|electron.*)' --overwrite",
-    "asar:osx": "asar pack release/osx/teamon-osx/resources/app release/osx/teamon-osx/resources/app.asar && rm -rf release/osx/teamon-osx/resources/app",
-    "build:osx": "npm run pack:osx && npm run asar:osx && electron-builder release/osx/teamon-osx --platform=osx --out=release/osx --config=packager.json"
+    "pack:win": "npm run clean:win && electron-packager . teamon --app-version=0.0.1 --out=release/win --platform=win32 --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite"
   },
   "author": "Solution-Global",
   "license": "GPL",
   "devDependencies": {
-    "asar": "0.9.0",
     "electron-builder": "2.6.0",
     "electron-packager": "5.1.1",
     "electron-prebuilt": ">0.36.0",
     "grunt": "0.4.5",
-    "grunt-contrib-jshint": "0.11.3"
+    "grunt-contrib-jshint": "0.11.3",
+    "grunt-electron-installer-windows": "0.2.0"
   },
   "dependencies": {
     "jquery": "2.1.4",
