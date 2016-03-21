@@ -39,8 +39,8 @@
               <a href="#">
                 <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
                 <div class="chat-user-name ellipsis">
-                  <span class="badge badge-info right hide presence">ON</span>
                   {{name}}
+                  <span class="badge badge-info right hide presence">ON</span>
                   <span class="badge badge-warning right hide alarm"></span>
                 </div>
               </a>
@@ -158,6 +158,7 @@ $(document).ready(function() {
       });
 
       // _activeChatView();
+      _initPresenceDisplay();
     }
 
     // init scroll
@@ -233,6 +234,25 @@ $(document).ready(function() {
       return $channelListContext.find("[data-topic='" + topic + "']");
   };
 
+  var _initPresenceDisplay = function() {
+    var params = {
+      "teamId": loginInfo.teamId
+    };
+
+    restResourse.login.getLoggedInEmplListByTeamId(params, function(data) {
+      if(data) {
+        var handleParams = {
+          "status" : constants.PRESENCE_STATUS_ONLINE
+        };
+
+        $.each(data, function(idx, row) {
+          handleParams.emplId = row.emplId;
+          handleLoginPresence(handleParams);
+        });
+      }
+    });
+  };
+
   hideChattingAlram = function(topic) {
     var $activeTarget = _getActiveTarget(topic);
     var $alarmArea = $activeTarget.find(".alarm");
@@ -284,17 +304,18 @@ $(document).ready(function() {
     });
   }
 
-  handlePresence = function(payloadStr) {
-    var payload = JSON.parse(payloadStr);
-    if(payloadStr.emplId === loginInfo.emplId) {
+  handleLoginPresence = function(params) {
+    if(typeof params === 'string')
+      params = JSON.parse(params);
+    if(params.emplId === loginInfo.emplId) {
       return;
     }
 
-    var topic = generateTopic(payload.emplId, loginInfo.emplId)
+    var topic = generateTopic(params.emplId, loginInfo.emplId)
     var $activeTarget = _getActiveTarget(topic);
     var $presenceArea = $activeTarget.find(".presence");
 
-    if(payload.status === constants.PRESENCE_STATUS_ONLINE) {
+    if(params.status === constants.PRESENCE_STATUS_ONLINE) {
       // online
       $presenceArea.removeClass("hide");
     } else {

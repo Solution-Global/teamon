@@ -106,7 +106,7 @@ function initLoginStatus() {
     restResourse.login.loggedIn(loginInfo);
 
     loadAllArea();
-    initMQTT();
+    chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 
   } else {
     var dialogOptions = {
@@ -163,31 +163,7 @@ handleCommand = function(receiver, payloadStr) {
     console.error("invalid command[%s]", commandPayload.type);
     return;
   }
-}
-
-initMQTT = function() {
-  var _receiveMsg = function(myId, topic, payloadStr) {
-    var topicArray = topic.split('/');
-    if (topicArray.length < 2) {
-      console.error("Invalid topic format[%s], payload:%s", topic, payloadStr);
-      return;
-    }
-
-    var topicType = "/" + topicArray[1];
-    if (topicType === constants.TOPIC_MSG) {
-      handleMsg(myId, payloadStr);
-    } else if (topicType === constants.TOPIC_PRESENCE) {
-      handlePresence(payloadStr);
-    } else if (topicType === constants.TOPIC_COMMAND) {
-      handleCommand(topicArray[2], payloadStr);
-    } else {
-      console.error("Invalid topic format[%s], payload:", topic, payloadStr);
-    }
-  };
-
-  // init mqtt
-  chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId, _receiveMsg);
-}
+};
 
 initAPI = function() {
   var emplRes = require("./script/rest/empl");

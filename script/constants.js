@@ -24,12 +24,12 @@ define("CHANNEL_CHAT", 1);
 define("MQTT_URL", "wss://192.168.1.164:2883");
 
 // topic
-define("TOPIC_PRESENCE_ALL", "/presence/+");
 define("TOPIC_PRESENCE_ONLINE", "/presence/online");
 define("TOPIC_PRESENCE_OFFLINE", "/presence/offline");
 define("TOPIC_PRESENCE_STATE", "/presence/state");
 define("TOPIC_PRESENCE_KEEPALIVE", "/presence/keepalive");
 
+define("TOPIC_PRESENCE", "/presence");
 define("TOPIC_MSG", "/msg");
 define("TOPIC_COMMAND", "/command");
 

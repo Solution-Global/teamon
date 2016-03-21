@@ -87,7 +87,7 @@ $(document).ready(function() {
 			}
 
 			loadAllArea();
-			initMQTT();
+			chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 
 			if(params.keepMe)
 	      localStorageManager.setValue("keepEmplId", data.emplId);
