@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/style/plugins/toastr/toastr.min.css"/>
   <link rel="stylesheet" href="/style/plugins/chosen/chosen.css"/>
   <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css"/>
+  <link rel="stylesheet" href="/style/plugins/sweetalert/sweetalert.css" >
   <link rel="stylesheet" href="/style/animate.css"/>
   <link rel="stylesheet" href="/style/style.css"/>
   <link rel="stylesheet" href="/style/custom.css"/>
@@ -26,16 +27,17 @@
       <div id="teamon-content">
         <div id="screenshare-section" class="col-xs-12 col-lg-12" style="display: none">
         </div>
-        <div id="call-section" class="col-xs-9 col-lg-9" style="display: none">
+        <div id="call-section" class="col-xs-12 col-sm-9 col-lg-9" style="display: none">
         </div>
-        <div id="chat-section" class="col-xs-9 col-lg-9" style="display: none">
+        <div id="chat-section" class="col-xs-12 col-sm-9 col-lg-9" style="display: none">
         </div>
-        <div id="information-section" class="col-xs-3 col-lg-3 nopadding" style="display: none">
+        <div id="information-section" class="col-sm-3 col-lg-3 nopadding hidden-phone" style="display: none">
         </div>
       </div>
     </div>
   </div>
 
+  <script src="/node_modules/ua-parser-js/dist/ua-parser.min.js"></script>
   <script src="/dist/script/teamon_bundle.js"></script>
   <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="/script/plugins/jquery.validate.min.js"></script>
@@ -43,6 +45,10 @@
   <script src="/script/plugins/uMention.js"></script>
   <script src="/script/plugins/metisMenu/jquery.metisMenu.js"></script>
   <script src="/script/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+  <script src="/script/plugins/sweetalert/sweetalert.min.js"></script>
+
+  <script src="/script/plugins/janus.js"></script>
+  <script src="/script/plugins/adapter.js"></script>
 
   <script src="/script/plugins/inspinia.js"></script>
 

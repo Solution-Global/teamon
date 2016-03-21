@@ -267,8 +267,8 @@ function switchMenu() {
     $('body').toggleClass('small-navbar');
   } else {
     if (!$('body').hasClass('small-navbar')) {
-      $('#side-menu').toggle();
       $('body').toggleClass('no-menu');
+      $('#catalog-section').toggle();
     }
   }
 }
