@@ -96,17 +96,32 @@ $(document).ready(function() {
     //   console.error("Invalid topic format[%s], payload:", topic, payloadStr);
     // }
 
-    //if (topicArray.length > 3 && myId != topicArray[3] && !$(window).focus()){
-    if ($(window).focus()) {// && myId != payLoadStr.senderId){
-      _handleNotification(myId, topic, topicArray, payloadStr);
-    } else {
-      _handleTopic(myId, topic, topicArray, payloadStr);
+    var msgPayload = JSON.parse(payloadStr);
+    console.log("myid = %s, senderId = %s msgPayload = %s", myId, msgPayload.senderId, msgPayload);
+
+    // 1: check topic type
+    // 2: check window.focus()
+    // 3: check channelId or senderId
+    console.log("window focus = %s", document.hasFocus());
+    var topicType = "/" + topicArray[1];
+    // check channelId and senderId
+    if (topicType === constants.TOPIC_MSG) {
+      if (!document.hasFocus() && myId != msgPayload.senderId) {
+        if(window && window.process && window.process.type) {
+          // For desktop
+          notifierModule._handleNotification(myId, topic, payloadStr);
+        } else {
+          // For browser
+          notifierModule._handleWebNotification(myId, topic, payloadStr);
+        }
+      }
     }
+    _handleTopic(myId, topic, topicArray, payloadStr);
   };
 
   var _handleTopic = function(myId, topic, topicArray, payloadStr) {
-    console.log("call _handleTopic %s %s", myId, topicArray[3]);
     var topicType = "/" + topicArray[1];
+    console.log("call _handleTopic %s %s %s", myId, topicType, topicArray[3]);
     if (topicType === constants.TOPIC_MSG) {
       _handleMsg(myId, payloadStr);
     } else if (topicType === constants.TOPIC_PRESENCE) {
@@ -116,57 +131,6 @@ $(document).ready(function() {
     } else {
       console.error("Invalid topic format[%s], payload:", topic, payloadStr);
     }
-  };
-
-  var _handleNotification = function(myId, topic, topicArray, payloadStr) {
-    var msgPayload = JSON.parse(payloadStr);
-    console.log("topicArray = %s %s", topic, payloadStr);
-
-    var channelValue = channelCache.get(msgPayload.channelId);
-    var userValue = userCache.get(msgPayload.senderId);
-    
-    var notiTitle = "New message form " + userValue.name;
-    var notiBody = msgPayload.msg;
-    if (msgPayload.channelId) {
-      notiTitle = "New message in " + channelValue.name;
-      notiBody = userValue.name + ": "  + msgPayload.msg;
-    }
-
-    if (!("Notification" in window)) {
-      alert("This browser does not support desktop notification");
-    }
-
-    // Let's check whether notification permissions have already been granted
-    else if (Notification.permission === "granted") {
-      var notification = new Notification(
-        notiTitle,
-        {icon: "../img/profile_no.jpg", body: notiBody, tag: ""});
-
-      console.log("granted: channelId = %s senderId = %s msg = %s",
-        msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
-    }
-    // Otherwise, we need to ask the user for permission
-    else if (Notification.permission !== 'denied') {
-      Notification.requestPermission(function (permission) {
-        // If the user accepts, let's create a notification
-        if (permission === "granted") {
-          var notification = new Notification(
-            notiTitle,
-            {icon: "../img/profile_no.jpg", body: notiBody, tag: ""});
-        }
-        console.log("denied: channelId = %s senderId = %s msg = %s",
-          msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
-      });
-    }
-
-    setTimeout(function(){notification.close();}, 3000);
-
-    notification.onclick = function(event) {
-      notification.close();
-      event.preventDefault();
-      _handleTopic(myId, topic, topicArray, payloadStr);
-    }
-
   };
 
   var _handleCommand = function(receiver, payloadStr) {

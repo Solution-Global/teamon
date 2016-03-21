@@ -9,10 +9,11 @@ moment = require('moment-timezone');
 Mustache = require('mustache');
 constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
-messageManager = require('./script/storage/message.js'); // global var
-chatModule = require('./script/chat_client.js'); // global var
+messageManager = require('./script/storage/message'); // global var
+chatModule = require('./script/chat_client'); // global var
+notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
-toastr = require("./script/plugins/toastr/toastr.min.js"); // global var
+toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
 
 function initialize(){
