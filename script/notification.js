@@ -1,5 +1,4 @@
 var notifier = require('node-notifier');
-var myWindow = remoteModule.getCurrentWindow();
 
 var noti = (function() {
 
@@ -88,7 +87,7 @@ var noti = (function() {
     };
   }
 
-  var _getChangeTarget = function (topic) {
+  var changeTarget = function (topic) {
     var $targetList = null;
     if (getChatType(topic) === constants.DIRECT_CHAT)
       $targetList = $("#users-list li[data-topic='"+topic+"']");

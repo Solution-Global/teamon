@@ -7,7 +7,6 @@ fs = require('fs');
 path = require('path');
 moment = require('moment-timezone');
 Mustache = require('mustache');
-remoteModule = require('remote');
 constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
 messageManager = require('./script/storage/message'); // global var
@@ -17,6 +16,7 @@ notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
 toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
+myWindow = null;
 
 function initialize(){
   if(window && window.process && window.process.type) {
