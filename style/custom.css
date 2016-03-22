@@ -374,8 +374,17 @@ img.in-message {
 /*
  * customzing style.css
 */
-.chat-avatar {
+.chat-avatar,
+.message-avatar {
+	width: 40px;
+	height: 40px;
+	background-color: #D5D7E4;
+	border: 4px #D5D7E4 solid;
 	border-radius: 50%;
+}
+.chat-avatar.online {
+	background-color: #428bca;
+	border: 4px #428bca solid;
 }
 
 .chat-discussion {

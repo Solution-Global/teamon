@@ -38,11 +38,7 @@
             <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
               <a href="#">
                 <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
-                <div class="chat-user-name ellipsis">
-                  {{name}}
-                  <span class="badge badge-info right hide presence">ON</span>
-                  <span class="badge badge-warning right hide alarm"></span>
-                </div>
+                <div class="chat-user-name ellipsis">{{name}}</div>
               </a>
             </li>
           </script>
@@ -314,14 +310,14 @@ $(document).ready(function() {
 
     var topic = generateTopic(params.emplId, loginInfo.emplId)
     var $activeTarget = _getActiveTarget(topic);
-    var $presenceArea = $activeTarget.find(".presence");
+    var $profileImage = $activeTarget.find(".chat-avatar");
 
     if(params.status === constants.PRESENCE_STATUS_ONLINE) {
       // online
-      $presenceArea.removeClass("hide");
+      $profileImage.addClass("online");
     } else {
       // offline
-      $presenceArea.addClass("hide");
+      $profileImage.removeClass("online");
     }
   };
 
