@@ -126,7 +126,7 @@ handleCommand = function(receiver, payloadStr) {
   console.info("handleCommand information %s, %s", receiver, payloadStr);
 
   if(receiver != loginInfo.emplId) {
-    console.error("reciver not match %s, %s", reciver, loginInfo.emplId);
+    console.error("receiver not match %s, %s", receiver, loginInfo.emplId);
     return;
   }
 
