@@ -2,8 +2,18 @@ var notifier = require('node-notifier');
 
 var noti = (function() {
 
-  function _handleNotification (myId, topic, payloadStr) {
-    var msgPayload = JSON.parse(payloadStr);
+  function handleNotification (msgPayload) {
+    if(window && window.process && window.process.type) {
+      // For desktop
+      _handleAppNotification(msgPayload);
+    } else {
+      // For browser
+      _handleWebNotification(msgPayload);
+    }
+  }
+
+  function _handleAppNotification (msgPayload) {
+    //var msgPayload = JSON.parse(payloadStr);
 
     var channelValue = channelCache.get(msgPayload.topic);
     var userValue = userCache.get(msgPayload.senderId);
@@ -33,9 +43,9 @@ var noti = (function() {
     //notifier.on('timeout', function(notifierObject, options){});
   }
 
-  function _handleWebNotification (myId, topic, payloadStr) {
+  function _handleWebNotification (msgPayload) {
     var notification = null;
-    var msgPayload = JSON.parse(payloadStr);
+    //var msgPayload = JSON.parse(payloadStr);
 
     var channelValue = channelCache.get(msgPayload.topic);
     var userValue = userCache.get(msgPayload.senderId);
@@ -44,7 +54,7 @@ var noti = (function() {
     var notiBody = msgPayload.msg;
     var notiIcon = "../img/profile_no.jpg";
 
-    if(getChatType(topic) === constants.CHANNEL_CHAT) {
+    if(getChatType(msgPayload.topic) === constants.CHANNEL_CHAT) {
       notiTitle = "New message in " + channelValue.name;
       notiBody = userValue.name + ": "  + msgPayload.msg;
     }
@@ -98,8 +108,7 @@ var noti = (function() {
   };
 
   return {
-    _handleNotification: _handleNotification,
-    _handleWebNotification: _handleWebNotification
+    handleNotification: handleNotification
   };
 })();
 
