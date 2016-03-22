@@ -10,12 +10,14 @@ Mustache = require('mustache');
 Dropzone = require('dropzone');
 constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
-messageManager = require('./script/storage/message.js'); // global var
-chatModule = require('./script/chat_client.js'); // global var
-// CallClient = require('./script/call_client.js');
+messageManager = require('./script/storage/message'); // global var
+chatModule = require('./script/chat_client'); // global var
+// CallClient = require('./script/call_client');
+notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
-toastr = require("./script/plugins/toastr/toastr.min.js"); // global var
+toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
+myWindow = null;
 
 function initialize(){
   if(window && window.process && window.process.type) {
@@ -107,6 +109,8 @@ function initLoginStatus() {
     restResourse.login.loggedIn(loginInfo);
 
     loadAllArea();
+    chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
+
   } else {
     var dialogOptions = {
       backdrop : "static",
@@ -117,6 +121,52 @@ function initLoginStatus() {
     openModalDialog("./user/login_popup.html", dialogOptions);
   }
 }
+
+handleCommand = function(receiver, payloadStr) {
+  console.info("handleCommand information %s, %s", receiver, payloadStr);
+
+  if(receiver != loginInfo.emplId) {
+    console.error("reciver not match %s, %s", reciver, loginInfo.emplId);
+    return;
+  }
+
+  var commandPayload = JSON.parse(payloadStr);
+  switch (commandPayload.type) {
+    // channel 관련
+    case constants.CHANNEL_CREATE:
+      displayChannel(commandPayload);
+    break;
+    case constants.CHANNEL_ADD_MEMBER:
+      reloadChannelCache(commandPayload.channelId);
+      // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
+      if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
+        displayChannelMember(commandPayload.newMembers);
+      }
+    break;
+    case constants.CHANNEL_REMOVE_MEMBER:
+      reloadChannelCache(commandPayload.channelId);
+
+      if(loginInfo.emplId === commandPayload.member) {
+        // 화면 닫기 & 리스트제거
+        hideInformationArea();
+        hideChatArea();
+        hideScreenShareArea();
+        removeChannel(commandPayload.channelId);
+      } else {
+        if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
+          removeChannelMember(commandPayload.member);
+        }
+      }
+    break;
+    // call 관련
+    case constants.CALL_SHARE_CHID:
+      callSection.setCallHistoryId(commandPayload.callHistoryId);
+    break;
+    default:
+    console.error("invalid command[%s]", commandPayload.type);
+    return;
+  }
+};
 
 initAPI = function() {
   var emplRes = require("./script/rest/empl");

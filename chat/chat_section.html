@@ -78,73 +78,7 @@ $(document).ready(function() {
     });
   };
 
-  _receiveMsg = function(myId, topic, payloadStr) {
-    var topicArray = topic.split('/');
-    if (topicArray.length < 2) {
-      console.error("Invalid topic format[%s], payload:%s", topic, payloadStr);
-      return;
-    }
-
-    var topicType = "/" + topicArray[1];
-    if (topicType === constants.TOPIC_MSG) {
-      _handleMsg(myId, payloadStr);
-    } else if (topicType === constants.TOPIC_PRESENCE) {
-      _handlePresence(topic, payloadStr);
-    } else if (topicType === constants.TOPIC_COMMAND) {
-      _handleCommand(topicArray[2], payloadStr);
-    } else {
-      console.error("Invalid topic format[%s], payload:", topic, payloadStr);
-    }
-  };
-
-  var _handleCommand = function(receiver, payloadStr) {
-    console.info("_handleCommand information %s, %s", receiver, payloadStr);
-
-    if(receiver != loginInfo.emplId) {
-      console.error("reciver not match %s, %s", reciver, loginInfo.emplId);
-      return;
-    }
-
-    var commandPayload = JSON.parse(payloadStr);
-    switch (commandPayload.type) {
-      // group 관련
-      case constants.GROUP_CREATE:
-        displayChannel(commandPayload);
-      break;
-      case constants.GROUP_ADD_MEMBER:
-        reloadChannelCache(commandPayload.channelId);
-        // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
-        if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
-          displayChannelMember(commandPayload.newMembers);
-        }
-      break;
-      case constants.GROUP_REMOVE_MEMBER:
-        reloadChannelCache(commandPayload.channelId);
-
-        if(loginInfo.emplId === commandPayload.member) {
-          // 화면 닫기 & 리스트제거
-          hideInformationArea();
-          hideChatArea();
-          hideScreenShareArea();
-          removeChannel(commandPayload.channelId);
-        } else {
-          if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
-            removeChannelMember(commandPayload.member);
-          }
-        }
-      break;
-      // call 관련
-      case constants.CALL_SHARE_CHID:
-        callSection.setCallHistoryId(commandPayload.callHistoryId);
-      break;
-      default:
-      console.error("invalid command[%s]", commandPayload.type);
-      return;
-    }
-  };
-
-  var _handleMsg = function(myId, payloadStr) {
-    // Format : Object {teamId: 1, senderId: 13, topic: "13_14", time: 1457520386391, msg: "2111"}
+  handleMsg = function(myId, payloadStr) {
     var msgPayload = JSON.parse(payloadStr);
     var params = {
       senderId : msgPayload.senderId,
@@ -157,9 +91,14 @@ $(document).ready(function() {
     var message = myMessage.madeMessageUnit(params);
 
     if(activeChatInfo && activeChatInfo.topic  === msgPayload.topic) {
+      if (!document.hasFocus()){
+        // alarmCnt 를 추가하지 않고 noti만 한다.
+        notifierModule.handleNotification(msgPayload);
+      }
       _displayMessages(constants.MESSAGE_TYPE_APPEND, message);
       $contentArea.mCustomScrollbar("scrollTo", "bottom");
     } else {
+      notifierModule.handleNotification(msgPayload);
       setChattingAlarmCnt(msgPayload.topic);
     }
 
@@ -261,9 +200,6 @@ $(document).ready(function() {
       _displayMessages(constants.MESSAGE_TYPE_APPEND, messageArray);
     }
   };
-
-  // init mqtt
-  chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId, _receiveMsg);
 
   // bind events
   $btnSend.on('click', function() {

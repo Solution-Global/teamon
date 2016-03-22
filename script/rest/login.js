@@ -57,4 +57,15 @@ Login.prototype.logout = function(params, callback) {
   self.restCommon.put("/logout/${emplId}", args, callback);
 };
 
+Login.prototype.getLoggedInEmplListByTeamId = function(params, callback) {
+  var self = this;
+  console.log("getLoggedInEmplListByTeamId - [teamId]" + params.teamId);
+  var args = {
+    path: {
+      "teamId": params.teamId
+    }
+  };
+  self.restCommon.get( "/team/${teamId}", args, callback);
+};
+
 module.exports = Login;

@@ -5,7 +5,7 @@
       <img alt="image" src="./img/logo_uangel.png"/>
       </span>
       <div class="public-area">
-        <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="#" id="onProfileModal"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
       </div>
@@ -40,6 +40,7 @@
                 <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
                 <div class="chat-user-name ellipsis">
                   {{name}}
+                  <span class="badge badge-info right hide presence">ON</span>
                   <span class="badge badge-warning right hide alarm"></span>
                 </div>
               </a>
@@ -100,6 +101,7 @@ $(document).ready(function() {
   $channelListContext.delegate("li", "click", function() {
     $channelListContext.find("li.active").removeClass("active");
     $userListContext.find("li.active").removeClass("active");
+
     var $targetList = $(this);
     $targetList.addClass("active");
     activeChatInfo = {
@@ -157,6 +159,7 @@ $(document).ready(function() {
       });
 
       // _activeChatView();
+      _initPresenceDisplay();
     }
 
     // init scroll
@@ -207,7 +210,7 @@ $(document).ready(function() {
     }
 
     //sync Message
-    myMessage.syncChatMessage(constants.GROUP_CHAT, channelCache.getValueArray());
+    myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
   });
 
   var _activeChatView = function() {
@@ -232,19 +235,38 @@ $(document).ready(function() {
       return $channelListContext.find("[data-topic='" + topic + "']");
   };
 
+  var _initPresenceDisplay = function() {
+    var params = {
+      "teamId": loginInfo.teamId
+    };
+
+    restResourse.login.getLoggedInEmplListByTeamId(params, function(data) {
+      if(data) {
+        var handleParams = {
+          "status" : constants.PRESENCE_STATUS_ONLINE
+        };
+
+        $.each(data, function(idx, row) {
+          handleParams.emplId = row.emplId;
+          handleLoginPresence(handleParams);
+        });
+      }
+    });
+  };
+
   hideChattingAlram = function(topic) {
     var $activeTarget = _getActiveTarget(topic);
-    var alarmArea = $activeTarget.find(".alarm");
-    alarmArea.addClass("hide");
-    alarmArea.html("");
+    var $alarmArea = $activeTarget.find(".alarm");
+    $alarmArea.addClass("hide");
+    $alarmArea.html("");
   };
 
   setChattingAlarmCnt = function (topic) {
     var $activeTarget = _getActiveTarget(topic);
-    var alarmArea = $activeTarget.find(".alarm");
-    var cnt = alarmArea.text();
-    alarmArea.html(cnt ? Number(cnt) + 1 : "1");
-    alarmArea.removeClass("hide");
+    var $alarmArea = $activeTarget.find(".alarm");
+    var cnt = $alarmArea.text();
+    $alarmArea.html(cnt ? Number(cnt) + 1 : "1");
+    $alarmArea.removeClass("hide");
   };
 
   displayChannel = function(channel) {
@@ -283,7 +305,31 @@ $(document).ready(function() {
     });
   }
 
+  handleLoginPresence = function(params) {
+    if(typeof params === 'string')
+      params = JSON.parse(params);
+    if(params.emplId === loginInfo.emplId) {
+      return;
+    }
+
+    var topic = generateTopic(params.emplId, loginInfo.emplId)
+    var $activeTarget = _getActiveTarget(topic);
+    var $presenceArea = $activeTarget.find(".presence");
+
+    if(params.status === constants.PRESENCE_STATUS_ONLINE) {
+      // online
+      $presenceArea.removeClass("hide");
+    } else {
+      // offline
+      $presenceArea.addClass("hide");
+    }
+  };
+
   // bind Event
+  $('#onProfileModal').bind("click", function() {
+    openModalDialog("./catalog/password_modify_popup.html");
+  });
+
   $('#onChannelJoinModal').bind("click", function() {
     openModalDialog("./catalog/channel_join_popup.html");
   });

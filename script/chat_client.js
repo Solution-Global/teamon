@@ -2,13 +2,12 @@ var mqtt = require('mqtt');
 var chat = (function() {
   var clientChatInfo = {};
 
-  function configMyInfo(teamId, emplId, recvCallback) {
+  function configMyInfo(teamId, emplId) {
     if(!clientChatInfo.client || !clientChatInfo.client.connected) {
       clientChatInfo.teamId = teamId;
       clientChatInfo.emplId = emplId;
-      clientChatInfo.recvCallback = recvCallback;
 
-      console.log('teamId:%i, emplId:%i, recvCallback:%s', teamId, emplId, recvCallback.name);
+      console.log('teamId:%i, emplId:%i ', teamId, emplId);
 
       if ((clientChatInfo.client = _createMQTTClient()) === null) {
         console.error("Failed to initialize MQTT client");
@@ -17,19 +16,25 @@ var chat = (function() {
     }
   }
 
-  function _getMsgTopicPrefix(connType, topic) {
-    var myTopic;
-    if (connType === constants.DIRECT_CHAT) {
-      myTopic = "{peer}/" + topic;
-    } else if (connType === constants.CHANNEL_CHAT) {
-      myTopic = topic;
+  function _getTopicPrefix(topicType, parmas) {
+    var addtionStr = "";
+    switch (topicType) {
+      case constants.TOPIC_MSG:
+        var myTopic;
+        if (parmas.chatType === constants.DIRECT_CHAT) {
+          myTopic = "{peer}/" + parmas.topic;
+        } else if (parmas.chatType === constants.CHANNEL_CHAT) {
+          myTopic = parmas.topic;
+        }
+
+        addtionStr = "/" + parmas.chatType + "/" + myTopic;
+      break;
+      case constants.TOPIC_COMMAND:
+        addtionStr = "/" + parmas.receiver;
+      break;
     }
 
-    return clientChatInfo.teamId + constants.TOPIC_MSG + "/" + connType + "/" + myTopic;
-  }
-
-  function _getCommandTopicPrefix(receiver) {
-    return clientChatInfo.teamId + constants.TOPIC_COMMAND + "/" + receiver;
+    return clientChatInfo.teamId + topicType + addtionStr;
   }
 
   function _createMQTTClient() {
@@ -37,7 +42,8 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
-      protocol: "wss"
+      protocol: "wss",
+      rejectUnauthorized: false
     };
 
     var client = mqtt.connect(constants.MQTT_URL, options);
@@ -53,7 +59,9 @@ var chat = (function() {
 
   function _mqttConnected() {
     // topic array: presence, msg(direct, group)
-    var topicArray = [clientChatInfo.teamId + constants.TOPIC_PRESENCE_ALL,
+    var topicArray = [constants.TOPIC_PRESENCE_ONLINE,
+      constants.TOPIC_PRESENCE_OFFLINE,
+      constants.TOPIC_PRESENCE_KEEPALIVE,
       clientChatInfo.teamId + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + clientChatInfo.emplId + "/+",
       clientChatInfo.teamId + constants.TOPIC_MSG + "/" + constants.CHANNEL_CHAT + "/+",
       clientChatInfo.teamId + constants.TOPIC_COMMAND + "/" + clientChatInfo.emplId
@@ -62,29 +70,39 @@ var chat = (function() {
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
     clientChatInfo.client.subscribe(topicArray);
 
-    // presence/online
-    // clientChatInfo.client.publish(clientChatInfo.teamId + constants.TOPIC_PRESENCE_ONLINE, clientChatInfo.emplId.toString());
+    _sendPresenceConnectionStatus(constants.TOPIC_PRESENCE_ONLINE, constants.PRESENCE_STATUS_OFFLINE);
   }
 
   function _mqttReceived(topic, payload) {
     var payloadStr = payload.toString();
     console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
-    clientChatInfo.recvCallback(clientChatInfo.emplId, topic, payloadStr);
+
+    var topicArray = topic.split('/');
+    if (topicArray.length < 2) {
+      console.error("Invalid topic format[%s], payload:%s", topic, payloadStr);
+      return;
+    }
+
+    var topicType = "/" + topicArray[1];
+    switch (topicType) {
+      case constants.TOPIC_MSG:
+        handleMsg(clientChatInfo.emplI, payloadStr);
+        break;
+      case constants.TOPIC_PRESENCE:
+        if(topic === constants.TOPIC_PRESENCE_ONLINE || topic === constants.TOPIC_PRESENCE_OFFLINE)
+          handleLoginPresence(payloadStr);
+        else if(topic === constants.TOPIC_PRESENCE_KEEPALIVE)
+          chatModule.sendPresenceState();
+        break;
+      case constants.TOPIC_COMMAND:
+        handleCommand(clientChatInfo.emplI, payloadStr);
+        break;
+      default:
+        console.error("Invalid topic format[%s], payload:", topic, payloadStr);
+    }
   }
 
   function _publishMsg(data, params) {
-    /*
-      msgPayload = {
-        chatType:  // 채팅 타입 (client 담당)
-        coid:      // company id (client 담당)
-        publisher: // 메시지 발신자 (client 담당)
-        receiver:  // 메시지 수신자, direct인 경우 peer id, group인 경우 group chat id (client 담당)
-        lastmsgid: // 이전 마지막 msg id. (pubreq 담당)
-        msgid:     // DB 저장될 msg id. (pubreq 담당)
-        time:      // 메시지 발신 시간 (pubreq 담당)
-        msg:       // 발신 메시지 (client 담당)
-      }
-    */
     var msgPayload = {
       teamId: params.teamId,
       senderId: params.emplId,
@@ -96,7 +114,11 @@ var chat = (function() {
 
     var msgPayloadStr = JSON.stringify(msgPayload);
     var chatType = getChatType(params.topic);
-    var topicPrefix = _getMsgTopicPrefix(chatType, params.topic);
+    var prefixParmas = {
+      "chatType" : chatType,
+      "topic" : params.topic
+    };
+    var topicPrefix = _getTopicPrefix(constants.TOPIC_MSG, prefixParmas);
 
     if (chatType === constants.DIRECT_CHAT) {
       var topicEmplIds = params.topic.split("_");
@@ -120,11 +142,26 @@ var chat = (function() {
     }
   }
 
+  function _sendPresenceConnectionStatus(topic, presenceStatus) {
+    var payload = {
+      "emplId": clientChatInfo.emplId,
+      "status" : presenceStatus
+    };
+    clientChatInfo.client.publish(topic, JSON.stringify(payload));
+  }
+
   function sendCommand(receiver, commandPayload) {
-    var topicPrefix = _getCommandTopicPrefix(receiver);
+    var topicPrefix = _getTopicPrefix(constants.TOPIC_COMMAND, {"receiver" : receiver});
     var commandPayloadStr = JSON.stringify(commandPayload);
     clientChatInfo.client.publish(topicPrefix, commandPayloadStr);
     console.log('sendCommand to the channel members [topic:%s, msg:%s]', topicPrefix, commandPayloadStr);
+  }
+
+  function sendPresenceState() {
+    var payload = {
+      "emplId": clientChatInfo.emplId
+    };
+    clientChatInfo.client.publish(constants.TOPIC_PRESENCE_STATE, JSON.stringify(payload));
   }
 
   function sendMsg(topic, msg) {
@@ -140,14 +177,16 @@ var chat = (function() {
   }
 
   function finalize() {
+    _sendPresenceConnectionStatus(constants.TOPIC_PRESENCE_OFFLINE, constants.PRESENCE_STATUS_OFFLINE);
     clientChatInfo.client.end();
   }
 
   return {
-    configMyInfo: configMyInfo,
-    sendMsg: sendMsg,
-    finalize: finalize,
-    sendCommand: sendCommand
+    "configMyInfo": configMyInfo,
+    "sendMsg": sendMsg,
+    "sendCommand": sendCommand,
+    "sendPresenceState": sendPresenceState,
+    "finalize": finalize
   };
 })();
 
