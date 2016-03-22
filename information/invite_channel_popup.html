@@ -64,21 +64,22 @@ $(document).ready(function() {
         // 새로운 추가운 사용자 대상으로 그룹 가입 권고
         var paramsForNewMember = {
           "type": constants.CHANNEL_CREATE,
-          "channelId": channelId,
-          "name" : channelValue.name
-        }
+          "teamId" : loginInfo.teamId,
+          "topic" : activeChatInfo.topic
+        };
 
         var names = "";
         for(var key in newMembers) {
           chatModule.sendCommand(newMembers[key], paramsForNewMember);
           var memberInfo = userCache.get(newMembers[key]);
-          names += " #" + memberInfo.name;
+          names += " " + memberInfo.name;
         }
 
         // 기존 사용자에게 멤버 추가
         var paramsForExistMember = {
           "type": constants.CHANNEL_ADD_MEMBER,
           "channelId": channelId,
+          "topic" : activeChatInfo.topic,
           "newMembers": newMembers
         }
 
@@ -92,9 +93,7 @@ $(document).ready(function() {
         $inviteChannelForm.each(function() {
           if(this.className  == "frmClass") this.reset();
         });
-
         $inviteChannelForm.closest(".modal-dialog").closest(".modal").modal("hide");
-
       }
     );
   });

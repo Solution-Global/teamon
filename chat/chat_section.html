@@ -78,7 +78,7 @@ $(document).ready(function() {
     });
   };
 
-  handleMsg = function(myId, payloadStr) {
+  handleMsg = function(payloadStr) {
     // Format : Object {teamId: 1, senderId: 13, topic: "13_14", time: 1457520386391, msg: "2111"}
     var msgPayload = JSON.parse(payloadStr);
     var params = {

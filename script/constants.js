@@ -60,7 +60,7 @@ define("MENTION_FIRST_DELIMITER", "@");
 define("MENTION_LAST_DELIMITER", ": ");
 
 // channel 관련
-define("CHANNEL_TOPIC_DELIMITER", "$");
+define("CHANNEL_TOPIC_DELIMITER", "#");
 
 // [file]
 // define("UPLOAD_URL", API_HOST_PORT + "/upload/");

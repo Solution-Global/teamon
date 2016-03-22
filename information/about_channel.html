@@ -97,6 +97,7 @@ $(document).ready(function() {
             var params = {
               "type": constants.CHANNEL_REMOVE_MEMBER,
               "channelId": channelId,
+              "topic": activeChatInfo.topic,
               "member": loginInfo.emplId
             }
 

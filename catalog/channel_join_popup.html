@@ -55,8 +55,8 @@ $(document).ready(function() {
   var userArray = userCache.getValueArray();
   var chosenSelect = $channelForm.find(".chosen-select");
   for(var key in userArray) {
-    // if (userArray[key].emplId === loginInfo.emplId)
-    //   continue;
+    if (userArray[key].emplId === loginInfo.emplId) // select list에서 본인 제외
+      continue;
     chosenSelect.append("<option value='" + userArray[key].emplId + "'>" + userArray[key].name + "</option>");
   }
   chosenSelect.chosen({width:"100%"});
@@ -68,6 +68,7 @@ $(document).ready(function() {
 
     var name = constants.CHANNEL_TOPIC_DELIMITER + $channelForm.find("[name=name]").val();
     var members = $channelForm.find("[name=members]").val();
+    members.push(loginInfo.emplId +""); //본인 포함
     var pinupMessage = $channelForm.find("[name=pinupMessage]").val();
 
     var params = {
@@ -83,14 +84,14 @@ $(document).ready(function() {
         var params = {
           "type": constants.CHANNEL_CREATE,
           "teamId" : loginInfo.teamId,
-          "topic" : name
+          "topic" : name,
+          "senderId" : loginInfo.emplId
         }
 
         for(var key in members) {
           chatModule.sendCommand(members[key], params);
         }
 
-        chatModule.sendMsg(name, "Join Channel - " + pinupMessage);
         $channelForm.closest(".modal-dialog").closest(".modal").modal("hide");
       }
     );

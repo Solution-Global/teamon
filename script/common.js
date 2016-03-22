@@ -92,11 +92,18 @@ function generateTopic(emplId1, emplId2) {
 }
 
 function getChatType(topic) {
-  if(topic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)){
+  if(topic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
     return constants.CHANNEL_CHAT;
   } else {
     return constants.DIRECT_CHAT;
   }
+}
+
+function getChannelTopicName(name) {
+  if(name.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
+    name = name.substr(1, name.length);
+  }
+  return loginInfo.teamId + constants.TOPIC_MSG + "/" + constants.CHANNEL_CHAT + "/" + name;
 }
 
 /* Date prototype */

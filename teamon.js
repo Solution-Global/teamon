@@ -123,7 +123,7 @@ handleCommand = function(receiver, payloadStr) {
   console.info("handleCommand information %s, %s", receiver, payloadStr);
 
   if(receiver != loginInfo.emplId) {
-    console.error("reciver not match %s, %s", reciver, loginInfo.emplId);
+    console.error("receiver not match %s, %s", receiver, loginInfo.emplId);
     return;
   }
 
@@ -131,10 +131,17 @@ handleCommand = function(receiver, payloadStr) {
   switch (commandPayload.type) {
     // channel 관련
     case constants.CHANNEL_CREATE:
-      displayChannel(commandPayload);
+      chatModule.subscribe(getChannelTopicName(commandPayload.topic)); // channel 가입
+
+      if(commandPayload.senderId === loginInfo.emplId) {
+        chatModule.sendMsg(commandPayload.topic, "Join Channel"); // 가입 message 전송
+      }
+      displayCreatedChannel(commandPayload);
     break;
     case constants.CHANNEL_ADD_MEMBER:
       reloadChannelCache(commandPayload.channelId);
+
+      
       // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
       if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
         displayChannelMember(commandPayload.newMembers);
@@ -142,7 +149,7 @@ handleCommand = function(receiver, payloadStr) {
     break;
     case constants.CHANNEL_REMOVE_MEMBER:
       reloadChannelCache(commandPayload.channelId);
-
+      chatModule.unsubscribe(getChannelTopicName(commandPayload.topic)); // channel 가입해지
       if(loginInfo.emplId === commandPayload.member) {
         // 화면 닫기 & 리스트제거
         hideInformationArea();
