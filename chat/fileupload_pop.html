@@ -11,13 +11,12 @@
   </div>
 </div>
 <script>
-var topic = activeChatInfo.chatType + "_" + (activeChatInfo.chatType == 0 ? myPref.emplId < activeChatInfo.chatRoomId ? myPref.emplId + "_" + activeChatInfo.chatRoomId : activeChatInfo.chatRoomId + "_" + myPref.emplId : activeChatInfo.chatRoomId);
 var dropzone = new Dropzone("#fileupload-form", {
     autoProcessQueue: false,
     uploadMultiple: true,
     parallelUploads: 10,
     maxFiles: 10,
-    url: constants.UPLOAD_URL + myPref.coId + "/" + topic + "/" + myPref.emplId,
+    url: constants.UPLOAD_URL + loginInfo.teamId + "/" + activeChatInfo.topic + "/" + loginInfo.emplId,
 
     // Dropzone settings
     init: function() {
@@ -34,10 +33,10 @@ var dropzone = new Dropzone("#fileupload-form", {
 					$("#submit-fileupload").closest(".modal-dialog").closest(".modal").modal("hide");
           var fileNames = "";
           $.each(files, function(idx) {
-						var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?coId=" + myPref.coId + "&topic=" + topic + "&emplId=" + myPref.emplId;
+						var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + activeChatInfo.topic + "&emplId=" + loginInfo.emplId;
             fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
           });
-          chatSection.sendMsg("Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
+          chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");
         });
         this.on("errormultiple", function(files, response) {
         });

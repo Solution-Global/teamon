@@ -28,7 +28,7 @@
     <div class="input-group">
       <div class="input-group-btn">
         <button data-toggle="dropdown" type="button" class="btn dropdown-toggle"><i class="fa fa-plus"></i></button>
-        <ul class="dropdown-menu" style="top: inherit; bottom: 36px;">
+        <ul class="dropdown-menu" style="top: inherit; bottom: 56px;">
           <li><a href="#" id="fileupload-btn">Upload file</a></li>
           <li><a href="#" id="capture-btn">Screen capture</a></li>
         </ul>
@@ -291,12 +291,12 @@ $(document).ready(function() {
   });
 
   $("#fileupload-btn").click(function() {
-    openModalDialog("./fileupload_pop.html");
+    openModalDialog("/chat/fileupload_pop.html");
   });
 
   if(runningChannel === constants.CHANNEL_APP) {
     $("#capture-btn").click(function() {
-      openModalDialog("./capture_pop.html");
+      openModalDialog("/chat/capture_pop.html");
     });
   }
 });

@@ -17,8 +17,7 @@
     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-list fa-lg"></i></a>
     <ul class="dropdown-menu dropdown-user">
       <li><a class="information-menulink">Information</a></li>
-      <li><a href="#">Your files</a></li>
-      <li><a href="#">All files</a></li>
+      <li><a href="#" id="info-file">Files</a></li>
       <li><a href="#">Help</a></li>
     </ul>
   </li>
@@ -37,5 +36,9 @@ $(document).ready(function() {
   $headerSec.find(".mention").click(function() {
     showInformationArea(constants.INFO_AREA_MENTION);
   });
+
+  $("#info-file").click(function() {
+    showInformationArea("file_list.html");
+  })
 });
 </script>
