@@ -15,7 +15,7 @@ var noti = (function() {
   function _handleAppNotification (msgPayload) {
     //var msgPayload = JSON.parse(payloadStr);
 
-    var channelValue = channelCache.get(msgPayload.topic);
+    // var channelValue = channelCache.get(msgPayload.topic);
     var userValue = userCache.get(msgPayload.senderId);
 
     var notiTitle = "New message form " + userValue.name;
@@ -47,7 +47,7 @@ var noti = (function() {
     var notification = null;
     //var msgPayload = JSON.parse(payloadStr);
 
-    var channelValue = channelCache.get(msgPayload.topic);
+    // var channelValue = channelCache.get(msgPayload.topic);
     var userValue = userCache.get(msgPayload.senderId);
 
     var notiTitle = "New message form " + userValue.name;
@@ -55,7 +55,7 @@ var noti = (function() {
     var notiIcon = "../img/profile_no.jpg";
 
     if(getChatType(msgPayload.topic) === constants.CHANNEL_CHAT) {
-      notiTitle = "New message in " + channelValue.name;
+      notiTitle = "New message in " + msgPayload.topic;
       notiBody = userValue.name + ": "  + msgPayload.msg;
     }
 
