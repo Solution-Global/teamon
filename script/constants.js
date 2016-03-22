@@ -64,5 +64,4 @@ define("MENTION_LAST_DELIMITER", ": ");
 define("CHANNEL_TOPIC_DELIMITER", "#");
 
 // [file]
-define("UPLOAD_URL", location.protocol + "//" + location.host + "/upload/");
 define("REPOSITORY_URL", "http://192.168.1.164:7587/repository/");

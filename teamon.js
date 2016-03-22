@@ -24,6 +24,7 @@ function initialize(){
     // For desktop
     runningChannel = constants.CHANNEL_APP;
     aplUrl = "http://192.168.1.164:7587/rest/";
+    UPLOAD_URL = "http://192.168.1.164:7587/upload/";
   } else {
     // For WEB
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -31,6 +32,7 @@ function initialize(){
     });
     runningChannel = constants.CHANNEL_WEB;
     aplUrl = location.protocol + "//" + location.host + "/rest/";
+    UPLOAD_URL = location.protocol + "//" + location.host + "/upload/";
   }
 
   // declare global var
