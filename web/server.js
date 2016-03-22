@@ -5,10 +5,11 @@ var serveStatic = require('serve-static');
 var cpl = require('connect-proxy-layer');
 var logger = require('morgan');
 var fs = require('fs');
-var FileStreamRotator = require('file-stream-rotator')
+var FileStreamRotator = require('file-stream-rotator');
 var appRootPath = require('app-root-path');
+var constants = require('../script/constants');
 
-process.title = "teamON";
+process.title = constants.APP_NAME;
 
 const tlsOptions = {
   key: fs.readFileSync('../teamon.key'),
@@ -33,8 +34,9 @@ var accessLogStream = FileStreamRotator.getStream({
 });
 
 var app = connect()
-  .use("/rest/", cpl('http://192.168.1.164:7587/rest/'))
   .use(logger(logFormat, {stream: accessLogStream}))
+  .use("/rest/", cpl('http://192.168.1.164:7587/rest/'))
+  .use("/upload/", cpl('http://192.168.1.164:7587/upload/'))
   .use(serveStatic(appRootPath.path, {index: "index_web.html"}));
 
 https.createServer(tlsOptions, app).listen(8082, function() {

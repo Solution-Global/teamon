@@ -7,14 +7,17 @@ fs = require('fs');
 path = require('path');
 moment = require('moment-timezone');
 Mustache = require('mustache');
+Dropzone = require('dropzone');
 constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
-messageManager = require('./script/storage/message.js'); // global var
-chatModule = require('./script/chat_client.js'); // global var
-CallClient = require('./script/call_client.js');
+messageManager = require('./script/storage/message'); // global var
+chatModule = require('./script/chat_client'); // global var
+// CallClient = require('./script/call_client');
+notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
-toastr = require("./script/plugins/toastr/toastr.min.js"); // global var
+toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
+myWindow = null;
 
 function initialize(){
   if(window && window.process && window.process.type) {
@@ -210,7 +213,7 @@ loadAllArea = function() {
   loadHtml("./catalog/catalog_section.html", $("#catalog-section"));
   loadHtml("./header/header_section.html", $("#header-section"));
   // loadHtml("./screenshare/screenshare-section.html", $("#screenshare-section"));
-  loadHtml("./call/call_section.html", $("#call-section"));
+  // loadHtml("./call/call_section.html", $("#call-section"));
 };
 
 showCatalogArea = function() {

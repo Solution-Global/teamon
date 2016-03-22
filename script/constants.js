@@ -6,6 +6,7 @@ function define(name, value) {
 }
 
 // [Common]
+define("APP_NAME", "TeamOn");
 define("CHANNEL_WEB", "WEB");
 define("CHANNEL_APP", "APP");
 
@@ -63,5 +64,5 @@ define("MENTION_LAST_DELIMITER", ": ");
 define("CHANNEL_TOPIC_DELIMITER", "#");
 
 // [file]
-// define("UPLOAD_URL", API_HOST_PORT + "/upload/");
-// define("REPOSITORY_URL", API_HOST_PORT + "/repository/");
+define("UPLOAD_URL", location.protocol + "//" + location.host + "/upload/");
+define("REPOSITORY_URL", "http://192.168.1.164:7587/repository/");

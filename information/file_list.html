@@ -1,0 +1,42 @@
+<div class="ibox nopadding">
+  <div class="ibox-title">
+    <h5 class="title">Files</h5>
+    <div class="ibox-tools">
+      <a class="aside-close-link">
+      <i class="fa fa-times"></i>
+      </a>
+    </div>
+  </div>
+  <div class="ibox-content file-list">
+    <script id="filelist-template" type="text/template">
+      <div class="file-item">
+        <div class="file-icon"><i class="fa fa-file-text-o fa-3x"></i></div>
+        <div class="file-description">
+          <div>
+            <span class="file-name">{{fileName}}</span>
+          </div>
+          <div>
+            <span class="file-creator">{{creator}}</span>
+          </div>
+          <div>
+            <span class="file-created">{{lastModified}}</span>
+            <span class="file-download">
+              <a href="{{download}}" download={{fileName}}><i class="fa fa-download"></i></a>
+            </span>
+          </div>
+        </div>
+      </div>
+    </script>
+  </div>
+</div>
+<script>
+$(document).ready(function() {
+  restResourse.channel.getFileList({teamId: loginInfo.teamId, channel: activeChatInfo.topic}, function(data, response) {
+    $.each(data, function() {
+      this.fileName = this.name.substring(this.name.indexOf("_") + 1, this.name.length);
+      this.download = constants.REPOSITORY_URL + this.fileURL;
+      $("#information-section").find(".ibox-content.file-list").append(Mustache.render($("#filelist-template").html(), this));
+    });
+  });
+});
+</script>

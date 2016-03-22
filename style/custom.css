@@ -374,8 +374,17 @@ img.in-message {
 /*
  * customzing style.css
 */
-.chat-avatar {
+.chat-avatar,
+.message-avatar {
+	width: 40px;
+	height: 40px;
+	background-color: #D5D7E4;
+	border: 4px #D5D7E4 solid;
 	border-radius: 50%;
+}
+.chat-avatar.online {
+	background-color: #428bca;
+	border: 4px #428bca solid;
 }
 
 .chat-discussion {
@@ -552,4 +561,37 @@ li.active,
   -moz-transition: all 0.4s;
   -o-transition: all 0.4s;
   transition: all 0.4s;
+}
+
+.file-list {
+	padding-left: 0;
+	padding-right: 0;
+}
+.file-item {
+	width: 100%;
+	margin: 0 0.5em;
+	padding: 5px 1.0em 8px 1.0em;
+	border-bottom: 1px #ccc solid;
+}
+.file-icon {
+	position: absolute;
+	padding-top: 5px;
+}
+.file-description {
+	padding-left: 3.5em;
+	width: 100%;
+}
+.file-description .file-name {
+	font-weight: 600;
+	width: 100%;
+}
+.file-description .file-creator {
+	font-size: 12px;
+}
+.file-description .file-created {
+	font-size: 10px;
+}
+.file-description .file-download {
+	position: absolute;
+	right: 10px;
 }

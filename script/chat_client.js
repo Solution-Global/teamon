@@ -45,7 +45,8 @@ var chat = (function() {
       keepalive: 60,
       reconnectPeriod: 3000,
       connectTimeout: 30 * 1000,
-      protocol: "wss"
+      protocol: "wss",
+      rejectUnauthorized: false
     };
 
     if(runningChannel === constants.CHANNEL_APP)

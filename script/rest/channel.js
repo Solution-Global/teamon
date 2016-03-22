@@ -85,4 +85,15 @@ Channel.prototype.removeMember = function(params, callback) {
   self.restCommon.post( "/" + params.channelId + "/member", args, callback);
 };
 
+Channel.prototype.getFileList = function(params, callback) {
+  var self = this;
+  var args = {
+    path: {
+      teamId: params.teamId,
+      channel: params.channel
+    }
+  };
+
+  self.restCommon.get( "/${teamId}/file/${channel}", args, callback);
+};
 module.exports = Channel;
