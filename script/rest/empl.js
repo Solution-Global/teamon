@@ -41,4 +41,21 @@ Empl.prototype.getListByTeamId = function(params, callback) {
     self.restCommon.post( "/create", args, callback);
   };
 
+
+  Empl.prototype.changePassword = function(params, callback) {
+    var self = this;
+    console.debug("changePassword - [currentPassword] " + params.currentPassword + "[newPassword] " + params.newPassword + "[emplId] " + params.emplId);
+    var args = {
+      path : {
+        "emplId" : params.emplId
+      },
+      data: $.param({
+        emplId : params.emplId,
+        currentPassword: params.currentPassword,
+        newPassword: params.newPassword
+      })
+    };
+    self.restCommon.put("/changePassword/${emplId}", args, callback);
+  };
+
 module.exports = Empl;

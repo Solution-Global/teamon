@@ -5,7 +5,7 @@
       <img alt="image" src="./img/logo_uangel.png"/>
       </span>
       <div class="public-area">
-        <a href="#"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a href="#" id="onProfileModal"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
       </div>
@@ -325,6 +325,10 @@ $(document).ready(function() {
   };
 
   // bind Event
+  $('#onProfileModal').bind("click", function() {
+    openModalDialog("./catalog/password_modify_popup.html");
+  });
+
   $('#onChannelJoinModal').bind("click", function() {
     openModalDialog("./catalog/channel_join_popup.html");
   });
