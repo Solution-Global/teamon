@@ -16,7 +16,7 @@ Channel.prototype.getChannelList = function(params, callback) {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
     }
   };
-  self.restCommon.get("/${teamId}", args, callback);
+  self.restCommon.get("/team/${teamId}", args, callback);
 };
 
 Channel.prototype.getChannel = function(params, callback) {
@@ -30,7 +30,7 @@ Channel.prototype.getChannel = function(params, callback) {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
     }
   };
-  self.restCommon.get( "/channel/${channelId}", args, callback);
+  self.restCommon.get("/${channelId}", args, callback);
 };
 
 Channel.prototype.getChannelByName = function(params, callback) {
@@ -43,7 +43,7 @@ Channel.prototype.getChannelByName = function(params, callback) {
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
     }
   };
-  self.restCommon.get( "/name", args, callback);
+  self.restCommon.get("/name", args, callback);
 };
 
 Channel.prototype.createChannel = function(params, callback) {
@@ -70,7 +70,7 @@ Channel.prototype.addMember = function(params, callback) {
     })
   };
 
-  self.restCommon.put( "/" + params.channelId + "/member", args, callback);
+  self.restCommon.put("/" + params.channelId + "/member", args, callback);
 };
 
 Channel.prototype.removeMember = function(params, callback) {
@@ -82,7 +82,7 @@ Channel.prototype.removeMember = function(params, callback) {
     })
   };
 
-  self.restCommon.post( "/" + params.channelId + "/member", args, callback);
+  self.restCommon.post("/" + params.channelId + "/member", args, callback);
 };
 
 Channel.prototype.getFileList = function(params, callback) {
@@ -94,6 +94,21 @@ Channel.prototype.getFileList = function(params, callback) {
     }
   };
 
-  self.restCommon.get( "/${teamId}/file/${channel}", args, callback);
+  self.restCommon.get("/${teamId}/file/${channel}", args, callback);
 };
+
+Channel.prototype.deleteFile = function(params, callback) {
+  var self = this;
+  var args = {
+    path: {
+      teamId: params.teamId,
+      channel: params.channel,
+      emplId: params.emplId,
+      fileName: params.fileName
+    }
+  };
+
+  self.restCommon.delete("/${teamId}/file", args, callback);
+};
+
 module.exports = Channel;
