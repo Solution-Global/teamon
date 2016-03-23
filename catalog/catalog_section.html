@@ -4,6 +4,13 @@
       <span>
       <img alt="image" src="./img/logo_uangel.png"/>
       </span>
+      <div class="profile-area" id="user-profile">
+        <script id="profile-template" type="text/template">
+          <img class="chat-avatar online_mine" src="{{img}}" alt="{{imgAlt}}">
+          <div class="chat-user-name ellipsis">{{name}}
+          </div>
+        </script>
+      </div>
       <div class="public-area">
         <a href="#" id="onProfileModal"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -30,7 +37,7 @@
         </ul>
       </div>
     </li>
-    <li>
+    <li class="users-area">
       <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
       <div class="chat-users">
         <ul id="users-list" class="nav nav-second-level">
@@ -57,13 +64,31 @@ $(document).ready(function() {
   channelCache = new cacheManager(); // channel list 저장
   myMessage = messageManager(localStorageManager, loginInfo, userCache, channelCache); // global var
 
-  var $catalogSec = $("#catalog-section");
+  var $userProfile = $('#user-profile');
+  var $catalogSec = $('#catalog-section');
   var $userListContext = $('#users-list');
   var $channelListContext = $('#channels-list');
+  var profileTemplate = $('#profile-template').html();
   var userTemplate = $('#user-template').html();
   var channeTemplate = $('#channel-template').html();
   var $userArea = $catalogSec.find('.chat-users');
   var $channelArea = $catalogSec.find('.chat-channels');
+
+  // set profile
+  var imgFile;
+  if(runningChannel === constants.CHANNEL_APP) {
+      imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+  } else {
+      imgFile = "./img/profile_no.jpg";
+  }
+
+  var loginUserData = {
+      "name" : loginInfo.name,
+      "emplId": loginInfo.emplId,
+      "img": imgFile,
+      "imgAlt": loginInfo.name
+  };
+  $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
   // set event for direct chatting
   $userListContext.delegate("li", "click", function() {
@@ -155,7 +180,8 @@ $(document).ready(function() {
         };
         $userListContext.append(Mustache.render(userTemplate, userData));
       });
-
+      // set user count
+      $("#topic-list .users-link").append(" (" + data.rows.length + ")");
       // _activeChatView();
       _initPresenceDisplay();
     }
@@ -203,12 +229,15 @@ $(document).ready(function() {
         };
         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
       });
+      // set channel count
+      $("#topic-list .channels-link").append(" (" + data.length + ")");
     }
 
     //sync Message
     myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
   });
 
+  console.log("channel cnt = %d, user cnt = %d", channelCache.getValueArray().length, userCache.getValueArray().length);
   var _activeChatView = function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
     if(lastChatInfo) {

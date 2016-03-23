@@ -4,7 +4,7 @@
 	text-overflow: ellipsis;
 }
 .public-area {
-	padding-top:20px;
+	padding-top:10px;
 	text-align:center;
 	background-color: transparent;
 }
@@ -386,6 +386,10 @@ img.in-message {
 	background-color: #428bca;
 	border: 4px #428bca solid;
 }
+.chat-avatar.online_mine {
+	background-color: #90AA01;
+	border: 4px #90AA01 solid;
+}
 
 .chat-discussion {
 	height: inherit;
@@ -498,6 +502,15 @@ body.small-navbar .profile-element {
 	height: 100%;
 }
 
+/* category_section */
+.profile-area {
+	padding-left: 10px;
+	padding-top: 10px;
+	color: #a7b1c2;
+  font-weight: 600;
+	text-align: left;
+}
+
 #topic-list {
 	position: absolute;
 	height: 100%;
@@ -514,6 +527,11 @@ body.small-navbar .profile-element {
 .nav-second-level li a {
 	padding-left: 22px;
 }
+
+.users-area {
+	margin-top: 16px;
+}
+
 #channels-list.nav-second-level li a {
 	padding-left: 42px;
 }
