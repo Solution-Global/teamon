@@ -1,3 +1,8 @@
+
+* {
+	/* to ignore user agent stylesheet */
+	margin: 0;
+}
 .ellipsis {
 	overflow: hidden;
 	white-space: nowrap;
@@ -392,6 +397,8 @@ img.in-message {
 }
 .nav-header {
 	background: none;
+	position: absolute;
+	top: 0;
 }
 @media (min-width: 768px) {
 	#page-wrapper {
@@ -499,11 +506,10 @@ body.small-navbar .profile-element {
 }
 
 #topic-list {
-	position: absolute;
+	position: relative !important;
 	height: 100%;
 	width: 100%;
 	padding-top: 154px;
-	top: 0;
 }
 
 .chat-users {
