@@ -486,8 +486,8 @@ body.small-navbar .profile-element {
   display: none;
 }
 
-.chat-users {
-	height: auto;
+.chat-user {
+	padding: 0 10px;
 }
 
 #catalog-section {
@@ -508,6 +508,7 @@ body.small-navbar .profile-element {
 
 .chat-users {
 	margin-left: 0;
+	height: auto;
 }
 
 .nav-second-level li a {
