@@ -92,7 +92,7 @@ var chat = (function() {
   }
 
   function _mqttReceived(topic, payload) {
-    console.log('_mqttReceived topic:%s, msg:%s', topic, payload);
+    console.log('_mqttReceived topic:%s, msg:%s', topic, payload.toString());
     payload = JSON.parse(payload);
     var topicArray = topic.split('/');
     if (topicArray.length < 2) {
@@ -103,14 +103,17 @@ var chat = (function() {
     var topicType = "/" + topicArray[1];
     switch (topicType) {
       case constants.TOPIC_MSG:
-        if (topicArray.length != 5) {
+        if (topicArray.length < 4) {
           console.error("Invalid msg topic format[%s]", topic);
           return;
         }
-        if(topicArray[2] === constants.CHANNEL_CHAT)
-          topicArray[4] = constants.CHANNEL_TOPIC_DELIMITER + topicArray[4];
 
-        payload.topic =  topicArray[4];
+        if(Number(topicArray[2]) === constants.CHANNEL_CHAT) {
+          payload.topic = constants.CHANNEL_TOPIC_DELIMITER + topicArray[3];
+        } else {
+          payload.topic = topicArray[4];
+        }
+
         handleMsg(payload);
         break;
       case constants.TOPIC_PRESENCE:

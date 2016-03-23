@@ -53,7 +53,7 @@ var message = (function(storageManager, myPref) {
 
     restResourse.chat.getListByCondition(restPrams, {}, function(msgData) {
       if (msgData.length > 0) {
-        var messageArray = new Array();
+        var messageArray = [];
         $.each(msgData, function(idx, msgRow) {
           messageArray.push({
             senderId: msgRow.senderId,
