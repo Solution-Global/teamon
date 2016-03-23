@@ -8,7 +8,6 @@
 
 $(document).ready(function () {
 
-
     // Add body-small class if window less than 768px
     if ($(this).width() < 769) {
         $('body').addClass('body-small')
@@ -106,7 +105,7 @@ $(document).ready(function () {
     */
 
     // Minimalize menu
-    $('.navbar-minimalize').click(switchMenu);
+    // $('.navbar-minimalize').click(switchMenu);
 
     // Tooltips demo
     $('.tooltip-demo').tooltip({
@@ -260,17 +259,6 @@ function animationHover(element, animation) {
                 element.removeClass('animated ' + animation);
             }, 2000);
         });
-}
-
-function switchMenu() {
-  if ($('body').hasClass('body-small')) {
-    $('body').toggleClass('small-navbar');
-  } else {
-    if (!$('body').hasClass('small-navbar')) {
-      $('body').toggleClass('no-menu');
-      $('#catalog-section').toggle();
-    }
-  }
 }
 
 function SmoothlyMenu() {
