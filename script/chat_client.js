@@ -92,41 +92,46 @@ var chat = (function() {
   }
 
   function _mqttReceived(topic, payload) {
-    var payloadStr = payload.toString();
-    console.log('_mqttReceived topic:%s, msg:%s', topic, payloadStr);
-
+    console.log('_mqttReceived topic:%s, msg:%s', topic, payload);
+    payload = JSON.parse(payload);
     var topicArray = topic.split('/');
     if (topicArray.length < 2) {
-      console.error("Invalid topic format[%s], payload:%s", topic, payloadStr);
+      console.error("Invalid topic format[%s], payload:%s", topic);
       return;
     }
 
     var topicType = "/" + topicArray[1];
     switch (topicType) {
       case constants.TOPIC_MSG:
-        handleMsg(payloadStr);
+        if (topicArray.length != 5) {
+          console.error("Invalid msg topic format[%s]", topic);
+          return;
+        }
+        if(topicArray[2] === constants.CHANNEL_CHAT)
+          topicArray[4] = constants.CHANNEL_TOPIC_DELIMITER + topicArray[4];
+
+        payload.topic =  topicArray[4];
+        handleMsg(payload);
         break;
       case constants.TOPIC_PRESENCE:
         if(topic === constants.TOPIC_PRESENCE_ONLINE || topic === constants.TOPIC_PRESENCE_OFFLINE)
-          handleLoginPresence(payloadStr);
+          handleLoginPresence(payload);
         else if(topic === constants.TOPIC_PRESENCE_KEEPALIVE)
           chatModule.sendPresenceState();
         break;
       case constants.TOPIC_COMMAND:
-        handleCommand(clientChatInfo.emplId, payloadStr);
+        handleCommand(clientChatInfo.emplId, payload);
         break;
       default:
-        console.error("Invalid topic format[%s], payload:", topic, payloadStr);
+        console.error("Invalid topic format[%s]", topic);
     }
   }
 
   function _publishMsg(data, params) {
     var msgPayload = {
-      teamId: params.teamId,
       senderId: params.emplId,
-      topic: params.topic,
       chatId: data.chatId,
-      time: data.time,
+      creTime: data.time,
       msg: params.msg
     };
 
@@ -136,8 +141,8 @@ var chat = (function() {
       "chatType" : chatType,
       "topic" : params.topic
     };
-    var topicPrefix = _getTopicPrefix(constants.TOPIC_MSG, prefixParmas);
 
+    var topicPrefix = _getTopicPrefix(constants.TOPIC_MSG, prefixParmas);
     if (chatType === constants.DIRECT_CHAT) {
       var topicEmplIds = params.topic.split("_");
       var receiverId;
@@ -146,18 +151,14 @@ var chat = (function() {
       else
         receiverId = Number(topicEmplIds[0]);
 
-      // 상대방 토픽으로 전송
-      var receiverTopic = topicPrefix.replace("{peer}", receiverId);
-      clientChatInfo.client.publish(receiverTopic, msgPayloadStr);
+      topicPrefix = topicPrefix.replace("{peer}", receiverId);
 
-      // 자신의 토픽으로 전송
-      var myTopic = topicPrefix.replace("{peer}", params.emplId);
-      clientChatInfo.client.publish(myTopic, msgPayloadStr);
-
-    } else if (chatType === constants.CHANNEL_CHAT) {
-      // 채팅방으로 토픽으로 전송
-      clientChatInfo.client.publish(topicPrefix, msgPayloadStr);
+      // 자신 화면에  Display
+      msgPayload.topic = params.topic;
+      handleMsg(msgPayload);
     }
+
+    clientChatInfo.client.publish(topicPrefix, msgPayloadStr); // msg 전송
   }
 
   function _sendPresenceConnectionStatus(topic, presenceStatus) {
