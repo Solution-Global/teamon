@@ -25,6 +25,9 @@ var chat = (function() {
           myTopic = "{peer}/" + parmas.topic;
         } else if (parmas.chatType === constants.CHANNEL_CHAT) {
           myTopic = parmas.topic;
+          if(myTopic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
+            myTopic = myTopic.substr(1, myTopic.length); // "#"은 mqtt의 wildcard로 제거
+          }
         }
 
         addtionStr = "/" + parmas.chatType + "/" + myTopic;
@@ -46,6 +49,9 @@ var chat = (function() {
       rejectUnauthorized: false
     };
 
+    if(runningChannel === constants.CHANNEL_APP)
+      options.rejectUnauthorized = false;
+
     var client = mqtt.connect(constants.MQTT_URL, options);
     client.on('connect', _mqttConnected);
     client.on('message', _mqttReceived);
@@ -57,20 +63,32 @@ var chat = (function() {
     return client;
   }
 
+  function subscribe(topic) {
+    clientChatInfo.client.subscribe(topic);
+  }
+
+  function unsubscribe(topic) {
+    clientChatInfo.client.unsubscribe(topic);
+  }
+
   function _mqttConnected() {
     // topic array: presence, msg(direct, group)
     var topicArray = [constants.TOPIC_PRESENCE_ONLINE,
       constants.TOPIC_PRESENCE_OFFLINE,
       constants.TOPIC_PRESENCE_KEEPALIVE,
-      clientChatInfo.teamId + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + clientChatInfo.emplId + "/+",
-      clientChatInfo.teamId + constants.TOPIC_MSG + "/" + constants.CHANNEL_CHAT + "/+",
-      clientChatInfo.teamId + constants.TOPIC_COMMAND + "/" + clientChatInfo.emplId
+      clientChatInfo.teamId + constants.TOPIC_COMMAND + "/" + clientChatInfo.emplId,
+      clientChatInfo.teamId + constants.TOPIC_MSG + "/" + constants.DIRECT_CHAT + "/" + clientChatInfo.emplId + "/+"
     ];
 
-    console.log('_mqttConnected! topicArray:%s', topicArray.toString());
-    clientChatInfo.client.subscribe(topicArray);
+    var channelArray = channelCache.getValueArray();
+    for(var key in channelArray) {
+      topicArray.push(getChannelTopicName(channelArray[key].name));
+    }
 
-    _sendPresenceConnectionStatus(constants.TOPIC_PRESENCE_ONLINE, constants.PRESENCE_STATUS_OFFLINE);
+    subscribe(topicArray);
+    console.log('_mqttConnected! topicArray:%s', topicArray.toString());
+
+    _sendPresenceConnectionStatus(constants.TOPIC_PRESENCE_ONLINE, constants.PRESENCE_STATUS_ONLINE); // online publish
   }
 
   function _mqttReceived(topic, payload) {
@@ -86,7 +104,7 @@ var chat = (function() {
     var topicType = "/" + topicArray[1];
     switch (topicType) {
       case constants.TOPIC_MSG:
-        handleMsg(clientChatInfo.emplI, payloadStr);
+        handleMsg(payloadStr);
         break;
       case constants.TOPIC_PRESENCE:
         if(topic === constants.TOPIC_PRESENCE_ONLINE || topic === constants.TOPIC_PRESENCE_OFFLINE)
@@ -95,7 +113,7 @@ var chat = (function() {
           chatModule.sendPresenceState();
         break;
       case constants.TOPIC_COMMAND:
-        handleCommand(clientChatInfo.emplI, payloadStr);
+        handleCommand(clientChatInfo.emplId, payloadStr);
         break;
       default:
         console.error("Invalid topic format[%s], payload:", topic, payloadStr);
@@ -186,7 +204,9 @@ var chat = (function() {
     "sendMsg": sendMsg,
     "sendCommand": sendCommand,
     "sendPresenceState": sendPresenceState,
-    "finalize": finalize
+    "finalize": finalize,
+    "subscribe" : subscribe,
+    "unsubscribe" : unsubscribe
   };
 })();
 

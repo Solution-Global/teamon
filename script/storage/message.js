@@ -224,7 +224,6 @@ var message = (function(storageManager, myPref, userCache, channelCache) {
       restPrams.firstChatId = firstChatId;
     }
 
-    console.log(restPrams);
     restResourse.chat.getListByCondition(restPrams, {}, function(msgData) {
       if (msgData.length > 0) {
         var messageArray = new Array();

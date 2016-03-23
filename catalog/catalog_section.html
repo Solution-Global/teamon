@@ -201,8 +201,6 @@ $(document).ready(function() {
         };
         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
       });
-
-      // _activeChatView();
     }
 
     //sync Message
@@ -265,7 +263,7 @@ $(document).ready(function() {
     $alarmArea.removeClass("hide");
   };
 
-  displayChannel = function(channel) {
+  displayCreatedChannel = function(channel) {
     var params = {
       "teamId": channel.teamId,
       "name": channel.topic,
@@ -304,6 +302,7 @@ $(document).ready(function() {
   handleLoginPresence = function(params) {
     if(typeof params === 'string')
       params = JSON.parse(params);
+
     if(params.emplId === loginInfo.emplId) {
       return;
     }

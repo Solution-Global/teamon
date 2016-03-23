@@ -61,7 +61,7 @@ define("MENTION_FIRST_DELIMITER", "@");
 define("MENTION_LAST_DELIMITER", ": ");
 
 // channel 관련
-define("CHANNEL_TOPIC_DELIMITER", "$");
+define("CHANNEL_TOPIC_DELIMITER", "#");
 
 // [file]
 define("REPOSITORY_URL", "http://192.168.1.164:7587/repository/");
