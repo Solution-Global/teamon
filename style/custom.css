@@ -509,7 +509,7 @@ body.small-navbar .profile-element {
 	position: relative !important;
 	height: 100%;
 	width: 100%;
-	padding-top: 154px;
+	margin-top: 154px;
 }
 
 .chat-users {
