@@ -1,9 +1,51 @@
 <div class="sidebar-collapse" id="side-menu">
+  <div id="topic-list">
+    <ul class="nav metismenu">
+      <li>
+        <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
+        <div class="chat-channels">
+          <ul id="channels-list" class="nav nav-second-level">
+            <script id="channel-template" type="text/template">
+              <li data-channelid="{{channelId}}" data-topic="{{topic}}">
+                <a href="#">{{topic}}
+                  <span class="badge badge-warning right hide alarm"></span>
+                </a>
+              </li>
+            </script>
+          </ul>
+        </div>
+      </li>
+      <li class="users-area">
+        <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
+        <div class="chat-users">
+          <ul id="users-list" class="nav nav-second-level">
+            <script id="user-template" type="text/template">
+              <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
+                <a href="#">
+                  <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
+                  <div class="chat-user-name ellipsis">{{name}}
+                    <span class="badge badge-warning right hide alarm"></span>
+                  </div>
+                </a>
+              </li>
+            </script>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
   <div class="nav-header">
     <div class="profile-element">
       <span>
       <img alt="image" src="./img/logo_uangel.png"/>
       </span>
+      <div class="profile-area" id="user-profile">
+        <script id="profile-template" type="text/template">
+          <img class="chat-avatar online_mine" src="{{img}}" alt="{{imgAlt}}">
+          <div class="chat-user-name ellipsis">{{name}}
+          </div>
+        </script>
+      </div>
       <div class="public-area">
         <a href="#" id="onProfileModal"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -12,41 +54,13 @@
     </div>
     <div class="logo-element">
       UANGEL
+      <div class="public-area">
+        <a href="#" id="onProfileModal"><i class="fa fa-user"></i></a>
+        <a href="#"><i class="fa fa-cog"></i></a>
+        <a href="#" id="onLogOut"><i class="fa fa-power-off"></i></a>
+      </div>
     </div>
   </div>
-  <div id="topic-list">
-  <ul class="nav metismenu">
-    <li>
-      <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
-      <div class="chat-channels">
-        <ul id="channels-list" class="nav nav-second-level">
-          <script id="channel-template" type="text/template">
-            <li data-channelid="{{channelId}}" data-topic="{{topic}}">
-              <a href="#">{{topic}}
-                <span class="badge badge-warning right hide alarm"></span>
-              </a>
-            </li>
-          </script>
-        </ul>
-      </div>
-    </li>
-    <li>
-      <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
-      <div class="chat-users">
-        <ul id="users-list" class="nav nav-second-level">
-          <script id="user-template" type="text/template">
-            <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
-              <a href="#">
-                <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
-                <div class="chat-user-name ellipsis">{{name}}</div>
-              </a>
-            </li>
-          </script>
-        </ul>
-      </div>
-    </li>
-  </ul>
-</div>
 </div>
 
 <script>
@@ -55,13 +69,31 @@ $(document).ready(function() {
   channelCache = new cacheManager(); // channel list 저장
   myMessage = messageManager(localStorageManager, loginInfo); // global var
 
-  var $catalogSec = $("#catalog-section");
+  var $userProfile = $('#user-profile');
+  var $catalogSec = $('#catalog-section');
   var $userListContext = $('#users-list');
   var $channelListContext = $('#channels-list');
+  var profileTemplate = $('#profile-template').html();
   var userTemplate = $('#user-template').html();
   var channeTemplate = $('#channel-template').html();
   var $userArea = $catalogSec.find('.chat-users');
   var $channelArea = $catalogSec.find('.chat-channels');
+
+  // set profile
+  var imgFile;
+  if(runningChannel === constants.CHANNEL_APP) {
+      imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+  } else {
+      imgFile = "./img/profile_no.jpg";
+  }
+
+  var loginUserData = {
+      "name" : loginInfo.name,
+      "emplId": loginInfo.emplId,
+      "img": imgFile,
+      "imgAlt": loginInfo.name
+  };
+  $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
   // set event for direct chatting
   $userListContext.delegate("li", "click", function() {
@@ -88,13 +120,14 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    showInformationArea(constants.INFO_AREA_ABOUT_USER);
+    if (!$('body').hasClass('body-small'))
+      showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     changeChatView();
   });
 
   // set event for group chatting
-  $channelListContext.delegate("li", "click", function() {
+  $channelListContext.delegate("li", "click touchend", function() {
     $channelListContext.find("li.active").removeClass("active");
     $userListContext.find("li.active").removeClass("active");
 
@@ -153,7 +186,8 @@ $(document).ready(function() {
         };
         $userListContext.append(Mustache.render(userTemplate, userData));
       });
-
+      // set user count
+      $("#topic-list .users-link").append(" (" + data.rows.length + ")");
       // _activeChatView();
       _initPresenceDisplay();
     }
@@ -201,12 +235,15 @@ $(document).ready(function() {
         };
         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
       });
+      // set channel count
+      $("#topic-list .channels-link").append(" (" + data.length + ")");
     }
 
     //sync Message
     myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
   });
 
+  console.log("channel cnt = %d, user cnt = %d", channelCache.getValueArray().length, userCache.getValueArray().length);
   var _activeChatView = function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
     if(lastChatInfo) {
