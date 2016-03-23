@@ -45,7 +45,6 @@ var noti = (function() {
 
   function _handleWebNotification (msgPayload) {
     var notification = null;
-    //var msgPayload = JSON.parse(payloadStr);
 
     // var channelValue = channelCache.get(msgPayload.topic);
     var userValue = userCache.get(msgPayload.senderId);
@@ -69,8 +68,8 @@ var noti = (function() {
         notiTitle,
         {icon: notiIcon, body: notiBody, tag: ""});
 
-      console.log("granted: channelId = %s senderId = %s msg = %s",
-        msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
+      console.log("granted: topic = %s senderId = %s msg = %s",
+        msgPayload.topic, msgPayload.senderId, msgPayload.msg);
     }
     // Otherwise, we need to ask the user for permission
     else if (Notification.permission !== 'denied') {
@@ -80,21 +79,27 @@ var noti = (function() {
           notification = new Notification(
             notiTitle,
             {icon: notiIcon, body: notiBody, tag: ""});
+        } else {
+          return;
         }
-        console.log("denied: channelId = %s senderId = %s msg = %s",
-          msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
+
+        console.log("default: topic = %s senderId = %s msg = %s",
+          msgPayload.topic, msgPayload.senderId, msgPayload.msg);
       });
+    } else {
+      return;
     }
 
-    setTimeout(function(){notification.close();}, 3000);
+    if(notification !== null) {
+      setTimeout(function(){notification.close();}, 3000);
+      notification.onclick = function(event) {
+        notification.close();
+        event.preventDefault();
+        window.focus();
 
-    notification.onclick = function(event) {
-      notification.close();
-      event.preventDefault();
-      window.focus();
-
-      changeTarget(msgPayload.topic);
-    };
+        changeTarget(msgPayload.topic);
+      };
+    }
   }
 
   var changeTarget = function (topic) {
