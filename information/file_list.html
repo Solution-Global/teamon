@@ -35,6 +35,7 @@ $(document).ready(function() {
     $.each(data, function() {
       this.fileName = this.name.substring(this.name.indexOf("_") + 1, this.name.length);
       this.download = constants.REPOSITORY_URL + this.fileURL;
+      this.lastModified = new Date(this.lastModified).format("YYYY/MM/DD HH:mm:ss");
       $("#information-section").find(".ibox-content.file-list").append(Mustache.render($("#filelist-template").html(), this));
     });
   });
