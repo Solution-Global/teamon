@@ -40,5 +40,17 @@ $(document).ready(function() {
   $("#info-file").click(function() {
     showInformationArea("file_list.html");
   })
+
+    // toggle menu
+    $('.navbar-minimalize').on("touchend click", switchMenu);
+    function switchMenu() {
+      if ($('body').hasClass('body-small')) {
+        $('body').toggleClass('small-navbar');
+      } else {
+        if (!$('body').hasClass('small-navbar')) {
+          $('body').toggleClass('no-menu');
+        }
+      }
+    }
 });
 </script>

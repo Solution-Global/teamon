@@ -1,3 +1,8 @@
+
+* {
+	/* to ignore user agent stylesheet */
+	margin: 0;
+}
 .ellipsis {
 	overflow: hidden;
 	white-space: nowrap;
@@ -396,6 +401,8 @@ img.in-message {
 }
 .nav-header {
 	background: none;
+	position: absolute;
+	top: 0;
 }
 @media (min-width: 768px) {
 	#page-wrapper {
@@ -430,6 +437,7 @@ img.in-message {
 	#chat-section {
 		width: 100%;
 	}
+
 }
 
 body {
@@ -459,6 +467,10 @@ body {
 	padding-top: 61px;
 }
 
+body.no-menu #catalog-section {
+	display: none;
+}
+
 #chat-section {
 	height: 100%;
 	padding: 0;
@@ -484,6 +496,14 @@ body {
 
 body.small-navbar .logo-element {
 	display: block;
+}
+
+.logo-element .public-area {
+	padding-top: 10px;
+}
+
+.logo-element .public-area a {
+	padding: 0 20px;
 }
 
 body.small-navbar .profile-element {
@@ -512,11 +532,10 @@ body.small-navbar .profile-element {
 }
 
 #topic-list {
-	position: absolute;
+	position: relative;
 	height: 100%;
 	width: 100%;
 	padding-top: 154px;
-	top: 0;
 }
 
 .chat-users {
@@ -539,10 +558,11 @@ body.small-navbar .profile-element {
 body.small-navbar .nav-header {
 	padding: 0;
 	background-color: #1ab394;
+	width: 100%;
 }
 
 body.small-navbar #topic-list {
-	padding-top: 61px;
+	padding-top: 96px;
 }
 
 body.small-navbar .navbar-static-side .chat-avatar {

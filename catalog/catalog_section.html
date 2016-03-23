@@ -1,4 +1,39 @@
 <div class="sidebar-collapse" id="side-menu">
+  <div id="topic-list">
+    <ul class="nav metismenu">
+      <li>
+        <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
+        <div class="chat-channels">
+          <ul id="channels-list" class="nav nav-second-level">
+            <script id="channel-template" type="text/template">
+              <li data-channelid="{{channelId}}" data-topic="{{topic}}">
+                <a href="#">{{topic}}
+                  <span class="badge badge-warning right hide alarm"></span>
+                </a>
+              </li>
+            </script>
+          </ul>
+        </div>
+      </li>
+      <li class="users-area">
+        <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
+        <div class="chat-users">
+          <ul id="users-list" class="nav nav-second-level">
+            <script id="user-template" type="text/template">
+              <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
+                <a href="#">
+                  <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
+                  <div class="chat-user-name ellipsis">{{name}}
+                    <span class="badge badge-warning right hide alarm"></span>
+                  </div>
+                </a>
+              </li>
+            </script>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
   <div class="nav-header">
     <div class="profile-element">
       <span>
@@ -19,43 +54,13 @@
     </div>
     <div class="logo-element">
       UANGEL
+      <div class="public-area">
+        <a href="#" id="onProfileModal"><i class="fa fa-user"></i></a>
+        <a href="#"><i class="fa fa-cog"></i></a>
+        <a href="#" id="onLogOut"><i class="fa fa-power-off"></i></a>
+      </div>
     </div>
   </div>
-  <div id="topic-list">
-  <ul class="nav metismenu">
-    <li>
-      <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
-      <div class="chat-channels">
-        <ul id="channels-list" class="nav nav-second-level">
-          <script id="channel-template" type="text/template">
-            <li data-channelid="{{channelId}}" data-topic="{{topic}}">
-              <a href="#">{{topic}}
-                <span class="badge badge-warning right hide alarm"></span>
-              </a>
-            </li>
-          </script>
-        </ul>
-      </div>
-    </li>
-    <li class="users-area">
-      <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
-      <div class="chat-users">
-        <ul id="users-list" class="nav nav-second-level">
-          <script id="user-template" type="text/template">
-            <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
-              <a href="#">
-                <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
-                <div class="chat-user-name ellipsis">{{name}}
-                  <span class="badge badge-warning right hide alarm"></span>
-                </div>
-              </a>
-            </li>
-          </script>
-        </ul>
-      </div>
-    </li>
-  </ul>
-</div>
 </div>
 
 <script>
@@ -115,13 +120,14 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    showInformationArea(constants.INFO_AREA_ABOUT_USER);
+    if (!$('body').hasClass('body-small'))
+      showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     changeChatView();
   });
 
   // set event for group chatting
-  $channelListContext.delegate("li", "click", function() {
+  $channelListContext.delegate("li", "click touchend", function() {
     $channelListContext.find("li.active").removeClass("active");
     $userListContext.find("li.active").removeClass("active");
 
