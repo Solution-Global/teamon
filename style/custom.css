@@ -433,6 +433,7 @@ img.in-message {
 	#chat-section {
 		width: 100%;
 	}
+
 }
 
 body {
@@ -462,6 +463,10 @@ body {
 	padding-top: 61px;
 }
 
+body.no-menu #catalog-section {
+	display: none;
+}
+
 #chat-section {
 	height: 100%;
 	padding: 0;
@@ -489,6 +494,14 @@ body.small-navbar .logo-element {
 	display: block;
 }
 
+.logo-element .public-area {
+	padding-top: 10px;
+}
+
+.logo-element .public-area a {
+	padding: 0 20px;
+}
+
 body.small-navbar .profile-element {
   display: none;
 }
@@ -506,10 +519,10 @@ body.small-navbar .profile-element {
 }
 
 #topic-list {
-	position: relative !important;
+	position: relative;
 	height: 100%;
 	width: 100%;
-	margin-top: 154px;
+	padding-top: 154px;
 }
 
 .chat-users {
@@ -527,10 +540,11 @@ body.small-navbar .profile-element {
 body.small-navbar .nav-header {
 	padding: 0;
 	background-color: #1ab394;
+	width: 100%;
 }
 
 body.small-navbar #topic-list {
-	padding-top: 61px;
+	padding-top: 96px;
 }
 
 body.small-navbar .navbar-static-side .chat-avatar {
