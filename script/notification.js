@@ -14,7 +14,6 @@ var noti = (function() {
 
   function _handleAppNotification (msgPayload) {
     //var msgPayload = JSON.parse(payloadStr);
-
     // var channelValue = channelCache.get(msgPayload.topic);
     var userValue = userCache.get(msgPayload.senderId);
 

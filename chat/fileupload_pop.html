@@ -16,7 +16,7 @@ var dropzone = new Dropzone("#fileupload-form", {
     uploadMultiple: true,
     parallelUploads: 10,
     maxFiles: 10,
-    url: constants.UPLOAD_URL + loginInfo.teamId + "/" + activeChatInfo.topic + "/" + loginInfo.emplId,
+    url: UPLOAD_URL + loginInfo.teamId + "/" + activeChatInfo.topic + "/" + loginInfo.emplId,
 
     // Dropzone settings
     init: function() {

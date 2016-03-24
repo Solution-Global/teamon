@@ -67,7 +67,7 @@
 $(document).ready(function() {
   userCache = new cacheManager(); // user list 저장
   channelCache = new cacheManager(); // channel list 저장
-  myMessage = messageManager(localStorageManager, loginInfo, userCache, channelCache); // global var
+  myMessage = messageManager(localStorageManager, loginInfo); // global var
 
   var $userProfile = $('#user-profile');
   var $catalogSec = $('#catalog-section');
@@ -338,19 +338,16 @@ $(document).ready(function() {
     });
   }
 
-  handleLoginPresence = function(params) {
-    if(typeof params === 'string')
-      params = JSON.parse(params);
-
-    if(params.emplId === loginInfo.emplId) {
+  handleLoginPresence = function(presencPayload) {
+    if(presencPayload.emplId === loginInfo.emplId) {
       return;
     }
 
-    var topic = generateTopic(params.emplId, loginInfo.emplId)
+    var topic = generateTopic(presencPayload.emplId, loginInfo.emplId)
     var $activeTarget = _getActiveTarget(topic);
     var $profileImage = $activeTarget.find(".chat-avatar");
 
-    if(params.status === constants.PRESENCE_STATUS_ONLINE) {
+    if(presencPayload.status === constants.PRESENCE_STATUS_ONLINE) {
       // online
       $profileImage.addClass("online");
     } else {
