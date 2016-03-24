@@ -103,7 +103,8 @@ function initLoginStatus() {
       "name": myPreference.getPreference("name"),
       "browser": uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : ""),
       "os": uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : ""),
-      "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model
+      "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model,
+      "photoLoc": myPreference.getPreference("photoLoc")
     };
     initAPI();
 

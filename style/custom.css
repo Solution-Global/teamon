@@ -634,3 +634,7 @@ li.active,
 	position: absolute;
 	right: 10px;
 }
+.dropdown-side{
+	margin-left: 20px;
+	margin-top: -15px;
+}
