@@ -146,7 +146,6 @@ handleCommand = function(receiver, payloadStr) {
     case constants.CHANNEL_ADD_MEMBER:
       reloadChannelCache(commandPayload.channelId);
 
-      
       // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
       if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
         displayChannelMember(commandPayload.newMembers);
