@@ -205,6 +205,7 @@ $(document).ready(function() {
   // init Channel List
   params.memberIncluded = true;
   restResourse.channel.getChannelList(params, function(data) {
+    var channelCnt = 0;
     if(data) {
       $.each(data, function(idx, row) {
         var members;
@@ -234,9 +235,10 @@ $(document).ready(function() {
             "topic": row.name,
         };
         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
+        channelCnt++;
       });
       // set channel count
-      $("#topic-list .channels-link").append(" (" + data.length + ")");
+      $("#topic-list .channels-link").append(" (" + channelCnt + ")");
     }
 
     //sync Message

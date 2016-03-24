@@ -19,8 +19,8 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
   var mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 700,
+    width: 850,
+    height: 650,
     title: constants.APP_NAME
   });
   mainWindow.loadURL(INDEX);
