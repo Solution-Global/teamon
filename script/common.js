@@ -153,3 +153,8 @@ Date.prototype.parse = function(dateStr, formatStr) {
 			return $(this).find("[name="+selector+"]");
 	};
 })(jQuery);
+
+jQuery.validator.addMethod("specialcharacter", function(value, element) {
+  var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"\s]/;
+  return this.optional(element) || !regExp.test(value);
+}, "Please avoid the special characters.");

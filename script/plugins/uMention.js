@@ -20,6 +20,7 @@
     constructor: Metion
 
   , select: function () {
+      console.log("[select]");
       var val = this.$menu.find('.active').attr('data-value')
       this.$element
         .val(this.updater(val))
@@ -28,6 +29,8 @@
     }
 
   , updater: function(item) {
+      console.log("[updater]");
+      console.log(item);
       var data = this.query,
           caratPos = this.$element[0].selectionStart,
           i;
@@ -45,10 +48,11 @@
 
       this.tempQuery = data;
 
-      return data + this.options.lastDelimiter;
+      return data;
   }
 
   , show: function () {
+      console.log("[show]");
       // 처음 한번만
       if (this.eventSupported('keydown')) {
         this.$element.on('keydown', $.proxy(this.keydown, this))
@@ -71,12 +75,14 @@
     }
 
   , hide: function () {
+      console.log("[hide]");
       this.$menu.hide()
       this.shown = false
       return this
     }
 
   , lookup: function (event) {
+      console.log("[lookup]");
       var items
 
       this.query = this.$element.val()
@@ -91,23 +97,33 @@
     }
 
   , process: function (items) {
+      console.log("[process]");
       var that = this
 
       items = $.grep(items, function (item) {
         return that.matcher(item)
       })
 
+      console.log("[after matcher-------------------------------------------]");
+      console.log(items);
+
       items = this.sorter(items)
+      console.log("[after sorter-------------------------------------------]");
+      console.log(items);
 
       if (!items.length) {
         return this.shown ? this.hide() : this
       }
 
 
-      return this.render(items.slice(0, this.options.items)).show()
+      if(this.options.items > 0)
+        return this.render(items.slice(0, this.options.items)).show()
+      else
+        return this.render(items.slice(0)).show()
     }
 
   , extractCurrentQuery : function(query, caratPos) {
+      console.log("[extractCurrentQuery]");
       var i;
       for (i = caratPos; i >= 0; i--) {
           if (query[i] == this.options.firstDelimiter) {
@@ -118,40 +134,51 @@
   }
 
   , matcher: function(itemProps) {
+      console.log("[matcher]");
       var i;
 
       if(this.options.emptyQuery){
         var q = (this.query.toLowerCase()),
           caratPos = this.$element[0].selectionStart,
           lastChar = q.slice(caratPos-1,caratPos);
+
+        console.log("[q] %s [caratPos] %s [lastChar] %s ", q, caratPos, lastChar);
         if(lastChar==this.options.firstDelimiter){
           return true;
         }
-      }
+      } // 첫 글자가 firstDelimiter 입력할 때 List 나올 수 있도록 한다.
 
+      // 한글과 순서대로 입력 될 수 있도록 조절 한다.
       for (i in this.options.queryBy) {
           if (itemProps[this.options.queryBy[i]]) {
-              var item = itemProps[this.options.queryBy[i]].toLowerCase(),
-                  usernames = (this.query.toLowerCase()).match(new RegExp(this.options.firstDelimiter + '\\w+', "g")),
-                  j;
+              // var item = itemProps[this.options.queryBy[i]].toLowerCase(),
+              //     usernames = (this.query.toLowerCase()).match(new RegExp(this.options.firstDelimiter + '\\w+', "g")),
+              //     j;
+              //
+              // console.log("[item] %s [this.query] %s [usernames] %s ", item, this.query, usernames);
+              // console.log(usernames);
+              // if ( !! usernames) {
+              //     for (j = 0; j < usernames.length; j++) {
+              //
+              //         var username = (usernames[j].substring(1)).toLowerCase(),
+              //             re = new RegExp(this.options.firstDelimiter + item, "g"),
+              //             used = ((this.query.toLowerCase()).match(re));
+              //
+              //         if (item.indexOf(username) != -1 && used === null) {
+              //             return true;
+              //         }
+              //     }
+              // }
 
-              if ( !! usernames) {
-                  for (j = 0; j < usernames.length; j++) {
-
-                      var username = (usernames[j].substring(1)).toLowerCase(),
-                          re = new RegExp(this.options.firstDelimiter + item, "g"),
-                          used = ((this.query.toLowerCase()).match(re));
-
-                      if (item.indexOf(username) != -1 && used === null) {
-                          return true;
-                      }
-                  }
-              }
+              var item = this.options.firstDelimiter + itemProps[this.options.queryBy[i]],
+                  target = this.query.slice(this.query.lastIndexOf("@"));
+              return item.startsWith(target);
           }
       }
   }
 
   , sorter: function(items) {
+      console.log("[sorter]");
       if (items.length && this.options.sensitive) {
           var currentUser = this.extractCurrentQuery(this.query, this.$element[0].selectionStart).substring(1),
               i, len = items.length,
@@ -191,6 +218,7 @@
   }
 
   , highlighter: function (item) {
+      console.log("[highlighter]");
       var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
       return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
         return '<strong>' + match + '</strong>'
@@ -198,6 +226,7 @@
     }
 
   , render: function(items) {
+      console.log("[render]");
       var that = this;
       items = $(items).map(function(i, item) {
 
@@ -225,6 +254,7 @@
   }
 
   , next: function (event) {
+      console.log("[next]");
       var active = this.$menu.find('.active').removeClass('active')
         , next = active.next()
 
@@ -236,6 +266,7 @@
     }
 
   , prev: function (event) {
+      console.log("[prev]");
       var active = this.$menu.find('.active').removeClass('active')
         , prev = active.prev()
 
@@ -247,6 +278,7 @@
     }
 
   , listen: function () {
+      console.log("[listen]");
       this.$element
         .on('focus',    $.proxy(this.focus, this))
         .on('blur',     $.proxy(this.blur, this))
@@ -260,6 +292,7 @@
     }
 
   , eventSupported: function(eventName) {
+      console.log("[eventSupported]");
       var isSupported = eventName in this.$element
       if (!isSupported) {
         this.$element.setAttribute(eventName, 'return;')
@@ -269,6 +302,7 @@
     }
 
   , move: function (e) {
+      console.log("[move]");
       if (!this.shown) return
 
       switch(e.keyCode) {
@@ -293,16 +327,19 @@
     }
 
   , keydown: function (e) {
+      console.log("[keydown]");
       this.suppressKeyPressRepeat = ~$.inArray(e.keyCode, [40,38,9,13,27])
       this.move(e)
     }
 
   , keypress: function (e) {
+      console.log("[keypress]");
       if (this.suppressKeyPressRepeat) return
       this.move(e)
     }
 
   , keyup: function (e) {
+      console.log("[keyup]");
       switch(e.keyCode) {
         case 40: // down arrow
         case 38: // up arrow
@@ -331,15 +368,18 @@
   }
 
   , focus: function (e) {
+      console.log("[focus]");
       this.focused = true
     }
 
   , blur: function (e) {
+      console.log("[blur]");
       this.focused = false
       if (!this.mousedover && this.shown) this.hide()
     }
 
   , click: function (e) {
+      console.log("[click]");
       e.stopPropagation()
       e.preventDefault()
       this.select()
@@ -347,21 +387,25 @@
     }
 
   , mouseenter: function (e) {
+      console.log("[mouseenter]");
       this.mousedover = true
       this.$menu.find('.active').removeClass('active')
       $(e.currentTarget).addClass('active')
     }
 
   , mouseleave: function (e) {
+      console.log("[mouseleave]");
       this.mousedover = false
       if (!this.focused && this.shown) this.hide()
     }
 
   , updateUsers: function(value) {
+      console.log("[updateUsers]");
       this.users = undefined;
       this.users = value;
     }
   , showStatus: function() {
+      console.log("[showStatus]");
       return this.shown;
     }
 
@@ -387,12 +431,11 @@
   $.fn.mention.defaults = {
     users: []
   , firstDelimiter: '@'
-  , lastDelimiter: ': '
   , sensitive: true
-  , emptyQuery: false
+  , emptyQuery: true
   , queryBy: ['name', 'username']
-  , items: 8
-  , menu: '<ul class="mention dropdown-menu"></ul>'
+  , items: -1
+  , menu: '<ul class="mention dropdown-menu" style="width: 90%"></ul>'
   , item: '<li><a href="#"></a></li>'
   , minLength: 1
   }

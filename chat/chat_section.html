@@ -49,7 +49,14 @@ $(document).ready(function() {
   var msgTemplate = $('#msg-template').html();
   var dateLineTemplate = $('#dateline-template').html();
 
-  $inputText.on('keyup', _keyupInputText);
+  $inputText.on('keyup', function(event) {
+    console.log("[keyupInputText]" + $mentionText.data('mention').shown);
+    // mention이 활성화 되어 있으면 send 전송을 막는다.
+    if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
+      $btnSend.click();
+    }
+  });
+
   var $mentionText = $inputText.mention({
     users : [],
     firstDelimiter: constants.MENTION_FIRST_DELIMITER,
@@ -164,13 +171,6 @@ $(document).ready(function() {
         $mcsbContainer.append(Mustache.render(msgTemplate, messageObj));
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       }
-    }
-  };
-
-  var _keyupInputText = function(event) {
-    // mention이 활성화 되어 있으면 send 전송을 막는다.
-    if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
-      $btnSend.click();
     }
   };
 
