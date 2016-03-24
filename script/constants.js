@@ -65,3 +65,5 @@ define("CHANNEL_TOPIC_DELIMITER", "#");
 
 // [file]
 define("REPOSITORY_URL", "http://192.168.1.164:7587/repository/");
+define("IMAGE_URL", "https://192.168.1.164:8083/image/");
+define("UPLOAD_URL", "https://localhost:8082/upload/");
