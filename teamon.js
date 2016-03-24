@@ -10,7 +10,7 @@ Mustache = require('mustache');
 Dropzone = require('dropzone');
 constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
-messageManager = require('./script/storage/message'); // global var
+messageManager = require('./script/message'); // global var
 chatModule = require('./script/chat_client'); // global var
 // CallClient = require('./script/call_client');
 notifierModule = require('./script/notification'); //global var
@@ -124,15 +124,14 @@ function initLoginStatus() {
   }
 }
 
-handleCommand = function(receiver, payloadStr) {
-  console.info("handleCommand information %s, %s", receiver, payloadStr);
+handleCommand = function(receiver, commandPayload) {
+  console.info("handleCommand information %s, %s", receiver, commandPayload.toString());
 
   if(receiver != loginInfo.emplId) {
     console.error("receiver not match %s, %s", receiver, loginInfo.emplId);
     return;
   }
 
-  var commandPayload = JSON.parse(payloadStr);
   switch (commandPayload.type) {
     // channel 관련
     case constants.CHANNEL_CREATE:
