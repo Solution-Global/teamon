@@ -78,76 +78,90 @@ $(document).ready(function() {
     });
   };
 
-  handleMsg = function(payloadStr) {
-    // Format : Object {teamId: 1, senderId: 13, topic: "13_14", time: 1457520386391, msg: "2111"}
-    var msgPayload = JSON.parse(payloadStr);
-    var params = {
-      senderId : msgPayload.senderId,
-      chatId : msgPayload.chatid,
-      msg : msgPayload.msg,
-      name: "unknown",
-      creTime : msgPayload.time
-    };
-
-    var message = myMessage.madeMessageUnit(params);
-
+  handleMsg = function(msgPayload) {
     if(activeChatInfo && activeChatInfo.topic  === msgPayload.topic) {
       if (!document.hasFocus()){
         // alarmCnt 를 추가하지 않고 noti만 한다.
         notifierModule.handleNotification(msgPayload);
       }
-      _displayMessages(constants.MESSAGE_TYPE_APPEND, message);
+      _displayMessages(constants.MESSAGE_TYPE_APPEND, msgPayload);
       $contentArea.mCustomScrollbar("scrollTo", "bottom");
     } else {
       notifierModule.handleNotification(msgPayload);
       setChattingAlarmCnt(msgPayload.topic);
     }
 
-    myMessage.appendChatMessage(message, msgPayload.topic);
+    myMessage.appendMessageUnit(msgPayload, msgPayload.topic);
   };
 
-  var _handlePresence = function(topic, payloadStr) {
-    // TODO : display presence info
-    console.info("topic[%s], payload:", topic, payloadStr);
+  // Local DB에 저장되는 Message Unit의 포맷 설정
+  var _dispalyMessageFormat = function(params) {
+    var senderInfo = userCache.get(params.senderId);
+    var sender = "unknown";
+    if(senderInfo)
+      sender = senderInfo.name;
+
+    if(runningChannel === constants.CHANNEL_APP) {
+      imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+    } else {
+      imgFile = "../img/profile_no.jpg";
+    }
+
+    return {
+      "chatId": params.chatId,
+      "mode": loginInfo.emplId === params.senderId ? "right" : "left", // send : right or receive : left
+      "img": imgFile,
+      "imgAlt": sender,
+      "sender": sender,
+      "msgText": params.msg,
+      "date": new Date(params.creTime).format("YYYY/MM/DD"),
+      "time": new Date(params.creTime).format("A hh:mm")
+    };
   };
 
   var _displayMessages = function(type, value) {
     var messageTags = $mcsbContainer.find(".chat-message");
 
-    if(Array.isArray(value)) {
+    if(Array.isArray(value) && value.length > 0) {
+      var messageArray = value.slice(0);
       if(constants.MESSAGE_TYPE_APPEND === type) {
-        for (var key = 0; key < value.length; key++) {
-          if(value[key - 1] && value[key - 1].date != value[key].date) {
-            $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
+        for (var key = 0; key < messageArray.length; key++) {
+          messageArray[key] = _dispalyMessageFormat(messageArray[key]);
+
+          if(messageArray[key - 1] && messageArray[key - 1].date != messageArray[key].date) {
+            $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : messageArray[key].date}));
           }
-          $mcsbContainer.append(Mustache.render(msgTemplate, value[key]));
+          $mcsbContainer.append(Mustache.render(msgTemplate, messageArray[key]));
         }
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       } else {
         // prepend mode
         var firstDate = messageTags ? messageTags.first().data("date") : undefined;
-        for (var key = (value.length-1); key > -1; key--) {
-          $mcsbContainer.prepend(Mustache.render(msgTemplate, value[key]));
+        var initKey = messageArray.length-1;
+        messageArray[initKey] = _dispalyMessageFormat(messageArray[initKey]); // init 처음에만 진행
+        for (var key = initKey; key > -1; key--) {
+          if(messageArray[key - 1])
+            messageArray[key - 1] = _dispalyMessageFormat(messageArray[key - 1]);
 
-          if (key === (value.length-1)) {
-            if(firstDate && value[key].date != firstDate) {
-              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
+          $mcsbContainer.prepend(Mustache.render(msgTemplate, messageArray[key]));
+          if (key === initKey) {
+            if(firstDate && messageArray[key].date != firstDate) {
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : messageArray[key].date}));
             }
           } else {
-            if(value[key - 1] && value[key - 1].date != value[key].date) {
-              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : value[key].date}));
-            }
+            if(messageArray[key - 1] && messageArray[key - 1].date != messageArray[key].date)
+              $mcsbContainer.prepend(Mustache.render(dateLineTemplate, {"date" : messageArray[key].date}));
           }
         }
       }
-
     } else {
       if(constants.MESSAGE_TYPE_APPEND === type) {
+        var messageObj = _dispalyMessageFormat(value);
         var lastDate = messageTags ? messageTags.last().data("date"): undefined;
-        if(lastDate && value.date != lastDate) {
-          $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : value.date}));
+        if(lastDate && messageObj.date != lastDate) {
+          $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : messageObj.date}));
         }
-        $mcsbContainer.append(Mustache.render(msgTemplate, value));
+        $mcsbContainer.append(Mustache.render(msgTemplate, messageObj));
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       }
     }
@@ -176,6 +190,7 @@ $(document).ready(function() {
     hideChattingAlram(topic); // init Alram
     setHearderTitle(chatRoomName);
 
+    // mention list에서 사용 될 사용자 설정
     var chatType = getChatType(topic);
     if(chatType === constants.CHANNEL_CHAT) {
       var channelValue = channelCache.get(activeChatInfo.channelId);
