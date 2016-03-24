@@ -187,9 +187,14 @@ $(document).ready(function() {
         if(userValue.emplId === loginInfo.emplId)
           continue;
 
+        var imagePath = "../img/profile_no.jpg";
+        if (userValue.photoLoc != null) {
+          imagePath = constants.IMAGE_URL + userValue.photoLoc + "?teamId=" + userValue.teamId + "&topic=profile_image&emplId=" + userValue.emplId;
+        }
+
         members.push({
           "username" : userValue.name,
-          "image": "../img/profile_no.jpg"
+          "image": imagePath
         });
       }
 
