@@ -35,8 +35,14 @@
   <div class="nav-header">
     <div class="profile-element">
       <span>
-      <img alt="image" src="/img/logo_uangel.png"/>
+      <img alt="image" src="./img/logo_uangel.png"/>
       </span>
+      <div class="profile-area" id="user-profile">
+        <script id="profile-template" type="text/template">
+          <img class="chat-avatar online_mine" src="{{img}}" alt="{{imgAlt}}" />
+          <div class="chat-user-name ellipsis">{{name}}</div>
+        </script>
+      </div>
       <div class="public-area">
         <a data-toggle="dropdown" href="#">
             <i class="fa fa-user"></i> Profile&nbsp;&nbsp;|&nbsp;&nbsp;
@@ -66,7 +72,9 @@ $(document).ready(function() {
   channelCache = new cacheManager(); // channel list 저장
   myMessage = messageManager(localStorageManager, loginInfo); // global var
 
+  var $userProfile = $('#user-profile');
   var $catalogSec = $("#catalog-section");
+  var profileTemplate = $('#profile-template').html();
   var $userListContext = $('#users-list');
   var $channelListContext = $('#channels-list');
   var userTemplate = $('#user-template').html();
@@ -191,6 +199,8 @@ $(document).ready(function() {
         };
         $userListContext.append(Mustache.render(userTemplate, userData));
       });
+      // set user count
+      $("#topic-list .users-link").append(" (" + data.rows.length + ")");
 
       // _activeChatView();
       _initPresenceDisplay();
@@ -239,6 +249,8 @@ $(document).ready(function() {
         };
         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
       });
+      // set channel count
+      $("#topic-list .channels-link").append(" (" + data.length + ")");
     }
 
     //sync Message
@@ -260,6 +272,7 @@ $(document).ready(function() {
     }
   }
 
+  console.log("channel cnt = %d, user cnt = %d", channelCache.getValueArray().length, userCache.getValueArray().length);
   var _getActiveTarget = function (topic) {
     if (getChatType(topic) === constants.DIRECT_CHAT)
       return $userListContext.find("[data-topic='" + topic + "']");
