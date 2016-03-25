@@ -27,13 +27,14 @@ Chat.prototype.getListByCondition = function(params, callBackRequiredValues, cal
 
 Chat.prototype.getMentionList = function(params, callback) {
   var self = this;
-  console.log("getMentionList - [emplId]" + params.emplId);
+  console.log("getMentionList - [teamId]" + params.teamId + "[emplId]" + params.emplId);
   var args = {
     path: {
+      "teamId": params.teamId,
       "emplId": params.emplId
     }
   };
-  self.restCommon.get( "/mention/${emplId}", args, callback);
+  self.restCommon.get( "/team/${teamId}/mention/${emplId}", args, callback);
 };
 
 Chat.prototype.postMsg = function(params, callback) {

@@ -50,7 +50,7 @@ $(document).ready(function() {
   var dateLineTemplate = $('#dateline-template').html();
 
   $inputText.on('keyup', function(event) {
-    console.log("[keyupInputText]" + $mentionText.data('mention').shown);
+    console.log("[%s %s %s]", event.keyCode, event.shiftKey !== true, !$mentionText.data('mention').shown);
     // mention이 활성화 되어 있으면 send 전송을 막는다.
     if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
       $btnSend.click();
@@ -215,7 +215,8 @@ $(document).ready(function() {
 
         members.push({
           "username" : userValue.name,
-          "image": imagePath
+          "image": imagePath,
+          "emplId" : userValue.name // Addition Info
         });
       }
 
@@ -226,6 +227,26 @@ $(document).ready(function() {
     if(messageArray) {
       _displayMessages(constants.MESSAGE_TYPE_APPEND, messageArray);
     }
+  };
+
+  var _replaceMentionFormat = function(msg) {
+    if(msg.indexOf(constants.MENTION_FIRST_DELIMITER) === -1)
+      return;
+
+      var channelValue = channelCache.get(activeChatInfo.channelId);
+      var members = []; // for mention
+
+      for(var key in channelValue.memberList) {
+        var userValue = userCache.get(channelValue.memberList[key].emplId);
+        var replacingTargetTag = "<a class='mention-popup' href='#' data-emplid={emplid}>{name} </a>";
+
+        if(msg.indexOf(constants.MENTION_FIRST_DELIMITER + userValue.name + constants.MENTION_LAST_DELIMITER) > -1)
+        {
+          replacingTargetTag = replacingTargetTag.replace("{emplid}", userValue.emplId).replace("{name}", constants.MENTION_FIRST_DELIMITER + userValue.name);
+          msg = msg.replace(constants.MENTION_FIRST_DELIMITER + userValue.name + constants.MENTION_LAST_DELIMITER, replacingTargetTag);
+        }
+      }
+    return msg;
   };
 
   // bind events
@@ -239,18 +260,10 @@ $(document).ready(function() {
     if (!msg || !msg.trim().length) {
       return;
     }
-    // msg = msg.replace(/\n$/, "");
+    msg = _replaceMentionFormat(msg);
 
     chatModule.sendMsg(activeChatInfo.topic, msg);
     $inputText.val("").focus();
-    }
-  );
-
-  $inputText.on('keyup', function(event){
-    // mention이 활성화 되어 있으면 send 전송을 막는다.
-    if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
-      $btnSend.click();
-    }
   });
 
   $("#fileupload-btn").click(function() {

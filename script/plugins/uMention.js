@@ -48,7 +48,7 @@
 
       this.tempQuery = data;
 
-      return data;
+      return data + this.options.lastDelimiter;
   }
 
   , show: function () {
@@ -170,6 +170,7 @@
               //     }
               // }
 
+              // 마지막 firstDelimiter와 일치하는지 비교한다.
               var item = this.options.firstDelimiter + itemProps[this.options.queryBy[i]],
                   target = this.query.slice(this.query.lastIndexOf("@"));
               return item.startsWith(target);
@@ -255,9 +256,13 @@
 
   , next: function (event) {
       console.log("[next]");
+
+
       var active = this.$menu.find('.active').removeClass('active')
         , next = active.next()
 
+      console.log(active.html());
+      console.log(next.html());
       if (!next.length) {
         next = $(this.$menu.find('li')[0])
       }
@@ -267,6 +272,7 @@
 
   , prev: function (event) {
       console.log("[prev]");
+      console.log(this.$menu.find('.active').html());
       var active = this.$menu.find('.active').removeClass('active')
         , prev = active.prev()
 
@@ -404,6 +410,7 @@
       this.users = undefined;
       this.users = value;
     }
+    
   , showStatus: function() {
       console.log("[showStatus]");
       return this.shown;
@@ -431,6 +438,7 @@
   $.fn.mention.defaults = {
     users: []
   , firstDelimiter: '@'
+  , lastDelimiter: ': '
   , sensitive: true
   , emptyQuery: true
   , queryBy: ['name', 'username']

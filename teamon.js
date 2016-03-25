@@ -44,39 +44,7 @@ function initialize(){
 
   initAPI(); // 로그인전에 기본으로 사용할 API 초기화 설정
   initLoginStatus();
-  // resizeSection();
-  // $(window).resize(function() {
-  //   resizeSection();
-  // });
 }
-
-// function reloadInit()
-
-// function resizeSection() {
-//   var windowHeight = $(window).height();
-//   var headerHeight = $("#header-section").outerHeight(true);
-//   var $informationSec = $("#information-section");
-//   var $catalogSec = $("#catalog-section");
-//   var $chatSec = $("#chat-section");
-//
-//   var informationHeaderHeight =  $informationSec.find(".ibox-title").outerHeight(true);
-//   var informationHeight =  windowHeight - headerHeight - informationHeaderHeight;
-//   $informationSec.find(".ibox-content").css("height", informationHeight);
-//
-//   var headerHeight = $("#header-section").outerHeight(true);
-//   var chatInputHeight = $chatSec.find(".ibox-footer").outerHeight(true);
-//   var chatHeight =  windowHeight - headerHeight - chatInputHeight - 1;
-//
-//   var catalogHeaderHeight = $catalogSec.find(".nav-header").outerHeight(true);
-//   var catalogChannelsHeight = $catalogSec.find(".channels-link").outerHeight(true);
-//   var catalogUsersHeight = $catalogSec.find(".users-link").outerHeight(true);
-//
-//     // 마지막의 3,2,1 오차 pixel.
-//   var scrollHeight = windowHeight - catalogHeaderHeight - catalogChannelsHeight - catalogUsersHeight - 3;
-//
-//   $catalogSec.find('.chat-channels').css("height", scrollHeight * 0.3 );
-//   $catalogSec.find('.chat-users').css("height", scrollHeight * 0.7 );
-// }
 
 function initLoginStatus() {
   var keepEmplId = localStorageManager.getValue("keepEmplId");
@@ -267,6 +235,8 @@ hideCallArea = function() {
 hideInformationArea = function() {
   $("#information-section").hide();
 };
+
+
 
 $(document).ready(function() {
   initialize();

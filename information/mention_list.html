@@ -44,6 +44,7 @@ $(document).ready(function() {
   var $contentArea = $informationSec.find('.content_area');
 
   var params = {
+    "teamId" : loginInfo.teamId,
     "emplId": loginInfo.emplId
   };
 
@@ -51,6 +52,7 @@ $(document).ready(function() {
     if (data) {
       var messages = [];
       $.each(data, function(idx, row) {
+        console.log(row);
         var sender = userCache.get(row.senderId);
         var message = {
           "chatId": row.chatId,
