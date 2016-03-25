@@ -184,7 +184,6 @@ $('#information-section').css("min-height", ($(window).height()-$("#header-secti
 
 // Minimalize menu when screen is less than 768px
 $(window).bind("resize", function () {
-  console.log($(this).width() + "x"+$(this).height());
     if ($(this).width() < 769) {
         $('body').addClass('body-small')
         $('body').removeClass('no-menu')
