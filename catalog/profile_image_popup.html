@@ -48,6 +48,9 @@ var	dropzone = new Dropzone("#fileupload-form", {
 						restResource.empl.changeProfileImg(params,
 							function(data, response) {
 								// Success
+								myPreference.setPreference("photoLoc", params.photoLoc);
+								loginInfo.photoLoc = params.photoLoc;
+								$("#user-profile img.chat-avatar").attr("src", constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId);
 								toastr.info("Your profile image has been modified successfully");
 						});
 
