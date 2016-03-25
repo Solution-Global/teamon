@@ -1,5 +1,3 @@
-require('app-module-path').addPath(__dirname);
-
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var path = require('path');
