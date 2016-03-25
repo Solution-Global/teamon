@@ -161,7 +161,7 @@ $(document).ready(function() {
     "limit" : constants.COMMON_SEARCH_ALL
   };
 
-  restResourse.empl.getListByTeamId(params, function(data) {
+  restResource.empl.getListByTeamId(params, function(data) {
     if (data.rows) {
       $.each(data.rows, function(idx, row) {
          userCache.set(row.emplId, row); // add each employee into userCache.
@@ -208,7 +208,7 @@ $(document).ready(function() {
 
   // init Channel List
   params.memberIncluded = true;
-  restResourse.channel.getChannelList(params, function(data) {
+  restResource.channel.getChannelList(params, function(data) {
     if(data) {
       $.each(data, function(idx, row) {
         var members;
@@ -272,7 +272,7 @@ $(document).ready(function() {
       "teamId": loginInfo.teamId
     };
 
-    restResourse.login.getLoggedInEmplListByTeamId(params, function(data) {
+    restResource.login.getLoggedInEmplListByTeamId(params, function(data) {
       if(data) {
         var handleParams = {
           "status" : constants.PRESENCE_STATUS_ONLINE
@@ -308,7 +308,7 @@ $(document).ready(function() {
       "memberIncluded": true
     };
 
-    restResourse.channel.getChannelByName(params, function(data, response) {
+    restResource.channel.getChannelByName(params, function(data, response) {
       var channelData = {
         "channelId": data.channelId,
         "topic": data.name
@@ -330,7 +330,7 @@ $(document).ready(function() {
       "memberIncluded": true
     };
 
-    restResourse.channel.getChannel(params, function(data, response) {
+    restResource.channel.getChannel(params, function(data, response) {
       if(data.channelId) {
         channelCache.set(channelId, data);
       }
@@ -375,7 +375,7 @@ $(document).ready(function() {
       backgroundOpacity : 1,
       backgroundColor : "#2f4050"
     };
-    restResourse.login.logout(loginInfo);
+    restResource.login.logout(loginInfo);
     openModalDialog("./user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection
     localStorageManager.removeKey("keepEmplId");

@@ -47,7 +47,7 @@ $(document).ready(function() {
     "emplId": loginInfo.emplId
   };
 
-  restResourse.chat.getMentionList(params, function(data) {
+  restResource.chat.getMentionList(params, function(data) {
     if (data) {
       var messages = [];
       $.each(data, function(idx, row) {

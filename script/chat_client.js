@@ -177,7 +177,7 @@ var chat = (function() {
       "msg": msg
     };
 
-    restResourse.chat.postMsg(params, _publishMsg);
+    restResource.chat.postMsg(params, _publishMsg);
   }
 
   function finalize() {

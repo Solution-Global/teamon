@@ -45,7 +45,7 @@ var	dropzone = new Dropzone("#fileupload-form", {
 						params.emplId = loginInfo.emplId;
 						params.photoLoc = loginInfo.emplId + '.' + fileArr[1];
 
-						restResourse.empl.changeProfileImg(params,
+						restResource.empl.changeProfileImg(params,
 							function(data, response) {
 								// Success
 								toastr.info("Your profile image has been modified successfully");
