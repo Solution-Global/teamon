@@ -5,7 +5,7 @@ var noti = (function() {
   var notiBody = null;
   var notiIcon = null;
   // TODO have to make page for change of notification sound
-  var audio = new Audio('../sound/alarm.wav');
+  var audio = new Audio('./sound/alarm.wav');
 
   function handleNotification (msgPayload) {
     var userValue = userCache.get(msgPayload.senderId);
@@ -13,7 +13,7 @@ var noti = (function() {
     notiTitle = "New message form " + userValue.name;
     notiBody = msgPayload.msg;
     // TODO change to profile image of user
-    notiIcon = "../img/profile_no.jpg";
+    notiIcon = "./img/profile_no.jpg";
 
     if(getChatType(msgPayload.topic) === constants.CHANNEL_CHAT) {
       notiTitle = "New message in " + msgPayload.topic;

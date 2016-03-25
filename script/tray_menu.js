@@ -57,6 +57,6 @@ module.exports = {
         });
 
         trayIconObject.setContextMenu(trayContextMenu);
-        trayIconObject.setImage(path.join(__dirname, "../img/profile_no.jpg"));
+        //trayIconObject.setImage(path.join(__dirname, "../img/profile_no.jpg"));
     }
 };
