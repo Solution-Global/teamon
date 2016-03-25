@@ -2,7 +2,7 @@
   "name": "teamon",
   "productName": "teamon",
   "version": "0.0.1",
-  "description": "Unified desktop app for team communication and collaboration.",
+  "description": "Team ON",
   "main": "teamon.js",
   "repository": {
     "type": "git",
@@ -16,7 +16,7 @@
     "clean": "npm run clean:win",
     "clean:win": "rm -rf release/win",
     "pack": "npm run pack:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --app-version=0.0.1 --out=release/win --platform=win32 --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite"
+    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --version-string.ProductName=teamon --overwrite"
   },
   "author": "Solution-Global",
   "license": "GPL",
@@ -26,7 +26,7 @@
     "electron-prebuilt": ">0.36.0",
     "grunt": "0.4.5",
     "grunt-contrib-jshint": "0.11.3",
-    "grunt-electron-installer-windows": "0.2.0"
+    "grunt-electron-installer": "2.0.0"
   },
   "dependencies": {
     "jquery": "2.1.4",

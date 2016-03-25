@@ -3,16 +3,20 @@ module.exports = function(grunt) {
         'jshint': {
           all: ['Gruntfile.js', 'script/*.js']
         },
-        'electron-installer-windows': {
-          win64: {
-            src: './release/win/teamon-win32-x64',
-            dest: './release/win/installer'
+        'create-windows-installer': {
+          x64: {
+            appDirectory: './release/win/teamon-win32-x64',
+            outputDirectory: './release/win/installer64',
+            exe: 'teamon.exe',
+            iconUrl: 'http://http://211.253.26.248:8010/updates/releases/teamon.ico',
+            setupIcon: './assets/win/teamon.ico',
+            noMsi: true
           }
         }
       });
 
       grunt.loadNpmTasks('grunt-contrib-jshint');
-      grunt.loadNpmTasks('grunt-electron-installer-windows');
+      grunt.loadNpmTasks('grunt-electron-installer');
 
       grunt.registerTask('default', ['jshint:all']);
     };

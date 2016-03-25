@@ -1,9 +1,4 @@
 {
-  "win" : {
-    "title" : "TeamOn",
-    "version" : "0.1.0.1",
-    "icon" : "assets/win/teamon.ico"
-  },
   "osx" : {
       "title" : "TeamOn",
       "background" : "assets/osx/installer_background.jpg",
