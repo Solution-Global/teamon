@@ -212,6 +212,7 @@ showInformationArea = function(fileName) {
   $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
     $("#information-section").empty();
     $("#chat-section").removeClass("with-info");
+    $("#information-section").hide();
   });
   $("#chat-section").addClass("with-info");
 };
