@@ -16,10 +16,10 @@ const tlsOptions = {
   cert: fs.readFileSync('../teamon.crt')
 };
 
-// const tlsOptions = {
-//   key: fs.readFileSync(__dirname + '/teamon.key'),
-//   cert: fs.readFileSync(__dirname + '/teamon.crt')
-// };
+const tlsOptions = {
+  key: fs.readFileSync(__dirname + '/teamon.key'),
+  cert: fs.readFileSync(__dirname + '/teamon.crt')
+};
 
 var logFormat = ':remote-addr - [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time';
 var logDirectory = appRootPath.path + '/logs';

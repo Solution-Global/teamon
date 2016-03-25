@@ -50,7 +50,6 @@ $(document).ready(function() {
   var dateLineTemplate = $('#dateline-template').html();
 
   $inputText.on('keyup', function(event) {
-    console.log("[%s %s %s]", event.keyCode, event.shiftKey !== true, !$mentionText.data('mention').shown);
     // mention이 활성화 되어 있으면 send 전송을 막는다.
     if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
       $btnSend.click();
@@ -102,7 +101,7 @@ $(document).ready(function() {
   };
 
   // Local DB에 저장되는 Message Unit의 포맷 설정
-  var _dispalyMessageFormat = function(params) {
+  dispalyMessageFormat = function(params) {
     var senderInfo = userCache.get(params.senderId);
     var sender = "unknown";
     if(senderInfo)
@@ -139,7 +138,7 @@ $(document).ready(function() {
       var messageArray = value.slice(0);
       if(constants.MESSAGE_TYPE_APPEND === type) {
         for (var key = 0; key < messageArray.length; key++) {
-          messageArray[key] = _dispalyMessageFormat(messageArray[key]);
+          messageArray[key] = dispalyMessageFormat(messageArray[key]);
 
           if(messageArray[key - 1] && messageArray[key - 1].date != messageArray[key].date) {
             $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : messageArray[key].date}));
@@ -151,10 +150,10 @@ $(document).ready(function() {
         // prepend mode
         var firstDate = messageTags ? messageTags.first().data("date") : undefined;
         var initKey = messageArray.length-1;
-        messageArray[initKey] = _dispalyMessageFormat(messageArray[initKey]); // init 처음에만 진행
+        messageArray[initKey] = dispalyMessageFormat(messageArray[initKey]); // init 처음에만 진행
         for (var key = initKey; key > -1; key--) {
           if(messageArray[key - 1])
-            messageArray[key - 1] = _dispalyMessageFormat(messageArray[key - 1]);
+            messageArray[key - 1] = dispalyMessageFormat(messageArray[key - 1]);
 
           $mcsbContainer.prepend(Mustache.render(msgTemplate, messageArray[key]));
           if (key === initKey) {
@@ -169,7 +168,7 @@ $(document).ready(function() {
       }
     } else {
       if(constants.MESSAGE_TYPE_APPEND === type) {
-        var messageObj = _dispalyMessageFormat(value);
+        var messageObj = dispalyMessageFormat(value);
         var lastDate = messageTags ? messageTags.last().data("date"): undefined;
         if(lastDate && messageObj.date != lastDate) {
           $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : messageObj.date}));
@@ -231,7 +230,7 @@ $(document).ready(function() {
 
   var _replaceMentionFormat = function(msg) {
     if(msg.indexOf(constants.MENTION_FIRST_DELIMITER) === -1)
-      return;
+      return msg;
 
       var channelValue = channelCache.get(activeChatInfo.channelId);
       var members = []; // for mention
@@ -260,7 +259,9 @@ $(document).ready(function() {
     if (!msg || !msg.trim().length) {
       return;
     }
-    msg = _replaceMentionFormat(msg);
+
+    if(getChatType(activeChatInfo.topic) === constants.CHANNEL_CHAT)
+      msg = _replaceMentionFormat(msg);
 
     chatModule.sendMsg(activeChatInfo.topic, msg);
     $inputText.val("").focus();

@@ -1,47 +1,54 @@
-<div class="ibox nopadding">
+<div class="ibox nopadding" style="height: 100%;">
   <div class="ibox-title">
     <h5 class="title"></h5>
     <div class="ibox-tools">
-      <a class="aside-close-link">
-      <i class="fa fa-times"></i>
-      </a>
+      <a class="aside-close-link"><i class="fa fa-times"></i></a>
     </div>
   </div>
-</div>
-<div class="ibox-content">
-  <div class="content_area">
-    <script id="mention-template" type="text/template">
-      <div class="row m-b-lg nopadding">
-        <div class="col-lg-4">
-          <div class="m-b-sm">
-            <img alt="{{imgAlt}}" class="img-circle" src="{{img}}" style="width: 50px">
+  <div class="ibox-content nopadding mention-list">
+    <ul>
+      <script id="mention-template" type="text/template">
+        <li>
+          <div class="img-icon">
+            <img alt="{{imgAlt}}" class="img-circle" src="{{img}}">
           </div>
-        </div>
-        <div class="col-lg-8">
-          <p> <strong>{{channel}}</strong></p>
-          <p>{{sender}} - {{time}}</p>
-        </div>
-        <div class="col-lg-12">
-          {{msgText}}
-        </div>
-      </div>
-    </script>
-    <script id="mention-dateline-template" type="text/template">
-      <div class="date_line">
-        <span>
-          <h1>{{date}}</h1>
-        </span>
-      </div>
-    </script>
+          <div class="mention-message">
+            <div>
+              <span class="left">
+                <strong>{{channelName}}</strong>
+              </span>
+              <span class="right">
+                {{sender}} - {{time}}
+              </span>
+            </div>
+            <div>
+              <span class="message-content">
+                {{{msgText}}}
+              </span>
+            </div>
+          </div>
+        </li>
+      </script>
+      <script id="mention-dateline-template" type="text/template">
+        <li>
+          <h4>{{date}}</h4>
+        </li>
+      </script>
+    </ul>
   </div>
 </div>
 <script>
 $(document).ready(function() {
+
   var $informationSec = $("#information-section");
-  var mentionTemplate = $informationSec.find('#mention-template').html();
-  var mentionDateLineTemplate = $informationSec.find('#mention-dateline-template').html();
+  $informationSec.find(".mention-list").mCustomScrollbar({
+    axis:"y"
+  });
+
+  var mentionTemplate = $('#mention-template').html();
+  var mentionDateLineTemplate = $('#mention-dateline-template').html();
   var $title = $informationSec.find(".title");
-  var $contentArea = $informationSec.find('.content_area');
+  var $mentionArea = $informationSec.find(".mention-list ul");
 
   var params = {
     "teamId" : loginInfo.teamId,
@@ -52,38 +59,20 @@ $(document).ready(function() {
     if (data) {
       var messages = [];
       $.each(data, function(idx, row) {
-        console.log(row);
-        var sender = userCache.get(row.senderId);
-        var message = {
-          "chatId": row.chatId,
-          "img": "./img/profile_no.jpg",
-          "imgAlt": sender.name,
-          "channel": row.topic,
-          "sender": sender.name,
-          "msgText": row.msg,
-          "date": new Date(row.creTime).format("YYYY/MM/DD"),
-          "time": new Date(row.creTime).format("a hh:mm")
-        };
-
-        messages.push(message);
+        messages.push(dispalyMessageFormat(row));
       });
 
-      $contentArea.empty();
-      $title.html("Mention For" + loginInfo.name);
+      $title.html("Mention For " + loginInfo.name + ".");
       for (var key = 0; key < messages.length; key++) {
         if(key === 0) {
-          $contentArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
+          $mentionArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
         }
         if(messages[key - 1] && messages[key - 1].date != messages[key].date) {
-          $contentArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
+          $mentionArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
         }
-        $contentArea.append(Mustache.render(mentionTemplate, messages[key]));
+        $mentionArea.append(Mustache.render(mentionTemplate, messages[key]));
       }
     }
   });
-
-  // resizeInformationSection();
-  //_informationSectionScroll();
-  $informationSec.show();
 });
 </script>
