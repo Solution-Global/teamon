@@ -8,19 +8,19 @@ var INDEX = 'file://' + path.join(__dirname, '../index_app.html');
 var mainWindow = null;
 
 // make single instance
-var iShouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.show();
-        mainWindow.focus();
-    }
-    return true;
-});
-
-if(iShouldQuit) {
-  app.quit();return;
-}
+// var iShouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
+//     // Someone tried to run a second instance, we should focus our window.
+//     if (mainWindow) {
+//         if (mainWindow.isMinimized()) mainWindow.restore();
+//         mainWindow.show();
+//         mainWindow.focus();
+//     }
+//     return true;
+// });
+//
+// if(iShouldQuit) {
+//   app.quit();return;
+// }
 
 // Ignores certificate related errors.
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
@@ -64,10 +64,10 @@ app.on('ready', function() {
       console.log(error);
   });
 
-  mainWindow.on('close', function(event) { //   <---- Catch close event
-    event.preventDefault();
-    mainWindow.hide(); // minimize();
-  });
+  // mainWindow.on('close', function(event) { //   <---- Catch close event
+  //   event.preventDefault();
+  //   mainWindow.hide();
+  // });
 
   mainWindow.on('closed', function() {
     mainWindow = null;
