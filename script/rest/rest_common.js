@@ -43,7 +43,7 @@ var RestCommon = (function(params){
     args.headers = commonHeaders;
     var restURL = apiurl + path + (url ? url : "");
     if (args.parameters)
-      args.parameters["_"] = Date.now();
+      args.parameters._ = Date.now();
     else {
       args.parameters = {_: Date.now()};
     }
