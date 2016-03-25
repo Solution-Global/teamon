@@ -74,13 +74,7 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function() {
-  var updateFeed = null;
-  if (process.env.NODE_ENV === 'production') {
-    updateFeed = constants.SOFTWARE_UPDATE_URL_BASE_PROD;
-  } else {
-    updateFeed = constants.SOFTWARE_UPDATE_URL_BASE_DEV;
-  }
-
+  var updateFeed = constants.SOFTWARE_UPDATE_URL_BASE;
   updateFeed += (os === 'darwin' ?
     constants.SOFTWARE_UPDATE_URL_PATH_LATEST : constants.SOFTWARE_UPDATE_URL_PATH_RELEASE + "/win32");
 
