@@ -34,7 +34,7 @@ var message = (function(storageManager, myPref) {
         topic = targetArray[key].name;
       }
       restPrams.topic = topic;
-      restResourse.chat.getListByCondition(restPrams, {"topic" : topic}, restFunction);
+      restResource.chat.getListByCondition(restPrams, {"topic" : topic}, restFunction);
     }
   }
 
@@ -51,7 +51,7 @@ var message = (function(storageManager, myPref) {
       restPrams.firstMsgId = firstMsgId;
     }
 
-    restResourse.chat.getListByCondition(restPrams, {}, function(msgData) {
+    restResource.chat.getListByCondition(restPrams, {}, function(msgData) {
       if (msgData.length > 0) {
         var messageArray = [];
         $.each(msgData, function(idx, msgRow) {

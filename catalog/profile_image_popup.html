@@ -1,0 +1,64 @@
+
+<div class="modal-dialog">
+	<div class="modal-content animated fadeIn">
+		<div class="modal-body">
+      <form id="fileupload-form" class="dropzone" action="#">
+        <div class="dropzone-previews"></div>
+      </form>
+      <div class="m text-right" style="height: 20px">
+        <button id="submit-fileupload" type="submit" class="btn btn-primary pull-right">Upload profile image</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var	dropzone = new Dropzone("#fileupload-form", {
+    autoProcessQueue: false,
+    uploadMultiple: true,
+    parallelUploads: 10,
+    maxFiles: 10,
+		url: constants.UPLOAD_URL + loginInfo.teamId + "/profile_image/" + loginInfo.emplId + "/profile",
+		//url: constants.UPLOAD_URL + loginInfo.teamId + "/" + activeChatInfo.topic + "/" + loginInfo.emplId,
+    // Dropzone settings
+    init: function() {
+        var myDropzone = this;
+        $("#submit-fileupload").click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            myDropzone.processQueue();
+        });
+        this.on("sendingmultiple", function() {
+          $("#submit-fileupload").attr("disabled", "disabled");
+        });
+        this.on("successmultiple", function(files, response) {
+					$("#submit-fileupload").closest(".modal-dialog").closest(".modal").modal("hide");
+          var fileNames = "";
+          $.each(files, function(idx) {
+						console.log('response[idx].name : ' + files[idx].name);
+						var fileArr = files[idx].name.split('.');
+						console.log('File extension : ' + fileArr[1]);
+
+						var fileUrl = constants.IMAGE_URL + "profile_image/?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + myPreference.getPreference("emplId") + "&type=profile";
+						console.log('fileUrl : ' + fileUrl);
+
+						var params = $(this).serializeObject();
+						params.emplId = loginInfo.emplId;
+						params.photoLoc = loginInfo.emplId + '.' + fileArr[1];
+
+						restResource.empl.changeProfileImg(params,
+							function(data, response) {
+								// Success
+								toastr.info("Your profile image has been modified successfully");
+						});
+
+						//var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + activeChatInfo.topic + "&emplId=" + loginInfo.emplId;
+            //fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
+          });
+
+          //chatSection.sendMsg("Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
+        });
+        this.on("errormultiple", function(files, response) {
+        });
+    }
+});
+</script>

@@ -15,7 +15,7 @@
           </ul>
         </div>
       </li>
-      <li class="users-area">
+      <li>
         <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
         <div class="chat-users">
           <ul id="users-list" class="nav nav-second-level">
@@ -23,9 +23,7 @@
               <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
                 <a href="#">
                   <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
-                  <div class="chat-user-name ellipsis">{{name}}
-                    <span class="badge badge-warning right hide alarm"></span>
-                  </div>
+                  <div class="chat-user-name ellipsis">{{name}}</div>
                 </a>
               </li>
             </script>
@@ -41,14 +39,19 @@
       </span>
       <div class="profile-area" id="user-profile">
         <script id="profile-template" type="text/template">
-          <img class="chat-avatar online_mine" src="{{img}}" alt="{{imgAlt}}">
-          <div class="chat-user-name ellipsis">{{name}}
-          </div>
+          <img class="chat-avatar online_mine" src="{{img}}" alt="{{imgAlt}}" />
+          <div class="chat-user-name ellipsis">{{name}}</div>
         </script>
       </div>
       <div class="public-area">
-        <a href="#" id="onProfileModal"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a data-toggle="dropdown" href="#">
+            <i class="fa fa-user"></i> Profile&nbsp;&nbsp;|&nbsp;&nbsp;
+        </a>
+        <ul class="dropdown-menu animated fadeInRight dropdown-side">
+            <li><a href="#" id="onPasswordModal">Change Password</a></li>
+            <li><a href="#" id="onProfileWindow">Profile Image</a></li>
+        </ul>
+        <a href="#" id="onSettingModal"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
       </div>
     </div>
@@ -70,10 +73,10 @@ $(document).ready(function() {
   myMessage = messageManager(localStorageManager, loginInfo, userCache, channelCache); // global var
 
   var $userProfile = $('#user-profile');
-  var $catalogSec = $('#catalog-section');
+  var $catalogSec = $("#catalog-section");
+  var profileTemplate = $('#profile-template').html();
   var $userListContext = $('#users-list');
   var $channelListContext = $('#channels-list');
-  var profileTemplate = $('#profile-template').html();
   var userTemplate = $('#user-template').html();
   var channeTemplate = $('#channel-template').html();
   var $userArea = $catalogSec.find('.chat-users');
@@ -84,7 +87,12 @@ $(document).ready(function() {
   if(runningChannel === constants.CHANNEL_APP) {
       imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
   } else {
+    if (loginInfo.photoLoc != null) {
+      imgFile = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId;
+    }
+    else {
       imgFile = "./img/profile_no.jpg";
+    }
   }
 
   var loginUserData = {
@@ -112,6 +120,8 @@ $(document).ready(function() {
     // in small-view, hide menu
     if ($('body').hasClass('body-small'))
       $('.navbar-minimalize').click();
+    else
+      showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     hideCallArea();
     hideScreenShareArea();
@@ -120,8 +130,6 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    if (!$('body').hasClass('body-small'))
-      showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     changeChatView();
   });
@@ -150,7 +158,7 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
+    // showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
 
     changeChatView();
   });
@@ -161,7 +169,7 @@ $(document).ready(function() {
     "limit" : constants.COMMON_SEARCH_ALL
   };
 
-  restResourse.empl.getListByTeamId(params, function(data) {
+  restResource.empl.getListByTeamId(params, function(data) {
     if (data.rows) {
       $.each(data.rows, function(idx, row) {
          userCache.set(row.emplId, row); // add each employee into userCache.
@@ -174,7 +182,12 @@ $(document).ready(function() {
         if(runningChannel === constants.CHANNEL_APP) {
             imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
         } else {
+          if (row.photoLoc != null) {
+            imgFile = constants.IMAGE_URL + row.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + row.emplId;
+          }
+          else {
             imgFile = "./img/profile_no.jpg";
+          }
         }
 
         var userData = {
@@ -188,6 +201,7 @@ $(document).ready(function() {
       });
       // set user count
       $("#topic-list .users-link").append(" (" + data.rows.length + ")");
+
       // _activeChatView();
       _initPresenceDisplay();
     }
@@ -245,7 +259,6 @@ $(document).ready(function() {
     myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
   });
 
-  console.log("channel cnt = %d, user cnt = %d", channelCache.getValueArray().length, userCache.getValueArray().length);
   var _activeChatView = function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
     if(lastChatInfo) {
@@ -261,6 +274,7 @@ $(document).ready(function() {
     }
   }
 
+  console.log("channel cnt = %d, user cnt = %d", channelCache.getValueArray().length, userCache.getValueArray().length);
   var _getActiveTarget = function (topic) {
     if (getChatType(topic) === constants.DIRECT_CHAT)
       return $userListContext.find("[data-topic='" + topic + "']");
@@ -273,7 +287,7 @@ $(document).ready(function() {
       "teamId": loginInfo.teamId
     };
 
-    restResourse.login.getLoggedInEmplListByTeamId(params, function(data) {
+    restResource.login.getLoggedInEmplListByTeamId(params, function(data) {
       if(data) {
         var handleParams = {
           "status" : constants.PRESENCE_STATUS_ONLINE
@@ -309,7 +323,7 @@ $(document).ready(function() {
       "memberIncluded": true
     };
 
-    restResourse.channel.getChannelByName(params, function(data, response) {
+    restResource.channel.getChannelByName(params, function(data, response) {
       var channelData = {
         "channelId": data.channelId,
         "topic": data.name
@@ -331,7 +345,7 @@ $(document).ready(function() {
       "memberIncluded": true
     };
 
-    restResourse.channel.getChannel(params, function(data, response) {
+    restResource.channel.getChannel(params, function(data, response) {
       if(data.channelId) {
         channelCache.set(channelId, data);
       }
@@ -360,8 +374,12 @@ $(document).ready(function() {
   };
 
   // bind Event
-  $('#onProfileModal').bind("click", function() {
+  $('#onPasswordModal').bind("click", function() {
     openModalDialog("./catalog/password_modify_popup.html");
+  });
+
+  $('#onProfileWindow').bind("click", function() {
+    openModalDialog("./catalog/profile_image_popup.html");
   });
 
   $('#onChannelJoinModal').bind("click", function() {
@@ -375,7 +393,7 @@ $(document).ready(function() {
       backgroundOpacity : 1,
       backgroundColor : "#2f4050"
     };
-    restResourse.login.logout(loginInfo);
+    restResource.login.logout(loginInfo);
     openModalDialog("./user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection
     localStorageManager.removeKey("keepEmplId");

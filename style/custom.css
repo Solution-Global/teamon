@@ -9,7 +9,7 @@
 	text-overflow: ellipsis;
 }
 .public-area {
-	padding-top:10px;
+	padding-top:20px;
 	text-align:center;
 	background-color: transparent;
 }
@@ -391,13 +391,11 @@ img.in-message {
 	background-color: #428bca;
 	border: 4px #428bca solid;
 }
-.chat-avatar.online_mine {
-	background-color: #90AA01;
-	border: 4px #90AA01 solid;
-}
 
 .chat-discussion {
 	height: inherit;
+	padding: 5px;
+	padding-right: 0;
 }
 .nav-header {
 	background: none;
@@ -522,15 +520,6 @@ body.small-navbar .profile-element {
 	height: 100%;
 }
 
-/* category_section */
-.profile-area {
-	padding-left: 10px;
-	padding-top: 10px;
-	color: #a7b1c2;
-  font-weight: 600;
-	text-align: left;
-}
-
 #topic-list {
 	position: relative;
 	height: 100%;
@@ -546,11 +535,6 @@ body.small-navbar .profile-element {
 .nav-second-level li a {
 	padding-left: 22px;
 }
-
-.users-area {
-	margin-top: 16px;
-}
-
 #channels-list.nav-second-level li a {
 	padding-left: 42px;
 }
@@ -595,6 +579,8 @@ body.small-navbar .navbar-static-side .nav-second-level > li > a {
 .nav-header,
 li.active,
 #page-wrapper,
+#information-section,
+#chat-section,
 .footer {
   -webkit-transition: all 0.4s;
   -moz-transition: all 0.4s;
@@ -603,8 +589,30 @@ li.active,
 }
 
 .file-list {
-	padding-left: 0;
-	padding-right: 0;
+	top:50px;
+	left:0;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+.file-list ul {
+	padding: 5px 0;
+	height: 100%;
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	background-color: #fff;
+	position: relative;
+}
+.file-list li {
+	padding: 10px;
+	padding-top: 5px;
+	border: none;
+	border-radius: 0;
+	border-bottom: 1px solid #e7eaec;
+}
+.file-list li a:hover {
+	color: inherit;
 }
 .file-item {
 	width: 100%;
@@ -621,6 +629,7 @@ li.active,
 	width: 100%;
 }
 .file-description .file-name {
+	font-size: 14px;
 	font-weight: 600;
 	width: 100%;
 }
@@ -633,4 +642,26 @@ li.active,
 .file-description .file-download {
 	position: absolute;
 	right: 10px;
+}
+
+.mCSB_inside > .mCSB_container {
+	margin-right: 20px;
+}
+
+#chat-section.with-info {
+	padding-right: 400px;
+}
+
+#chat-section.with-info .chat-input {
+	right: 400px;
+}
+
+#information-section {
+	width: 400px;
+	position: absolute;
+	right: 0;
+
+.dropdown-side {
+	margin-left: 20px;
+	margin-top: -15px;
 }

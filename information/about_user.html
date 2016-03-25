@@ -57,10 +57,14 @@ $(document).ready(function() {
 
   var emplId = activeChatInfo.emplId;
   var userValue = userCache.get(emplId);
+  var imagePath = "./img/profile_no.jpg";
+  if (userValue.photoLoc != null) {
+    imagePath = constants.IMAGE_URL + userValue.photoLoc + "?teamId=" + userValue.teamId + "&topic=profile_image&emplId=" + userValue.emplId;
+  }
   var aboutUserData = {
     "name" : userValue.name,
     "imgAlt" : userValue.name,
-    "img": "./img/profile_no.jpg"
+    "img": imagePath
   };
 
   $title.html("About this conversation");
@@ -84,7 +88,7 @@ $(document).ready(function() {
   //   "callee": activeChatInfo.emplId
   // };
   //
-  // restResourse.callHistory.getListByCondition(restPrams, function(commonGridValue) {
+  // restResource.callHistory.getListByCondition(restPrams, function(commonGridValue) {
   //   console.log("commonGridValue[totalPage:%d, totalRecords:%d]", commonGridValue.totalPage, commonGridValue.totalRecords);
   //
   //   var callHistoryList = commonGridValue.rows;

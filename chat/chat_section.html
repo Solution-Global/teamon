@@ -60,7 +60,7 @@ $(document).ready(function() {
   $contentArea.mCustomScrollbar({
     axis:"y",
     setWidth: "auto",
-    theme:"3d",
+    theme:"inset-2-dark",
     callbacks:{
       onScroll:function(){
         if(this.mcs.top === 0) {
@@ -100,17 +100,23 @@ $(document).ready(function() {
     var sender = "unknown";
     if(senderInfo)
       sender = senderInfo.name;
+    var imagePath = "../img/profile_no.jpg";
 
     if(runningChannel === constants.CHANNEL_APP) {
-      imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+      imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
     } else {
-      imgFile = "../img/profile_no.jpg";
+      if (senderInfo.photoLoc != null) {
+        imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId;
+      }
+      else {
+        imagePath = imagePath;
+      }
     }
 
     return {
       "chatId": params.chatId,
       "mode": loginInfo.emplId === params.senderId ? "right" : "left", // send : right or receive : left
-      "img": imgFile,
+      "img": imagePath,
       "imgAlt": sender,
       "sender": sender,
       "msgText": params.msg,
@@ -202,9 +208,14 @@ $(document).ready(function() {
         if(userValue.emplId === loginInfo.emplId)
           continue;
 
+        var imagePath = "../img/profile_no.jpg";
+        if (userValue.photoLoc != null) {
+          imagePath = constants.IMAGE_URL + userValue.photoLoc + "?teamId=" + userValue.teamId + "&topic=profile_image&emplId=" + userValue.emplId;
+        }
+
         members.push({
           "username" : userValue.name,
-          "image": "../img/profile_no.jpg"
+          "image": imagePath
         });
       }
 

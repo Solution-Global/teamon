@@ -1,43 +1,61 @@
-<div class="ibox nopadding">
+<div class="ibox nopadding" style="height: 100%;">
   <div class="ibox-title">
     <h5 class="title">Files</h5>
     <div class="ibox-tools">
-      <a class="aside-close-link">
-      <i class="fa fa-times"></i>
-      </a>
+      <a class="aside-close-link"><i class="fa fa-times"></i></a>
     </div>
   </div>
-  <div class="ibox-content file-list">
-    <script id="filelist-template" type="text/template">
-      <div class="file-item">
-        <div class="file-icon"><i class="fa fa-file-text-o fa-3x"></i></div>
-        <div class="file-description">
-          <div>
-            <span class="file-name">{{fileName}}</span>
+  <div class="ibox-content nopadding file-list">
+    <ul>
+      <script id="filelist-template" type="text/template">
+        <li class="file-item">
+          <div class="file-icon"><i class="fa fa-file-text-o fa-3x"></i></div>
+          <div class="file-description">
+            <div>
+              <span class="file-name">{{fileName}}</span>
+            </div>
+            <div>
+              <span class="file-creator">{{creator}}</span>
+            </div>
+            <div>
+              <span class="file-created">{{lastModified}}</span>
+              <span class="file-download">
+                <span class="btn btn-success btn-xs">
+                  <a href="{{download}}" download={{fileName}}><i class="fa fa-download"></i> Download</a>
+                </span>
+                <span class="btn btn-warning btn-xs" onclick="deleteFile(this, {{teamId}}, {{emplId}}, '{{channel}}', '{{name}}')">
+                  <i class="fa fa-remove"></i> Delete
+                </span>
+              </span>
+            </div>
           </div>
-          <div>
-            <span class="file-creator">{{creator}}</span>
-          </div>
-          <div>
-            <span class="file-created">{{lastModified}}</span>
-            <span class="file-download">
-              <a href="{{download}}" download={{fileName}}><i class="fa fa-download"></i></a>
-            </span>
-          </div>
-        </div>
-      </div>
-    </script>
+      </script>
+    </ul>
   </div>
 </div>
 <script>
 $(document).ready(function() {
-  restResourse.channel.getFileList({teamId: loginInfo.teamId, channel: activeChatInfo.topic}, function(data, response) {
+  $("#information-section").find(".file-list").mCustomScrollbar({
+    axis:"y"
+  });
+
+  restResource.channel.getFileList({teamId: loginInfo.teamId, channel: activeChatInfo.topic}, function(data, response) {
     $.each(data, function() {
       this.fileName = this.name.substring(this.name.indexOf("_") + 1, this.name.length);
       this.download = constants.REPOSITORY_URL + this.fileURL;
       this.lastModified = new Date(this.lastModified).format("YYYY/MM/DD HH:mm:ss");
-      $("#information-section").find(".ibox-content.file-list").append(Mustache.render($("#filelist-template").html(), this));
+      $("#information-section").find(".file-list ul").append(Mustache.render($("#filelist-template").html(), this));
     });
   });
 });
+
+function deleteFile(fileItem, teamId, emplId, channel, fileName) {
+  restResource.channel.deleteFile({teamId: teamId, emplId: emplId, channel: channel, fileName: fileName}, function(data, response) {
+    $(fileItem).closest("li").slideUp(500, function() {
+      $(this).remove();
+    });
+    fileName = fileName.substr(fileName.indexOf('_') + 1, fileName.length);
+    toastr.info("The file[" + fileName + "] deleted.");
+  });
+}
 </script>

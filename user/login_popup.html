@@ -57,7 +57,7 @@ $(document).ready(function() {
 		params.device = device;
 		params.client = runningChannel;
 
-		restResourse.login.login(params,
+		restResource.login.login(params,
 			function(data, error) {
 
 			// set the personal pref info first to use it around the app.
@@ -71,7 +71,8 @@ $(document).ready(function() {
 				"name": data.name,
 				"browser": browser,
 				"os": os,
-				"device": device
+				"device": device,
+				"photoLoc": data.photoLoc
 	    };
 
 			if(isAlreadyLogin) {
@@ -99,6 +100,7 @@ $(document).ready(function() {
 	    myPreference.setPreference("authKey", data.authKey);
 	    myPreference.setPreference("emplId", data.emplId);
 			myPreference.setPreference("name", data.name);
+			myPreference.setPreference("photoLoc", data.photoLoc);
 
 			sessionStorageManager.setValue("sessionEmplId", data.emplId);
 

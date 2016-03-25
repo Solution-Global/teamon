@@ -86,7 +86,7 @@ $(document).ready(function() {
       "members": loginInfo.emplId,
     };
 
-    restResourse.channel.removeMember(params,
+    restResource.channel.removeMember(params,
       function(response) {
         var channelValue = channelCache.get(channelId);
         if(channelValue) {

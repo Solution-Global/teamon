@@ -58,4 +58,19 @@ Empl.prototype.getListByTeamId = function(params, callback) {
     self.restCommon.put("/changePassword/${emplId}", args, callback);
   };
 
+  Empl.prototype.changeProfileImg = function(params, callback) {
+    var self = this;
+    console.debug("changeProfileImg - [photoLoc] " + params.photoLoc + "[emplId] " + params.emplId);
+    var args = {
+      path : {
+        "emplId" : params.emplId
+      },
+      data: $.param({
+        emplId : params.emplId,
+        photoLoc: params.photoLoc
+      })
+    };
+    self.restCommon.put("/changeProfileImg/${emplId}", args, callback);
+  };
+
 module.exports = Empl;

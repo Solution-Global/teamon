@@ -103,12 +103,13 @@ function initLoginStatus() {
       "name": myPreference.getPreference("name"),
       "browser": uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : ""),
       "os": uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : ""),
-      "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model
+      "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model,
+      "photoLoc": myPreference.getPreference("photoLoc")
     };
     initAPI();
 
     // let server knows that I've signed in
-    restResourse.login.loggedIn(loginInfo);
+    restResource.login.loggedIn(loginInfo);
 
     loadAllArea();
     chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
@@ -145,7 +146,6 @@ handleCommand = function(receiver, commandPayload) {
     case constants.CHANNEL_ADD_MEMBER:
       reloadChannelCache(commandPayload.channelId);
 
-
       // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
       if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
         displayChannelMember(commandPayload.newMembers);
@@ -181,7 +181,7 @@ initAPI = function() {
   var loginRes = require("./script/rest/login");
   var teamRes = require("./script/rest/team");
 
-  restResourse = {}; // global var
+  restResource = {}; // global var
   var params = {
       "url" : aplUrl,
       "channel" :  runningChannel
@@ -195,17 +195,17 @@ initAPI = function() {
     params.authKey = loginInfo.authKey;
     params.email = loginInfo.email;
 
-    restResourse.empl =  new emplRes(params);
-    restResourse.login = new loginRes(params);
-    restResourse.team = new teamRes(params);
-    restResourse.chat = new chatRes(params);
-    restResourse.channel = new channelRes(params);
-    restResourse.callHistory = new callHistoryRes(params);
+    restResource.empl =  new emplRes(params);
+    restResource.login = new loginRes(params);
+    restResource.team = new teamRes(params);
+    restResource.chat = new chatRes(params);
+    restResource.channel = new channelRes(params);
+    restResource.callHistory = new callHistoryRes(params);
   } else {
     // 로그인 전 개인 인증 AuthKey를 전달 하지 않는다.
-    restResourse.empl =  new emplRes(params);
-    restResourse.login = new loginRes(params);
-    restResourse.team = new teamRes(params);
+    restResource.empl =  new emplRes(params);
+    restResource.login = new loginRes(params);
+    restResource.team = new teamRes(params);
   }
 };
 
@@ -241,6 +241,11 @@ showInformationArea = function(fileName) {
   $("#information-section").html("");
   loadHtml("./information/" + fileName, $("#information-section"));
   $("#information-section").show();
+  $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
+    $("#information-section").empty();
+    $("#chat-section").removeClass("with-info");
+  });
+  $("#chat-section").addClass("with-info");
 };
 
 hideCatalogArea = function() {
