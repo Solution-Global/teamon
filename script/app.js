@@ -3,9 +3,26 @@ require('app-module-path').addPath(__dirname);
 var app = require('app');
 var BrowserWindow = require('browser-window');
 var path = require('path');
-var constants = require('../script/constants');
+var constants = require('./constants');
+var trayMenu = require('./tray_menu');
 
 var INDEX = 'file://' + path.join(__dirname, '../index_app.html');
+var mainWindow = null;
+
+// make single instance
+var iShouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.show();
+        mainWindow.focus();
+    }
+    return true;
+});
+
+if(iShouldQuit) {
+  app.quit();return;
+}
 
 // Ignores certificate related errors.
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
@@ -20,12 +37,16 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function() {
-  var mainWindow = new BrowserWindow({
-    width: 950,
-    height: 700,
-    title: constants.APP_NAME
+  mainWindow = new BrowserWindow({
+    width: 850,
+    height: 650,
+    title: constants.APP_NAME,
+    icon: path.join(__dirname, '../img/icon.ico')
   });
+
   mainWindow.loadURL(INDEX);
+  trayMenu.renderTrayIconMenu();
+
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
@@ -43,6 +64,11 @@ app.on('ready', function() {
   }, function (error) {
     if (error)
       console.log(error);
+  });
+
+  mainWindow.on('close', function(event) { //   <---- Catch close event
+    event.preventDefault();
+    mainWindow.hide(); // minimize();
   });
 
   mainWindow.on('closed', function() {
