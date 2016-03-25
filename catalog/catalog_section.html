@@ -70,7 +70,7 @@
 $(document).ready(function() {
   userCache = new cacheManager(); // user list 저장
   channelCache = new cacheManager(); // channel list 저장
-  myMessage = messageManager(localStorageManager, loginInfo); // global var
+  myMessage = messageManager(localStorageManager, loginInfo, userCache, channelCache); // global var
 
   var $userProfile = $('#user-profile');
   var $catalogSec = $("#catalog-section");
@@ -219,6 +219,7 @@ $(document).ready(function() {
   // init Channel List
   params.memberIncluded = true;
   restResource.channel.getChannelList(params, function(data) {
+    var channelCnt = 0;
     if(data) {
       $.each(data, function(idx, row) {
         var members;
@@ -248,9 +249,10 @@ $(document).ready(function() {
             "topic": row.name,
         };
         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
+        channelCnt++;
       });
       // set channel count
-      $("#topic-list .channels-link").append(" (" + data.length + ")");
+      $("#topic-list .channels-link").append(" (" + channelCnt + ")");
     }
 
     //sync Message
@@ -350,16 +352,19 @@ $(document).ready(function() {
     });
   }
 
-  handleLoginPresence = function(presencPayload) {
-    if(presencPayload.emplId === loginInfo.emplId) {
+  handleLoginPresence = function(params) {
+    if(typeof params === 'string')
+      params = JSON.parse(params);
+
+    if(params.emplId === loginInfo.emplId) {
       return;
     }
 
-    var topic = generateTopic(presencPayload.emplId, loginInfo.emplId)
+    var topic = generateTopic(params.emplId, loginInfo.emplId)
     var $activeTarget = _getActiveTarget(topic);
     var $profileImage = $activeTarget.find(".chat-avatar");
 
-    if(presencPayload.status === constants.PRESENCE_STATUS_ONLINE) {
+    if(params.status === constants.PRESENCE_STATUS_ONLINE) {
       // online
       $profileImage.addClass("online");
     } else {
