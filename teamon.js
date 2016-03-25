@@ -240,6 +240,11 @@ showInformationArea = function(fileName) {
   $("#information-section").html("");
   loadHtml("./information/" + fileName, $("#information-section"));
   $("#information-section").show();
+  $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
+    $("#information-section").empty();
+    $("#chat-section").removeClass("with-info");
+  });
+  $("#chat-section").addClass("with-info");
 };
 
 hideCatalogArea = function() {

@@ -85,6 +85,8 @@ $(document).ready(function() {
     // in small-view, hide menu
     if ($('body').hasClass('body-small'))
       $('.navbar-minimalize').click();
+    else
+      showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     hideCallArea();
     hideScreenShareArea();
@@ -93,8 +95,6 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    // if (!$('body').hasClass('body-small'))
-    //   showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     changeChatView();
   });
@@ -123,7 +123,7 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
+    // showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
 
     changeChatView();
   });
