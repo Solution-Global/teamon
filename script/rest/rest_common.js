@@ -42,6 +42,11 @@ var RestCommon = (function(params){
   var get = function(url, args, callback, callBackRequiredValues) {
     args.headers = commonHeaders;
     var restURL = apiurl + path + (url ? url : "");
+    if (args.parameters)
+      args.parameters._ = Date.now();
+    else {
+      args.parameters = {_: Date.now()};
+    }
     client.get(restURL, args,
       function(data, response) {
         if (response.statusCode == 200 || response.statusCode == 201) {

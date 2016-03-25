@@ -15,7 +15,7 @@
           </ul>
         </div>
       </li>
-      <li class="users-area">
+      <li>
         <a class="users-link" href="#"><i class="fa fa-user"></i><span class="nav-label">Users</span></a>
         <div class="chat-users">
           <ul id="users-list" class="nav nav-second-level">
@@ -23,9 +23,7 @@
               <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
                 <a href="#">
                   <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
-                  <div class="chat-user-name ellipsis">{{name}}
-                    <span class="badge badge-warning right hide alarm"></span>
-                  </div>
+                  <div class="chat-user-name ellipsis">{{name}}</div>
                 </a>
               </li>
             </script>
@@ -37,15 +35,8 @@
   <div class="nav-header">
     <div class="profile-element">
       <span>
-      <img alt="image" src="./img/logo_uangel.png"/>
+      <img alt="image" src="/img/logo_uangel.png"/>
       </span>
-      <div class="profile-area" id="user-profile">
-        <script id="profile-template" type="text/template">
-          <img class="chat-avatar online_mine" src="{{img}}" alt="{{imgAlt}}">
-          <div class="chat-user-name ellipsis">{{name}}
-          </div>
-        </script>
-      </div>
       <div class="public-area">
         <a data-toggle="dropdown" href="#">
             <i class="fa fa-user"></i> Profile&nbsp;&nbsp;|&nbsp;&nbsp;
@@ -75,11 +66,9 @@ $(document).ready(function() {
   channelCache = new cacheManager(); // channel list 저장
   myMessage = messageManager(localStorageManager, loginInfo); // global var
 
-  var $userProfile = $('#user-profile');
-  var $catalogSec = $('#catalog-section');
+  var $catalogSec = $("#catalog-section");
   var $userListContext = $('#users-list');
   var $channelListContext = $('#channels-list');
-  var profileTemplate = $('#profile-template').html();
   var userTemplate = $('#user-template').html();
   var channeTemplate = $('#channel-template').html();
   var $userArea = $catalogSec.find('.chat-users');
@@ -123,6 +112,8 @@ $(document).ready(function() {
     // in small-view, hide menu
     if ($('body').hasClass('body-small'))
       $('.navbar-minimalize').click();
+    else
+      showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     hideCallArea();
     hideScreenShareArea();
@@ -131,8 +122,6 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    if (!$('body').hasClass('body-small'))
-      showInformationArea(constants.INFO_AREA_ABOUT_USER);
 
     changeChatView();
   });
@@ -161,7 +150,7 @@ $(document).ready(function() {
     // adjustSectionSize(chatSection.getSection(), 9);
 
     showChatArea();
-    showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
+    // showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
 
     changeChatView();
   });
@@ -172,7 +161,7 @@ $(document).ready(function() {
     "limit" : constants.COMMON_SEARCH_ALL
   };
 
-  restResourse.empl.getListByTeamId(params, function(data) {
+  restResource.empl.getListByTeamId(params, function(data) {
     if (data.rows) {
       $.each(data.rows, function(idx, row) {
          userCache.set(row.emplId, row); // add each employee into userCache.
@@ -202,8 +191,7 @@ $(document).ready(function() {
         };
         $userListContext.append(Mustache.render(userTemplate, userData));
       });
-      // set user count
-      $("#topic-list .users-link").append(" (" + data.rows.length + ")");
+
       // _activeChatView();
       _initPresenceDisplay();
     }
@@ -220,7 +208,7 @@ $(document).ready(function() {
 
   // init Channel List
   params.memberIncluded = true;
-  restResourse.channel.getChannelList(params, function(data) {
+  restResource.channel.getChannelList(params, function(data) {
     if(data) {
       $.each(data, function(idx, row) {
         var members;
@@ -251,15 +239,12 @@ $(document).ready(function() {
         };
         $channelListContext.prepend(Mustache.render(channeTemplate, channelData));
       });
-      // set channel count
-      $("#topic-list .channels-link").append(" (" + data.length + ")");
     }
 
     //sync Message
     myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
   });
 
-  console.log("channel cnt = %d, user cnt = %d", channelCache.getValueArray().length, userCache.getValueArray().length);
   var _activeChatView = function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
     if(lastChatInfo) {
@@ -287,7 +272,7 @@ $(document).ready(function() {
       "teamId": loginInfo.teamId
     };
 
-    restResourse.login.getLoggedInEmplListByTeamId(params, function(data) {
+    restResource.login.getLoggedInEmplListByTeamId(params, function(data) {
       if(data) {
         var handleParams = {
           "status" : constants.PRESENCE_STATUS_ONLINE
@@ -323,7 +308,7 @@ $(document).ready(function() {
       "memberIncluded": true
     };
 
-    restResourse.channel.getChannelByName(params, function(data, response) {
+    restResource.channel.getChannelByName(params, function(data, response) {
       var channelData = {
         "channelId": data.channelId,
         "topic": data.name
@@ -345,7 +330,7 @@ $(document).ready(function() {
       "memberIncluded": true
     };
 
-    restResourse.channel.getChannel(params, function(data, response) {
+    restResource.channel.getChannel(params, function(data, response) {
       if(data.channelId) {
         channelCache.set(channelId, data);
       }
@@ -390,7 +375,7 @@ $(document).ready(function() {
       backgroundOpacity : 1,
       backgroundColor : "#2f4050"
     };
-    restResourse.login.logout(loginInfo);
+    restResource.login.logout(loginInfo);
     openModalDialog("./user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection
     localStorageManager.removeKey("keepEmplId");

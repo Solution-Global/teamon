@@ -142,6 +142,7 @@ $(document).ready(function () {
         }
 */
 $('#page-wrapper').css("min-height", $(window).height() + "px");
+$('#information-section').css("min-height", ($(window).height()-$("#header-section").height()-50) + "px");
     }
 
     fix_height();
