@@ -101,7 +101,9 @@ Channel.prototype.deleteFile = function(params, callback) {
   var self = this;
   var args = {
     path: {
-      teamId: params.teamId,
+      teamId: params.teamId
+    },
+    parameters: {
       channel: params.channel,
       emplId: params.emplId,
       fileName: params.fileName
