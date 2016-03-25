@@ -38,8 +38,14 @@
       <img alt="image" src="/img/logo_uangel.png"/>
       </span>
       <div class="public-area">
-        <a href="#" id="onProfileModal"><i class="fa fa-user"></i> Profile</a> &nbsp;&nbsp;|&nbsp;&nbsp;
-        <a href="#"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
+        <a data-toggle="dropdown" href="#">
+            <i class="fa fa-user"></i> Profile&nbsp;&nbsp;|&nbsp;&nbsp;
+        </a>
+        <ul class="dropdown-menu animated fadeInRight dropdown-side">
+            <li><a href="#" id="onPasswordModal">Change Password</a></li>
+            <li><a href="#" id="onProfileWindow">Profile Image</a></li>
+        </ul>
+        <a href="#" id="onSettingModal"><i class="fa fa-cog"></i> Setting</a> &nbsp;&nbsp;|&nbsp;&nbsp;
         <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
       </div>
     </div>
@@ -67,6 +73,27 @@ $(document).ready(function() {
   var channeTemplate = $('#channel-template').html();
   var $userArea = $catalogSec.find('.chat-users');
   var $channelArea = $catalogSec.find('.chat-channels');
+
+  // set profile
+  var imgFile;
+  if(runningChannel === constants.CHANNEL_APP) {
+      imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+  } else {
+    if (loginInfo.photoLoc != null) {
+      imgFile = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId;
+    }
+    else {
+      imgFile = "./img/profile_no.jpg";
+    }
+  }
+
+  var loginUserData = {
+      "name" : loginInfo.name,
+      "emplId": loginInfo.emplId,
+      "img": imgFile,
+      "imgAlt": loginInfo.name
+  };
+  $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
   // set event for direct chatting
   $userListContext.delegate("li", "click", function() {
@@ -144,7 +171,16 @@ $(document).ready(function() {
 
         // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
         var imgFile;
-            imgFile = "/img/profile_no.jpg";
+        if(runningChannel === constants.CHANNEL_APP) {
+            imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+        } else {
+          if (row.photoLoc != null) {
+            imgFile = constants.IMAGE_URL + row.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + row.emplId;
+          }
+          else {
+            imgFile = "./img/profile_no.jpg";
+          }
+        }
 
         var userData = {
             "topic" : generateTopic(loginInfo.emplId, row.emplId),
@@ -320,8 +356,12 @@ $(document).ready(function() {
   };
 
   // bind Event
-  $('#onProfileModal').bind("click", function() {
+  $('#onPasswordModal').bind("click", function() {
     openModalDialog("./catalog/password_modify_popup.html");
+  });
+
+  $('#onProfileWindow').bind("click", function() {
+    openModalDialog("./catalog/profile_image_popup.html");
   });
 
   $('#onChannelJoinModal').bind("click", function() {

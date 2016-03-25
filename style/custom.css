@@ -660,4 +660,8 @@ li.active,
 	width: 400px;
 	position: absolute;
 	right: 0;
+
+.dropdown-side {
+	margin-left: 20px;
+	margin-top: -15px;
 }
