@@ -218,7 +218,7 @@ $(document).ready(function() {
 
   // init Channel List
   params.memberIncluded = true;
-  restResourse.channel.getChannelList(params, function(data) {
+  restResource.channel.getChannelList(params, function(data) {
     var channelCnt = 0;
     if(data) {
       $.each(data, function(idx, row) {
