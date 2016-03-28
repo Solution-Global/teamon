@@ -17,6 +17,7 @@ notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
 toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
+autosize = require('autosize');
 myWindow = null;
 
 function initialize(){
