@@ -449,6 +449,7 @@ body {
 
 #page-wrapper {
 	height: 100%;
+	overflow: hidden;
 	min-height: initial;
 }
 
@@ -715,15 +716,15 @@ li.active,
 }
 
 #chat-section.with-info {
-	padding-right: 400px;
+	padding-right: 350px;
 }
 
 #chat-section.with-info .chat-input {
-	right: 400px;
+	right: 350px;
 }
 
 #information-section {
-	width: 400px;
+	width: 350px;
 	position: absolute;
 	right: 0;
 
