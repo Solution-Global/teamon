@@ -12,6 +12,7 @@
     "url": "https://github.com/Solution-Global/teamon/issues"
   },
   "scripts": {
+    "test": "echo 'hello world'",
     "start": "./node_modules/.bin/electron .",
     "clean": "npm run clean:win",
     "pack": "npm run pack:win",
