@@ -33,7 +33,7 @@
           <li><a href="#" id="capture-btn">Screen capture</a></li>
         </ul>
       </div>
-      <textarea rows='3' class="form-control" id="message-input" placeholder="Enter message text"></textarea>
+      <textarea rows="3" maxlength="2048" class="form-control chat-textarea" id="message-input" placeholder="Enter message text"></textarea>
     </div>
   </div>
 </div>
@@ -53,6 +53,11 @@ $(document).ready(function() {
     currentHeight += heightDiff;
     var newHeight = $contentArea.height() - heightDiff;
     $('.content_area').height(newHeight);
+
+    // if inputText value is empty, adjust textarea row value as default.
+    if ($inputText.val() == "") {
+      $('textarea').attr("rows", "3");
+    }
   });
 
   $inputText.on('keyup', function(event) {
@@ -73,6 +78,9 @@ $(document).ready(function() {
 
       chatModule.sendMsg(activeChatInfo.topic, msg);
       $inputText.val("").focus();
+
+      // invoke update method to adjust textarea height.
+      autosize.update($('textarea'));
     }
   });
 
