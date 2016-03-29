@@ -32,6 +32,8 @@ function openModalDialog(url, options, data) {
     });
   } else {
     // For desktop
+    if (url.startsWith("/"))
+      url = appRootPath + url;
     rtMsg = fs.readFileSync(url, 'utf-8');
   }
 
@@ -79,6 +81,8 @@ function loadHtml(url, target) {
     });
   } else {
     // For desktop
+    if (url.startsWith("/"))
+      url = appRootPath + url;
     data = fs.readFileSync(url, 'utf-8');
   }
 

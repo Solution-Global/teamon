@@ -33,7 +33,6 @@
     "lz-string": "1.4.4",
     "morgan": "1.7.0",
     "mqtt": "1.7.3",
-    "app-root-path": "1.0.0",
     "file-stream-rotator": "0.0.6",
     "moment": "2.12.0",
     "moment-timezone": "0.5.1",
@@ -48,6 +47,7 @@
     "malihu-custom-scrollbar-plugin": "3.1.3",
     "mustache": "2.2.0",
     "node-notifier": "^4.5.0",
-    "node-rest-client": "1.5.1"
+    "node-rest-client": "1.5.1",
+    "app-root-path": "1.0.0"
   }
 }
