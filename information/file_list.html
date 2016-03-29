@@ -36,10 +36,6 @@
 </div>
 <script>
 $(document).ready(function() {
-  $("#information-section").find(".file-list").mCustomScrollbar({
-    axis:"y"
-  });
-
   restResource.channel.getFileList({teamId: loginInfo.teamId, channel: activeChatInfo.topic}, function(data, response) {
     $.each(data, function() {
       this.fileName = this.name.substring(this.name.indexOf("_") + 1, this.name.length);

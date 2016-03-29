@@ -42,7 +42,7 @@ app.on('ready', function() {
     title: constants.APP_NAME,
     icon: path.join(__dirname, '../favicon.png')
   });
-  
+
   mainWindow.loadURL(INDEX);
 
   // Open the DevTools.
@@ -57,6 +57,8 @@ app.on('ready', function() {
     if (url.lastIndexOf("?") > 0)
     url = url.substr(0, url.lastIndexOf("?"));
     url = url.indexOf(appRootPath) == -1 ? appRootPath + url.substr(3) : url.substr(1);
+    if (url.charAt(url.length - 1) === '#')
+      url = url.substr(0, url.length - 1);
     // console.log(path.normalize(url));
     callback(path.normalize(url));
   }, function (error) {
