@@ -1,3 +1,5 @@
-// Only for desktop 
-var remoteModule = require('remote');
-myWindow = remoteModule.getCurrentWindow();
+// Only for desktop
+var remote = require('remote');
+var ipc = require('ipc');
+
+myWindow = remote.getCurrentWindow();
