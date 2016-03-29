@@ -17,6 +17,8 @@ notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
 toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
+autosize = require('autosize');
+trayModule = null;
 myWindow = null;
 
 function initialize(){
@@ -25,6 +27,9 @@ function initialize(){
     runningChannel = constants.CHANNEL_APP;
     aplUrl = "http://192.168.1.164:7587/rest/";
     UPLOAD_URL = "http://192.168.1.164:7587/upload/";
+
+    trayModule = require('./script/tray_menu');
+    trayModule.renderTrayIconMenu();
   } else {
     // For WEB
     navigator.geolocation.getCurrentPosition(function(position) {

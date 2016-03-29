@@ -2,25 +2,26 @@ var app = require('app');
 var BrowserWindow = require('browser-window');
 var path = require('path');
 var constants = require('./constants');
-var trayMenu = require('./tray_menu');
+var globalShortcut = require('global-shortcut');
+var ipc = require('electron').ipcMain;
 
 var INDEX = 'file://' + path.join(__dirname, '../index_app.html');
 var mainWindow = null;
 
 // make single instance
-// var iShouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
-//     // Someone tried to run a second instance, we should focus our window.
-//     if (mainWindow) {
-//         if (mainWindow.isMinimized()) mainWindow.restore();
-//         mainWindow.show();
-//         mainWindow.focus();
-//     }
-//     return true;
-// });
-//
-// if(iShouldQuit) {
-//   app.quit();return;
-// }
+var iShouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.show();
+        mainWindow.focus();
+    }
+    return true;
+});
+
+if(iShouldQuit) {
+  app.quit();return;
+}
 
 // Ignores certificate related errors.
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true');
@@ -43,7 +44,6 @@ app.on('ready', function() {
   });
 
   mainWindow.loadURL(INDEX);
-  trayMenu.renderTrayIconMenu();
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
@@ -72,4 +72,54 @@ app.on('ready', function() {
   mainWindow.on('closed', function() {
     mainWindow = null;
   });
+
+  // Global shortcut register
+  setGlobalShortcuts();
+
+  handleTrayEvent();
 });
+
+function setGlobalShortcuts() {
+    globalShortcut.unregisterAll();
+
+    var ret = globalShortcut.register('ctrl+Q', function() {
+       console.log('ctrl+Q is pressed');
+       if (mainWindow.isFocused())
+        app.quit();
+    });
+    if (!ret) {
+      console.log('ctrl+Q registration failed');
+    }
+
+    ret = globalShortcut.register('cmdOrctrl+shift+I', function() {
+      console.log('cmdOrctrl+shift+I is pressed');
+      if (mainWindow.isFocused())
+        mainWindow.toggleDevTools();
+    });
+    if (!ret) {
+      console.log('ctrl+Q registration failed');
+    }
+
+    ret = globalShortcut.register('F5', function() {
+      if (mainWindow.isFocused())
+       console.log('F5 is pressed. Just ignored.');
+    });
+    if (!ret) {
+      console.log('F5 registration failed');
+    }
+}
+
+function handleTrayEvent() {
+  ipc.on('show-window', function() {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipc.on('toggle-dev-tools', function() {
+    mainWindow.toggleDevTools();
+  });
+
+  ipc.on('close-main-window', function() {
+    app.quit();
+  });
+}

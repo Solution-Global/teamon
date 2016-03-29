@@ -22,9 +22,11 @@ var noti = (function() {
 
     if(window && window.process && window.process.type) {
       // For desktop
-      myWindow.setOverlayIcon(path.join(__dirname,'../img/changes.png'), "unread messages");
       myWindow.flashFrame(true) ;
       _handleAppNotification(msgPayload);
+
+      // if(trayModule)
+      //   trayModule.changeImageToNew();
     } else {
       // For browser
       _handleWebNotification(msgPayload);
