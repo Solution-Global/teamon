@@ -33,10 +33,7 @@
           <li><a href="#" id="capture-btn">Screen capture</a></li>
         </ul>
       </div>
-      <textarea class="message-input form-control" name="message" placeholder="Enter message text"></textarea>
-      <span class="input-group-btn">
-        <button type="button" class="btn_send btn btn-primary">Send</button>
-      </span>
+      <textarea rows='3' class="form-control" id="message-input" placeholder="Enter message text"></textarea>
     </div>
   </div>
 </div>
@@ -44,15 +41,38 @@
 $(document).ready(function() {
   var $chatSec = $("#chat-section");
   var $contentArea = $chatSec.find('.content_area');
-  var $inputText = $chatSec.find('.message-input');
-  var $btnSend = $chatSec.find('.btn_send');
+  var $inputText = $chatSec.find('#message-input');
   var msgTemplate = $('#msg-template').html();
   var dateLineTemplate = $('#dateline-template').html();
+  var currentHeight = 60; // default
+
+  $('textarea').each(function(){
+      autosize(this);
+  }).on('autosize:resized', function(){
+    var heightDiff = $inputText.height() - currentHeight;
+    currentHeight += heightDiff;
+    var newHeight = $contentArea.height() - heightDiff;
+    $('.content_area').height(newHeight);
+  });
 
   $inputText.on('keyup', function(event) {
     // mention이 활성화 되어 있으면 send 전송을 막는다.
     if (event.keyCode == 13 && event.shiftKey !== true && !$mentionText.data('mention').shown) {
-      $btnSend.click();
+      if (activeChatInfo.topic === undefined) {
+        console.error("No peer selected!");
+        return;
+      }
+      var msg = $inputText.val();
+
+      if (!msg || !msg.trim().length) {
+        return;
+      }
+
+      if(getChatType(activeChatInfo.topic) === constants.CHANNEL_CHAT)
+        msg = _replaceMentionFormat(msg);
+
+      chatModule.sendMsg(activeChatInfo.topic, msg);
+      $inputText.val("").focus();
     }
   });
 
@@ -249,24 +269,6 @@ $(document).ready(function() {
   };
 
   // bind events
-  $btnSend.on('click', function() {
-    if (activeChatInfo.topic === undefined) {
-      console.error("No peer selected!");
-      return;
-    }
-    var msg = $inputText.val();
-
-    if (!msg || !msg.trim().length) {
-      return;
-    }
-
-    if(getChatType(activeChatInfo.topic) === constants.CHANNEL_CHAT)
-      msg = _replaceMentionFormat(msg);
-
-    chatModule.sendMsg(activeChatInfo.topic, msg);
-    $inputText.val("").focus();
-  });
-
   $("#fileupload-btn").click(function() {
     openModalDialog("/chat/fileupload_pop.html");
   });
