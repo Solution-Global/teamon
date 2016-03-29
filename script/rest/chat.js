@@ -51,4 +51,21 @@ Chat.prototype.postMsg = function(params, callback) {
   self.restCommon.post(self.restCommon.apiurl + self.path, args, callback, params);
 };
 
+Chat.prototype.getListByKeyword = function(params, callback) {
+  var self = this;
+  var args = {
+    path: {
+      "teamId": params.teamId,
+      "emplId": params.emplId
+    },
+    parameters: {
+      "keyword": params["top-search"],
+      "limit": params.limit,
+      "offset": params.offset
+    }
+  };
+  self.restCommon.get( "/team/${teamId}/searchby/${emplId}/search", args, callback, params);
+};
+
+
 module.exports = Chat;

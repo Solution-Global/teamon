@@ -372,8 +372,17 @@ img.in-message {
 	margin: 0 !important;
 }
 #information-section {
+	height: 100%;
 	margin: 0 !important;
 	padding: 0 !important;
+}
+
+#search-list {
+	height: 90%;
+}
+
+#information-section #search-list .ibox-content {
+	height: 90%;
 }
 
 /*
@@ -726,8 +735,56 @@ li.active,
 	width: 400px;
 	position: absolute;
 	right: 0;
+}
 
 .dropdown-side {
 	margin-left: 20px;
 	margin-top: -15px;
+}
+
+.myshake {
+    -webkit-animation-name: myshake;
+    animation-name: myshake;
+    animation-duration: 2s;
+}
+
+@-webkit-keyframes myshake {
+    0%, 100% {
+        -webkit-transform: translateX(0);
+        transform: translateX(0);
+    }
+
+    10%, 30%, 50%, 70%, 90% {
+        -webkit-transform: translateX(-10px);
+        transform: translateX(-10px);
+    }
+
+    20%, 40%, 60%, 80% {
+        -webkit-transform: translateX(10px);
+        transform: translateX(10px);
+    }
+    from {background: #1AB394}
+    to {background: #EEEEEE}
+}
+
+@keyframes myshake {
+    0%, 100% {
+        -webkit-transform: translateX(0);
+        -ms-transform: translateX(0);
+        transform: translateX(0);
+    }
+
+    10%, 30%, 50%, 70%, 90% {
+        -webkit-transform: translateX(-10px);
+        -ms-transform: translateX(-10px);
+        transform: translateX(-10px);
+    }
+
+    20%, 40%, 60%, 80% {
+        -webkit-transform: translateX(10px);
+        -ms-transform: translateX(10px);
+        transform: translateX(10px);
+    }
+    from {background: #1AB394}
+    to {background: #EEEEEE}
 }

@@ -1,6 +1,6 @@
 <div id="header-section" class="navbar-header">
   <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#"><i class="fa fa-bars"></i></a>
-  <form role="search" class="navbar-form-custom" action="#">
+  <form id="searchForm" role="search" class="navbar-form-custom" action="#">
       <div class="form-group">
           <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">
       </div>
@@ -44,6 +44,19 @@ $(document).ready(function() {
     showInformationArea("file_list.html");
   })
 
+  $("#searchForm").submit(function(event) {
+    event.preventDefault();
+    if (!$(this).valid())
+      return;
+
+    var params = $(this).serializeObject();
+    params.teamId = loginInfo.teamId;
+    params.emplId = loginInfo.emplId;
+    params.limit = 10;
+    params.offset = 0;
+    doSearch(params);
+  });
+
     // toggle menu
     $('.navbar-minimalize').on("touchend click", switchMenu);
     function switchMenu() {
@@ -56,4 +69,74 @@ $(document).ready(function() {
       }
     }
 });
+
+function doSearch(params) {
+  if (params["top-search"] === undefined) {
+    toastr.warning("Please enter your keyword.");
+    return;
+  }
+
+  restResource.chat.getListByKeyword(params, function(data) {
+    var $informationSec = $("#information-section");
+    var $contentArea = $informationSec.find(".content_area");
+    var searchMsgTemplate = $informationSec.find("#search-msg-template").html();
+
+    if (data != null && data.length > 0) {
+      $.each(data, function(idx, message) {
+        var senderInfo = userCache.get(message.senderId);
+        var sender = "unknown";
+        if(senderInfo)
+          sender = senderInfo.name;
+        var imagePath = "../img/profile_no.jpg";
+        if(runningChannel === constants.CHANNEL_APP) {
+          imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
+        } else {
+          if (senderInfo.photoLoc != null) {
+            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId;
+          }
+          else {
+            imagePath = imagePath;
+          }
+        }
+
+        var emplId;
+        var chatRoomName;
+        var chatType = getChatType(message.topic);
+        if (chatType === constants.DIRECT_CHAT) {
+          chatRoomName = "@";
+          if (loginInfo.emplId === message.senderId) {
+            emplId = message.recevierId;
+            chatRoomName += userCache.get(message.receiverId).name;
+          } else {
+            emplId = message.senderId;
+            chatRoomName += userCache.get(message.senderId).name;
+          }
+        } else if (chatType === constants.CHANNEL_CHAT) {
+          chatRoomName = message.topic;
+        }
+
+        var messageData = {
+          "chatId": message.chatId,
+          "topic": message.topic,
+          "date": new Date(message.creTime).format("YYYY/MM/DD"),
+          "img": imagePath,
+          "imgAlt": sender,
+          "sender": sender,
+          "time": new Date(message.creTime).format("A hh:mm"),
+          "msgText": message.msg,
+          "chatRoomName": chatRoomName,
+          "emplId": emplId
+        };
+
+        $contentArea.append(Mustache.render(searchMsgTemplate, messageData));
+      });
+    } else {
+      $contentArea.append("<div style='text-align: center;'><span>No messages found</span></div>")
+    }
+
+    $informationSec.nameFind("hidden-keyword").val(params["top-search"]);
+  });
+
+  showInformationArea(constants.INFO_AREA_SEARCH);
+}
 </script>
