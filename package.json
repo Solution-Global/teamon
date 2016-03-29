@@ -48,6 +48,7 @@
     "mustache": "2.2.0",
     "node-notifier": "^4.5.0",
     "node-rest-client": "1.5.1",
-    "app-root-path": "1.0.0"
+    "app-root-path": "1.0.0",
+    "autosize": "3.0.15"
   }
 }
