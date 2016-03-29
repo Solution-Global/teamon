@@ -89,7 +89,7 @@ function initLoginStatus() {
       backgroundOpacity : 1,
       backgroundColor : "#2f4050"
     };
-    openModalDialog("./user/login_popup.html", dialogOptions);
+    openModalDialog("/user/login_popup.html", dialogOptions);
   }
 }
 
@@ -178,11 +178,11 @@ initAPI = function() {
 };
 
 loadAllArea = function() {
-  loadHtml("./chat/chat_section.html", $("#chat-section"));
-  loadHtml("./catalog/catalog_section.html", $("#catalog-section"));
-  loadHtml("./header/header_section.html", $("#header-section"));
-  // loadHtml("./screenshare/screenshare-section.html", $("#screenshare-section"));
-  // loadHtml("./call/call_section.html", $("#call-section"));
+  loadHtml("/chat/chat_section.html", $("#chat-section"));
+  loadHtml("/catalog/catalog_section.html", $("#catalog-section"));
+  loadHtml("/header/header_section.html", $("#header-section"));
+  // loadHtml("/screenshare/screenshare-section.html", $("#screenshare-section"));
+  // loadHtml("/call/call_section.html", $("#call-section"));
 };
 
 showCatalogArea = function() {
@@ -207,7 +207,7 @@ showCallArea = function() {
 
 showInformationArea = function(fileName) {
   $("#information-section").html("");
-  loadHtml("./information/" + fileName, $("#information-section"));
+  loadHtml("/information/" + fileName, $("#information-section"));
   $("#information-section").show();
   $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
     $("#information-section").empty();
