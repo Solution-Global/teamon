@@ -17,6 +17,8 @@ notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
 toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
+autosize = require('autosize');
+trayModule = null;
 myWindow = null;
 timerListForLastMsg = []; // lastMsgId를 관리하기 위한 Tiver Event의 ID를 저장하는 global 변수
 
@@ -26,6 +28,9 @@ function initialize(){
     runningChannel = constants.CHANNEL_APP;
     aplUrl = "http://192.168.1.164:7587/rest/";
     UPLOAD_URL = "http://192.168.1.164:7587/upload/";
+
+    trayModule = require('./script/tray_menu');
+    trayModule.renderTrayIconMenu();
   } else {
     // For WEB
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -90,7 +95,7 @@ function initLoginStatus() {
       backgroundOpacity : 1,
       backgroundColor : "#2f4050"
     };
-    openModalDialog("./user/login_popup.html", dialogOptions);
+    openModalDialog("/user/login_popup.html", dialogOptions);
   }
 }
 
@@ -212,11 +217,11 @@ initAPI = function() {
 };
 
 loadAllArea = function() {
-  loadHtml("./chat/chat_section.html", $("#chat-section"));
-  loadHtml("./catalog/catalog_section.html", $("#catalog-section"));
-  loadHtml("./header/header_section.html", $("#header-section"));
-  // loadHtml("./screenshare/screenshare-section.html", $("#screenshare-section"));
-  // loadHtml("./call/call_section.html", $("#call-section"));
+  loadHtml("/chat/chat_section.html", $("#chat-section"));
+  loadHtml("/catalog/catalog_section.html", $("#catalog-section"));
+  loadHtml("/header/header_section.html", $("#header-section"));
+  // loadHtml("/screenshare/screenshare-section.html", $("#screenshare-section"));
+  // loadHtml("/call/call_section.html", $("#call-section"));
 };
 
 showCatalogArea = function() {
@@ -241,11 +246,12 @@ showCallArea = function() {
 
 showInformationArea = function(fileName) {
   $("#information-section").html("");
-  loadHtml("./information/" + fileName, $("#information-section"));
+  loadHtml("/information/" + fileName, $("#information-section"));
   $("#information-section").show();
   $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
     $("#information-section").empty();
     $("#chat-section").removeClass("with-info");
+    $("#information-section").hide();
   });
   $("#chat-section").addClass("with-info");
 };

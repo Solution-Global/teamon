@@ -1,3 +1,7 @@
-// Only for desktop 
-var remoteModule = require('remote');
-myWindow = remoteModule.getCurrentWindow();
+// Only for desktop
+var remote = require('remote');
+var ipc = require('electron').ipcRenderer;
+
+myWindow = remote.getCurrentWindow();
+
+appRootPath = require('app-root-path').path.replace(/\\/gi, "/");

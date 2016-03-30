@@ -53,6 +53,7 @@ define("SIP_DOMAIN", "192.168.5.53");
 define("INFO_AREA_ABOUT_USER", "about_user.html");
 define("INFO_AREA_ABOUT_CHANNEL", "about_channel.html");
 define("INFO_AREA_MENTION", "mention_list.html");
+define("INFO_AREA_SEARCH", "search_list.html");
 
 // chatting 관련
 define("MESSAGE_TYPE_APPEND", 1);

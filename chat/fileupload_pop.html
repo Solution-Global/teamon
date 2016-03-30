@@ -37,6 +37,8 @@ var dropzone = new Dropzone("#fileupload-form", {
             fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
           });
           chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");
+					if ($(".file-list").length > 0)
+						$("#info-file").click();
         });
         this.on("errormultiple", function(files, response) {
         });

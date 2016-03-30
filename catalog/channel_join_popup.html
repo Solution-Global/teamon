@@ -69,7 +69,10 @@ $(document).ready(function() {
 
     var name = constants.CHANNEL_TOPIC_DELIMITER + $channelForm.find("[name=name]").val();
     var members = $channelForm.find("[name=members]").val();
-    members.push(loginInfo.emplId +""); //본인 포함
+    if (members)
+      members.push(loginInfo.emplId +""); //본인 포함
+    else
+      members = [loginInfo.emplId];
     var pinupMessage = $channelForm.find("[name=pinupMessage]").val();
 
     var params = {
