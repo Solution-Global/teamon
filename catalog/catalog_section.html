@@ -122,6 +122,7 @@ $(document).ready(function() {
       }
     }
 
+    setHearderTitle(activeChatInfo.topic);
     showChatArea();
     changeChatView();
   };
@@ -262,7 +263,6 @@ $(document).ready(function() {
     }
   }
 
-  console.log("channel cnt = %d, user cnt = %d", channelCache.getValueArray().length, userCache.getValueArray().length);
   var _getActiveTarget = function (topic) {
     if (getChatType(topic) === constants.DIRECT_CHAT)
       return $userListContext.find("[data-topic='" + topic + "']");

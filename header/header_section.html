@@ -19,9 +19,9 @@
   <li>
     <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-list fa-lg"></i></a>
     <ul class="dropdown-menu dropdown-user">
-      <li><a class="information-menulink">Information</a></li>
+      <li><a href="#" id="info-about">About...</a></li>
       <li><a href="#" id="info-file">Files</a></li>
-      <li><a href="#">Help</a></li>
+      <!--<li><a href="#">Help</a></li>00-->
     </ul>
   </li>
 </ul>
@@ -33,14 +33,30 @@ $(document).ready(function() {
 
   setHearderTitle = function(text) {
     $title.html(text);
+    // show about menu
+    $("#info-about").show();
+  }
+
+  if (activeChatInfo === null) {
+     $("#info-about").hide();
   }
 
   //bind events
   $headerSec.find(".mention").click(function() {
+    setInfoSectionFlag(true);
     showInformationArea(constants.INFO_AREA_MENTION);
   });
 
+  $("#info-about").click(function() {
+    setInfoSectionFlag(true);
+    if (activeChatInfo.channelId != null)
+      showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
+    else if (activeChatInfo.name != null)
+      showInformationArea(constants.INFO_AREA_ABOUT_USER);
+  })
+
   $("#info-file").click(function() {
+    setInfoSectionFlag(true);
     showInformationArea("file_list.html");
   })
 
@@ -137,6 +153,7 @@ function doSearch(params) {
     $informationSec.nameFind("hidden-keyword").val(params["top-search"]);
   });
 
+  setInfoSectionFlag(true);
   showInformationArea(constants.INFO_AREA_SEARCH);
 }
 </script>
