@@ -40,7 +40,7 @@
       </span>
       <div class="profile-area" id="user-profile">
         <script id="profile-template" type="text/template">
-          <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}" />
+          <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}" style="border: none" />
           <div class="chat-user-name ellipsis">{{name}}</div>
         </script>
       </div>
@@ -84,7 +84,12 @@ $(document).ready(function() {
   // set profile
   var imgFile;
   if(runningChannel === constants.CHANNEL_APP) {
+    if (loginInfo.photoLoc != null) {
+      imgFile = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId;
+    }
+    else {
       imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+    }
   } else {
     if (loginInfo.photoLoc != null) {
       imgFile = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId;
@@ -129,7 +134,7 @@ $(document).ready(function() {
   };
 
   // set event for direct chatting
-  $userListContext.delegate("li", "click", function() {
+  $userListContext.delegate("li", "click touchend", function() {
     var $targetList = $(this);
     $targetList.addClass("active");
     activeChatInfo = {
@@ -366,15 +371,15 @@ $(document).ready(function() {
 
   // bind Event
   $('#onPasswordModal').bind("click", function() {
-    openModalDialog("./catalog/password_modify_popup.html");
+    openModalDialog("/catalog/password_modify_popup.html");
   });
 
   $('#onProfileWindow').bind("click", function() {
-    openModalDialog("./catalog/profile_image_popup.html");
+    openModalDialog("/catalog/profile_image_popup.html");
   });
 
   $('#onChannelJoinModal').bind("click", function() {
-    openModalDialog("./catalog/channel_join_popup.html");
+    openModalDialog("/catalog/channel_join_popup.html");
   });
 
   $('#onLogOut').bind("click", function() {
