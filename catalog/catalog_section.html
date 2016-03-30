@@ -124,8 +124,6 @@ $(document).ready(function() {
 
     showChatArea();
     changeChatView();
-
-    shareLastMsgId(activeChatInfo.topic, myMessage.getLastReadMessageId(activeChatInfo.topic));
   };
 
   // set event for direct chatting
@@ -298,11 +296,22 @@ $(document).ready(function() {
     $alarmArea.html("");
   };
 
-  setChattingAlarmCnt = function (topic) {
+  setChattingAlarmCnt = function (topic, alarmCnt) {
     var $activeTarget = _getActiveTarget(topic);
     var $alarmArea = $activeTarget.find(".alarm");
-    var cnt = $alarmArea.text();
-    $alarmArea.html(cnt ? Number(cnt) + 1 : "1");
+    if(!alarmCnt) {
+      alarmCnt = $alarmArea.text();
+      if(alarmCnt) {
+        alarmCnt = Number(alarmCnt) + 1;
+      } else {
+        alarmCnt = 1;
+      }
+    }
+
+    if(alarmCnt > constants.ALARM_MAX_COUNT)
+      alarmCnt = constants.ALARM_MAX_COUNT + "+";
+
+    $alarmArea.html(alarmCnt);
     $alarmArea.removeClass("hide");
   };
 

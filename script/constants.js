@@ -12,6 +12,7 @@ define("CHANNEL_APP", "APP");
 
 define("COMMON_SEARCH_ALL", -1);
 define("COMMON_DB_NUMBER_NULL_STR", "-999999");
+define("COMMON_DB_NUMBER_NULL", -999999);
 define("COMMON_SEARCH_COUNT", 20);
 define("COMMON_SEARCH_OFFSET", 0);
 define("COMMON_SEARCH_ORDER_ASC", "asc");
@@ -61,6 +62,7 @@ define("MESSAGE_TYPE_PREPEND", 2);
 define("MENTION_FIRST_DELIMITER", "@");
 define("MENTION_LAST_DELIMITER", ": ");
 define("LAST_MST_ID_TIMER_INTERVAL", 5000);
+define("ALARM_MAX_COUNT", 10);
 
 // channel 관련
 define("CHANNEL_TOPIC_DELIMITER", "#");
