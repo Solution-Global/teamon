@@ -482,6 +482,7 @@ body.no-menu #catalog-section {
 .chat-view > .chat-messages {
 	padding-bottom: 60px;
 	height: 100%;
+	word-wrap: break-word;
 }
 
 .chat-view > .chat-input {

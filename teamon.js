@@ -20,6 +20,7 @@ timezone = "Asia/Seoul";
 autosize = require('autosize');
 trayModule = null;
 myWindow = null;
+infoSectionFlag = true;
 timerListForLastMsg = []; // lastMsgId를 관리하기 위한 Tiver Event의 ID를 저장하는 global 변수
 
 function initialize(){
@@ -125,10 +126,13 @@ shareLastMsgId = function(topic, chatId) {
 handleLastMsgId = function(payload) {
   console.info("handleLastMsgId payload %s", JSON.stringify(payload));
 
+  // 멀티 로그인을 고려하여 같이 기종의 alarm count를 초기화 하기 위해서 필요
   if(loginInfo.emplId === payload.senderId) {
     var localLastMstId = myMessage.getLastReadMessageId(payload.topic);
-    if(localLastMstId && localLastMstId < payload.lastMsgId)
+    if(localLastMstId && localLastMstId < payload.lastMsgId) {
       myMessage.setLastReadMessageId(payload.topic, payload.lastMsgId);
+      hideChattingAlram(payload.topic);
+    }
   }
 };
 
@@ -244,16 +248,24 @@ showCallArea = function() {
   $("#call-section").show();
 };
 
+setInfoSectionFlag = function(flag) {
+  infoSectionFlag = flag;
+};
+
 showInformationArea = function(fileName) {
-  $("#information-section").html("");
-  loadHtml("/information/" + fileName, $("#information-section"));
-  $("#information-section").show();
-  $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
-    $("#information-section").empty();
-    $("#chat-section").removeClass("with-info");
-    $("#information-section").hide();
-  });
-  $("#chat-section").addClass("with-info");
+  if (infoSectionFlag)
+  {
+    $("#information-section").html("");
+    loadHtml("/information/" + fileName, $("#information-section"));
+    $("#information-section").show();
+    $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
+      infoSectionFlag = false;
+      $("#information-section").empty();
+      $("#chat-section").removeClass("with-info");
+      $("#information-section").hide();
+    });
+    $("#chat-section").addClass("with-info");
+  }
 };
 
 hideCatalogArea = function() {

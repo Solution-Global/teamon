@@ -25,6 +25,22 @@ Chat.prototype.getListByCondition = function(params, callBackRequiredValues, cal
   self.restCommon.get( "/team/${teamId}/searchby/${emplId}", args, callback, callBackRequiredValues);
 };
 
+Chat.prototype.getListForSync = function(params, callback) {
+  var self = this;
+  console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[condition]" + params.condition);
+  var args = {
+    path: {
+      "teamId": params.teamId,
+      "emplId": params.emplId
+    },
+    parameters: {
+      "condition": params.condition
+    }
+  };
+  self.restCommon.get( "/team/${teamId}/sync/${emplId}", args, callback);
+};
+
+
 Chat.prototype.getMentionList = function(params, callback) {
   var self = this;
   console.log("getMentionList - [teamId]" + params.teamId + "[emplId]" + params.emplId);
@@ -54,7 +70,6 @@ Chat.prototype.postMsg = function(params, callback) {
 Chat.prototype.updateLastMsg = function(params, callback) {
   var self = this;
   console.log("updateLastMsg - [emplId]" + params.emplId  + "[topic]" + params.topic + "[lastMsgId]" + params.lastMsgId);
-  console.log(encodeURI("#한글"));
   var args = {
     path: {
       "emplId": params.emplId
