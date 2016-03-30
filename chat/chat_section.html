@@ -92,6 +92,13 @@ $(document).ready(function() {
       }
       _displayMessages(constants.MESSAGE_TYPE_APPEND, msgPayload);
       $contentArea.mCustomScrollbar("scrollTo", "bottom");
+
+      if(loginInfo.emplId === msgPayload.senderId) {
+        myMessage.setLastReadMessageId(msgPayload.topic, msgPayload.chatId); // 6. Local Storage에 LastChatId Update
+      } else {
+        runTimerForSetLastMsgId(msgPayload.topic, msgPayload.chatId); // 6. Timer Event 생성(5초 주기) : 상세 설명 초록 박스 참조
+      }
+
     } else {
       notifierModule.handleNotification(msgPayload);
       setChattingAlarmCnt(msgPayload.topic);
