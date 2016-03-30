@@ -380,7 +380,7 @@ img.in-message {
 	width: 34px;
 	height: 34px;
 	background-color: #D5D7E4;
-	border: 4px #D5D7E4 solid;
+	border: 3px #D5D7E4 solid;
 	border-radius: 50%;
 	margin: 0;
 }
@@ -508,7 +508,10 @@ body.small-navbar .logo-element {
 body.small-navbar .profile-element {
   display: none;
 }
-
+.minimalize-styl-2 > i {
+	/* for looking same with app and web */
+	padding: 3px 0;
+}
 .chat-user {
 	padding: 0;
 	padding-left: 10px;
