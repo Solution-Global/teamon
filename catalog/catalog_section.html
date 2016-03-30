@@ -24,6 +24,7 @@
                 <a href="#">
                   <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
                   <div class="chat-user-name ellipsis">{{name}}</div>
+                  <span class="badge badge-warning right hide alarm"></span>
                 </a>
               </li>
             </script>
@@ -101,10 +102,34 @@ $(document).ready(function() {
   };
   $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
-  // set event for direct chatting
-  $userListContext.delegate("li", "click", function() {
+  var _activeChatView = function(activeChatInfo){
     $channelListContext.find("li.active").removeClass("active");
     $userListContext.find("li.active").removeClass("active");
+
+    myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
+
+    hideCallArea();
+    hideScreenShareArea();
+
+    // in small-view, hide menu
+    if ($('body').hasClass('body-small'))
+      $('.navbar-minimalize').click();
+    else {
+      if(activeChatInfo.channelId) {
+        showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
+      } else {
+        showInformationArea(constants.INFO_AREA_ABOUT_USER);
+      }
+    }
+
+    showChatArea();
+    changeChatView();
+
+    shareLastMsgId(activeChatInfo.topic, myMessage.getLastReadMessageId(activeChatInfo.topic));
+  };
+
+  // set event for direct chatting
+  $userListContext.delegate("li", "click", function() {
     var $targetList = $(this);
     $targetList.addClass("active");
     activeChatInfo = {
@@ -113,53 +138,19 @@ $(document).ready(function() {
       "emplId" : $targetList.data("emplid")
     };
 
-    myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
-
-    // in small-view, hide menu
-    if ($('body').hasClass('body-small'))
-      $('.navbar-minimalize').click();
-    else
-      showInformationArea(constants.INFO_AREA_ABOUT_USER);
-
-    hideCallArea();
-    hideScreenShareArea();
-
-    // adjustSectionSize(informationSection.getSection(), 3);
-    // adjustSectionSize(chatSection.getSection(), 9);
-
-    showChatArea();
-
-    changeChatView();
+    _activeChatView(activeChatInfo);
   });
 
   // set event for group chatting
   $channelListContext.delegate("li", "click touchend", function() {
-    $channelListContext.find("li.active").removeClass("active");
-    $userListContext.find("li.active").removeClass("active");
-
     var $targetList = $(this);
     $targetList.addClass("active");
     activeChatInfo = {
       "topic" : $targetList.data("topic"),
       "channelId" : $targetList.data("channelid")
     };
-    myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
 
-    hideCallArea();
-    hideScreenShareArea();
-
-    // in small-view, hide menu
-    if ($('body').hasClass('body-small'))
-      $('.navbar-minimalize').click();
-    else
-      showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
-
-    // adjustSectionSize(informationSection.getSection(), 3);
-    // adjustSectionSize(chatSection.getSection(), 9);
-
-    showChatArea();
-
-    changeChatView();
+    _activeChatView(activeChatInfo);
   });
 
   // init User List
@@ -201,7 +192,7 @@ $(document).ready(function() {
       // set user count
       $("#topic-list .users-link").append(" (" + data.rows.length + ")");
 
-      // _activeChatView();
+      // _activeLastChatView();
       _initPresenceDisplay();
     }
 
@@ -258,7 +249,7 @@ $(document).ready(function() {
     myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
   });
 
-  var _activeChatView = function() {
+  var _activeLastChatView = function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
     if(lastChatInfo) {
       lastChatInfo = JSON.parse(lastChatInfo);
@@ -352,6 +343,7 @@ $(document).ready(function() {
   }
 
   handleLoginPresence = function(params) {
+    console.log("handleLoginPresence %s", JSON.stringify(params));
     if(typeof params === 'string')
       params = JSON.parse(params);
 

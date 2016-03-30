@@ -1,4 +1,32 @@
 var message = (function(storageManager, myPref) {
+
+  var KEY_TYPE_CHAT_MESSAGES = 1;
+  var KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID = 2;
+
+  /*
+    - Lacal storage 에 저장 되는 message 관련 포맷
+    message keys : CHAT_LAST_READ_MSGID_[login emplId]
+    value : format is JSON.
+    {
+      "1_3": 100, -- topic : messageId
+      "3_5" : 200,
+      "#63" : 200,
+      ...
+    }
+    messages : CHAT_[login emplId]_[topic]
+    value :
+    { "chatId":613,
+    "mode":"send",
+    "img":"../img/profile_img2.jpg",
+    "imgAlt":"sales",
+    "sender":"sales",
+    "msgText":"rbt 임",
+    "date":"2016/06/19",
+    "time":"오후 03 06"
+    },
+    ...
+  */
+
   var cacheMessage = new cacheManager();
   var cacheFirstMsgId = new cacheManager();
 
@@ -68,17 +96,26 @@ var message = (function(storageManager, myPref) {
     });
   }
 
-  function _getKeyName(topic) {
-    return "CHAT_" + myPref.emplId + "_" + topic;
+  function _getKeyName(keyType, topic) {
+    var keyName;
+    switch (keyType) {
+      case KEY_TYPE_CHAT_MESSAGES:
+        keyName = "CHAT_" + myPref.emplId + "_" + topic;
+        break;
+      case KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID:
+        keyName = "CHAT_LAST_READ_MESSAGE_ID_" + myPref.emplId;
+        break;
+    }
+    return keyName;
   }
 
-  function _writeAll(topic, value) {
-    var keyName = _getKeyName(topic);
+  function _writeAll(keyType, value, topic) {
+    var keyName = _getKeyName(keyType, topic);
     storageManager.setValue(keyName, value);
   }
 
-  function _readAll(topic) {
-    var keyName = _getKeyName(topic);
+  function _readAll(keyType, topic) {
+    var keyName = _getKeyName(keyType, topic);
     return storageManager.getValue(keyName);
   }
 
@@ -88,7 +125,7 @@ var message = (function(storageManager, myPref) {
     if(messages)
       return messages;
 
-    var value = _readAll(topic);
+    var value = _readAll(KEY_TYPE_CHAT_MESSAGES, topic);
     if (value)
       return JSON.parse(value);
   }
@@ -115,14 +152,39 @@ var message = (function(storageManager, myPref) {
 
   function _appendMessageArray(value, topic) {
     cacheFirstMsgId.set(topic, value[0].chatId);
-    _writeAll(topic, JSON.stringify(value));
+
+    // setLastReadMessageId : 추후 수정
+    setLastReadMessageId(topic, value[value.length-1].chatId );
+    _writeAll(KEY_TYPE_CHAT_MESSAGES, JSON.stringify(value), topic);
+  }
+
+  function setLastReadMessageId(topic, lastMsgId) {
+    var LastReadMessageIdstr = _readAll(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID);
+    var LastReadMessageIdObj = {};
+    if (LastReadMessageIdstr) {
+      LastReadMessageIdObj = JSON.parse(LastReadMessageIdstr);
+    }
+    LastReadMessageIdObj[topic] = lastMsgId;
+
+    _writeAll(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID, JSON.stringify(LastReadMessageIdObj));
+  }
+
+  function getLastReadMessageId(topic) {
+    var LastReadMessageIdstr = _readAll(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID);
+    var LastReadMessageIdObj = {};
+    if (LastReadMessageIdstr) {
+      LastReadMessageIdObj = JSON.parse(LastReadMessageIdstr);
+    }
+    return LastReadMessageIdObj[topic];
   }
 
   return {
     syncChatMessage: syncChatMessage,
     getAllChatMessage: getAllChatMessage,
     getPreviousChatMessage : getPreviousChatMessage ,
-    appendMessageUnit: appendMessageUnit
+    appendMessageUnit: appendMessageUnit,
+    setLastReadMessageId: setLastReadMessageId,
+    getLastReadMessageId: getLastReadMessageId
   };
 });
 

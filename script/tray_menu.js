@@ -16,7 +16,7 @@ function renderTrayIconMenu(){
 //  trayIcon = new Tray(path.join(__dirname, 'img/tray-iconTemplate.png'));
 //}
 //else {
-    trayIcon = new Tray(path.join(__dirname, '../img/icon.ico'));
+    trayIcon = new Tray(path.join(__dirname, '../favicon.png'));
 //}
 
   var trayMenuTemplate = [

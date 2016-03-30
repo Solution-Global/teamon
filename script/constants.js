@@ -60,6 +60,7 @@ define("MESSAGE_TYPE_APPEND", 1);
 define("MESSAGE_TYPE_PREPEND", 2);
 define("MENTION_FIRST_DELIMITER", "@");
 define("MENTION_LAST_DELIMITER", ": ");
+define("LAST_MST_ID_TIMER_INTERVAL", 5000);
 
 // channel 관련
 define("CHANNEL_TOPIC_DELIMITER", "#");

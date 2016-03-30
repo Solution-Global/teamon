@@ -48,7 +48,23 @@ Chat.prototype.postMsg = function(params, callback) {
       "msg": params.msg
     })
   };
-  self.restCommon.post(self.restCommon.apiurl + self.path, args, callback, params);
+  self.restCommon.post(null, args, callback, params);
+};
+
+Chat.prototype.updateLastMsg = function(params, callback) {
+  var self = this;
+  console.log("updateLastMsg - [emplId]" + params.emplId  + "[topic]" + params.topic + "[lastMsgId]" + params.lastMsgId);
+  console.log(encodeURI("#한글"));
+  var args = {
+    path: {
+      "emplId": params.emplId
+    },
+    data: $.param({
+      "topic": params.topic,
+      "lastMsgId": params.lastMsgId
+    })
+  };
+  self.restCommon.put("/${emplId}/lastMsg", args, callback);
 };
 
 Chat.prototype.getListByKeyword = function(params, callback) {

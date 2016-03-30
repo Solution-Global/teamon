@@ -40,7 +40,7 @@ app.on('ready', function() {
     width: 850,
     height: 650,
     title: constants.APP_NAME,
-    icon: path.join(__dirname, '../img/icon.ico')
+    icon: path.join(__dirname, '../favicon.png')
   });
 
   mainWindow.loadURL(INDEX);

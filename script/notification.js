@@ -12,12 +12,15 @@ var noti = (function() {
 
     notiTitle = "New message form " + userValue.name;
     notiBody = msgPayload.msg;
+    if (notiBody.length > 20)
+      notiBody = notiBody.substring(0, 19) + "...";
+
     // TODO change to profile image of user
     notiIcon = "./img/profile_no.jpg";
 
     if(getChatType(msgPayload.topic) === constants.CHANNEL_CHAT) {
       notiTitle = "New message in " + msgPayload.topic;
-      notiBody = userValue.name + ": "  + msgPayload.msg;
+      notiBody = userValue.name + ": "  + notiBody;
     }
 
     if(window && window.process && window.process.type) {
@@ -38,7 +41,7 @@ var noti = (function() {
     notifier.notify({
       title: notiTitle,
       message: notiBody,
-      icon: notiIcon,// Absolute path (doesn't work on balloons)
+      icon: path.join(__dirname, notiIcon),// Absolute path (doesn't work on balloons)
       sound: false, // Only Notification Center or Windows Toasters
       wait: true // Wait with callback, until user action is taken against notification
     //}, funcion(err, response) {
