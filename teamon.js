@@ -20,6 +20,7 @@ timezone = "Asia/Seoul";
 autosize = require('autosize');
 trayModule = null;
 myWindow = null;
+infoSectionFlag = true;
 
 function initialize(){
   if(window && window.process && window.process.type) {
@@ -210,16 +211,24 @@ showCallArea = function() {
   $("#call-section").show();
 };
 
+setInfoSectionFlag = function(flag) {
+  infoSectionFlag = flag;
+};
+
 showInformationArea = function(fileName) {
-  $("#information-section").html("");
-  loadHtml("/information/" + fileName, $("#information-section"));
-  $("#information-section").show();
-  $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
-    $("#information-section").empty();
-    $("#chat-section").removeClass("with-info");
-    $("#information-section").hide();
-  });
-  $("#chat-section").addClass("with-info");
+  if (infoSectionFlag)
+  {
+    $("#information-section").html("");
+    loadHtml("/information/" + fileName, $("#information-section"));
+    $("#information-section").show();
+    $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
+      infoSectionFlag = false;
+      $("#information-section").empty();
+      $("#chat-section").removeClass("with-info");
+      $("#information-section").hide();
+    });
+    $("#chat-section").addClass("with-info");
+  }
 };
 
 hideCatalogArea = function() {

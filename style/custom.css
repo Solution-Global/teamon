@@ -388,7 +388,7 @@ img.in-message {
 	background-color: #428bca;
 	border: 3px #428bca solid;
 }
-.chat-avatar.online_mine {
+.chat-avatar.online_me {
 	background-color: #90AA01;
 	border: 3px #90AA01 solid;
 }
@@ -486,6 +486,7 @@ body.no-menu #catalog-section {
 .chat-view > .chat-messages {
 	padding-bottom: 91px;
 	height: 100%;
+	word-wrap: break-word;
 }
 
 .chat-view > .chat-input {
