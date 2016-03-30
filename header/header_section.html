@@ -34,7 +34,7 @@ $(document).ready(function() {
   setHearderTitle = function(text) {
     $title.html(text);
     // show about menu
-    $("#info-about").show();
+    setAboutLabel();
   }
 
   if (activeChatInfo === null) {
@@ -85,6 +85,15 @@ $(document).ready(function() {
       }
     }
 });
+
+function setAboutLabel() {
+  var $infoAbout = $("#info-about");
+  $infoAbout.show();
+  if (activeChatInfo.channelId != null)
+    $infoAbout.html("About Channel");
+  else if (activeChatInfo.name != null)
+    $infoAbout.html("About User");
+}
 
 function doSearch(params) {
   if (params["top-search"] === undefined) {

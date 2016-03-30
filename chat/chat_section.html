@@ -30,7 +30,7 @@
         <button data-toggle="dropdown" type="button" class="btn dropdown-toggle"><i class="fa fa-plus"></i></button>
         <ul class="dropdown-menu" style="top: inherit; bottom: 56px;">
           <li><a href="#" id="fileupload-btn">Upload file</a></li>
-          <li><a href="#" id="capture-btn">Screen capture</a></li>
+          <!--<li><a href="#" id="capture-btn">Screen capture</a></li>-->
         </ul>
       </div>
       <textarea rows="3" maxlength="2048" class="form-control chat-textarea" id="message-input" placeholder="Enter message text"></textarea>
@@ -228,13 +228,13 @@ $(document).ready(function() {
     });
 
     hideChattingAlram(topic); // init Alram
-    setHearderTitle(chatRoomName);
 
     // mention list에서 사용 될 사용자 설정
     var chatType = getChatType(topic);
     if(chatType === constants.CHANNEL_CHAT) {
       var channelValue = channelCache.get(activeChatInfo.channelId);
       var members = []; // for mention
+      chatRoomName = activeChatInfo.topic;
       for(var key in channelValue.memberList) {
         var userValue = userCache.get(channelValue.memberList[key].emplId);
 
@@ -257,6 +257,7 @@ $(document).ready(function() {
       $mentionText.mention("updateUsers", members);
     }
 
+    setHearderTitle(chatRoomName);
     var messageArray = myMessage.getAllChatMessage(activeChatInfo.topic); // get previous messages
     if(messageArray) {
       _displayMessages(constants.MESSAGE_TYPE_APPEND, messageArray);
