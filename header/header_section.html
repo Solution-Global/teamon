@@ -21,7 +21,7 @@
     <ul class="dropdown-menu dropdown-user">
       <li><a href="#" id="info-about">About...</a></li>
       <li><a href="#" id="info-file">Files</a></li>
-      <li><a href="#">Help</a></li>
+      <!--<li><a href="#">Help</a></li>00-->
     </ul>
   </li>
 </ul>
@@ -50,9 +50,9 @@ $(document).ready(function() {
   $("#info-about").click(function() {
     setInfoSectionFlag(true);
     if (activeChatInfo.channelId != null)
-      showInformationArea("about_channel.html");
+      showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
     else if (activeChatInfo.name != null)
-      showInformationArea("about_user.html");
+      showInformationArea(constants.INFO_AREA_ABOUT_USER);
   })
 
   $("#info-file").click(function() {

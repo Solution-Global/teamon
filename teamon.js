@@ -21,6 +21,7 @@ autosize = require('autosize');
 trayModule = null;
 myWindow = null;
 infoSectionFlag = true;
+timerListForLastMsg = []; // lastMsgId를 관리하기 위한 Tiver Event의 ID를 저장하는 global 변수
 
 function initialize(){
   if(window && window.process && window.process.type) {
@@ -98,6 +99,39 @@ function initLoginStatus() {
     openModalDialog("/user/login_popup.html", dialogOptions);
   }
 }
+
+
+runTimerForSetLastMsgId = function(topic, chatId) {
+  console.info("runTimerForSetLastMsgId topic %s, chatId %s", topic, chatId);
+  clearTimeout(timerListForLastMsg[topic]); // 기존 timer 삭제 후 초기화
+  timerListForLastMsg[topic] = setTimeout(function() {shareLastMsgId(topic,chatId);}, constants.LAST_MST_ID_TIMER_INTERVAL);
+};
+
+shareLastMsgId = function(topic, chatId) {
+  console.info("shareLastMsgId topic %s, chatId %s", topic, chatId);
+  var params = {
+    "lastMsgId": chatId,
+    "topic": topic,
+    "emplId": loginInfo.emplId
+  };
+  if(chatId) {
+    restResource.chat.updateLastMsg(params);
+    myMessage.setLastReadMessageId(topic, chatId);
+    chatModule.sendLastMsgId(topic, chatId);
+  }
+
+  delete timerListForLastMsg[topic]; //
+};
+
+handleLastMsgId = function(payload) {
+  console.info("handleLastMsgId payload %s", JSON.stringify(payload));
+
+  if(loginInfo.emplId === payload.senderId) {
+    var localLastMstId = myMessage.getLastReadMessageId(payload.topic);
+    if(localLastMstId && localLastMstId < payload.lastMsgId)
+      myMessage.setLastReadMessageId(payload.topic, payload.lastMsgId);
+  }
+};
 
 handleCommand = function(receiver, commandPayload) {
   console.info("handleCommand information %s, %s", receiver, commandPayload.toString());

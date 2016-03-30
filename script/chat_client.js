@@ -88,7 +88,7 @@ var chat = (function() {
     console.log('_mqttConnected! topicArray:%s', topicArray.toString());
     subscribe(topicArray);
 
-    _sendPresenceConnectionStatus(constants.TOPIC_PRESENCE_ONLINE, constants.PRESENCE_STATUS_OFFLINE);
+    _sendPresenceConnectionStatus(constants.TOPIC_PRESENCE_ONLINE, constants.PRESENCE_STATUS_ONLINE);
   }
 
   function _mqttReceived(topic, payload) {
@@ -114,7 +114,12 @@ var chat = (function() {
           payload.topic = topicArray[4];
         }
 
-        handleMsg(payload);
+        if(payload.lastMsgId) {
+          handleLastMsgId(payload);
+        } else {
+          handleMsg(payload);
+        }
+
         break;
       case constants.TOPIC_PRESENCE:
         if(topic === constants.TOPIC_PRESENCE_ONLINE || topic === constants.TOPIC_PRESENCE_OFFLINE)
@@ -130,38 +135,39 @@ var chat = (function() {
     }
   }
 
-  function _publishMsg(data, params) {
-    var msgPayload = {
+  function _publishChattingMessage(data, params){
+    var payload = {
       senderId: params.emplId,
       chatId: data.chatId,
       creTime: data.time,
       msg: params.msg
     };
 
-    var msgPayloadStr = JSON.stringify(msgPayload);
-    var chatType = getChatType(params.topic);
+    _publishMsg(params.topic, payload);
+  }
+
+  function _publishMsg(topic, payload) {
+    var payloadStr = JSON.stringify(payload);
+    var chatType = getChatType(topic);
     var prefixParmas = {
       "chatType" : chatType,
-      "topic" : params.topic
+      "topic" : topic
     };
 
     var topicPrefix = _getTopicPrefix(constants.TOPIC_MSG, prefixParmas);
     if (chatType === constants.DIRECT_CHAT) {
-      var topicEmplIds = params.topic.split("_");
+      var topicEmplIds = topic.split("_");
       var receiverId;
-      if (params.emplId == Number(topicEmplIds[0]))
+      if (clientChatInfo.emplId == Number(topicEmplIds[0]))
         receiverId = Number(topicEmplIds[1]);
       else
         receiverId = Number(topicEmplIds[0]);
 
-      topicPrefix = topicPrefix.replace("{peer}", receiverId);
-
-      // 자신 화면에  Display
-      msgPayload.topic = params.topic;
-      handleMsg(msgPayload);
+      clientChatInfo.client.publish(topicPrefix.replace("{peer}", receiverId), payloadStr); // 상대방 전송
+      clientChatInfo.client.publish(topicPrefix.replace("{peer}", clientChatInfo.emplId), payloadStr); // 본인 전송
+    } else {
+      clientChatInfo.client.publish(topicPrefix, payloadStr); // msg 전송
     }
-
-    clientChatInfo.client.publish(topicPrefix, msgPayloadStr); // msg 전송
   }
 
   function _sendPresenceConnectionStatus(topic, presenceStatus) {
@@ -195,7 +201,16 @@ var chat = (function() {
       "msg": msg
     };
 
-    restResource.chat.postMsg(params, _publishMsg);
+    restResource.chat.postMsg(params, _publishChattingMessage);
+  }
+
+  function sendLastMsgId(topic, lastMsgId) {
+    var payload = {
+      "senderId": clientChatInfo.emplId,
+      "lastMsgId": lastMsgId
+    };
+
+    _publishMsg(topic, payload);
   }
 
   function finalize() {
@@ -208,6 +223,7 @@ var chat = (function() {
     "sendMsg": sendMsg,
     "sendCommand": sendCommand,
     "sendPresenceState": sendPresenceState,
+    "sendLastMsgId" : sendLastMsgId,
     "subscribe" : subscribe,
     "unsubscribe" : unsubscribe,
     "finalize": finalize

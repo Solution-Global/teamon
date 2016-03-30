@@ -13,6 +13,7 @@
     this.$menu = $(this.options.menu)
     this.shown = false
     this.listen()
+    this.isApplyKeyDown = false;
   }
 
   Metion.prototype = {
@@ -50,7 +51,8 @@
 
   , show: function () {
       // 처음 한번만
-      if (this.eventSupported('keydown')) {
+      if (!this.isApplyKeyDown) {
+        this.isApplyKeyDown = true;
         this.$element.on('keydown', $.proxy(this.keydown, this))
       }
 
@@ -140,8 +142,6 @@
               //     usernames = (this.query.toLowerCase()).match(new RegExp(this.options.firstDelimiter + '\\w+', "g")),
               //     j;
               //
-              // console.log("[item] %s [this.query] %s [usernames] %s ", item, this.query, usernames);
-              // console.log(usernames);
               // if ( !! usernames) {
               //     for (j = 0; j < usernames.length; j++) {
               //
@@ -270,15 +270,6 @@
         .on('click', $.proxy(this.click, this))
         .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
         .on('mouseleave', 'li', $.proxy(this.mouseleave, this))
-    }
-
-  , eventSupported: function(eventName) {
-      var isSupported = eventName in this.$element
-      if (!isSupported) {
-        this.$element.setAttribute(eventName, 'return;')
-        isSupported = typeof this.$element[eventName] === 'function'
-      }
-      return isSupported
     }
 
   , move: function (e) {
