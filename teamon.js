@@ -126,10 +126,13 @@ shareLastMsgId = function(topic, chatId) {
 handleLastMsgId = function(payload) {
   console.info("handleLastMsgId payload %s", JSON.stringify(payload));
 
+  // 멀티 로그인을 고려하여 같이 기종의 alarm count를 초기화 하기 위해서 필요
   if(loginInfo.emplId === payload.senderId) {
     var localLastMstId = myMessage.getLastReadMessageId(payload.topic);
-    if(localLastMstId && localLastMstId < payload.lastMsgId)
+    if(localLastMstId && localLastMstId < payload.lastMsgId) {
       myMessage.setLastReadMessageId(payload.topic, payload.lastMsgId);
+      hideChattingAlram(payload.topic);
+    }
   }
 };
 

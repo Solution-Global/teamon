@@ -22,6 +22,14 @@
           </span>
         </div>
       </script>
+      <!-- // unread-template -->
+      <script id="unread-template" type="text/template">
+        <div class="date_line">
+          <span>
+            <h1>여기까지 읽으셨습니다.</h1>
+          </span>
+        </div>
+      </script>
     </div>
   </div>
   <div class="ibox-footer chat-input nopadding">
@@ -44,6 +52,7 @@ $(document).ready(function() {
   var $inputText = $chatSec.find('#message-input');
   var msgTemplate = $('#msg-template').html();
   var dateLineTemplate = $('#dateline-template').html();
+  var unReadTemplate = $('#unread-template').html();
   var currentHeight = 60; // default
 
   $('textarea').each(function(){
@@ -168,12 +177,19 @@ $(document).ready(function() {
 
   var _displayMessages = function(type, value) {
     var messageTags = $mcsbContainer.find(".chat-message");
+    var lastChatMsgId = myMessage.getLastReadMessageId(activeChatInfo.topic);
+    var isDisplayUnreadTag = false;
 
     if(Array.isArray(value) && value.length > 0) {
       var messageArray = value.slice(0);
       if(constants.MESSAGE_TYPE_APPEND === type) {
         for (var key = 0; key < messageArray.length; key++) {
           messageArray[key] = dispalyMessageFormat(messageArray[key]);
+
+          if(key != 0 && !isDisplayUnreadTag && lastChatMsgId && lastChatMsgId < messageArray[key].chatId) {
+            $mcsbContainer.append(unReadTemplate);
+            isDisplayUnreadTag = true;
+          }
 
           if(messageArray[key - 1] && messageArray[key - 1].date != messageArray[key].date) {
             $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : messageArray[key].date}));
@@ -258,9 +274,11 @@ $(document).ready(function() {
     }
 
     setHearderTitle(chatRoomName);
-    var messageArray = myMessage.getAllChatMessage(activeChatInfo.topic); // get previous messages
+    var messageArray = myMessage.getAllChatMessage(activeChatInfo.topic);
     if(messageArray) {
       _displayMessages(constants.MESSAGE_TYPE_APPEND, messageArray);
+      shareLastMsgId(activeChatInfo.topic, messageArray[messageArray.length-1].chatId); // 내가 읽은 LAST MSG ID 공유 필요
+
     }
   };
 

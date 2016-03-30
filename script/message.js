@@ -31,28 +31,60 @@ var message = (function(storageManager, myPref) {
   var cacheFirstMsgId = new cacheManager();
 
   function syncChatMessage(chatType, targetArray) {
-    var restFunction = function(msgData, callBackRequiredValues) {
-      if (msgData.length > 0) {
-        var messageArray = [];
-        $.each(msgData, function(idx, msgRow) {
-          var message = {
-            senderId: msgRow.senderId,
-            chatId: msgRow.chatId,
-            creTime: msgRow.creTime,
-            msg: msgRow.msg
-          };
-          messageArray.push(message);
-        });
-        _appendMessageArray(messageArray, callBackRequiredValues.topic);
-      }
+    var restPrams = {
+      "teamId": myPref.teamId,
+      "emplId": myPref.emplId
+    };
+
+    var lastMsgIdArr = [];
+    var localMessageList = {};
+    var restFunction = function(msgData) {
+      $.each( msgData, function(idx, msgObject) {
+        var topic = msgObject.topic;
+        setLastReadMessageId(topic, msgObject.lastMsgId);
+
+        if(msgObject.messageList && msgObject.messageList.length > 0) {
+          var messageArray = localMessageList[topic];
+          if(!messageArray)
+            messageArray = [];
+
+          var unReadMsgCnt = 0;
+          $.each(msgObject.messageList, function(idx, msgRow) {
+            var message = {
+              senderId: msgRow.senderId,
+              chatId: msgRow.chatId,
+              creTime: msgRow.creTime,
+              msg: msgRow.msg
+            }; // LocalStorage 저장될 포맷으로 Object 생성
+            messageArray.push(message);
+
+            if(msgObject.lastMsgId < msgRow.chatId)
+              unReadMsgCnt++;
+          });
+
+          var messageArrayLength = messageArray.length;
+          if(unReadMsgCnt < constants.COMMON_SEARCH_COUNT) {
+            if(messageArrayLength > constants.COMMON_SEARCH_COUNT) {
+              _appendMessageArray(messageArray.slice(messageArrayLength-constants.COMMON_SEARCH_COUNT, messageArrayLength), topic); // 항상 최대 검색 갯수만 LocalStorage에 저장한다.
+            } else {
+              _appendMessageArray(messageArray, topic);
+            }
+          } else {
+            if(messageArrayLength > (constants.COMMON_SEARCH_COUNT + 5)) {
+              _appendMessageArray(messageArray.slice(messageArrayLength-(constants.COMMON_SEARCH_COUNT + 5), messageArrayLength), topic); // unReadMsgCnt기준의 이전메시지 5개 이상정도 더 보여준다.
+            } else {
+              _appendMessageArray(messageArray, topic);
+            }
+          }
+
+          if(unReadMsgCnt > 0)
+            setChattingAlarmCnt(topic, unReadMsgCnt);
+        }
+      });
     };
 
     for(var key in targetArray) {
       var topic;
-      var restPrams = {
-        "teamId": myPref.teamId,
-        "emplId": myPref.emplId
-      };
 
       if(constants.DIRECT_CHAT === chatType) {
         if(myPref.emplId === targetArray[key].emplId)
@@ -61,9 +93,23 @@ var message = (function(storageManager, myPref) {
       } else {
         topic = targetArray[key].name;
       }
-      restPrams.topic = topic;
-      restResource.chat.getListByCondition(restPrams, {"topic" : topic}, restFunction);
+
+      var messagesStr = _readAll(KEY_TYPE_CHAT_MESSAGES, topic);
+      var LastMsgIdObj = {
+        "topic" : topic
+      };
+
+      if (messagesStr) {
+        var messagesObj=  JSON.parse(messagesStr);
+        localMessageList[topic] = messagesObj;
+        LastMsgIdObj.lastMsgId = messagesObj[messagesObj.length -1].chatId;
+      }
+
+      lastMsgIdArr.push(LastMsgIdObj);
     }
+
+    restPrams.condition = JSON.stringify(lastMsgIdArr);
+    restResource.chat.getListForSync(restPrams, restFunction);
   }
 
   // Local Stroage 저장된 파일에서 과거 메시지 가져와 local storage에 저장
@@ -153,8 +199,6 @@ var message = (function(storageManager, myPref) {
   function _appendMessageArray(value, topic) {
     cacheFirstMsgId.set(topic, value[0].chatId);
 
-    // setLastReadMessageId : 추후 수정
-    setLastReadMessageId(topic, value[value.length-1].chatId );
     _writeAll(KEY_TYPE_CHAT_MESSAGES, JSON.stringify(value), topic);
   }
 
