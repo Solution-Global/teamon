@@ -5,6 +5,16 @@ function define(name, value) {
     });
 }
 
+// [Software Update]
+var SOFTWARE_UPDATE_IP_DEV = "http://192.168.1.164";
+var SOFTWARE_UPDATE_IP_PROD = "http://211.253.26.248";
+var SOFTWARE_UPDATE_PORT = 8010;
+define("SOFTWARE_UPDATE_PORT", SOFTWARE_UPDATE_PORT);
+define("SOFTWARE_UPDATE_URL_BASE_DEV", SOFTWARE_UPDATE_IP_DEV + ":" + SOFTWARE_UPDATE_PORT);
+define("SOFTWARE_UPDATE_URL_BASE_PROD", SOFTWARE_UPDATE_IP_PROD + ":" + SOFTWARE_UPDATE_PORT);
+define("SOFTWARE_UPDATE_URL_PATH_LATEST", "/updates/latest");
+define("SOFTWARE_UPDATE_URL_PATH_RELEASE", "/updates/releases");
+
 // [Common]
 define("APP_NAME", "TeamOn");
 define("CHANNEL_WEB", "WEB");
