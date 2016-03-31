@@ -44,6 +44,11 @@ $(document).ready(function() {
       $("#information-section").find(".file-list ul").append(Mustache.render($("#filelist-template").html(), this));
     });
   });
+
+  $("#information-section").find(".file-list").mCustomScrollbar({
+    axis:"y",
+    theme:"inset-2-dark"
+  });
 });
 
 function deleteFile(fileItem, teamId, emplId, channel, fileName) {
