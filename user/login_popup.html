@@ -49,6 +49,7 @@ $(document).ready(function() {
 		var os = uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : "");
 		var browser = uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : "");
 		var device = uaParser.getDevice().model == undefined ? "" : uaParser.getDevice().model;
+		var imageUrl;
 
 		var params = $(this).serializeObject();
 		params.team = "uangel";
@@ -74,6 +75,7 @@ $(document).ready(function() {
 				"device": device,
 				"photoLoc": data.photoLoc
 	    };
+			imageUrl = constants.IMAGE_URL + data.photoLoc + "?teamId=" + data.teamId + "&topic=profile_image&emplId=" + data.emplId + "&type=profile";
 
 			if(isAlreadyLogin) {
 				// logout 후 login 시도
@@ -81,7 +83,7 @@ $(document).ready(function() {
 				//     chatSection.reloadSection();
 				//     callSection.reloadSection();
 				//     headerSection.realodSection();
-				chatModule.finalize();
+				//chatModule.finalize();
 			} else {
 				// 처음 login 시도
 				initAPI(); // init API
@@ -100,7 +102,7 @@ $(document).ready(function() {
 	    myPreference.setPreference("authKey", data.authKey);
 	    myPreference.setPreference("emplId", data.emplId);
 			myPreference.setPreference("name", data.name);
-			myPreference.setPreference("photoLoc", data.photoLoc);
+			myPreference.setPreference("photoLoc", imageUrl);
 
 			sessionStorageManager.setValue("sessionEmplId", data.emplId);
 

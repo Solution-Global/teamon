@@ -18,7 +18,7 @@ var	dropzone = new Dropzone("#fileupload-form", {
     parallelUploads: 10,
     maxFiles: 10,
 		url: constants.UPLOAD_URL + loginInfo.teamId + "/profile_image/" + loginInfo.emplId + "/profile",
-		//url: constants.UPLOAD_URL + loginInfo.teamId + "/" + activeChatInfo.topic + "/" + loginInfo.emplId,
+
     // Dropzone settings
     init: function() {
         var myDropzone = this;
@@ -34,31 +34,22 @@ var	dropzone = new Dropzone("#fileupload-form", {
 					$("#submit-fileupload").closest(".modal-dialog").closest(".modal").modal("hide");
           var fileNames = "";
           $.each(files, function(idx) {
-						console.log('response[idx].name : ' + files[idx].name);
 						var fileArr = files[idx].name.split('.');
-						console.log('File extension : ' + fileArr[1]);
-
-						var fileUrl = constants.IMAGE_URL + "profile_image/?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + myPreference.getPreference("emplId") + "&type=profile";
-						console.log('fileUrl : ' + fileUrl);
-
+						var fileUrl = constants.IMAGE_URL + loginInfo.emplId + '.' + fileArr[1] + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId + "&type=profile";
 						var params = $(this).serializeObject();
 						params.emplId = loginInfo.emplId;
 						params.photoLoc = loginInfo.emplId + '.' + fileArr[1];
+						myPreference.setPreference("photoLoc", fileUrl);
 
 						restResource.empl.changeProfileImg(params,
 							function(data, response) {
 								// Success
-								myPreference.setPreference("photoLoc", params.photoLoc);
+								myPreference.setPreference("photoLoc", fileUrl);
 								loginInfo.photoLoc = params.photoLoc;
-								$("#user-profile img.chat-avatar").attr("src", constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId);
+								$("#user-profile img.chat-avatar").attr("src", fileUrl + "&timestamp=" + new Date().getTime());
 								toastr.info("Your profile image has been modified successfully");
 						});
-
-						//var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + activeChatInfo.topic + "&emplId=" + loginInfo.emplId;
-            //fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
           });
-
-          //chatSection.sendMsg("Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
         });
         this.on("errormultiple", function(files, response) {
         });

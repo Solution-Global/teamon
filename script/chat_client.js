@@ -213,8 +213,11 @@ var chat = (function() {
     _publishMsg(topic, payload);
   }
 
-  function finalize() {
+  function logoutPublish() {
     _sendPresenceConnectionStatus(constants.TOPIC_PRESENCE_OFFLINE, constants.PRESENCE_STATUS_OFFLINE);
+  }
+
+  function finalize() {
     clientChatInfo.client.end();
   }
 
@@ -226,6 +229,7 @@ var chat = (function() {
     "sendLastMsgId" : sendLastMsgId,
     "subscribe" : subscribe,
     "unsubscribe" : unsubscribe,
+    "logoutPublish" : logoutPublish,
     "finalize": finalize
   };
 })();

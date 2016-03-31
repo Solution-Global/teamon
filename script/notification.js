@@ -8,6 +8,10 @@ var noti = (function() {
   var audio = new Audio('./sound/alarm.wav');
 
   function handleNotification (msgPayload) {
+    if(msgPayload.senderId === loginInfo.emplId) {
+      return;
+    }
+
     var userValue = userCache.get(msgPayload.senderId);
 
     notiTitle = "New message form " + userValue.name;
