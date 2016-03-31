@@ -39,6 +39,7 @@ $(document).ready(function() {
 
   if (activeChatInfo === null) {
      $("#info-about").hide();
+     $("#info-file").hide();
   }
 
   //bind events
@@ -89,6 +90,8 @@ $(document).ready(function() {
 function setAboutLabel() {
   var $infoAbout = $("#info-about");
   $infoAbout.show();
+  $("#info-file").show();
+
   if (activeChatInfo.channelId != null)
     $infoAbout.html("About Channel");
   else if (activeChatInfo.name != null)
