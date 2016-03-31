@@ -7,15 +7,11 @@
       </a>
     </div>
   </div>
-</div>
-<div id="search-list">
-  <div class="ibox-content">
-    <div class="content_area">
-      <!-- // search-msg-template -->
-      <div class="hr-line-dashed"></div>
+  <div class="ibox-content nopadding search-list">
+    <ul>
       <input type="hidden" name="hidden-keyword" value=""/>
-      <script id="search-msg-template" type="text/template">
-        <a id="chat-room-name" href="#">{{chatRoomName}}</a>
+      <script id="searchlist-template" type="text/template">
+        <a id="chat-room-name" href="#" style="padding-left: 15px;">{{chatRoomName}}</a>
         <div id="chat-{{chatId}}" class="chat-message left" data-date="{{date}}">
           <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}" style="float: left; margin-right: 10px;">
           <div class="message" style="text-align: left; margin-left: 55px;">
@@ -32,14 +28,13 @@
         </div>
         <div class="hr-line-dashed"></div>
       </script>
-    </div>
+    </ul>
   </div>
 </div>
 <script>
 $(document).ready(function() {
   var $informationSec = $("#information-section");
-  var $contentArea = $informationSec.find(".content_area");
-  $contentArea.on("click", "#chat-room-name", function(event) {
+  $("#information-section").find(".search-list ul").on("click", "#chat-room-name", function(event) {
     event.preventDefault();
     var topic = $(this).next().nameFind("hidden-topic").val();
     var chatType = getChatType(topic);
@@ -73,9 +68,8 @@ $(document).ready(function() {
     scrollToMessage(chatId, topic);
   });
 
-  $informationSec.find(".ibox-content").mCustomScrollbar({
+  $informationSec.find(".search-list").mCustomScrollbar({
     axis:"y",
-  	setWidth: "auto",
     theme:"inset-2-dark",
     callbacks:{
       onTotalScroll:function(){
@@ -101,8 +95,8 @@ function doScrollSearch() {
 
   restResource.chat.getListByKeyword(params, function(data) {
     var $informationSec = $("#information-section");
-    var $contentArea = $informationSec.find(".content_area");
-    var searchMsgTemplate = $informationSec.find("#search-msg-template").html();
+    var $searchListArea = $("#information-section").find(".search-list ul");
+    var searchMsgTemplate = $informationSec.find("#searchlist-template").html();
 
     if (data != null && data.length > 0) {
       $.each(data, function(idx, message) {
@@ -156,13 +150,13 @@ function doScrollSearch() {
           "emplId": emplId
         };
 
-        $contentArea.append(Mustache.render(searchMsgTemplate, messageData));
+        $searchListArea.append(Mustache.render(searchMsgTemplate, messageData));
       });
     } else {
-      if ($contentArea.find("#return-msg").length) {
-        $contentArea.find("#return-msg").remove();
+      if ($searchListArea.find("#return-msg").length) {
+        $searchListArea.find("#return-msg").remove();
       }
-      $contentArea.append("<div id='return-msg' style='text-align: center;'><span>No more messages found</span></div>");
+      $searchListArea.append("<div id='return-msg' style='text-align: center;'><span>No more messages found</span></div>");
     }
   });
 }

@@ -103,8 +103,8 @@ function doSearch(params) {
 
   restResource.chat.getListByKeyword(params, function(data) {
     var $informationSec = $("#information-section");
-    var $contentArea = $informationSec.find(".content_area");
-    var searchMsgTemplate = $informationSec.find("#search-msg-template").html();
+    var $searchListArea = $informationSec.find(".search-list ul");
+    var searchListTemplate = $informationSec.find("#searchlist-template").html();
 
     if (data != null && data.length > 0) {
       $.each(data, function(idx, message) {
@@ -158,13 +158,13 @@ function doSearch(params) {
           "emplId": emplId
         };
 
-        $contentArea.append(Mustache.render(searchMsgTemplate, messageData));
+        $searchListArea.append(Mustache.render(searchListTemplate, messageData));
       });
     } else {
-      $contentArea.append("<div style='text-align: center;'><span>No messages found</span></div>")
+      $searchListArea.append("<div style='text-align: center;'><span>No messages found</span></div>")
     }
 
-    $informationSec.nameFind("hidden-keyword").val(params["top-search"]);
+    $searchListArea.nameFind("hidden-keyword").val(params["top-search"]);
   });
 
   setInfoSectionFlag(true);
