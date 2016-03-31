@@ -162,7 +162,18 @@ function Janus(gatewayCallbacks) {
 	}
 	var iceServers = gatewayCallbacks.iceServers;
 	if(iceServers === undefined || iceServers === null)
-		iceServers = [{"url": "stun:stun.l.google.com:19302"}];
+	{
+		iceServers = [
+		  {
+		    "url": "stun:211.253.26.248:3478"
+		  },
+		  {
+		    "url": "turn:211.253.26.248:3478?transport=udp",
+		    "credential": "0x714fea5120dbbf68ce7e5ee48e0bd8dd",
+		    "username": "test"
+		  }
+		];
+	}
 	// Whether IPv6 candidates should be gathered
 	var ipv6Support = gatewayCallbacks.ipv6;
 	if(ipv6Support === undefined || ipv6Support === null)
