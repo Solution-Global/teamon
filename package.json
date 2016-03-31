@@ -1,7 +1,7 @@
 {
-  "name": "teamon",
-  "productName": "teamon",
-  "version": "0.0.1",
+  "name": "TeamON",
+  "productName": "TeamON",
+  "version": "0.1.0",
   "description": "Team ON",
   "main": "teamon.js",
   "repository": {
@@ -17,9 +17,9 @@
     "clean": "npm run clean:win",
     "pack": "npm run pack:win",
     "clean:win": "rm -rf release/win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --version-string.ProductName=teamon --overwrite",
+    "pack:win": "npm run clean:win && electron-packager . TeamON --out=release/win --platform=win32 --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --version-string.ProductName=TeamON --overwrite",
     "clean:osx": "rm -rf release/osx",
-    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore='node_modules/.bin/(asar|electron.*)' --overwrite",
+    "pack:osx": "npm run clean:osx && electron-packager . TeamON --out=release/osx --platform=darwin --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore='node_modules/.bin/(asar|electron.*)' --overwrite",
     "build:osx": "npm run pack:osx && electron-builder release/osx/teamon-osx --platform=osx --out=release/osx --config=packager.json"
   },
   "author": "Solution-Global",
