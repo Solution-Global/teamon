@@ -1,15 +1,26 @@
 {
-  "name": "teamon",
-  "version": "1.0.0",
+  "name": "TeamON",
+  "productName": "TeamON",
+  "version": "0.1.0",
   "description": "Unified desktop app for team communications and collaborations.",
   "main": "script/app.js",
   "scripts": {
     "app": "electron .",
-    "web": "node web/server.js"
+    "web": "node web/server.js",
+    "clean": "npm run clean:win",
+    "clean:win": "rm -rf release/win",
+    "clean:osx": "rm -rf release/osx",
+    "pack": "npm run pack:win",
+    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.37.3 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=logs --version-string.ProductName=TeamON --overwrite",
+    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore='node_modules/.bin/(asar|electron.*)' --ignore=logs --overwrite",
+    "build:osx": "npm run pack:osx && electron-builder release/osx/teamon-darwin-x64 --platform=osx --out=release/osx --config=packager.json"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Solution-Global/teamon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Solution-Global/teamon/issues"
   },
   "author": "Solution-Global",
   "license": "ISC",
@@ -30,14 +41,9 @@
     "connect": "3.4.1",
     "connect-proxy-layer": "0.1.2",
     "serve-static": "1.10.2",
-    "lz-string": "1.4.4",
     "morgan": "1.7.0",
-    "mqtt": "1.7.3",
     "file-stream-rotator": "0.0.6",
-    "moment": "2.12.0",
-    "moment-timezone": "0.5.1",
-    "font-awesome": ">=4.5.0",
-    "ua-parser-js": "0.7.10"
+    "grunt-electron-installer": "2.0.0"
   },
   "dependencies": {
     "bootstrap": "3.3.6",
@@ -49,6 +55,12 @@
     "node-notifier": "^4.5.0",
     "node-rest-client": "1.5.1",
     "app-root-path": "1.0.0",
-    "autosize": "3.0.15"
+    "lz-string": "1.4.4",
+    "mqtt": "1.7.3",
+    "moment": "2.12.0",
+    "moment-timezone": "0.5.1",
+    "font-awesome": ">=4.5.0",
+    "autosize": "3.0.15",
+    "ua-parser-js": "0.7.10"
   }
 }

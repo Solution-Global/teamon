@@ -24,6 +24,16 @@ module.exports = function(grunt) {
         },
       },
     },
+    'create-windows-installer': {
+      x64: {
+        appDirectory: './release/win/teamon-win32-x64',
+        outputDirectory: './release/win/installer64',
+        ext: 'teamon.exe',
+        iconUrl: 'http://http://211.253.26.248:8010/updates/releases/teamon.ico',
+        setupIcon: './assets/win/teamon.ico',
+        noMsi: true
+      }
+    }
     // copy: {
     //   all: {
     //     // This copies all the html and css into the dist/ folder
@@ -38,10 +48,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-electron-installer');
   //grunt.loadNpmTasks('grunt-contrib-copy');
 
   // The default tasks to run when you type: grunt
   // grunt.registerTask('default', ['jshint:all','browserify', 'copy']);
   grunt.registerTask('default', ['jshint:all','browserify', 'watch']);
   grunt.registerTask('once', ['jshint:all','browserify']);
+  grunt.registerTask('installer', ['create-windows-installer']);
 };

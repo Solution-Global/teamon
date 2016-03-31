@@ -53,20 +53,17 @@ $(document).ready(function() {
   var msgTemplate = $('#msg-template').html();
   var dateLineTemplate = $('#dateline-template').html();
   var unReadTemplate = $('#unread-template').html();
-  var currentHeight = 60; // default
 
   $('textarea').each(function(){
       autosize(this);
-  }).on('autosize:resized', function(){
-    var heightDiff = $inputText.height() - currentHeight;
-    currentHeight += heightDiff;
-    var newHeight = $contentArea.height() - heightDiff;
-    $('.content_area').height(newHeight);
+  }).on('autosize:resized', function() {
+      var inputTextHeight = $inputText.outerHeight();
+      $('.chat-messages').css('padding-bottom', inputTextHeight);
 
-    // if inputText value is empty, adjust textarea row value as default.
-    if ($inputText.val() == "") {
-      $('textarea').attr("rows", "3");
-    }
+      // if inputText value is empty, adjust textarea row value as default.
+      if ($inputText.val() == "") {
+        $('textarea').attr("rows", "3");
+      }
   });
 
   $inputText.on('keyup', function(event) {
@@ -153,10 +150,15 @@ $(document).ready(function() {
     var imagePath = "../img/profile_no.jpg";
 
     if(runningChannel === constants.CHANNEL_APP) {
-      imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
+      if (senderInfo.photoLoc != null) {
+        imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
+      }
+      else {
+        imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
+      }
     } else {
       if (senderInfo.photoLoc != null) {
-        imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId;
+        imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
       }
       else {
         imagePath = imagePath;
