@@ -82,27 +82,27 @@ $(document).ready(function() {
   var $channelArea = $catalogSec.find('.chat-channels');
 
   // set profile
-  var imgFile;
+  var imgPath;
   if(runningChannel === constants.CHANNEL_APP) {
     if (loginInfo.photoLoc != null) {
-      imgFile = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId;
+      imgPath = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId + "&type=profile";
     }
     else {
-      imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
+      imgPath = "file://" + path.join(__dirname, './img/profile_no.jpg');
     }
   } else {
     if (loginInfo.photoLoc != null) {
-      imgFile = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId;
+      imgPath = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId + "&type=profile";
     }
     else {
-      imgFile = "./img/profile_no.jpg";
+      imgPath = "./img/profile_no.jpg";
     }
   }
 
   var loginUserData = {
       "name" : loginInfo.name,
       "emplId": loginInfo.emplId,
-      "img": imgFile,
+      "img": imgPath,
       "imgAlt": loginInfo.name
   };
   $userProfile.append(Mustache.render(profileTemplate, loginUserData));
@@ -170,16 +170,20 @@ $(document).ready(function() {
         if (row.emplId === loginInfo.emplId)
           return;
 
-        // img file (TODO 이후 사용자 이미지를 서버에 저장할 경우 photoLoc 정보를 이용하여 서버에서 가져와 로컬에 저장)
-        var imgFile;
+        var imgPath;
         if(runningChannel === constants.CHANNEL_APP) {
-            imgFile = "file://" + path.join(__dirname, './img/profile_no.jpg');
-        } else {
           if (row.photoLoc != null) {
-            imgFile = constants.IMAGE_URL + row.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + row.emplId;
+            imgPath = constants.IMAGE_URL + row.photoLoc + "?teamId=" + row.teamId + "&topic=profile_image&emplId=" + row.emplId + "&type=profile";
           }
           else {
-            imgFile = "./img/profile_no.jpg";
+            imgPath = "file://" + path.join(__dirname, './img/profile_no.jpg');
+          }
+        } else {
+          if (row.photoLoc != null) {
+            imgPath = constants.IMAGE_URL + row.photoLoc + "?teamId=" + row.teamId + "&topic=profile_image&emplId=" + row.emplId + "&type=profile";
+          }
+          else {
+            imgPath = "./img/profile_no.jpg";
           }
         }
 
@@ -187,7 +191,7 @@ $(document).ready(function() {
             "topic" : generateTopic(loginInfo.emplId, row.emplId),
             "name" : row.name,
             "emplId": row.emplId,
-            "img": imgFile,
+            "img": imgPath,
             "imgAlt": row.name
         };
         $userListContext.append(Mustache.render(userTemplate, userData));

@@ -112,10 +112,15 @@ function doScrollSearch() {
           sender = senderInfo.name;
         var imagePath = "../img/profile_no.jpg";
         if(runningChannel === constants.CHANNEL_APP) {
-          imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
+          if (senderInfo.photoLoc != null) {
+            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
+          }
+          else {
+            imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
+          }
         } else {
           if (senderInfo.photoLoc != null) {
-            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId;
+            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
           }
           else {
             imagePath = imagePath;
