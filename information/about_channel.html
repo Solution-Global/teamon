@@ -1,4 +1,4 @@
-<div class="ibox nopadding">
+<div class="ibox nopadding" style="height: 100%;">
   <div class="ibox-title">
     <h5 class="title"></h5>
     <div class="ibox-tools">
@@ -8,7 +8,7 @@
     </div>
   </div>
 </div>
-<div class="ibox-content">
+<div class="ibox-content infromation-list">
   <div class="content_area">
     <script id="aboutChannel-template" type="text/template">
       <!--
@@ -19,8 +19,8 @@
           {{pinupMessage}}
          </p>
       </div>
-      -->
       <div class="hr-line-dashed"></div>
+      -->
       <div>
          <h4><i class="fa fa-users fa-lg text-primary"></i> {{memberCount}} Members <a href="#"><span id="onInviteChannelModal" class="label label-info pull-right">ADD</span></a></h4>
          <ul class="members category-list nopadding">
@@ -68,11 +68,17 @@ $(document).ready(function() {
 
   for(var key in membersArray) {
     var userValue = userCache.get(membersArray[key]);
+
+    var imagePath = "./img/profile_no.jpg";
+    if (userValue.photoLoc != null) {
+      imagePath = constants.IMAGE_URL + userValue.photoLoc + "?teamId=" + userValue.teamId + "&topic=profile_image&emplId=" + userValue.emplId;
+    }
+
     aboutChannelData.members.push({
       "name" : userValue.name,
       "emplId" : userValue.emplId,
       "imgAlt" : userValue.name,
-      "img": "./img/profile_no.jpg",
+      "img": imagePath
     });
   }
 
@@ -116,8 +122,12 @@ $(document).ready(function() {
   displayChannelMember = function(members) {
     for(var key in members) {
       var userValue = userCache.get(members[key]);
-      var imgUrl = "./img/profile_no.jpg";
-      $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.name + "'>" + userValue.name + "</a></li>");
+      var imagePath = "./img/profile_no.jpg";
+      if (userValue.photoLoc != null) {
+        imagePath = constants.IMAGE_URL + userValue.photoLoc + "?teamId=" + userValue.teamId + "&topic=profile_image&emplId=" + userValue.emplId;
+      }
+
+      $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><span><img class='member-avatar' src='" + imagePath + "' alt='" + userValue.name + "'>" + userValue.name + "</span></li>");
     }
   }
 

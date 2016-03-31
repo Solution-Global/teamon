@@ -48,8 +48,8 @@ h1:after {
    margin-right: 0 !important;
 }
 .member-avatar {
-  white: 30px;
-  height: 30px;
+  white: 30px !important;;
+  height: 30px !important;;
   border-radius: 50%;
 	padding: 5px;
 }
@@ -611,13 +611,14 @@ li.active,
   transition: all 0.4s;
 }
 
-.file-list {
+.infromation-list {
 	top:50px;
 	left:0;
 	position: absolute;
 	width: 100%;
 	height: 100%;
 }
+
 .file-list ul {
  	padding: 5px 0;
  	height: 100%;
@@ -669,13 +670,6 @@ li.active,
 	right: 10px;
 }
 
-.mention-list {
-	top:50px;
-	left:0;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-}
 .mention-list ul {
 	padding: 5px 0;
 	height: 100%;
@@ -740,13 +734,6 @@ li.active,
 	margin-top: -15px;
 }
 
-.search-list {
-	top:50px;
-	left:0;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-}
 .search-list ul {
 	padding: 10px 0;
 	height: 100%;
