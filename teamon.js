@@ -29,6 +29,7 @@ function initialize(){
     runningChannel = constants.CHANNEL_APP;
     aplUrl = "http://192.168.1.164:7587/rest/";
     UPLOAD_URL = "http://192.168.1.164:7587/upload/";
+    IMAGE_URL= "http://192.168.1.164:8083/image/";
 
     trayModule = require('./script/tray_menu');
     trayModule.renderTrayIconMenu();
@@ -40,6 +41,7 @@ function initialize(){
     runningChannel = constants.CHANNEL_WEB;
     aplUrl = location.protocol + "//" + location.host + "/rest/";
     UPLOAD_URL = location.protocol + "//" + location.host + "/upload/";
+    IMAGE_URL= location.protocol + "//" + location.host + "/image/";
   }
 
   // declare global var
