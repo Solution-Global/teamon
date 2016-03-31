@@ -48,9 +48,16 @@ function initialize(){
   var storageManager = require('./script/storage/storage_manager'); // global var
   localStorageManager = storageManager("L", false);
   sessionStorageManager = storageManager("S", false);
-
+  commnonBindEvent();
   initAPI(); // 로그인전에 기본으로 사용할 API 초기화 설정
   initLoginStatus();
+}
+
+function commnonBindEvent() {
+  $("body").on("click", ".about-user", function() {
+    setInfoSectionFlag(true);
+    showInformationArea(constants.INFO_AREA_ABOUT_USER, {"emplId" : $(this).data("emplid")});
+  });
 }
 
 function initLoginStatus() {
@@ -100,6 +107,38 @@ function initLoginStatus() {
   }
 }
 
+initAPI = function() {
+  var emplRes = require("./script/rest/empl");
+  var loginRes = require("./script/rest/login");
+  var teamRes = require("./script/rest/team");
+
+  restResource = {}; // global var
+  var params = {
+      "url" : aplUrl,
+      "channel" :  runningChannel
+    };
+
+  if(loginInfo) {
+    var chatRes = require("./script/rest/chat");
+    var channelRes = require("./script/rest/channel");
+    var callHistoryRes = require("./script/rest/call_history");
+
+    params.authKey = loginInfo.authKey;
+    params.email = loginInfo.email;
+
+    restResource.empl =  new emplRes(params);
+    restResource.login = new loginRes(params);
+    restResource.team = new teamRes(params);
+    restResource.chat = new chatRes(params);
+    restResource.channel = new channelRes(params);
+    restResource.callHistory = new callHistoryRes(params);
+  } else {
+    // 로그인 전 개인 인증 AuthKey를 전달 하지 않는다.
+    restResource.empl =  new emplRes(params);
+    restResource.login = new loginRes(params);
+    restResource.team = new teamRes(params);
+  }
+};
 
 runTimerForSetLastMsgId = function(topic, chatId) {
   console.info("runTimerForSetLastMsgId topic %s, chatId %s", topic, chatId);
@@ -187,39 +226,6 @@ handleCommand = function(receiver, commandPayload) {
   }
 };
 
-initAPI = function() {
-  var emplRes = require("./script/rest/empl");
-  var loginRes = require("./script/rest/login");
-  var teamRes = require("./script/rest/team");
-
-  restResource = {}; // global var
-  var params = {
-      "url" : aplUrl,
-      "channel" :  runningChannel
-    };
-
-  if(loginInfo) {
-    var chatRes = require("./script/rest/chat");
-    var channelRes = require("./script/rest/channel");
-    var callHistoryRes = require("./script/rest/call_history");
-
-    params.authKey = loginInfo.authKey;
-    params.email = loginInfo.email;
-
-    restResource.empl =  new emplRes(params);
-    restResource.login = new loginRes(params);
-    restResource.team = new teamRes(params);
-    restResource.chat = new chatRes(params);
-    restResource.channel = new channelRes(params);
-    restResource.callHistory = new callHistoryRes(params);
-  } else {
-    // 로그인 전 개인 인증 AuthKey를 전달 하지 않는다.
-    restResource.empl =  new emplRes(params);
-    restResource.login = new loginRes(params);
-    restResource.team = new teamRes(params);
-  }
-};
-
 loadAllArea = function() {
   loadHtml("/chat/chat_section.html", $("#chat-section"));
   loadHtml("/catalog/catalog_section.html", $("#catalog-section"));
@@ -252,11 +258,10 @@ setInfoSectionFlag = function(flag) {
   infoSectionFlag = flag;
 };
 
-showInformationArea = function(fileName) {
-  if (infoSectionFlag)
-  {
+showInformationArea = function(fileName, sendingData) {
+  if (infoSectionFlag) {
     $("#information-section").html("");
-    loadHtml("/information/" + fileName, $("#information-section"));
+    loadHtml("/information/" + fileName, $("#information-section"), sendingData);
     $("#information-section").show();
     $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
       infoSectionFlag = false;
@@ -291,8 +296,6 @@ hideCallArea = function() {
 hideInformationArea = function() {
   $("#information-section").hide();
 };
-
-
 
 $(document).ready(function() {
   initialize();

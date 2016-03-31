@@ -6,7 +6,7 @@
         <div id="chat-{{chatId}}" class="chat-message {{mode}}" data-date="{{date}}">
           <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}">
           <div class="message">
-            <a class="message-author" href="#">{{sender}}</a>
+            <a class="about-user" data-emplid={{senderId}} href="#">{{sender}}</a>
             <span class="message-date">{{time}}</span>
             <span class="message-content">
               {{{msgText}}}
@@ -24,7 +24,7 @@
       </script>
       <!-- // unread-template -->
       <script id="unread-template" type="text/template">
-        <div class="date_line">
+        <div class="unread_line">
           <span>
             <h1>여기까지 읽으셨습니다.</h1>
           </span>
@@ -169,6 +169,7 @@ $(document).ready(function() {
       "img": imagePath,
       "imgAlt": sender,
       "sender": sender,
+      "senderId": params.senderId,
       "msgText": params.msg,
       "date": new Date(params.creTime).format("YYYY/MM/DD"),
       "time": new Date(params.creTime).format("A hh:mm")
@@ -189,6 +190,7 @@ $(document).ready(function() {
           if(key != 0 && !isDisplayUnreadTag && lastChatMsgId && lastChatMsgId < messageArray[key].chatId) {
             $mcsbContainer.append(unReadTemplate);
             isDisplayUnreadTag = true;
+            lastChatMsgId = messageArray[key-1]  ? messageArray[key-1].chatId : -1; // scroll 위치 이동을 위해 필요
           }
 
           if(messageArray[key - 1] && messageArray[key - 1].date != messageArray[key].date) {
@@ -196,7 +198,6 @@ $(document).ready(function() {
           }
           $mcsbContainer.append(Mustache.render(msgTemplate, messageArray[key]));
         }
-        $contentArea.mCustomScrollbar("scrollTo", "bottom");
       } else {
         // prepend mode
         var firstDate = messageTags ? messageTags.first().data("date") : undefined;
@@ -228,9 +229,13 @@ $(document).ready(function() {
         $contentArea.mCustomScrollbar("scrollTo", "bottom");
       }
     }
+
+    // unReadTag가 display 될 때 해당 메시지 이동을 위해 chatId return.
+    if(isDisplayUnreadTag)
+      return lastChatMsgId;
   };
 
-  changeChatView = function() {
+  changeChatView = function(isMovingScroll) {
     var topic = activeChatInfo.topic,
         chatRoomName = activeChatInfo.name;
 
@@ -240,6 +245,10 @@ $(document).ready(function() {
     });
 
     $.each($contentArea.find(".date_line"), function(idx, row) {
+      $(row).remove();
+    });
+
+    $.each($contentArea.find(".unread_line"), function(idx, row) {
       $(row).remove();
     });
 
@@ -276,9 +285,16 @@ $(document).ready(function() {
     setHearderTitle(chatRoomName);
     var messageArray = myMessage.getAllChatMessage(activeChatInfo.topic);
     if(messageArray) {
-      _displayMessages(constants.MESSAGE_TYPE_APPEND, messageArray);
+      var chatIdForMovingScroll = _displayMessages(constants.MESSAGE_TYPE_APPEND, messageArray);
       shareLastMsgId(activeChatInfo.topic, messageArray[messageArray.length-1].chatId); // 내가 읽은 LAST MSG ID 공유 필요
 
+      if(isMovingScroll) {
+        if(chatIdForMovingScroll) {
+          $contentArea.mCustomScrollbar("scrollTo", chatIdForMovingScroll > 0 ? "#chat-" + chatIdForMovingScroll : ".unread_line");
+        } else {
+          $contentArea.mCustomScrollbar("scrollTo", "bottom");
+        }
+      }
     }
   };
 
@@ -291,7 +307,7 @@ $(document).ready(function() {
 
       for(var key in channelValue.memberList) {
         var userValue = userCache.get(channelValue.memberList[key].emplId);
-        var replacingTargetTag = "<a class='mention-popup' href='#' data-emplid={emplid}>{name} </a>";
+        var replacingTargetTag = "<a class='about-user' href='#' data-emplid={emplid}>{name} </a>";
 
         if(msg.indexOf(constants.MENTION_FIRST_DELIMITER + userValue.name + constants.MENTION_LAST_DELIMITER) > -1)
         {

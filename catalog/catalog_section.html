@@ -107,7 +107,21 @@ $(document).ready(function() {
   };
   $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
-  var _activeChatView = function(activeChatInfo){
+  activeChatView = function($targetList, isMovingScroll){
+    $targetList.addClass("active");
+
+    var topic = $targetList.data("topic");
+    var chatType = getChatType(topic);
+    activeChatInfo = {
+      "topic" : topic
+    };
+    if(chatType === constants.DIRECT_CHAT) {
+      activeChatInfo.name = $targetList.data("name");
+      activeChatInfo.emplId = $targetList.data("emplid");
+    } else {
+      activeChatInfo.channelId = $targetList.data("channelid");
+    }
+
     $channelListContext.find("li.active").removeClass("active");
     $userListContext.find("li.active").removeClass("active");
 
@@ -128,32 +142,19 @@ $(document).ready(function() {
     }
 
     showChatArea();
-    changeChatView();
+    changeChatView(isMovingScroll);
   };
 
   // set event for direct chatting
   $userListContext.delegate("li", "click touchend", function() {
     var $targetList = $(this);
-    $targetList.addClass("active");
-    activeChatInfo = {
-      "topic" : $targetList.data("topic"),
-      "name" : $targetList.data("name"),
-      "emplId" : $targetList.data("emplid")
-    };
-
-    _activeChatView(activeChatInfo);
+    activeChatView($targetList, true);
   });
 
   // set event for group chatting
   $channelListContext.delegate("li", "click touchend", function() {
     var $targetList = $(this);
-    $targetList.addClass("active");
-    activeChatInfo = {
-      "topic" : $targetList.data("topic"),
-      "channelId" : $targetList.data("channelid")
-    };
-
-    _activeChatView(activeChatInfo);
+    activeChatView($targetList, true);
   });
 
   // init User List
@@ -256,7 +257,7 @@ $(document).ready(function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
     if(lastChatInfo) {
       lastChatInfo = JSON.parse(lastChatInfo);
-      var $activeTarget = _getActiveTarget(lastChatInfo.topic);
+      var $activeTarget = getSingleChattingContext(lastChatInfo.topic);
       $activeTarget.trigger("click");
     } else {
       // 마지막으로 저장된 chatting 정보가 없을 경우
@@ -267,10 +268,11 @@ $(document).ready(function() {
     }
   }
 
-  var _getActiveTarget = function (topic) {
-    if (getChatType(topic) === constants.DIRECT_CHAT)
+  getSingleChattingContext = function (topic) {
+    var chatType = getChatType(topic);
+    if (chatType === constants.DIRECT_CHAT)
       return $userListContext.find("[data-topic='" + topic + "']");
-    else
+    else if(chatType === constants.CHANNEL_CHAT)
       return $channelListContext.find("[data-topic='" + topic + "']");
   };
 
@@ -294,26 +296,25 @@ $(document).ready(function() {
   };
 
   hideChattingAlram = function(topic) {
-    var $activeTarget = _getActiveTarget(topic);
+    var $activeTarget = getSingleChattingContext(topic);
     var $alarmArea = $activeTarget.find(".alarm");
     $alarmArea.addClass("hide");
     $alarmArea.html("");
   };
 
   setChattingAlarmCnt = function (topic, alarmCnt) {
-    var $activeTarget = _getActiveTarget(topic);
+    var $activeTarget = getSingleChattingContext(topic);
     var $alarmArea = $activeTarget.find(".alarm");
+    var maxAlarmCntStr = constants.ALARM_MAX_COUNT + "+";
     if(!alarmCnt) {
       alarmCnt = $alarmArea.text();
-      if(alarmCnt) {
-        alarmCnt = Number(alarmCnt) + 1;
-      } else {
-        alarmCnt = 1;
+      if(alarmCnt != maxAlarmCntStr) {
+        alarmCnt = alarmCnt ? Number(alarmCnt) + 1 : 1;
       }
     }
 
     if(alarmCnt > constants.ALARM_MAX_COUNT)
-      alarmCnt = constants.ALARM_MAX_COUNT + "+";
+      alarmCnt = maxAlarmCntStr;
 
     $alarmArea.html(alarmCnt);
     $alarmArea.removeClass("hide");
@@ -365,7 +366,7 @@ $(document).ready(function() {
     }
 
     var topic = generateTopic(params.emplId, loginInfo.emplId)
-    var $activeTarget = _getActiveTarget(topic);
+    var $activeTarget = getSingleChattingContext(topic);
     var $profileImage = $activeTarget.find(".chat-avatar");
 
     if(params.status === constants.PRESENCE_STATUS_ONLINE) {

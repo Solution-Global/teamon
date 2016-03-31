@@ -55,7 +55,7 @@ $(document).ready(function() {
   var $title = $informationSec.find(".title");
   var $contentArea = $informationSec.find('.content_area');
 
-  var emplId = activeChatInfo.emplId;
+  var emplId =  $informationSec.attr("data-emplid") ? $informationSec.attr("data-emplid") : activeChatInfo.emplId;
   var userValue = userCache.get(emplId);
   var imagePath = "./img/profile_no.jpg";
   if (userValue.photoLoc != null) {
@@ -72,10 +72,7 @@ $(document).ready(function() {
 
   $contentArea.find(".call").click(function() {
     hideInformationArea(); // information Section
-    // adjustSectionSize(callSection.getSection(), 8);
-    // adjustSectionSize(chatSection.getSection(), 4);
     showCallArea();
-    //callSection.showCallInfo(emplId, userValue.loginId);
   });
 
   $contentArea.find(".screenShare").click(function() {

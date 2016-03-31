@@ -38,14 +38,14 @@ Channel.prototype.getChannelByName = function(params, callback) {
   console.log("getChannelByName - [name]" + params.name + "[teamId]" + params.teamId + "[memberIncluded]" + params.memberIncluded);
   var args = {
     path: {
-      "name": params.name
+      "name": escape(params.name)
     },
     parameters: {
       "teamId": params.teamId,
       "memberIncluded": params.memberIncluded === undefined ? false : params.memberIncluded
     }
   };
-  self.restCommon.get("/name/{name}", args, callback);
+  self.restCommon.get("/name/${name}", args, callback);
 };
 
 Channel.prototype.createChannel = function(params, callback) {
