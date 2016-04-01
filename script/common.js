@@ -9,7 +9,7 @@ function openModalDialog(url, options, data) {
 	};
 
   var div = $("<div>").attr("id", dialogId).addClass("modal inmodal").attr("role", "dialog");
-
+  removeDataAttributes(div);
   if(data) {
     var keys = Object.keys(data);
     $.each(keys, function(idx, row) {
@@ -62,12 +62,38 @@ hashCode = function(s) {
 	return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0);
 };
 
-function loadHtml(url, target) {
+function removeDataAttributes(target) {
+  var i,
+      $target = $(target),
+      attrName,
+      dataAttrsToDelete = [],
+      dataAttrs = $target.get(0).attributes,
+      dataAttrsLen = dataAttrs.length;
+
+  for (i=0; i<dataAttrsLen; i++) {
+      if ( 'data-' === dataAttrs[i].name.substring(0,5) ) {
+          dataAttrsToDelete.push(dataAttrs[i].name);
+      }
+  }
+  $.each( dataAttrsToDelete, function( index, attrName ) {
+      $target.removeAttr( attrName );
+  });
+}
+
+function loadHtml(url, target, data) {
   var div = target;
   if(typeof target === 'string') {
     div = $("#" + target);
   }
-  var data;
+
+  removeDataAttributes(div);
+  var htmlStr;
+  if(data) {
+    var keys = Object.keys(data);
+    $.each(keys, function(idx, row) {
+      div.attr("data-" + keys.toString(), data[row]);
+    });
+  }
 
   if(runningChannel === constants.CHANNEL_WEB) {
     // For Browser
@@ -75,18 +101,18 @@ function loadHtml(url, target) {
       type: 'GET',
       url: url,
       async: false,
-      success: function(html) {
-        data = html;
+      success: function(value) {
+        htmlStr = value;
       }
     });
   } else {
     // For desktop
     if (url.startsWith("/"))
       url = appRootPath + url;
-    data = fs.readFileSync(url, 'utf-8');
+    htmlStr = fs.readFileSync(url, 'utf-8');
   }
 
-  var rtMsg = jQuery.trim(data);
+  var rtMsg = jQuery.trim(htmlStr);
   div.html(rtMsg);
 }
 

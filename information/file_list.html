@@ -5,7 +5,7 @@
       <a class="aside-close-link"><i class="fa fa-times"></i></a>
     </div>
   </div>
-  <div class="ibox-content nopadding file-list">
+  <div class="ibox-content nopadding file-list information-list">
     <ul>
       <script id="filelist-template" type="text/template">
         <li class="file-item">
@@ -43,6 +43,11 @@ $(document).ready(function() {
       this.lastModified = new Date(this.lastModified).format("YYYY/MM/DD HH:mm:ss");
       $("#information-section").find(".file-list ul").append(Mustache.render($("#filelist-template").html(), this));
     });
+  });
+
+  $("#information-section").find(".file-list").mCustomScrollbar({
+    axis:"y",
+    theme:"inset-2-dark"
   });
 });
 

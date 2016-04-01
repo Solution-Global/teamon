@@ -5,7 +5,7 @@
       <a class="aside-close-link"><i class="fa fa-times"></i></a>
     </div>
   </div>
-  <div class="ibox-content nopadding mention-list">
+  <div class="ibox-content nopadding information-list mention-list">
     <ul>
       <script id="mention-template" type="text/template">
         <li>
@@ -14,11 +14,13 @@
           </div>
           <div class="mention-message">
             <div>
-              <span class="left">
-                <strong>{{channelName}}</strong>
-              </span>
               <span class="right">
-                {{sender}} - {{time}}
+                <a class="channel-link" href="#" data-chatid="{{chatId}}"><h3>{{topic}}</h3></a>
+              </span>
+            </div>
+            <div>
+              <span>
+                <a class="about-user" href="#" data-emplid="{{senderId}}">{{sender}}</a> - {{time}}
               </span>
             </div>
             <div>
@@ -41,9 +43,9 @@
 $(document).ready(function() {
 
   var $informationSec = $("#information-section");
-  $informationSec.find(".mention-list").mCustomScrollbar({
-    axis:"y"
-  });
+  // $informationSec.find(".mention-list").mCustomScrollbar({
+  //   axis:"y"
+  // });
 
   var mentionTemplate = $('#mention-template').html();
   var mentionDateLineTemplate = $('#mention-dateline-template').html();
@@ -55,11 +57,29 @@ $(document).ready(function() {
     "emplId": loginInfo.emplId
   };
 
+  $informationSec.on("click", ".channel-link", function(){
+    var topic = $(this).find("h3").html();
+    var chatId = $(this).data("chatid");
+    var $targetObj = getSingleChattingContext(topic);
+    if($targetObj) {
+      activeChatView($targetObj, false);
+
+      var $chatSec = $("#chat-section");
+      var $contentArea = $chatSec.find(".content_area");
+
+      $contentArea.mCustomScrollbar("scrollTo", "#chat-" + chatId);
+      $contentArea.find("#chat-" + chatId).css("border-radius", "3px");
+      $contentArea.find("#chat-" + chatId).addClass("animated myshake");
+    }
+  });
+
   restResource.chat.getMentionList(params, function(data) {
     if (data) {
       var messages = [];
       $.each(data, function(idx, row) {
-        messages.push(dispalyMessageFormat(row));
+        var formattingRow =  dispalyMessageFormat(row);
+        formattingRow.topic = row.topic;
+        messages.push(formattingRow);
       });
 
       $title.html("Mention For " + loginInfo.name + ".");
@@ -73,6 +93,11 @@ $(document).ready(function() {
         $mentionArea.append(Mustache.render(mentionTemplate, messages[key]));
       }
     }
+  });
+
+  $informationSec.find(".mention-list").mCustomScrollbar({
+    axis:"y",
+    theme:"inset-2-dark"
   });
 });
 </script>

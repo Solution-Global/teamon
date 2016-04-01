@@ -7,7 +7,7 @@
       </a>
     </div>
   </div>
-  <div class="ibox-content nopadding search-list">
+  <div class="ibox-content nopadding information-list search-list">
     <ul>
       <input type="hidden" name="hidden-keyword" value=""/>
       <script id="searchlist-template" type="text/template">
@@ -15,7 +15,7 @@
         <div id="chat-{{chatId}}" class="chat-message left" data-date="{{date}}">
           <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}" style="float: left; margin-right: 10px;">
           <div class="message" style="text-align: left; margin-left: 55px;">
-            <a class="message-author" href="#">{{sender}}</a>
+            <a class="about-user" href="#" data-emplid='{{emplId}}'>{{sender}}</a>
             <span class="message-date">{{date}}  {{time}}</span>
             <span class="message-content">
               {{{msgText}}}
@@ -62,10 +62,10 @@ $(document).ready(function() {
     hideScreenShareArea();
 
     showChatArea();
-    changeChatView();
+    changeChatView(false);
 
     var chatId = $(this).next().nameFind("hidden-chatId").val();
-    scrollToMessage(chatId, topic);
+    scrollToMessage(chatId, true);
   });
 
   $informationSec.find(".search-list").mCustomScrollbar({
@@ -78,6 +78,15 @@ $(document).ready(function() {
     }
   });
 });
+
+function scrollToMessage(chatId) {
+  var $chatSec = $("#chat-section");
+  var $contentArea = $chatSec.find(".content_area");
+
+  $contentArea.mCustomScrollbar("scrollTo", "#chat-" + chatId);
+  $contentArea.find("#chat-" + chatId).css("border-radius", "3px");
+  $contentArea.find("#chat-" + chatId).addClass("animated myshake");
+};
 
 var scrollSearchCount = 0;
 function doScrollSearch() {
@@ -144,14 +153,5 @@ function doScrollSearch() {
       $searchListArea.append("<div id='return-msg' style='text-align: center;'><span>No more messages found</span></div>");
     }
   });
-}
-
-function scrollToMessage(chatId, topic) {
-  var $chatSec = $("#chat-section");
-  var $contentArea = $chatSec.find(".content_area");
-
-  $contentArea.mCustomScrollbar("scrollTo", "#chat-" + chatId);
-  $contentArea.find("#chat-" + chatId).css("border-radius", "3px");
-  $contentArea.find("#chat-" + chatId).addClass("animated myshake");
 }
 </script>
