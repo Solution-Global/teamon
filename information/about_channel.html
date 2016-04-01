@@ -65,11 +65,12 @@ $(document).ready(function() {
 
   for(var key in membersArray) {
     var userValue = userCache.get(membersArray[key]);
+    var imagePath = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
     aboutChannelData.members.push({
       "name" : userValue.name,
       "emplId" : userValue.emplId,
       "imgAlt" : userValue.name,
-      "img": "./img/profile_no.jpg",
+      "img": imagePath
     });
   }
 
@@ -110,10 +111,28 @@ $(document).ready(function() {
     );
   });
 
+  var _displayOnlineChannelMember = function() {
+    var params = {
+      "teamId": loginInfo.teamId
+    };
+
+    restResource.login.getLoggedInEmplListByTeamId(params, function(data) {
+      if(data) {
+        $.each(data, function(idx, row) {
+          var $activeTarget = $contentArea.find("[data-emplid='" + row.emplId + "']");
+          var $profileImage = $activeTarget.find(".member-avatar");
+          // online
+          $profileImage.addClass("online");
+        });
+      }
+    });
+  }
+  _displayOnlineChannelMember();
+
   displayChannelMember = function(members) {
     for(var key in members) {
       var userValue = userCache.get(members[key]);
-      var imgUrl = "./img/profile_no.jpg";
+      var imgUrl = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
       $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.name + "'>" + userValue.name + "</a></li>");
     }
   }

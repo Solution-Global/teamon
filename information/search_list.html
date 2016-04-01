@@ -104,23 +104,8 @@ function doScrollSearch() {
         var sender = "unknown";
         if(senderInfo)
           sender = senderInfo.name;
-        var imagePath = "../img/profile_no.jpg";
-        if(runningChannel === constants.CHANNEL_APP) {
-          if (senderInfo.photoLoc != null) {
-            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
-          }
-          else {
-            imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
-          }
-        } else {
-          if (senderInfo.photoLoc != null) {
-            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
-          }
-          else {
-            imagePath = imagePath;
-          }
-        }
-
+        var imagePath = getImagePath(senderInfo.photoLoc, senderInfo.teamId, senderInfo.emplId);
+        
         var emplId;
         var chatRoomName;
         var chatType = getChatType(message.topic);

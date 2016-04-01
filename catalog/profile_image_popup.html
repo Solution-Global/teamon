@@ -35,16 +35,18 @@ var	dropzone = new Dropzone("#fileupload-form", {
           var fileNames = "";
           $.each(files, function(idx) {
 						var fileArr = files[idx].name.split('.');
-						var fileUrl = constants.IMAGE_URL + loginInfo.emplId + '.' + fileArr[1] + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId + "&type=profile";
+						var fileUrl = getImagePath(loginInfo.emplId + '.' + fileArr[1], loginInfo.teamId, loginInfo.emplId);
 						var params = $(this).serializeObject();
 						params.emplId = loginInfo.emplId;
 						params.photoLoc = loginInfo.emplId + '.' + fileArr[1];
-						myPreference.setPreference("photoLoc", fileUrl);
 
 						restResource.empl.changeProfileImg(params,
 							function(data, response) {
 								// Success
-								myPreference.setPreference("photoLoc", fileUrl);
+								myPreference.setPreference("photoLoc", params.photoLoc);
+								// TODO image cache 때문인지 사용자 chat_section과 information_section의 이미지가 바뀌지않음.
+								var userValue = userCache.get(loginInfo.emplId);
+
 								loginInfo.photoLoc = params.photoLoc;
 								$("#user-profile img.chat-avatar").attr("src", fileUrl + "&timestamp=" + new Date().getTime());
 								toastr.info("Your profile image has been modified successfully");

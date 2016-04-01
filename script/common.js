@@ -110,6 +110,20 @@ function getChannelTopicName(name) {
   return loginInfo.teamId + constants.TOPIC_MSG + "/" + constants.CHANNEL_CHAT + "/" + name;
 }
 
+function getImagePath(photoLoc, teamId, emplId) {
+  if (photoLoc !== null) {
+    imgPath = constants.IMAGE_URL + photoLoc + "?teamId=" + teamId + "&topic=profile_image&emplId=" + emplId + "&type=profile";
+  }
+  else {
+    if(runningChannel === constants.CHANNEL_APP) {
+      imgPath = "file://" + path.join(__dirname, './img/profile_no.jpg');
+    } else {
+      imgPath = "./img/profile_no.jpg";
+    }
+  }
+  return imgPath;
+}
+
 /* Date prototype */
 Date.prototype.add = function(offset, unit) {
 	if (!unit)
