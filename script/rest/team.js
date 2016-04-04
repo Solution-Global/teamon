@@ -5,6 +5,10 @@ var Team = (function(params) {
   this.restCommon = new restCommon(params);
 });
 
+Team.prototype.addCommonHeader = function(configValues) {
+  this.restCommon.setCommonHeader(configValues);
+};
+
 Team.prototype.getTeamByName = function(params, callback) {
   var self = this;
   console.log("getTeamByName - [name]" + params.name);

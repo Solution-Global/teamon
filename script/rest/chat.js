@@ -5,6 +5,10 @@ var Chat = (function(params) {
   this.restCommon = new restCommon(params);
 });
 
+Chat.prototype.addCommonHeader = function(configValues) {
+  this.restCommon.setCommonHeader(configValues);
+};
+
 Chat.prototype.getListByCondition = function(params, callBackRequiredValues, callback) {
   var self = this;
   console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[topic]" + params.topic + "[senderId]" + params.senderId + "[lastMsgId]" + params.lastMsgId + "[firstMsgId]" + params.firstMsgId);

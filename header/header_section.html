@@ -1,30 +1,36 @@
 <div id="header-section" class="navbar-header">
   <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#"><i class="fa fa-bars"></i></a>
+</div>
+<div class="title-area">
+    <h4 class="tit"></h4>
+</div>
+<div class="navbar-right">
   <form id="searchForm" role="search" class="navbar-form-custom" action="#">
       <div class="form-group">
           <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">
       </div>
   </form>
-</div>
-<ul class="nav navbar-top-links navbar-right">
-  <li>
-    <a href="#"><i class="mention fa fa-at fa-lg"></i></a>
-  </li>
-  <!--
-  // TODO 즐겨 찾기 추가 개발 필요
-  <li>
-    <a href="#"><i class="fa fa-star-o fa-lg"></i></a>
-  </li>
-  -->
-  <li>
-    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-list fa-lg"></i></a>
-    <ul class="dropdown-menu dropdown-user">
-      <li><a href="#" id="info-about">About...</a></li>
-      <li><a href="#" id="info-file">Files</a></li>
-      <!--<li><a href="#">Help</a></li>00-->
-    </ul>
-  </li>
-</ul>
+  <ul class="nav navbar-top-links navbar-right">
+    <li>
+      <a href="#"><i class="mention fa fa-at fa-lg"></i></a>
+    </li>
+    <!--
+    // TODO 즐겨 찾기 추가 개발 필요
+    <li>
+      <a href="#"><i class="fa fa-star-o fa-lg"></i></a>
+    </li>
+    -->
+    <li>
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-list fa-lg"></i></a>
+      <ul class="dropdown-menu dropdown-user">
+        <li><a href="#" id="info-about">About...</a></li>
+        <li><a href="#" id="info-file">Files</a></li>
+        <!--<li><a href="#">Help</a></li>00-->
+      </ul>
+    </li>
+  </ul>
+<div>
+
 <script>
 $(document).ready(function() {
   var $headerSec = $("#header-section");
@@ -32,6 +38,8 @@ $(document).ready(function() {
   var $title = $headerSec.find(".tit");
 
   setHearderTitle = function(text) {
+    if(!text.startsWith("@") && !text.startsWith("#"))
+      text = "@" + text;
     $title.html(text);
     // show about menu
     setAboutLabel();
@@ -115,22 +123,7 @@ function doSearch(params) {
         var sender = "unknown";
         if(senderInfo)
           sender = senderInfo.name;
-        var imagePath = "../img/profile_no.jpg";
-        if(runningChannel === constants.CHANNEL_APP) {
-          if (senderInfo.photoLoc != null) {
-            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
-          }
-          else {
-            imagePath = "file://" + path.join(__dirname, './img/profile_no.jpg');
-          }
-        } else {
-          if (senderInfo.photoLoc != null) {
-            imagePath = constants.IMAGE_URL + senderInfo.photoLoc + "?teamId=" + senderInfo.teamId + "&topic=profile_image&emplId=" + senderInfo.emplId + "&type=profile";
-          }
-          else {
-            imagePath = imagePath;
-          }
-        }
+        var imagePath = getImagePath(senderInfo.photoLoc, senderInfo.teamId, senderInfo.emplId);
 
         var emplId;
         var chatRoomName;

@@ -75,33 +75,24 @@ $(document).ready(function() {
   var $userArea = $catalogSec.find('.chat-users');
   var $channelArea = $catalogSec.find('.chat-channels');
 
-  // set profile
-  var imgPath;
-  if(runningChannel === constants.CHANNEL_APP) {
-    if (loginInfo.photoLoc != null) {
-      imgPath = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId + "&type=profile";
-    }
-    else {
-      imgPath = "file://" + path.join(__dirname, './img/profile_no.jpg');
-    }
-  } else {
-    if (loginInfo.photoLoc != null) {
-      imgPath = constants.IMAGE_URL + loginInfo.photoLoc + "?teamId=" + loginInfo.teamId + "&topic=profile_image&emplId=" + loginInfo.emplId + "&type=profile";
-    }
-    else {
-      imgPath = "./img/profile_no.jpg";
-    }
-  }
+  var imagePath = getImagePath(loginInfo.photoLoc, loginInfo.teamId, loginInfo.emplId);
 
+  // set profile
   var loginUserData = {
       "name" : loginInfo.name,
       "emplId": loginInfo.emplId,
-      "img": imgPath,
+      "img": imagePath,
       "imgAlt": loginInfo.name
   };
+  console.log("constants.IMAGE_URL = %s, loginInfo.photoLoc = %s imagePath",
+    constants.IMAGE_URL, loginInfo.photoLoc, imagePath);
+
   $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
   activeChatView = function($targetList, isMovingScroll){
+    $channelListContext.find("li.active").removeClass("active");
+    $userListContext.find("li.active").removeClass("active");
+
     $targetList.addClass("active");
 
     var topic = $targetList.data("topic");
@@ -115,9 +106,6 @@ $(document).ready(function() {
     } else {
       activeChatInfo.channelId = $targetList.data("channelid");
     }
-
-    $channelListContext.find("li.active").removeClass("active");
-    $userListContext.find("li.active").removeClass("active");
 
     myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
 
@@ -165,22 +153,7 @@ $(document).ready(function() {
         if (row.emplId === loginInfo.emplId)
           return;
 
-        var imgPath;
-        if(runningChannel === constants.CHANNEL_APP) {
-          if (row.photoLoc != null) {
-            imgPath = constants.IMAGE_URL + row.photoLoc + "?teamId=" + row.teamId + "&topic=profile_image&emplId=" + row.emplId + "&type=profile";
-          }
-          else {
-            imgPath = "file://" + path.join(__dirname, './img/profile_no.jpg');
-          }
-        } else {
-          if (row.photoLoc != null) {
-            imgPath = constants.IMAGE_URL + row.photoLoc + "?teamId=" + row.teamId + "&topic=profile_image&emplId=" + row.emplId + "&type=profile";
-          }
-          else {
-            imgPath = "./img/profile_no.jpg";
-          }
-        }
+        var imgPath = getImagePath(row.photoLoc, row.teamId, row.emplId);
 
         var userData = {
             "topic" : generateTopic(loginInfo.emplId, row.emplId),
@@ -194,7 +167,6 @@ $(document).ready(function() {
       // set user count
       $("#topic-list .users-link").append(" (" + data.rows.length + ")");
 
-      // _activeLastChatView();
       _initPresenceDisplay();
     }
 
@@ -249,20 +221,35 @@ $(document).ready(function() {
 
     //sync Message
     myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
+    // show the last chat info
+    _activeLastChatView();
   });
 
   var _activeLastChatView = function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
+    var $activeTarget = null;
     if(lastChatInfo) {
       lastChatInfo = JSON.parse(lastChatInfo);
-      var $activeTarget = getSingleChattingContext(lastChatInfo.topic);
+      $activeTarget = getSingleChattingContext(lastChatInfo.topic);
       $activeTarget.trigger("click");
     } else {
       // 마지막으로 저장된 chatting 정보가 없을 경우
-      hideChatArea();
-      hideCallArea();
-      hideScreenShareArea();
-      hideInformationArea();
+      var channelList = channelCache.getValueArray();
+      if (channelList !== null) {
+        $activeTarget = getSingleChattingContext(channelList[channelList.length-1].name);
+        $activeTarget.trigger("click");
+      } else {
+        var userList = userCache.getValueArray();
+        if (userList === null) {
+          hideCallArea();
+          hideChatArea();
+          hideScreenShareArea();
+          hideInformationArea();
+        } else {
+          $activeTarget = getSingleChattingContext(generateTopic(loginInfo.emplId, userList[userList.length-1].emplId));
+          $activeTarget.trigger("click");
+        }
+      }
     }
   }
 
@@ -403,13 +390,14 @@ $(document).ready(function() {
       if (data.loginCnt == 0) {
         chatModule.logoutPublish();
       }
+      // mqtt finalize
+      chatModule.finalize();
     });
-        // cache clear
+
+    // cache clear
     channelCache.initCache();
     userCache.initCache();
     loginInfo = null;
-    // mqtt finalize
-    chatModule.finalize();
 
     openModalDialog("./user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection

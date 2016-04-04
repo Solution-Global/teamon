@@ -3,7 +3,12 @@ var restCommon = require("./rest_common");
 var CallHistory = (function(params) {
   params.path = "frontend/communication/callhistory";
   this.restCommon = new restCommon(params);
+
 });
+
+CallHistory.prototype.addCommonHeader = function(configValues) {
+  this.restCommon.setCommonHeader(configValues);
+};
 
 CallHistory.prototype.getListByCondition = function(params, callback) {
   var self = this;

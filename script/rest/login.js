@@ -7,6 +7,10 @@ var Login = (function(params) {
   this.restCommon = new RestCommon(params);
 });
 
+Login.prototype.addCommonHeader = function(configValues) {
+  this.restCommon.setCommonHeader(configValues);
+};
+
 Login.prototype.login = function(params, callback) {
   var self = this;
   console.debug("login - [team] " + params.team + "[email] " + params.email);
