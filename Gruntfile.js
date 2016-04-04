@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         // A single entry point for our app
         src: 'teamon.js',
         // Compile to a single file to add a script tag for in your HTML
-        dest: 'dist/script/teamon_bundle.js',
+        dest: 'web/teamon_bundle.js',
       },
       options: {
         watch : true
@@ -26,12 +26,14 @@ module.exports = function(grunt) {
     },
     'create-windows-installer': {
       x64: {
-        appDirectory: './release/win/teamon-win32-x64',
-        outputDirectory: './release/win/installer64',
-        ext: 'teamon.exe',
-        iconUrl: 'http://http://211.253.26.248:8010/updates/releases/teamon.ico',
+        appDirectory: 'dist/win/teamon-win32-x64',
+        outputDirectory: 'dist/win/installer64',
+        exe: 'teamon.exe',
+        iconUrl: 'http://211.253.26.248:8010/updates/releases/teamon.ico',
         setupIcon: './assets/win/teamon.ico',
-        noMsi: true
+        noMsi: true,
+        authors: "UANGEL",
+        loadingGif: "./assets/win/teamon.gif"
       }
     }
     // copy: {

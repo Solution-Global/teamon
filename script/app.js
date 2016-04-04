@@ -8,6 +8,7 @@ var cp = require('child_process');
 var autoUpdater = require('auto-updater');
 var appVersion = require('../package.json').version;
 var os = require('os').platform();
+var appRootPath = require('app-root-path').path.replace(/\\/gi, "/");
 
 var INDEX = 'file://' + path.join(__dirname, '../index_app.html');
 var mainWindow = null;
@@ -106,24 +107,24 @@ app.on('ready', function() {
   autoUpdater.setFeedURL(updateFeed + '?v=' + appVersion);
   console.log('feedURL: %s', updateFeed + '?v=' + appVersion);
 
-  autoUpdater.on('error', function() {
-      console.log(arguments);
-      createWindow();
-    })
-    .on('checking-for-update', function() {
-      console.log('Checking for update');
-    })
-    .on('update-available', function() {
-      console.log('Update available');
-    })
-    .on('update-not-available', function() {
-      console.log('Update not available');
-      createWindow();
-    })
-    .on('update-downloaded', function() {
-      console.log('Update downloaded');
-      autoUpdater.quitAndInstall();
-    });
+  autoUpdater.on('error', function(error) {
+    console.error('error occurred! ' + error);
+    createWindow();
+  })
+  .on('checking-for-update', function() {
+    console.log('Checking for update');
+  })
+  .on('update-available', function() {
+    console.log('Update available');
+  })
+  .on('update-not-available', function() {
+    console.log('Update not available');
+    createWindow();
+  })
+  .on('update-downloaded', function() {
+    console.log('Update downloaded');
+    autoUpdater.quitAndInstall();
+  });
 
   autoUpdater.checkForUpdates();
 });
@@ -133,7 +134,7 @@ function createWindow() {
     width: 850,
     height: 650,
     title: constants.APP_NAME,
-    icon: path.join(__dirname, '../favicon.png')
+    icon: path.join(appRootPath, '/favicon.png')
   });
 
   mainWindow.loadURL(INDEX);
@@ -143,13 +144,15 @@ function createWindow() {
 
   var protocol = require('protocol');
   var fs = require('fs');
-  var appRootPath = require('app-root-path').path.replace(/\\/gi, "/");
   protocol.interceptFileProtocol('file', function(request, callback) {
     var url = request.url.substr(7);
     // console.log(request.url);
     if (url.lastIndexOf("?") > 0)
-    url = url.substr(0, url.lastIndexOf("?"));
-    url = url.indexOf(appRootPath) == -1 ? appRootPath + url.substr(3) : url.substr(1);
+      url = url.substr(0, url.lastIndexOf("?"));
+    if (process.platform != 'darwin')
+      url = url.indexOf(appRootPath) == -1 ? appRootPath + url.substr(3) : url.substr(1);
+    else
+      url = url.indexOf(appRootPath) == -1 ? appRootPath + url : url;
     if (url.charAt(url.length - 1) === '#')
       url = url.substr(0, url.length - 1);
     // console.log(path.normalize(url));

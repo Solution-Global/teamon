@@ -8,12 +8,13 @@
     "app": "electron .",
     "web": "node web/server.js",
     "clean": "npm run clean:win",
-    "clean:win": "rm -rf release/win",
-    "clean:osx": "rm -rf release/osx",
+    "clean:win": "rm -rf dist/win",
+    "clean:osx": "rm -rf dist/osx",
     "pack": "npm run pack:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=release/win --platform=win32 --arch=x64 --version=0.37.3 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore=\"node_modules/.bin/(asar|electron.*)\" --ignore=logs --version-string.ProductName=TeamON --overwrite",
-    "pack:osx": "npm run clean:osx && electron-packager . teamon --out=release/osx --platform=darwin --arch=x64 --version=0.36.8 --asar=true --asar-unpack=\"*.node\" --ignore=\"(assets|release)\" --ignore=.gitignore --ignore=packager.json --ignore='node_modules/.bin/(asar|electron.*)' --ignore=logs --overwrite",
-    "build:osx": "npm run pack:osx && electron-builder release/osx/teamon-darwin-x64 --platform=osx --out=release/osx --config=packager.json"
+    "dist": "npm run dist:win",
+    "pack:win": "npm run clean:win && electron-packager . teamon --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release|logs|web)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --version-string.ProductName=TeamON --version-string.CompanyName=UANGEL --overwrite",
+    "dist:win": "npm run pack:win && grunt installer",
+    "dist:osx": "build"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/Solution-Global/teamon/issues"
   },
-  "author": "Solution-Global",
+  "authors": "Solution-Global",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Solution-Global/teamon/issues"
@@ -35,7 +36,7 @@
     "grunt-contrib-jshint": "0.11.3",
     "grunt-contrib-watch": "0.6.1",
     "asar": "0.9.0",
-    "electron-builder": "2.6.0",
+    "electron-builder": "^3.1.1",
     "electron-packager": "5.1.1",
     "electron-prebuilt": "^0.37.2",
     "connect": "3.4.1",
@@ -62,5 +63,16 @@
     "font-awesome": ">=4.5.0",
     "autosize": "3.0.15",
     "ua-parser-js": "0.7.10"
+  },
+  "build": {
+    "osx": {
+      "background": "assets/osx/installer_background.jpg",
+      "icon": "assets/osx/teamon.icns",
+      "icon-size": 80,
+      "contents": [
+        { "x": 438, "y": 344, "type": "link", "path": "/Applications" },
+        { "x": 192, "y": 344, "type": "file" }
+      ]
+    }
   }
 }
