@@ -90,12 +90,12 @@ function initLoginStatus() {
       "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model,
       "photoLoc": myPreference.getPreference("photoLoc")
     };
-    initAPI();
+
+    configureCertifiedAPI(loginInfo.email, loginInfo.authKey);
+    loadAllArea();
 
     // let server knows that I've signed in
     restResource.login.loggedIn(loginInfo);
-
-    loadAllArea();
     chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 
   } else {
@@ -109,37 +109,50 @@ function initLoginStatus() {
   }
 }
 
+configureCertifiedAPI = function(email, authKey) {
+  var keys = Object.keys(restResource);
+  var params = {
+    "email" : email,
+    "authKey" : authKey
+  };
+
+  $.each(keys, function(idx, row) {
+    console.log(restResource[row]);
+    restResource[row].addCommonHeader(params);
+  });
+};
+
 initAPI = function() {
   var emplRes = require("./script/rest/empl");
   var loginRes = require("./script/rest/login");
   var teamRes = require("./script/rest/team");
+  var chatRes = require("./script/rest/chat");
+  var channelRes = require("./script/rest/channel");
+  var callHistoryRes = require("./script/rest/call_history");
+
+
 
   restResource = {}; // global var
   var params = {
-      "url" : aplUrl,
-      "channel" :  runningChannel
-    };
+    "url" : aplUrl,
+    "channel" :  runningChannel
+  };
 
-  if(loginInfo) {
-    var chatRes = require("./script/rest/chat");
-    var channelRes = require("./script/rest/channel");
-    var callHistoryRes = require("./script/rest/call_history");
+  // API초기화 시(로그인전) 개인 인증 AuthKey를 전달 하지 않는다.
+  restResource.empl =  new emplRes(params);
+  restResource.login = new loginRes(params);
+  restResource.team = new teamRes(params);
+  restResource.chat = new chatRes(params);
+  restResource.channel = new channelRes(params);
+  restResource.callHistory = new callHistoryRes(params);
 
-    params.authKey = loginInfo.authKey;
-    params.email = loginInfo.email;
+  console.log(restResource.empl);
+  console.log(restResource.login);
+  console.log(restResource.team);
+  console.log(restResource.chat);
+  console.log(restResource.channel);
+  console.log(restResource.callHistory);
 
-    restResource.empl =  new emplRes(params);
-    restResource.login = new loginRes(params);
-    restResource.team = new teamRes(params);
-    restResource.chat = new chatRes(params);
-    restResource.channel = new channelRes(params);
-    restResource.callHistory = new callHistoryRes(params);
-  } else {
-    // 로그인 전 개인 인증 AuthKey를 전달 하지 않는다.
-    restResource.empl =  new emplRes(params);
-    restResource.login = new loginRes(params);
-    restResource.team = new teamRes(params);
-  }
 };
 
 runTimerForSetLastMsgId = function(topic, chatId) {

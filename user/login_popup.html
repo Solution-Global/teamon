@@ -60,7 +60,6 @@ $(document).ready(function() {
 
 		restResource.login.login(params,
 			function(data, error) {
-
 			// set the personal pref info first to use it around the app.
 			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
 			var isAlreadyLogin = loginInfo ? true : false;
@@ -77,18 +76,7 @@ $(document).ready(function() {
 	    };
 			imageUrl = constants.IMAGE_URL + data.photoLoc + "?teamId=" + data.teamId + "&topic=profile_image&emplId=" + data.emplId + "&type=profile";
 
-			if(isAlreadyLogin) {
-				// logout 후 login 시도
-				//     catalogSection.reloadSection();
-				//     chatSection.reloadSection();
-				//     callSection.reloadSection();
-				//     headerSection.realodSection();
-				//chatModule.finalize();
-			} else {
-				// 처음 login 시도
-				initAPI(); // init API
-			}
-
+			configureCertifiedAPI(data.email, data.authKey);
 			loadAllArea();
 			chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 

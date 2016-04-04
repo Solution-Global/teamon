@@ -5,6 +5,10 @@ var Channel = (function(params) {
   this.restCommon = new restCommon(params);
 });
 
+Channel.prototype.addCommonHeader = function(configValues) {
+  this.restCommon.setCommonHeader(configValues);
+};
+
 Channel.prototype.getChannelList = function(params, callback) {
   var self = this;
   console.log("getChannelList - [teamId]" + params.teamId + "[memberIncluded]" + params.memberIncluded);

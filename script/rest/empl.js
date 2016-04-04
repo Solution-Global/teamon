@@ -7,6 +7,10 @@ var Empl = (function(params) {
   this.restCommon = new RestCommon(params);
 });
 
+Empl.prototype.addCommonHeader = function(configValues) {
+  this.restCommon.setCommonHeader(configValues);
+};
+
 Empl.prototype.getListByTeamId = function(params, callback) {
   var self = this;
     console.log("getListByTeamId - [teamId]" + params.teamId + "[limit]" + params.limit + "[offset]" + params.offset + "[sIdx]" + params.sIdx + "[sOrder]" + params.sOrder);

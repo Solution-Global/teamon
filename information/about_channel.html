@@ -11,16 +11,20 @@
 <div class="ibox-content information-list">
   <div class="content_area">
     <script id="aboutChannel-template" type="text/template">
-      <!--
-      // TODO edit 기능 생긴 이후 표시 하도록 한다.
       <div>
         <h4><i class="fa fa-info fa-lg text-primary"></i> Purpose</h4>
          <p>
-          {{pinupMessage}}
+          {{{pinupMessage}}}
          </p>
       </div>
+      <div id="purpose-edit-area" class="hide">
+        <div>
+        <textarea style="width: 100%"></textarea>
+        </div>
+        <button type="button" class="btn btn-warning btn-sm"><i class="fa fa-sign-in"></i>DONE</button>
+        <button type="button" class="btn btn-info btn-sm"><i class="fa fa-sign-out"></i>CANCLE</button>
+      </div>
       <div class="hr-line-dashed"></div>
-      -->
       <div>
          <h4><i class="fa fa-users fa-lg text-primary"></i> {{memberCount}} Members <a href="#"><span id="onInviteChannelModal" class="label label-info pull-right">ADD</span></a></h4>
          <ul class="members category-list nopadding">
@@ -60,8 +64,18 @@ $(document).ready(function() {
   var memberCount = membersArray.length;
 
   $title.html("About " + channelValue.name);
+
+  var noPurpose = "<a class='link-edit-purpose' href='#'>" + "Set a channel purpose." + "</a>";
+  var existPurpose =  channelValue.pinupMessage  + "</br><a class='link-edit-purpose' href='#'>" + "Edit" + "</a>";
+
+
+  $informationSec.on("click", ".link-edit-purpose", function() {
+    console.log("open the purose!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    $("#purpose-edit-area").show();
+  });
+
   var aboutChannelData = {
-    "pinupMessage": channelValue.pinupMessage || "There are no purpose.",
+    "pinupMessage": channelValue.pinupMessage ? existPurpose : noPurpose ,
     "memberCount": memberCount,
     "members":[]
   };

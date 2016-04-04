@@ -7,20 +7,24 @@ var RestCommon = (function(params){
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
   };
 
-  if(params.email) {
-    commonHeaders['X-UANGEL-USER'] = params.email;
-    commonHeaders['X-UANGEL-AUTHID'] = params.email;
-  }
-
-  if(params.channel) {
-    commonHeaders['X-UANGEL-CHANNEL'] = params.channel;
-  }
-  if(params.authKey) {
-    commonHeaders['X-UANGEL-AUTHKEY'] = params.authKey;
-  }
-
   var apiurl = params.url;
   var path = params.path;
+
+  var setCommonHeader = function(params) {
+    if(params.email) {
+      commonHeaders['X-UANGEL-USER'] = params.email;
+      commonHeaders['X-UANGEL-AUTHID'] = params.email;
+    }
+
+    if(params.channel) {
+      commonHeaders['X-UANGEL-CHANNEL'] = params.channel;
+    }
+    if(params.authKey) {
+      commonHeaders['X-UANGEL-AUTHKEY'] = params.authKey;
+    }
+  };
+
+  setCommonHeader(params);
 
   var put = function(url, args, callback, callBackRequiredValues) {
     args.headers = commonHeaders;
@@ -99,7 +103,8 @@ var RestCommon = (function(params){
     "put" : put,
     "get" : get,
     "post" : post,
-    "delete" : del
+    "delete" : del,
+    "setCommonHeader": setCommonHeader
   };
 });
 
