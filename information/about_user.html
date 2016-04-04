@@ -57,10 +57,8 @@ $(document).ready(function() {
 
   var emplId =  $informationSec.attr("data-emplid") ? $informationSec.attr("data-emplid") : activeChatInfo.emplId;
   var userValue = userCache.get(emplId);
-  var imagePath = "./img/profile_no.jpg";
-  if (userValue.photoLoc != null) {
-    imagePath = constants.IMAGE_URL + userValue.photoLoc + "?teamId=" + userValue.teamId + "&topic=profile_image&emplId=" + userValue.emplId;
-  }
+  var imagePath = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
+  
   var aboutUserData = {
     "name" : userValue.name,
     "imgAlt" : userValue.name,

@@ -49,7 +49,6 @@ $(document).ready(function() {
 		var os = uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : "");
 		var browser = uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : "");
 		var device = uaParser.getDevice().model == undefined ? "" : uaParser.getDevice().model;
-		var imageUrl;
 
 		var params = $(this).serializeObject();
 		params.team = "uangel";
@@ -58,8 +57,7 @@ $(document).ready(function() {
 		params.device = device;
 		params.client = runningChannel;
 
-		restResource.login.login(params,
-			function(data, error) {
+		restResource.login.login(params, function(data, error) {
 			// set the personal pref info first to use it around the app.
 			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
 			var isAlreadyLogin = loginInfo ? true : false;
@@ -74,26 +72,25 @@ $(document).ready(function() {
 				"device": device,
 				"photoLoc": data.photoLoc
 	    };
-			imageUrl = constants.IMAGE_URL + data.photoLoc + "?teamId=" + data.teamId + "&topic=profile_image&emplId=" + data.emplId + "&type=profile";
 
 			configureCertifiedAPI(data.email, data.authKey);
 			loadAllArea();
 			chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 
 			if(params.keepMe)
-	      localStorageManager.setValue("keepEmplId", data.emplId);
+				localStorageManager.setValue("keepEmplId", data.emplId);
 			else
 				localStorageManager.removeKey("keepEmplId");
 
-	    myPreference.setPreference("teamId", data.teamId);
-	    myPreference.setPreference("email", data.email);
-	    myPreference.setPreference("authKey", data.authKey);
-	    myPreference.setPreference("emplId", data.emplId);
+			myPreference.setPreference("teamId", data.teamId);
+			myPreference.setPreference("email", data.email);
+			myPreference.setPreference("authKey", data.authKey);
+			myPreference.setPreference("emplId", data.emplId);
 			myPreference.setPreference("name", data.name);
-			myPreference.setPreference("photoLoc", imageUrl);
+			myPreference.setPreference("photoLoc", data.photoLoc);
 
 			sessionStorageManager.setValue("sessionEmplId", data.emplId);
-
+			//initLoginStatus();
 			$('#login-form').closest(".modal-dialog").closest(".modal").modal("hide");
 			params = null;
 		});

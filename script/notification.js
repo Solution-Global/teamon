@@ -8,10 +8,12 @@ var noti = (function() {
   var audio = new Audio('./sound/alarm.wav');
 
   function handleNotification (msgPayload) {
+    console.info("### notification 111 ### senderId = %s", msgPayload.senderId);
     if(msgPayload.senderId === loginInfo.emplId) {
       return;
     }
 
+    console.info("### notification 222 ### %s", msgPayload.senderId);
     var userValue = userCache.get(msgPayload.senderId);
 
     notiTitle = "New message form " + userValue.name;
@@ -20,7 +22,9 @@ var noti = (function() {
       notiBody = notiBody.substring(0, 19) + "...";
 
     // TODO change to profile image of user
-    notiIcon = "./img/profile_no.jpg";
+    notiIcon = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
+    console.info("### notification ### notiIcon = %s", notiIcon);
+
 
     if(getChatType(msgPayload.topic) === constants.CHANNEL_CHAT) {
       notiTitle = "New message in " + msgPayload.topic;
@@ -45,13 +49,13 @@ var noti = (function() {
     notifier.notify({
       title: notiTitle,
       message: notiBody,
-      icon: path.join(__dirname, notiIcon),// Absolute path (doesn't work on balloons)
+      icon: notiIcon,// Absolute path (doesn't work on balloons)
       sound: false, // Only Notification Center or Windows Toasters
       wait: true // Wait with callback, until user action is taken against notification
     //}, funcion(err, response) {
     //  console.log(err, response);
     });
-    console.log("channelId = %s senderId = %s msg = %s",
+    console.log("### notification ### channelId = %s senderId = %s msg = %s",
       msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
 
     notifier.on('click', function(){
