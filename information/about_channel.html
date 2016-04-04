@@ -13,16 +13,17 @@
     <script id="aboutChannel-template" type="text/template">
       <div>
         <h4><i class="fa fa-info fa-lg text-primary"></i> Purpose</h4>
-         <p>
-          {{{pinupMessage}}}
+         <p id="purpose">
+           {{pinupMessage}}
          </p>
+         <a class='link-edit-purpose' href='#'>Set a channel purpose.</a>
       </div>
-      <div id="purpose-edit-area" class="hide">
+      <div id="purpose-edit-area" style="display: none">
         <div>
-        <textarea style="width: 100%"></textarea>
+        <textarea name="purpose" style="width: 100%"></textarea>
         </div>
-        <button type="button" class="btn btn-warning btn-sm"><i class="fa fa-sign-in"></i>DONE</button>
-        <button type="button" class="btn btn-info btn-sm"><i class="fa fa-sign-out"></i>CANCLE</button>
+        <button type="button" class="done btn btn-warning btn-sm"><i class="fa fa-sign-in"></i>DONE</button>
+        <button type="button" class="cancle btn btn-info btn-sm"><i class="fa fa-sign-out"></i>CANCLE</button>
       </div>
       <div class="hr-line-dashed"></div>
       <div>
@@ -65,17 +66,8 @@ $(document).ready(function() {
 
   $title.html("About " + channelValue.name);
 
-  var noPurpose = "<a class='link-edit-purpose' href='#'>" + "Set a channel purpose." + "</a>";
-  var existPurpose =  channelValue.pinupMessage  + "</br><a class='link-edit-purpose' href='#'>" + "Edit" + "</a>";
-
-
-  $informationSec.on("click", ".link-edit-purpose", function() {
-    console.log("open the purose!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    $("#purpose-edit-area").show();
-  });
-
   var aboutChannelData = {
-    "pinupMessage": channelValue.pinupMessage ? existPurpose : noPurpose ,
+    "pinupMessage": channelValue.pinupMessage,
     "memberCount": memberCount,
     "members":[]
   };
@@ -93,6 +85,44 @@ $(document).ready(function() {
 
   $contentArea.empty();
   $contentArea.prepend(Mustache.render(aboutChannelTemplate, aboutChannelData));
+
+  var $linkEditPurpose = $(".link-edit-purpose");
+  if(channelValue.pinupMessage) {
+    $linkEditPurpose.text("Edit");
+  }
+
+  // apply event for editing purpose.
+  $linkEditPurpose.click(function(){
+    var $purposeEditArea = $("#purpose-edit-area");
+    $purposeEditArea.show();
+    $purposeEditArea.find("[name=purpose]").val($.trim($("#purpose").text()));
+
+    $purposeEditArea.find(".done").click(function() {
+      var purposeVal = $.trim($purposeEditArea.find("[name=purpose]").val());
+      if(purposeVal === "") {
+        toastr.warning("Please insert the purpose message.");
+        return;
+      }
+
+      var params = {
+        "channelId": channelValue.channelId,
+        "name": channelValue.name,
+        "pinupMessage": purposeVal
+      };
+
+      restResource.channel.updateChannel(params, function(response){
+        reloadChannelCache(channelValue.channelId);
+        $("#purpose").text(purposeVal);
+        $purposeEditArea.hide();
+        $linkEditPurpose.text("Edit");
+      });
+    });
+
+    $purposeEditArea.find(".cancle").click(function() {
+      $purposeEditArea.find("name[purpose]").val("");
+      $purposeEditArea.hide();
+    });
+  });
 
   $("#onInviteChannelModal").bind("click", function() {
     openModalDialog("./information/invite_channel_popup.html");

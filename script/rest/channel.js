@@ -67,6 +67,22 @@ Channel.prototype.createChannel = function(params, callback) {
   self.restCommon.post(null, args, callback);
 };
 
+Channel.prototype.updateChannel = function(params, callback) {
+  var self = this;
+  console.log("updateChannel - [teamId]" + params.teamId + "[name]" + params.name + "[pinupMessage]" + params.pinupMessage);
+  var args = {
+    path: {
+      "channelId": params.channelId
+    },
+    data: $.param({
+      "name": params.name,
+      "pinupMessage": params.pinupMessage
+    })
+  };
+
+  self.restCommon.put("/" + params.channelId, args, callback);
+};
+
 Channel.prototype.addMember = function(params, callback) {
   var self = this;
   console.log("addMember - [channelId]" + params.channelId + "[members]" + params.members);
