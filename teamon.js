@@ -117,7 +117,6 @@ configureCertifiedAPI = function(email, authKey) {
   };
 
   $.each(keys, function(idx, row) {
-    console.log(restResource[row]);
     restResource[row].addCommonHeader(params);
   });
 };
@@ -129,8 +128,6 @@ initAPI = function() {
   var chatRes = require("./script/rest/chat");
   var channelRes = require("./script/rest/channel");
   var callHistoryRes = require("./script/rest/call_history");
-
-
 
   restResource = {}; // global var
   var params = {
@@ -145,14 +142,6 @@ initAPI = function() {
   restResource.chat = new chatRes(params);
   restResource.channel = new channelRes(params);
   restResource.callHistory = new callHistoryRes(params);
-
-  console.log(restResource.empl);
-  console.log(restResource.login);
-  console.log(restResource.team);
-  console.log(restResource.chat);
-  console.log(restResource.channel);
-  console.log(restResource.callHistory);
-
 };
 
 runTimerForSetLastMsgId = function(topic, chatId) {
