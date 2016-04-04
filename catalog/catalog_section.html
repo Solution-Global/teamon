@@ -390,13 +390,13 @@ $(document).ready(function() {
       if (data.loginCnt == 0) {
         chatModule.logoutPublish();
       }
+      // mqtt finalize
+      chatModule.finalize();
     });
         // cache clear
     channelCache.initCache();
     userCache.initCache();
     loginInfo = null;
-    // mqtt finalize
-    chatModule.finalize();
 
     openModalDialog("./user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection

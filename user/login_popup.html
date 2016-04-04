@@ -74,15 +74,7 @@ $(document).ready(function() {
 					"photoLoc": data.photoLoc
 		    };
 
-
-				if(isAlreadyLogin) {
-					// logout 후 login 시도
-					//     catalogSection.reloadSection();
-					//     chatSection.reloadSection();
-					//     callSection.reloadSection();
-					//     headerSection.realodSection();
-					//chatModule.finalize();
-				} else {
+				if(!isAlreadyLogin) {
 					// 처음 login 시도
 					initAPI(); // init API
 				}
