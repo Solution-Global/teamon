@@ -84,8 +84,8 @@ $(document).ready(function() {
       "img": imagePath,
       "imgAlt": loginInfo.name
   };
-  console.log("constants.IMAGE_URL = %s, loginInfo.photoLoc = %s imagePath",
-    constants.IMAGE_URL, loginInfo.photoLoc, imagePath);
+  // console.log("constants.IMAGE_URL = %s, loginInfo.photoLoc = %s imagePath",
+  //   constants.IMAGE_URL, loginInfo.photoLoc, imagePath);
 
   $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
@@ -342,7 +342,7 @@ $(document).ready(function() {
   }
 
   handleLoginPresence = function(params) {
-    console.log("handleLoginPresence %s", JSON.stringify(params));
+    // console.log("handleLoginPresence %s", JSON.stringify(params));
     if(typeof params === 'string')
       params = JSON.parse(params);
 

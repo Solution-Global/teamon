@@ -92,7 +92,7 @@ var chat = (function() {
   }
 
   function _mqttReceived(topic, payload) {
-    console.log('_mqttReceived topic:%s, msg:%s', topic, payload.toString());
+    // console.log('_mqttReceived topic:%s, msg:%s', topic, payload.toString());
     payload = JSON.parse(payload);
     var topicArray = topic.split('/');
     if (topicArray.length < 2) {

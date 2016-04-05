@@ -11,7 +11,7 @@ Chat.prototype.addCommonHeader = function(configValues) {
 
 Chat.prototype.getListByCondition = function(params, callBackRequiredValues, callback) {
   var self = this;
-  console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[topic]" + params.topic + "[senderId]" + params.senderId + "[lastMsgId]" + params.lastMsgId + "[firstMsgId]" + params.firstMsgId);
+  // console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[topic]" + params.topic + "[senderId]" + params.senderId + "[lastMsgId]" + params.lastMsgId + "[firstMsgId]" + params.firstMsgId);
   var args = {
     path: {
       "teamId": params.teamId,
@@ -31,7 +31,7 @@ Chat.prototype.getListByCondition = function(params, callBackRequiredValues, cal
 
 Chat.prototype.getListForSync = function(params, callback) {
   var self = this;
-  console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[condition]" + params.condition);
+  // console.log("getListByCondition - [teamId]" + params.teamId + "[emplId]" + params.emplId + "[condition]" + params.condition);
   var args = {
     path: {
       "teamId": params.teamId,

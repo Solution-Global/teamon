@@ -12,7 +12,7 @@ constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
 messageManager = require('./script/message'); // global var
 chatModule = require('./script/chat_client'); // global var
-// CallClient = require('./script/call_client');
+CallClient = require('./script/call_client');
 notifierModule = require('./script/notification'); //global var
 cacheManager = require('./script/uCache'); // global var
 toastr = require("./script/plugins/toastr/toastr.min"); // global var
@@ -117,7 +117,6 @@ configureCertifiedAPI = function(email, authKey) {
   };
 
   $.each(keys, function(idx, row) {
-    console.log(restResource[row]);
     restResource[row].addCommonHeader(params);
   });
 };
@@ -129,8 +128,6 @@ initAPI = function() {
   var chatRes = require("./script/rest/chat");
   var channelRes = require("./script/rest/channel");
   var callHistoryRes = require("./script/rest/call_history");
-
-
 
   restResource = {}; // global var
   var params = {
@@ -145,14 +142,6 @@ initAPI = function() {
   restResource.chat = new chatRes(params);
   restResource.channel = new channelRes(params);
   restResource.callHistory = new callHistoryRes(params);
-
-  console.log(restResource.empl);
-  console.log(restResource.login);
-  console.log(restResource.team);
-  console.log(restResource.chat);
-  console.log(restResource.channel);
-  console.log(restResource.callHistory);
-
 };
 
 runTimerForSetLastMsgId = function(topic, chatId) {
@@ -178,7 +167,7 @@ shareLastMsgId = function(topic, chatId) {
 };
 
 handleLastMsgId = function(payload) {
-  console.info("handleLastMsgId payload %s", JSON.stringify(payload));
+  // console.info("handleLastMsgId payload %s", JSON.stringify(payload));
 
   // 멀티 로그인을 고려하여 같이 기종의 alarm count를 초기화 하기 위해서 필요
   if(loginInfo.emplId === payload.senderId) {
@@ -246,7 +235,7 @@ loadAllArea = function() {
   loadHtml("/catalog/catalog_section.html", $("#catalog-section"));
   loadHtml("/header/header_section.html", $("#header-section"));
   // loadHtml("/screenshare/screenshare-section.html", $("#screenshare-section"));
-  // loadHtml("/call/call_section.html", $("#call-section"));
+  loadHtml("/call/call_section.html", $("#call-section"));
 };
 
 showCatalogArea = function() {
