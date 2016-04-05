@@ -398,7 +398,7 @@ $(document).ready(function() {
     userCache.initCache();
     loginInfo = null;
 
-    openModalDialog("./user/login_popup.html", dialogOptions);
+    openModalDialog("/user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection
     localStorageManager.removeKey("keepEmplId");
     sessionStorageManager.removeKey("sessionEmplId");
