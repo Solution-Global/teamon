@@ -12,7 +12,7 @@
     "clean:osx": "rm -rf dist/osx",
     "pack": "npm run pack:win",
     "dist": "npm run dist:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"(assets|release|logs|web)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --version-string.ProductName=TeamON --version-string.CompanyName=UANGEL --overwrite",
+    "pack:win": "npm run clean:win && electron-packager . teamon --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"^/(assets|release|logs|web|dist)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --version-string.ProductName=TeamON --version-string.CompanyName=UANGEL --overwrite",
     "dist:win": "npm run pack:win && grunt installer",
     "dist:osx": "build"
   },
@@ -38,7 +38,7 @@
     "asar": "0.9.0",
     "electron-builder": "^3.1.1",
     "electron-packager": "5.1.1",
-    "electron-prebuilt": "^0.37.2",
+    "electron-prebuilt": "^0.37.4",
     "connect": "3.4.1",
     "connect-proxy-layer": "0.1.2",
     "serve-static": "1.10.2",
