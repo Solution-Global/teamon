@@ -158,7 +158,8 @@ $(document).ready(function() {
     );
   });
 
-  var _displayOnlineChannelMember = function() {
+  // set flag on online member of member list
+  (function() {
     var params = {
       "teamId": loginInfo.teamId
     };
@@ -173,8 +174,7 @@ $(document).ready(function() {
         });
       }
     });
-  }
-  _displayOnlineChannelMember();
+  }());
 
   displayChannelMember = function(members) {
     for(var key in members) {
