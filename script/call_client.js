@@ -24,6 +24,7 @@ CallClient.prototype.initialize = function(userid) {
   var self = this;
   var server = constants.CALL_GW_URL;
   console.log("gateway url: %s", server);
+  console.log("id: "+userid);
 
   if (this.janus !== null) {
     console.error('Already initialized');
@@ -32,7 +33,7 @@ CallClient.prototype.initialize = function(userid) {
 
   // Initialize the library (console debug enabled)
   Janus.init({
-    debug: true,
+    debug: false,
     callback: function() {
       // Create session
       self.janus = new Janus({
@@ -112,13 +113,13 @@ CallClient.prototype.initialize = function(userid) {
             },
             onlocalstream: function(stream) {
               console.log(" ::: Got a local stream :::");
-              console.log(JSON.stringify(stream));
+              // console.log(JSON.stringify(stream));
 
               self.emit('onlocalstream', stream);
             },
             onremotestream: function(stream) {
               console.log(" ::: Got a remote stream :::");
-              console.log(JSON.stringify(stream));
+              // console.log(JSON.stringify(stream));
 
               self.emit('onremotestream', stream);
             },
@@ -149,7 +150,8 @@ CallClient.prototype._registerUsername = function(userid) {
     "request": "register",
     "secret": "",
     "proxy": constants.SIP_PROXY,
-    "username": "sip:agent" + userid + "@" + constants.SIP_DOMAIN
+    "username": "sip:" + userid + "@" + constants.SIP_DOMAIN,
+    "channel": "TEAMON"
   };
   self.sipcall.send({
     "message": register
@@ -171,7 +173,7 @@ CallClient.prototype._onIncomingcall = function(result, jsep) {
 
   self.yourusername = result.username;
   self.remoteJsep = jsep;
-  self.emit('onincomingcall', self.yourusername.replace("agent", ""), doAudio, doVideo);
+  self.emit('onincomingcall', self.yourusername, doAudio, doVideo);
 };
 
 CallClient.prototype._onCallAccepted = function(peer, jsep) {
@@ -202,7 +204,7 @@ CallClient.prototype._onCallAccepted = function(peer, jsep) {
     });
   }
 
-  self.emit('oncallaccepted', peer.replace("agent", ""), doAudio, doVideo);
+  self.emit('oncallaccepted', peer, doAudio, doVideo);
 };
 
 CallClient.prototype._onErrorMessage = function(errorCode, error) {
@@ -236,7 +238,7 @@ CallClient.prototype._onHangup = function(result) {
       username = self.yourusername;
     }
     self._allInternalReset();
-    self.emit('onHangup', username.replace("agent", ""), result.reason);
+    self.emit('onHangup', username, result.reason);
   } else {
     self._allInternalReset();
     if (self.myusername === result.username) {
@@ -273,7 +275,7 @@ CallClient.prototype.makeCall = function(userid) {
     return;
   }
   self.engaged = true;
-  self.yourusername = "agent" + userid; // 최종 상대방 이름은 전화를 수락할 때 재설정 (수락하지않고 상대가 종료할 경우 대비)
+  self.yourusername = userid; // 최종 상대방 이름은 전화를 수락할 때 재설정 (수락하지않고 상대가 종료할 경우 대비)
 
   // Call this user
   self.sipcall.createOffer({
@@ -284,11 +286,12 @@ CallClient.prototype.makeCall = function(userid) {
       videoRecv: true // We DO want audio
     },
     success: function(jsep) {
-      console.log("Got SDP!");
-      console.log(jsep);
+      // console.log("Got SDP!");
+      // console.log(jsep);
       var body = {
         "request": "call",
-        uri: "sip:agent" + userid + "@" + constants.SIP_DOMAIN
+        uri: "sip:" + userid + "@" + constants.SIP_DOMAIN,
+        "channel": "TEAMON"
       };
       self.sipcall.send({
         "message": body,
@@ -316,7 +319,7 @@ CallClient.prototype.localHangup = function() {
 
   // 비정상적인 경우 hangup 이벤트가 오지않을 수 있어 종료 및 이벤트(중복 발생 가능) 처리
   self._allInternalReset();
-  self.emit('onHangup', self.myusername.replace("agent", ""), 'We did the hangup');
+  self.emit('onHangup', self.myusername, 'We did the hangup');
 };
 
 CallClient.prototype.answerCall = function(doAudio, doVideo) {
@@ -335,8 +338,8 @@ CallClient.prototype.answerCall = function(doAudio, doVideo) {
     },
     success: function(jsep) {
       self.myJsep = jsep;
-      console.log("Got SDP! audio=" + doAudio + ", video=" + doVideo);
-      console.log(jsep);
+      // console.log("Got SDP! audio=" + doAudio + ", video=" + doVideo);
+      // console.log(jsep);
       var body = {
         "request": "accept"
       };
@@ -376,7 +379,7 @@ CallClient.prototype.cancelCall = function() {
 
   // 비정상적인 경우 hangup 이벤트가 오지않을 수 있어 종료 및 이벤트(중복 발생 가능) 처리
   self._allInternalReset();
-  self.emit('onHangup', self.myusername.replace("agent", ""), 'We did the hangup');
+  self.emit('onHangup', self.myusername, 'We did the hangup');
 };
 
 CallClient.prototype.declineCall = function() {

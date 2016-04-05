@@ -8,7 +8,7 @@
     </div>
   </div>
 </div>
-<div class="ibox-content  information-list">
+<div class="ibox-content information-list">
   <div class="content_area">
     <div id="about-user" class="row m-b-lg">
       <script id="aboutUser-template" type="text/template">
@@ -21,9 +21,7 @@
         <div class="col-lg-8">
           <strong>About me</strong>
           <p>My name is "{{name}}".</p>
-          <!--
           <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> CALL</button>
-        -->
         </div>
       </script>
     </div>
@@ -58,7 +56,7 @@ $(document).ready(function() {
   var emplId =  $informationSec.attr("data-emplid") ? $informationSec.attr("data-emplid") : activeChatInfo.emplId;
   var userValue = userCache.get(emplId);
   var imagePath = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
-  
+
   var aboutUserData = {
     "name" : userValue.name,
     "imgAlt" : userValue.name,
@@ -69,8 +67,7 @@ $(document).ready(function() {
   $contentArea.find("#about-user").append(Mustache.render(aboutUserTemplate, aboutUserData));
 
   $contentArea.find(".call").click(function() {
-    hideInformationArea(); // information Section
-    showCallArea();
+    makeCall();
   });
 
   $contentArea.find(".screenShare").click(function() {

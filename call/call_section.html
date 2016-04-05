@@ -1,18 +1,308 @@
-<div class="content_area">
-	<div class="info_area hide">
-		<h2 class="tit">&nbsp;</h2>
+<div class="content_area ibox">
+	<div class="info_area ibox-title">
+		<h5 class="title"></h5>
+		<div class="ibox-tools">
+			<span class="btn btn-danger" id="hangup"><i class="fa fa-phone fa-rotate-125"></i>&nbsp; Hangup</span>
+		</div>
 	</div>
-	<div id="videos" class="row" style="margin:auto 10px;margin-top:100px">
-		<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-			<div class="video-panel-remote-body" id="videoremote">
-			</div>
+	<div class="ibox-content">
+		<div id="remote-videobox" style="width: 100%; margin-bottom: 10px;"></div>
+		<div id="local-videobox" style="width: 200px; margin-bottom: 10px;"></div>
+		<!--
+		<div style="width: 100%; clear: both">
+			<textarea class="form-control" id="callMemo" placeholder="Memo"></textarea>
 		</div>
-		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-			<button type="button" class="btn btn-danger btn-block" id="hangup"><i class="fa fa-phone fa-rotate-125"></i>&nbsp; Hangup</button>
-			<div class="video-panel-local-body" id="videolocal" style="margin-top: 120px"></div>
-		</div>
-		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top: 10px">
-			<textarea class="callmemo-input form-control" id="callMemo" placeholder="통화중 간단 메모"></textarea>
-		</div>
+	-->
 	</div>
 </div>
+<script>
+var callClient;
+$(document).ready(function() {
+	// var $callMemo = $videos.find("#callMemo");
+
+	var callHistoryId = null;
+	var callHistoryTimeout = null;
+	if (callClient === undefined)
+		callClient = new CallClient();
+
+	// bind events (general)
+	$("#hangup").on('click', _localHangup);
+
+	// bind events (callClient)
+	callClient.on('onregistered', _onRegistered); // janus 사용자 등록 성공
+	callClient.on('onerrormessage', _onErrorMessage); // janus onmessage 중 에러메시지
+	callClient.on('oncalling', _onCalling); // calling
+	callClient.on('onincomingcall', _onIncomingCall); // incoming call
+	callClient.on('oncallaccepted', _onCallAccepted); // 수락 (local or remote) 성공 메시지
+	callClient.on('onlocalstream', _onLocalStream); // 자신의 Stream이 준비 되었을 때
+	callClient.on('onremotestream', _onRemoteStream); // 상대방의의 Stream이 준비 되었을 때
+	callClient.on('onHangup', _onHangup); // local or remote hangup
+	callClient.on('onDeclining', _onDeclining); // 자신이 수락 거절하는 경우
+	callClient.on('makecallerror', _makeCallError); // makeCall network 에러
+	callClient.on('answercallerror', _answerCallError); // answerCall network 에러
+	callClient.on('jserror', _jsError); // call.js 자체 상태 에러
+
+	// 재연결이 필요한 에러 (callClient)
+	callClient.on('sessionerror', _gwError);
+	callClient.on('onregistration_failed', _gwError);
+	callClient.on('pluginerror', _gwError);
+
+	callClient.initialize(loginInfo.emplId + "_"+loginInfo.os + "_" + loginInfo.browser + "_" + loginInfo.device);
+
+	function _onRegistered(username) {
+		// $("#call-section h5").html("Successfully registered!");
+	}
+
+	function _onErrorMessage(errorCode, error) {
+		toastr.error('Error: ' + error + ' [errorCode: ' + errorCode + ']!');
+	}
+
+	function _makeCallError(msg) {
+		toastr.error(msg);
+	}
+
+	function _onCalling() {
+		callerId = loginInfo.emplId;
+		calleeId = activeChatInfo.chatRoomId;
+
+		// alert info about calling
+		swal({
+			title: "Calling...",
+			text: "Calling... Need any ringbacktone?",
+			type: "info",
+			allowEscapeKey: false,
+			showCancelButton: false,
+			confirmButtonColor: "#1a7bb9",
+			confirmButtonText: "Cancel",
+			closeOnConfirm: false
+		}, function() {
+			callClient.cancelCall();
+			swal.close();
+		});
+	}
+
+	// action for callee when caller calls
+	function _onIncomingCall(caller, doAudio, doVideo) {
+		console.debug("Incoming call from " + caller + "!");
+		callerId = caller.split("_")[0];
+		calleeId = loginInfo.emplId;
+		var msg = "Incoming call from " + userCache.get(callerId).name + "!";
+
+		// alert info of incoming call
+		swal({
+			title: "Incoming call",
+			text: msg,
+			type: "info",
+			allowEscapeKey: false,
+			showCancelButton: true,
+			cancelButtonText: "Decline",
+			confirmButtonColor: "#1a7bb9",
+			confirmButtonText: "Answer",
+			closeOnCancel: false,
+			closeOnConfirm: false
+		}, function(isConfirm) {
+			if (isConfirm) {
+				callClient.answerCall(doAudio, doVideo);
+				swal.close();
+				activeChatInfo = {
+					topic : loginInfo.emplId > callerId ? callerId + "_" + loginInfo.emplId : loginInfo.emplId + "_" + callerId,
+					name : userCache.get(callerId).name,
+					emplId : callerId
+				}
+				changeChatView(true);
+				showInformationArea(constants.INFO_AREA_ABOUT_USER);
+				$("#screenshare-section").hide();
+				$("#information-section").hide();
+				showCallArea();
+			} else {
+				callClient.declineCall();
+				swal.close();
+			}
+		});
+	}
+
+	function _answerCallError() {
+		toastr.error(msg);
+	}
+
+	// action for caller when callee accepts call
+	function _onCallAccepted(peer, doAudio, doVideo) {
+		swal.close();
+
+		hideInformationArea(); // information Section
+		$("#chat-section").removeClass("with-info").addClass("with-call");
+		showCallArea();
+
+		var msg;
+		if (peer === null || peer === undefined) {
+			msg = "Call started!";
+		} else {
+			msg = peer + " accepted the call!";
+
+			// call history 생성 트리거 : 발신자가 call history 생성하여 공유 (3초 이내 종료 호에 대해서는 무시)
+			// if (callHistoryTimeout !== null) {
+			// 	clearTimeout(callHistoryTimeout);
+			// }
+			// callHistoryTimeout = setTimeout(_createCallHistory, 3000);
+			// callStartTime = new Date();
+		}
+
+		$("#call-section h5").html(msg);
+	}
+
+	function _createCallHistory(peer) {
+		if ($videos.is(":visible")) {
+			var args = {
+				"teamId": loginInfo.teamId,
+				"caller": loginInfo.emplId,
+				"callee": activeChatInfo.name,
+				"callStart": callStartTime.format("YYYYMMDDHHmmss")
+			}
+
+			restResource.callHistory.createCallHistory(args, function(data) {
+				callHistoryId = data.callHistoryId;
+				_shareCallHistoryIdToPeer(calleeId, callHistoryId);
+				console.log("current call history id:%d [data:%O]", callHistoryId, data);
+			});
+		}
+	}
+
+	// call history는 발신자가 레코드를 생성하여 수신자에게 공유 (DB 레코드에서 히스토리 정보 공유 및 자신의 메모 정보 업데이트 가능)
+	function _shareCallHistoryIdToPeer(calleeId, callHistoryId) {
+		var paramsForExistMember = {
+			"type": constants.CALL_SHARE_CHID,
+			"callHistoryId": callHistoryId
+		}
+		chatModule.sendCommand(calleeId, paramsForExistMember);
+	}
+
+	function _updateCallHistory() {
+		if ($videos.is(":visible")) {
+			var args = {
+				"callhid": callHistoryId
+			}
+
+			var updateCallHistory = false;
+			if (callerId === myPreference.emplId) {
+				// args.memo = $callMemo.val();
+				args.callTime = Math.ceil((new Date().getTime() - callStartTime.getTime()) / 1000);
+				updateCallHistory = true;
+			} else if (calleeId === myPreference.emplId) {
+				// TODO 현재는 필드 분리가 안되어 있어 caller만 메모 남김
+				// args.memo = $callMemo.val();
+				// args.memo = "";
+				// if (args.memo.length) {
+				// 	updateCallHistory = true;
+				// }
+			}
+
+			if (updateCallHistory) {
+				restResource.callHistory.updateCallHistory(args, function(data) {
+					console.debug("successfully updated call history! [memo:%s, callTime:%d]", args.memo, args.callTime);
+				});
+			}
+		}
+	}
+
+	function _onLocalStream(stream) {
+		if ($('#local-video').length === 0) {
+			$('#local-videobox').append('<video class="rounded centered" id="local-video" style="width:100%" autoplay muted="muted"/>');
+		}
+		attachMediaStream($('#local-video').get(0), stream);
+		$("#local-video").get(0).muted = "muted";
+
+		var videoTracks = stream.getVideoTracks();
+		if (videoTracks === null || videoTracks === undefined || videoTracks.length === 0) {
+			// No webcam
+			$('#local-video').remove();
+			$('#local-videobox').append('<span class="no-video-text">No camera available</span>');
+		}
+	}
+
+	function _onRemoteStream(stream) {
+		if ($('#remote-video').length === 0) {
+			$('#remote-videobox').append('<video class="rounded centered" id="remote-video" style="width:100%" autoplay/>');
+		}
+		attachMediaStream($('#remote-video').get(0), stream);
+		var videoTracks = stream.getVideoTracks();
+		if (videoTracks === null || videoTracks === undefined || videoTracks.length === 0 || videoTracks[0].muted) {
+			// No remote video
+			$('#remote-video').remove();
+			$('#remote-videobox').append('<span class="no-video-text">No remote video available</span>');
+		}
+	}
+
+	function _onHangup(username, reason) {
+		swal.close();
+
+		if (activeChatInfo.emplId == username) {
+			var msg = "Call hung up by " + activeChatInfo.name + " (" + reason + ")!";
+			toastr.info(msg);
+		}
+
+		$("#call-section").hide();
+		_cleanVideoArea();
+		$("#chat-section").removeClass("with-call").addClass("with-info");
+		$("#information-section").show();
+	}
+
+	// action for caller when caller declined
+	function _onDeclining(code, reason) {
+	}
+
+	function _jsError(msg) {
+		toastr.error(msg);
+	}
+
+	function _gwError(msg) {
+		swal.close();
+		$('#local-video').hide();
+		toastr.error(msg);
+	}
+
+});
+
+function makeCall(chatId, username) {
+	if (callClient.registered && !callClient.engaged) {
+		_cleanVideoArea();
+
+		var peer = activeChatInfo.emplId;
+		if (peer === undefined) {
+			console.error("No peer selected!");
+		}
+
+		callClient.makeCall(peer);
+	}
+}
+
+function _localHangup() {
+	callClient.localHangup();
+}
+
+function setCallHistoryId(callHId) {
+	// 통화 중인 경우에만 call history id 설정
+	if (callerId !== null && calleeId != null) {
+		callHistoryId = callHId;
+	}
+}
+
+function _cleanVideoArea() {
+	$('#local-video').remove();
+	$('#remote-video').remove();
+
+// call history 처리
+// if (callHistoryTimeout !== null) {
+// 	clearTimeout(_createCallHistory);
+// 	callHistoryTimeout = null;
+// }
+//
+// if (callHistoryId !== null) {
+// 	_updateCallHistory(callMemo);
+// 	callHistoryId = null;
+// }
+// $callMemo.val("");
+
+// $videos.hide();
+}
+
+</script>
