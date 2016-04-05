@@ -85,7 +85,7 @@ function scrollToMessage(chatId) {
 
   $contentArea.mCustomScrollbar("scrollTo", "#chat-" + chatId);
   $contentArea.find("#chat-" + chatId).css("border-radius", "3px");
-  $contentArea.find("#chat-" + chatId).addClass("animated myshake");
+  $contentArea.find("#chat-" + chatId).addClass("animated message-shake");
 };
 
 var scrollSearchCount = 0;
@@ -114,7 +114,7 @@ function doScrollSearch() {
         if(senderInfo)
           sender = senderInfo.name;
         var imagePath = getImagePath(senderInfo.photoLoc, senderInfo.teamId, senderInfo.emplId);
-        
+
         var emplId;
         var chatRoomName;
         var chatType = getChatType(message.topic);
