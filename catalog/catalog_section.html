@@ -76,6 +76,8 @@ $(document).ready(function() {
   var $channelArea = $catalogSec.find('.chat-channels');
 
   var imagePath = getImagePath(loginInfo.photoLoc, loginInfo.teamId, loginInfo.emplId);
+  if (loginInfo.photoLoc === "null")
+    imagePath = "/img/profile_no.jpg";
 
   // set profile
   var loginUserData = {
@@ -84,9 +86,6 @@ $(document).ready(function() {
       "img": imagePath,
       "imgAlt": loginInfo.name
   };
-  // console.log("constants.IMAGE_URL = %s, loginInfo.photoLoc = %s imagePath",
-  //   constants.IMAGE_URL, loginInfo.photoLoc, imagePath);
-
   $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
   activeChatView = function($targetList, isMovingScroll){
