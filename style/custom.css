@@ -106,21 +106,21 @@ h1:after {
 }
 
 /* call_section */
-#videos .rounded {
+#call-section .rounded {
 	border-radius: 5px;
 }
 
-#videos .centered {
+#call-section .centered {
 	display: block;
 	margin: auto;
 }
 
-#videos .btn_hangup {
+#call-section .btn_hangup {
 	float: right;
 	margin-top: -6px;
 }
 
-#videos .no-video-text {
+#call-section .no-video-text {
 	text-align: center;
 	position: absolute;
 	bottom: 0px;
@@ -130,16 +130,8 @@ h1:after {
 }
 
 /*
-.video-panel-local-body {
-	height: 150px;
-  padding: 5px;
-}
-.video-panel-remote-body {
-	height: 200px;
-  padding: 5px;
-}
+		call history
 */
-
 #player{
 	margin: 0 auto;
 	width: 900px;
@@ -484,7 +476,7 @@ body.no-menu #catalog-section {
 }
 
 .chat-view > .chat-messages {
-	padding-bottom: 60px;
+	padding-bottom: 74px;
 	height: 100%;
 	word-wrap: break-word;
 }
@@ -737,6 +729,14 @@ li.active,
 	right: 350px;
 }
 
+#chat-section.with-call {
+	padding-left: 600px;
+}
+
+#chat-section.with-call .chat-input {
+	left: 600px;
+}
+
 #information-section {
 	width: 350px;
 	position: absolute;
@@ -768,13 +768,13 @@ li.active,
 	padding: 10px 15px;
 }
 
-.myshake {
-    -webkit-animation-name: myshake;
-    animation-name: myshake;
+.message-shake {
+    -webkit-animation-name: message-shake;
+    animation-name: message-shake;
     animation-duration: 2s;
 }
 
-@-webkit-keyframes myshake {
+@-webkit-keyframes message-shake {
     0%, 100% {
         -webkit-transform: translateX(0);
         transform: translateX(0);
@@ -793,7 +793,7 @@ li.active,
     to {background: #EEEEEE}
 }
 
-@keyframes myshake {
+@keyframes message-shake {
     0%, 100% {
         -webkit-transform: translateX(0);
         -ms-transform: translateX(0);
@@ -813,4 +813,12 @@ li.active,
     }
     from {background: #F8AC59}
     to {background: #EEEEEE}
+}
+
+#call-section {
+	width: 600px;
+	position: absolute;
+	left: 0;
+	margin: 0 !important;
+	padding: 0 !important;
 }
