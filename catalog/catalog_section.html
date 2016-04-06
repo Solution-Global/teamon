@@ -88,64 +88,71 @@ $(document).ready(function() {
   };
   $userProfile.append(Mustache.render(profileTemplate, loginUserData));
 
-  activeChatView = function($targetList, isMovingScroll){
-    $channelListContext.find("li.active").removeClass("active");
-    $userListContext.find("li.active").removeClass("active");
-
-    $targetList.addClass("active");
-
-    var topic = $targetList.data("topic");
+  // change all elements regarding the topic
+  activeChatView = function(topic, isMovingScroll) {
+    var $listItem = getSingleChattingContext(topic);
+    // A. handle objects
+    // A1. change activeChatInfo object and save it as "lastChatInfo"
+    activeChatInfo = {};  // initialize
+    activeChatInfo.topic = topic;
     var chatType = getChatType(topic);
-    activeChatInfo = {
-      "topic" : topic
-    };
     if(chatType === constants.DIRECT_CHAT) {
-      activeChatInfo.name = $targetList.data("name");
-      activeChatInfo.emplId = $targetList.data("emplid");
+      activeChatInfo.name = $listItem.data("name");
+      activeChatInfo.emplId = $listItem.data("emplid");
     } else {
-      activeChatInfo.channelId = $targetList.data("channelid");
+      activeChatInfo.channelId = $listItem.data("channelid");
     }
-
     myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
 
-    hideScreenShareArea();
+    // A2. activate selected channel on catalog list
+    $channelListContext.find("li.active").removeClass("active");
+    $userListContext.find("li.active").removeClass("active");
+    $listItem.addClass("active");
 
-    // in small-view, hide menu
+    // B. handle elements
+    // B1. hide section
+    $("#screenshare-section").hide();
+    $("#call-section").hide();
+
+    // B2. hide menu if it's small screen
     if ($('body').hasClass('body-small'))
       $('.navbar-minimalize').click();
-    else {
-      if(activeChatInfo.channelId) {
-        showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
-      } else {
-        showInformationArea(constants.INFO_AREA_ABOUT_USER);
-      }
-    }
 
-    showChatArea();
+    // B3. change name on header section
+    setHearderTitle(topic);
+
+    // B4. change chat section
+    $("#chat-section").show();
     changeChatView(isMovingScroll);
 
-    // if call is active
+    // B5. change information section
+    if (!$('body').hasClass('body-small')) {
+      if(activeChatInfo.channelId)
+        showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
+      else
+        showInformationArea(constants.INFO_AREA_ABOUT_USER);
+    }
+
+    // B6. change call section
     if ($("#local-video").length > 0 && $("#call-section").attr("data-callId") && $("#call-section").attr("data-callId") == activeChatInfo.emplId)
     {
+      // if call is active
       showCallArea();
       $("#chat-section").addClass("with-call").removeClass("with-info");
       $("#information-section").hide();
     } else {
-      hideCallArea();
       $("#chat-section").removeClass("with-call");
     }
   };
 
   // set event for direct chatting
   $userListContext.delegate("li", "click touchend", function() {
-    var $targetList = $(this);
-    activeChatView($targetList, true);
+    activeChatView($(this).attr('data-topic'), true);
   });
 
   // set event for group chatting
   $channelListContext.delegate("li", "click touchend", function() {
-    var $targetList = $(this);
-    activeChatView($targetList, true);
+    activeChatView($(this).attr('data-topic'), true);
   });
 
   // init User List
@@ -262,12 +269,15 @@ $(document).ready(function() {
     }
   }
 
-  getSingleChattingContext = function (topic) {
+  // get element from user and channel list with topic
+  getSingleChattingContext = function(topic) {
     var chatType = getChatType(topic);
     if (chatType === constants.DIRECT_CHAT)
       return $userListContext.find("[data-topic='" + topic + "']");
     else if(chatType === constants.CHANNEL_CHAT)
       return $channelListContext.find("[data-topic='" + topic + "']");
+    else
+      return null;
   };
 
   var _initPresenceDisplay = function() {
@@ -289,7 +299,7 @@ $(document).ready(function() {
     });
   };
 
-  hideChattingAlram = function(topic) {
+  hideChattingAlarm = function(topic) {
     var $activeTarget = getSingleChattingContext(topic);
     var $alarmArea = $activeTarget.find(".alarm");
     $alarmArea.addClass("hide");

@@ -62,7 +62,7 @@ $(document).ready(function() {
     var chatId = $(this).data("chatid");
     var $targetObj = getSingleChattingContext(topic);
     if($targetObj) {
-      activeChatView($targetObj, false);
+      activeChatView(topic, false);
 
       var $chatSec = $("#chat-section");
       var $contentArea = $chatSec.find(".content_area");
