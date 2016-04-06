@@ -239,7 +239,7 @@ $(document).ready(function() {
       $(row).remove();
     });
 
-    hideChattingAlram(topic); // init Alram
+    hideChattingAlarm(topic); // init Alram
 
     // mention list에서 사용 될 사용자 설정
     var chatType = getChatType(topic);
@@ -250,7 +250,7 @@ $(document).ready(function() {
       for(var key in channelValue.memberList) {
         var userValue = userCache.get(channelValue.memberList[key].emplId);
 
-        //본인 제외
+        // exlucde myself
         if(userValue.emplId === loginInfo.emplId)
           continue;
 

@@ -174,7 +174,7 @@ handleLastMsgId = function(payload) {
     var localLastMstId = myMessage.getLastReadMessageId(payload.topic);
     if(localLastMstId && localLastMstId < payload.lastMsgId) {
       myMessage.setLastReadMessageId(payload.topic, payload.lastMsgId);
-      hideChattingAlram(payload.topic);
+      hideChattingAlarm(payload.topic);
     }
   }
 };
