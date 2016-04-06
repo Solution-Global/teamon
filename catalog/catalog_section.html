@@ -108,7 +108,6 @@ $(document).ready(function() {
 
     myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
 
-    hideCallArea();
     hideScreenShareArea();
 
     // in small-view, hide menu
@@ -124,6 +123,17 @@ $(document).ready(function() {
 
     showChatArea();
     changeChatView(isMovingScroll);
+
+    // if call is active
+    if ($("#local-video").length > 0 && $("#call-section").attr("data-callId") && $("#call-section").attr("data-callId") == activeChatInfo.emplId)
+    {
+      showCallArea();
+      $("#chat-section").addClass("with-call").removeClass("with-info");
+      $("#information-section").hide();
+    } else {
+      hideCallArea();
+      $("#chat-section").removeClass("with-call");
+    }
   };
 
   // set event for direct chatting

@@ -114,6 +114,7 @@ $(document).ready(function() {
 				$("#screenshare-section").hide();
 				$("#information-section").hide();
 				showCallArea();
+				$("#call-section").attr("data-callId", activeChatInfo.emplId);
 			} else {
 				callClient.declineCall();
 				swal.close();
@@ -132,6 +133,7 @@ $(document).ready(function() {
 		hideInformationArea(); // information Section
 		$("#chat-section").removeClass("with-info").addClass("with-call");
 		showCallArea();
+		$("#call-section").attr("data-callId", activeChatInfo.emplId);
 
 		var msg;
 		if (peer === null || peer === undefined) {
@@ -240,10 +242,11 @@ $(document).ready(function() {
 			toastr.info(msg);
 		}
 
-		$("#call-section").hide();
+		$('#call-section').hide();
+		$('#call-section').attr('data-callId', '');
 		_cleanVideoArea();
-		$("#chat-section").removeClass("with-call").addClass("with-info");
-		$("#information-section").show();
+		$('#chat-section').removeClass('with-call').addClass('with-info');
+		$('#information-section').show();
 	}
 
 	// action for caller when caller declined
