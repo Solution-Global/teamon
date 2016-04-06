@@ -10,7 +10,7 @@ var appVersion = require('../package.json').version;
 var os = require('os').platform();
 var appRootPath = require('app-root-path').path.replace(/\\/gi, "/");
 
-var INDEX = 'file://' + path.join(__dirname, '../index_app.html');
+var INDEX = 'file://' + path.join(appRootPath, '/index_app.html');
 var mainWindow = null;
 
 // make single instance
@@ -131,8 +131,8 @@ app.on('ready', function() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 850,
-    height: 650,
+    width: 1024,
+    height: 768,
     title: constants.APP_NAME,
     icon: path.join(appRootPath, '/favicon.png')
   });
