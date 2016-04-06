@@ -145,7 +145,7 @@ function createWindow() {
   var protocol = require('protocol');
   var fs = require('fs');
   protocol.interceptFileProtocol('file', function(request, callback) {
-    var url = request.url.substr(7);
+    var url = decodeURI(request.url.substr(7));
     // console.log(request.url);
     if (url.lastIndexOf("?") > 0)
       url = url.substr(0, url.lastIndexOf("?"));
