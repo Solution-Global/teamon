@@ -2,7 +2,7 @@
   <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#"><i class="fa fa-bars"></i></a>
 </div>
 <div class="title-area">
-    <h4 class="tit"></h4>
+    <h4></h4>
 </div>
 <div class="navbar-right">
   <form id="searchForm" role="search" class="navbar-form-custom" action="#">
@@ -35,17 +35,24 @@
 $(document).ready(function() {
   var $headerSec = $("#header-section");
   var $titleArea = $headerSec.find(".title_area");
-  var $title = $headerSec.find(".tit");
+  var $title = $headerSec.find("h4");
 
   setHearderTitle = function(text) {
     if(!text.startsWith("@") && !text.startsWith("#"))
       text = "@" + text;
     $title.html(text);
-    // show about menu
-    setAboutLabel();
+    // change text on about menu
+    var $infoAbout = $("#info-about");
+    $infoAbout.show();
+    $("#info-file").show();
+
+    if (activeChatInfo.channelId)
+      $infoAbout.html("About Channel");
+    else
+      $infoAbout.html("About User");
   }
 
-  if (activeChatInfo === null) {
+  if (!activeChatInfo) {
      $("#info-about").hide();
      $("#info-file").hide();
   }
@@ -94,17 +101,6 @@ $(document).ready(function() {
       }
     }
 });
-
-function setAboutLabel() {
-  var $infoAbout = $("#info-about");
-  $infoAbout.show();
-  $("#info-file").show();
-
-  if (activeChatInfo.channelId != null)
-    $infoAbout.html("About Channel");
-  else if (activeChatInfo.name != null)
-    $infoAbout.html("About User");
-}
 
 function doSearch(params) {
   if (params["top-search"] === undefined) {
