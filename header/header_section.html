@@ -150,6 +150,7 @@ function doSearch(params) {
             chatRoomName += userCache.get(message.senderId).name;
           }
         } else if (chatType === constants.CHANNEL_CHAT) {
+          emplId = message.senderId;
           chatRoomName = message.topic;
         }
 

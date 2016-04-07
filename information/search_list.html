@@ -11,20 +11,16 @@
     <ul>
       <input type="hidden" name="hidden-keyword" value=""/>
       <script id="searchlist-template" type="text/template">
-        <a id="chat-room-name" href="#" style="padding-left: 15px;">{{chatRoomName}}</a>
-        <div id="chat-{{chatId}}" class="chat-message left" data-date="{{date}}">
+        <a id="chat-room-name" href="#" style="padding-left: 15px;" data-topic="{{topic}}" data-chatid="{{chatId}}">{{chatRoomName}}</a>
+        <div class="chat-message left" data-date="{{date}}">
           <img class="message-avatar" src="{{img}}" alt="{{imgAlt}}" style="float: left; margin-right: 10px;">
-          <div class="message" style="text-align: left; margin-left: 55px;">
-            <a class="about-user" href="#" data-emplid='{{emplId}}'>{{sender}}</a>
+          <div class="message" style="text-align: left; margin-left: 55px;" data-topic="{{topic}}" data-chatid="{{chatId}}">
+            <a class="about-user-simple" href="#" data-emplid="{{emplId}}">{{sender}}</a>
             <span class="message-date">{{date}}  {{time}}</span>
             <span class="message-content">
               {{{msgText}}}
             </span>
           </div>
-          <input type="hidden" name="hidden-chatId" value="{{chatId}}" />
-          <input type="hidden" name="hidden-topic" value="{{topic}}" />
-          <input type="hidden" name="hidden-name" value="{{chatRoomName}}" />
-          <input type="hidden" name="hidden-emplId" value="{{emplId}}" />
         </div>
         <div class="hr-line-dashed"></div>
       </script>
@@ -34,38 +30,32 @@
 <script>
 $(document).ready(function() {
   var $informationSec = $("#information-section");
-  $("#information-section").find(".search-list ul").on("click", "#chat-room-name", function(event) {
-    event.preventDefault();
-    var topic = $(this).next().nameFind("hidden-topic").val();
-    var chatType = getChatType(topic);
-    if (chatType === constants.DIRECT_CHAT) {
-      activeChatInfo = {
-        "topic" : topic,
-        "name" : $(this).next().nameFind("hidden-name").val(),
-        "emplId" : $(this).next().nameFind("hidden-emplId").val()
-      }
-    } else if (chatType === constants.CHANNEL_CHAT) {
-      var channelList = channelCache.getValueArray();
-      for(var key in channelList) {
-        if (loginInfo.teamId == channelList[key].teamId && topic == channelList[key].name && 'A' == channelList[key].dbStat) {
-          activeChatInfo = {
-            "topic" : topic,
-            "name" : topic,
-            "channelId" : channelList[key].channelId
-          }
-          break;
-        }
-      }
+
+  $informationSec.find(".search-list ul").on("mouseover", ".message", function() {
+    $(this).css("border-color", "#F8AC59");
+    $(this).css('cursor', 'pointer');
+  });
+  $informationSec.find(".search-list ul").on("mouseout", ".message", function() {
+    $(this).css("border-color", "#e7eaec");
+  });
+  $informationSec.find(".search-list ul").on("click", ".message", function() {
+    var topic = $(this).data("topic");
+    var chatId = $(this).data("chatid");
+    var $targetObj = getSingleChattingContext(topic);
+    if ($targetObj) {
+      activeChatView(topic, false);
+      scrollToMessage(chatId);
     }
+  });
 
-    hideCallArea();
-    hideScreenShareArea();
-
-    showChatArea();
-    changeChatView(false);
-
-    var chatId = $(this).next().nameFind("hidden-chatId").val();
-    scrollToMessage(chatId, true);
+  $informationSec.find(".search-list ul").on("click", "#chat-room-name", function(event) {
+    event.preventDefault();
+    var topic = $(this).data("topic");
+    var chatId = $(this).data("chatid");
+    var $targetObj = getSingleChattingContext(topic);
+    if ($targetObj) {
+      activeChatView(topic, true);
+    }
   });
 
   $informationSec.find(".search-list").mCustomScrollbar({

@@ -33,7 +33,7 @@ var noti = (function() {
 
     if(window && window.process && window.process.type) {
       // For desktop
-      myWindow.flashFrame(true) ;
+      myWindow.flashFrame(true);
       _handleAppNotification(msgPayload);
 
       // if(trayModule)

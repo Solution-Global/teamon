@@ -134,7 +134,7 @@ $(document).ready(function() {
     changeChatView(isMovingScroll);
 
     // B5. change information section
-    if (!$('body').hasClass('body-small')) {
+    if (!$('body').hasClass('body-small') && !$("#information-section").find(".search-list").length) {
       if(activeChatInfo.channelId)
         showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
       else

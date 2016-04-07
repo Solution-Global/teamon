@@ -10,7 +10,7 @@ var appVersion = require('../package.json').version;
 var os = require('os').platform();
 var appRootPath = require('app-root-path').path.replace(/\\/gi, "/");
 
-var INDEX = 'file://' + path.join(appRootPath, '/index_app.html');
+var INDEX = 'file:///' + path.join(appRootPath, '/index_app.html');
 var mainWindow = null;
 
 // make single instance
@@ -200,7 +200,9 @@ function setGlobalShortcuts() {
 
     ret = globalShortcut.register('F5', function() {
       if (mainWindow.isFocused())
-       console.log('F5 is pressed. Just ignored.');
+        mainWindow.reload();
+      else
+        console.log('F5 is pressed. Just ignored.');
     });
     if (!ret) {
       console.log('F5 registration failed');
