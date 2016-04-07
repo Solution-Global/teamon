@@ -1,4 +1,4 @@
-var message = (function(storageManager, myPref) {
+var message = (function(storageManager) {
 
   var KEY_TYPE_CHAT_MESSAGES = 1;
   var KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID = 2;
@@ -27,25 +27,53 @@ var message = (function(storageManager, myPref) {
     ...
   */
 
-  var cacheMessage = new cacheManager();
-  var cacheFirstMsgId = new cacheManager();
+  var cacheMessage = new CacheManager();
+  var cacheFirstMsgId = new CacheManager();
 
-  function syncChatMessage(chatType, targetArray) {
-    var restPrams = {
-      "teamId": myPref.teamId,
-      "emplId": myPref.emplId
+  function syncChatMessage(chatType, targetArray, callback) {
+    var restParams = {
+      "teamId": loginInfo.teamId,
+      "emplId": loginInfo.emplId
     };
 
     var lastMsgIdArr = [];
     var localMessageList = {};
-    var restFunction = function(msgData) {
-      $.each( msgData, function(idx, msgObject) {
+
+    // get lastMsgId as array from all the topics
+    for (var key in targetArray) {
+      var topic;
+
+      if (constants.DIRECT_CHAT === chatType) {
+        if (loginInfo.emplId === targetArray[key].emplId)
+          continue;
+        topic = generateTopic(loginInfo.emplId, targetArray[key].emplId);
+      } else {
+        topic = targetArray[key].name;
+      }
+
+      var messagesStr = _readAll(KEY_TYPE_CHAT_MESSAGES, topic);
+      var lastMsgIdObj = {
+        "topic" : topic
+      };
+
+      if (messagesStr) {
+        var messagesObj = JSON.parse(messagesStr);
+        localMessageList[topic] = messagesObj;
+        lastMsgIdObj.lastMsgId = messagesObj[messagesObj.length -1].chatId;
+      }
+
+      lastMsgIdArr.push(lastMsgIdObj);
+    }
+
+    restParams.condition = JSON.stringify(lastMsgIdArr);
+    restResource.chat.getListForSync(restParams, function(msgData) {
+      $.each(msgData, function(idx, msgObject) {
         var topic = msgObject.topic;
         setLastReadMessageId(topic, msgObject.lastMsgId);
 
-        if(msgObject.messageList && msgObject.messageList.length > 0) {
+        if (msgObject.messageList && msgObject.messageList.length > 0) {
           var messageArray = localMessageList[topic];
-          if(!messageArray)
+          if (!messageArray)
             messageArray = [];
 
           var unReadMsgCnt = 0;
@@ -58,74 +86,47 @@ var message = (function(storageManager, myPref) {
             }; // LocalStorage 저장될 포맷으로 Object 생성
             messageArray.push(message);
 
-            if(msgObject.lastMsgId < msgRow.chatId)
+            if (msgObject.lastMsgId < msgRow.chatId)
               unReadMsgCnt++;
           });
 
           var messageArrayLength = messageArray.length;
-          if(unReadMsgCnt < constants.COMMON_SEARCH_COUNT) {
-            if(messageArrayLength > constants.COMMON_SEARCH_COUNT) {
+          if (unReadMsgCnt < constants.COMMON_SEARCH_COUNT) {
+            if (messageArrayLength > constants.COMMON_SEARCH_COUNT)
               _appendMessageArray(messageArray.slice(messageArrayLength-constants.COMMON_SEARCH_COUNT, messageArrayLength), topic); // 항상 최대 검색 갯수만 LocalStorage에 저장한다.
-            } else {
+            else
               _appendMessageArray(messageArray, topic);
-            }
           } else {
-            if(messageArrayLength > (constants.COMMON_SEARCH_COUNT + 5)) {
+            if (messageArrayLength > (constants.COMMON_SEARCH_COUNT + 5))
               _appendMessageArray(messageArray.slice(messageArrayLength-(constants.COMMON_SEARCH_COUNT + 5), messageArrayLength), topic); // unReadMsgCnt기준의 이전메시지 5개 이상정도 더 보여준다.
-            } else {
+            else
               _appendMessageArray(messageArray, topic);
-            }
           }
 
-          if(unReadMsgCnt > 0)
+          if (unReadMsgCnt > 0)
             setChattingAlarmCnt(topic, unReadMsgCnt);
         }
       });
-    };
+      if (callback)
+        callback();
+    });
 
-    for(var key in targetArray) {
-      var topic;
-
-      if(constants.DIRECT_CHAT === chatType) {
-        if(myPref.emplId === targetArray[key].emplId)
-          continue;
-        topic = generateTopic(myPref.emplId, targetArray[key].emplId);
-      } else {
-        topic = targetArray[key].name;
-      }
-
-      var messagesStr = _readAll(KEY_TYPE_CHAT_MESSAGES, topic);
-      var LastMsgIdObj = {
-        "topic" : topic
-      };
-
-      if (messagesStr) {
-        var messagesObj=  JSON.parse(messagesStr);
-        localMessageList[topic] = messagesObj;
-        LastMsgIdObj.lastMsgId = messagesObj[messagesObj.length -1].chatId;
-      }
-
-      lastMsgIdArr.push(LastMsgIdObj);
-    }
-
-    restPrams.condition = JSON.stringify(lastMsgIdArr);
-    restResource.chat.getListForSync(restPrams, restFunction);
   }
 
   // Local Stroage 저장된 파일에서 과거 메시지 가져와 local storage에 저장
   function getPreviousChatMessage(topic, callback) {
-    var restPrams = {
-      "teamId": myPref.teamId,
-      "emplId": myPref.emplId,
+    var restParams = {
+      "teamId": loginInfo.teamId,
+      "emplId": loginInfo.emplId,
       "topic": topic
     };
 
     var firstMsgId = cacheFirstMsgId.get(topic);
     if (firstMsgId) {
-      restPrams.firstMsgId = firstMsgId;
+      restParams.firstMsgId = firstMsgId;
     }
 
-    restResource.chat.getListByCondition(restPrams, {}, function(msgData) {
+    restResource.chat.getListByCondition(restParams, {}, function(msgData) {
       if (msgData.length > 0) {
         var messageArray = [];
         $.each(msgData, function(idx, msgRow) {
@@ -146,10 +147,10 @@ var message = (function(storageManager, myPref) {
     var keyName;
     switch (keyType) {
       case KEY_TYPE_CHAT_MESSAGES:
-        keyName = "CHAT_" + myPref.emplId + "_" + topic;
+        keyName = "CHAT_" + loginInfo.emplId + "_" + topic;
         break;
       case KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID:
-        keyName = "CHAT_LAST_READ_MESSAGE_ID_" + myPref.emplId;
+        keyName = "CHAT_LAST_READ_MESSAGE_ID_" + loginInfo.emplId;
         break;
     }
     return keyName;
@@ -168,7 +169,7 @@ var message = (function(storageManager, myPref) {
   // 모든 메시지 가져오기
   function getAllChatMessage(topic) {
     var messages = cacheMessage.get(topic); // Memory에 value를 우선한다.
-    if(messages)
+    if (messages)
       return messages;
 
     var value = _readAll(KEY_TYPE_CHAT_MESSAGES, topic);
@@ -178,7 +179,7 @@ var message = (function(storageManager, myPref) {
 
   function appendMessageUnit(msgRow, topic) {
     var messages = getAllChatMessage(topic);
-    if(!messages) {
+    if (!messages) {
       messages = [];
     }
 
@@ -189,7 +190,7 @@ var message = (function(storageManager, myPref) {
 
   function _prependMessageArray(value, topic) {
     var messages = getAllChatMessage(topic);
-    if(!messages)
+    if (!messages)
       messages = [];
 
     cacheFirstMsgId.set(topic, value[0].chatId);

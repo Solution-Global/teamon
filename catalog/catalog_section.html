@@ -69,10 +69,6 @@
 
 <script>
 $(document).ready(function() {
-  userCache = new cacheManager(); // user list 저장
-  channelCache = new cacheManager(); // channel list 저장
-  myMessage = messageManager(localStorageManager, loginInfo, userCache, channelCache); // global var
-
   var $userProfile = $('#user-profile');
   var $catalogSec = $("#catalog-section");
   var profileTemplate = $('#profile-template').html();
