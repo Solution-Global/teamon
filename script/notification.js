@@ -7,13 +7,11 @@ var noti = (function() {
   // TODO have to make page for change of notification sound
   var audio = new Audio('./sound/alarm.wav');
 
-  function handleNotification (msgPayload) {
-    console.info("### notification 111 ### senderId = %s", msgPayload.senderId);
+  function handleNotification(msgPayload) {
     if(msgPayload.senderId === loginInfo.emplId) {
       return;
     }
 
-    console.info("### notification 222 ### %s", msgPayload.senderId);
     var userValue = userCache.get(msgPayload.senderId);
 
     notiTitle = "New message form " + userValue.name;
@@ -23,15 +21,13 @@ var noti = (function() {
 
     // TODO change to profile image of user
     notiIcon = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
-    console.info("### notification ### notiIcon = %s", notiIcon);
 
-
-    if(getChatType(msgPayload.topic) === constants.CHANNEL_CHAT) {
+    if (getChatType(msgPayload.topic) === constants.CHANNEL_CHAT) {
       notiTitle = "New message in " + msgPayload.topic;
       notiBody = userValue.name + ": "  + notiBody;
     }
 
-    if(window && window.process && window.process.type) {
+    if (runningChannel === constants.CHANNEL_APP) {
       // For desktop
       myWindow.flashFrame(true);
       _handleAppNotification(msgPayload);
@@ -44,13 +40,13 @@ var noti = (function() {
     }
   }
 
-  function _handleAppNotification (msgPayload) {
+  function _handleAppNotification(msgPayload) {
     // node-notifier doesn't support image url for icon.
     audio.play();
     notifier.notify({
       title: notiTitle,
       message: notiBody,
-      icon: path.join(__dirname, '../favicon.png'),// Absolute path (doesn't work on balloons)
+      icon: appRootPath + '/favicon.png',// Absolute path (doesn't work on balloons)
       sound: false, // Only Notification Center or Windows Toasters
       wait: true // Wait with callback, until user action is taken against notification
     //}, funcion(err, response) {
@@ -60,15 +56,15 @@ var noti = (function() {
       msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
 
     notifier.on('click', function(){
-      myWindow.show();
       myWindow.focus();
+      myWindow.show();
 
       changeTarget(msgPayload.topic);
     });
     //notifier.on('timeout', function(notifierObject, options){});
   }
 
-  function _handleWebNotification (msgPayload) {
+  function _handleWebNotification(msgPayload) {
     var notification = null;
 
     if (!("Notification" in window)) {
@@ -105,7 +101,7 @@ var noti = (function() {
       return;
     }
 
-    if(notification !== null) {
+    if (notification !== null) {
       setTimeout(function(){notification.close();}, 3000);
       notification.onclick = function(event) {
         notification.close();

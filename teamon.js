@@ -216,7 +216,7 @@ handleCommand = function(receiver, commandPayload) {
         // 화면 닫기 & 리스트제거
         hideInformationArea();
         hideChatArea();
-        hideScreenShareArea();
+        // hideScreenShareArea();
         removeChannel(commandPayload.channelId);
       } else {
         if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {

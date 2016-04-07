@@ -162,10 +162,10 @@ function createWindow() {
       console.log(error);
   });
 
-  // mainWindow.on('close', function(event) { //   <---- Catch close event
-  //   event.preventDefault();
-  //   mainWindow.hide();
-  // });
+  mainWindow.on('close', function(event) { //   <---- Catch close event
+    event.preventDefault();
+    mainWindow.hide();
+  });
 
   mainWindow.on('closed', function() {
     mainWindow = null;
@@ -200,7 +200,10 @@ function setGlobalShortcuts() {
 
     ret = globalShortcut.register('F5', function() {
       if (mainWindow.isFocused())
+      {
+        mainWindow.webContents.send('tray_destroy');
         mainWindow.reload();
+      }
       else
         console.log('F5 is pressed. Just ignored.');
     });
@@ -221,5 +224,10 @@ function handleTrayEvent() {
 
   ipc.on('close-main-window', function() {
     app.quit();
+  });
+
+  ipc.on('reload', function(event, arg) {
+    event.sender.send('tray_destroy');
+    mainWindow.reload();
   });
 }

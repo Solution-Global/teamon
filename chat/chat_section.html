@@ -121,7 +121,6 @@ $(document).ready(function() {
   handleMsg = function(msgPayload) {
     if(activeChatInfo && activeChatInfo.topic  === msgPayload.topic) {
       if (!document.hasFocus()){
-        console.info("### notification ### senderId = %s", msgPayload.senderId);
         // alarmCnt 를 추가하지 않고 noti만 한다.
         notifierModule.handleNotification(msgPayload);
       }
