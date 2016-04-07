@@ -31,7 +31,5 @@ tags
 .tags*
 
 # Build
-release
-tool
 dist
 web/teamon_bundle.js

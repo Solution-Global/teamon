@@ -34,7 +34,7 @@ var dropzone = new Dropzone("#fileupload-form", {
 					$("#submit-fileupload").closest(".modal-dialog").closest(".modal").modal("hide");
           var fileNames = "";
           $.each(files, function(idx) {
-						var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + escape(activeChatInfo.topic) + "&emplId=" + loginInfo.emplId + "&type=chat";
+						var fileUrl = REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + escape(activeChatInfo.topic) + "&emplId=" + loginInfo.emplId + "&type=chat";
             fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
           });
           chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");

@@ -1,8 +1,8 @@
 {
   "name": "TeamON",
   "productName": "TeamON",
-  "version": "0.1.0",
-  "description": "Unified desktop app for team communications and collaborations.",
+  "version": "0.0.1",
+  "description": "TeamON",
   "main": "script/app.js",
   "scripts": {
     "app": "electron .",
@@ -12,7 +12,7 @@
     "clean:osx": "rm -rf dist/osx",
     "pack": "npm run pack:win",
     "dist": "npm run dist:win",
-    "pack:win": "npm run clean:win && electron-packager . teamon --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"^/(assets|release|logs|web|dist)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --version-string.ProductName=TeamON --version-string.CompanyName=UANGEL --overwrite",
+    "pack:win": "npm run clean:win && electron-packager . TeamON --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --app-version=\"0.0.1\" --asar=true --asar-unpack=\"*.node\" --icon=assets/win/TeamON.ico --prune --ignore=\"^/(assets|logs|web|dist)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite --version-string.CompanyName=TeamON --version-string.ProductName=TeamON --version-string.FileDescription=TeamON",
     "dist:win": "npm run pack:win && grunt installer",
     "dist:osx": "build"
   },
@@ -23,29 +23,25 @@
   "bugs": {
     "url": "https://github.com/Solution-Global/teamon/issues"
   },
-  "authors": "UANGEL",
   "author": "UANGEL",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Solution-Global/teamon/issues"
-  },
+  "license": "GPL",
   "homepage": "https://github.com/Solution-Global/teamon#readme",
   "devDependencies": {
+    "asar": "0.9.0",
+    "connect": "3.4.1",
+    "connect-proxy-layer": "0.1.2",
+    "electron-builder": "^3.1.1",
+    "electron-packager": "^6.0.0",
+    "electron-prebuilt": "^0.37.4",
+    "file-stream-rotator": "0.0.6",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
     "grunt-contrib-copy": "^0.8.2",
     "grunt-contrib-jshint": "0.11.3",
     "grunt-contrib-watch": "0.6.1",
-    "asar": "0.9.0",
-    "electron-builder": "^3.1.1",
-    "electron-packager": "5.1.1",
-    "electron-prebuilt": "^0.37.4",
-    "connect": "3.4.1",
-    "connect-proxy-layer": "0.1.2",
-    "serve-static": "1.10.2",
+    "grunt-electron-installer": "2.0.0",
     "morgan": "1.7.0",
-    "file-stream-rotator": "0.0.6",
-    "grunt-electron-installer": "2.0.0"
+    "serve-static": "1.10.2"
   },
   "dependencies": {
     "bootstrap": "3.3.6",
@@ -71,8 +67,17 @@
       "icon": "assets/osx/teamon.icns",
       "icon-size": 80,
       "contents": [
-        { "x": 438, "y": 344, "type": "link", "path": "/Applications" },
-        { "x": 192, "y": 344, "type": "file" }
+        {
+          "x": 438,
+          "y": 344,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 192,
+          "y": 344,
+          "type": "file"
+        }
       ]
     }
   }

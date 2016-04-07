@@ -28,11 +28,9 @@ module.exports = function(grunt) {
       x64: {
         appDirectory: 'dist/win/teamon-win32-x64',
         outputDirectory: 'dist/win/installer64',
-        exe: 'teamon.exe',
         iconUrl: 'http://211.253.26.248:8010/updates/releases/teamon.ico',
         setupIcon: './assets/win/teamon.ico',
         noMsi: true,
-        authors: "UANGEL",
         loadingGif: "./assets/win/teamon.gif"
       }
     }
