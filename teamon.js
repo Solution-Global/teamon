@@ -10,11 +10,11 @@ Mustache = require('mustache');
 Dropzone = require('dropzone');
 constants = require("./script/constants"); // global var
 preferenceManager = require('./script/storage/preference'); // global var
-messageManager = require('./script/message'); // global var
+MessageManager = require('./script/message'); // global var
 chatModule = require('./script/chat_client'); // global var
 CallClient = require('./script/call_client');
 notifierModule = require('./script/notification'); //global var
-cacheManager = require('./script/uCache'); // global var
+CacheManager = require('./script/uCache'); // global var
 toastr = require("./script/plugins/toastr/toastr.min"); // global var
 timezone = "Asia/Seoul";
 autosize = require('autosize');
@@ -47,9 +47,13 @@ function initialize(){
   // declare global var
   loginInfo = null;
   activeChatInfo = null;
-  var storageManager = require('./script/storage/storage_manager'); // global var
-  localStorageManager = storageManager("L", false);
-  sessionStorageManager = storageManager("S", false);
+  var StorageManager = require('./script/storage/storage_manager'); // global var
+  localStorageManager = StorageManager("L", false);
+  sessionStorageManager = StorageManager("S", false);
+  userCache = new CacheManager(); // user list 저장
+  channelCache = new CacheManager(); // channel list 저장
+  myMessage = MessageManager(localStorageManager); // global var
+
   commnonBindEvent();
   initAPI(); // 로그인전에 기본으로 사용할 API 초기화 설정
   initLoginStatus();

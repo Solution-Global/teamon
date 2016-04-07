@@ -1,5 +1,6 @@
 <div class="modal-dialog">
 	<div class="middle-box text-center loginscreen animated fadeInDown">
+		<div class="sk-spinner sk-spinner-rotating-plane" style="display:none"></div>
     <div>
       <h3>Welcome to TEAMON</h3>
       <p>Login in. To see it in action.</p>
@@ -61,6 +62,10 @@ $(document).ready(function() {
 		params.client = runningChannel;
 
 		restResource.login.login(params, function(data, error) {
+			// show block screen
+			$("#login-form").parent().hide();
+			$(".sk-spinner").show();
+
 			// set the personal pref info first to use it around the app.
 			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
 			var isAlreadyLogin = loginInfo ? true : false;
@@ -77,8 +82,6 @@ $(document).ready(function() {
 	    };
 
 			configureCertifiedAPI(data.email, data.authKey);
-			loadAllArea();
-			chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 
 			if(params.keepMe)
 				localStorageManager.setValue("keepEmplId", data.emplId);
@@ -93,10 +96,56 @@ $(document).ready(function() {
 			myPreference.setPreference("photoLoc", data.photoLoc);
 
 			sessionStorageManager.setValue("sessionEmplId", data.emplId);
-			//initLoginStatus();
-			$('#login-form').closest(".modal-dialog").closest(".modal").modal("hide");
+
+			// do all the background job before show whole screen element
+			// here's the function chain starts
+			// FIXME there must be a better way to solve function chain
+			_loadUserList();
+
+			chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
+
 			params = null;
 		});
+
+		function _loadUserList() {
+			var params = {
+				"teamId": loginInfo.teamId,
+				"limit" : constants.COMMON_SEARCH_ALL
+			};
+			restResource.empl.getListByTeamId(params, function(data) {
+				if (data.rows) {
+					$.each(data.rows, function(idx, row) {
+						 userCache.set(row.emplId, row); // add each employee into userCache.
+					});
+
+					// callback
+					_loadOnlineUserList();
+				}
+			});
+		}
+
+		// load online user list and set it online on userCache
+		function _loadOnlineUserList() {
+			restResource.login.getLoggedInEmplListByTeamId({ "teamId": loginInfo.teamId }, function(data) {
+				if(data) {
+					$.each(data, function() {
+						userCache.get(this.emplId).online = true;
+					});
+				}
+
+				// callback
+				_syncChatMessage();
+			});
+		}
+
+		function _syncChatMessage() {
+			loadAllArea();
+			myMessage.syncChatMessage(constants.DIRECT_CHAT, userCache.getValueArray(), function() {
+				// close login dialog when sync finished
+				$('#login-form').closest(".modal-dialog").closest(".modal").modal("hide");
+			});
+		}
+
 	});
 
 	$('#onRegisterEmplModal').click(function() {

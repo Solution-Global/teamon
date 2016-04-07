@@ -22,7 +22,7 @@
             <script id="user-template" type="text/template">
               <li data-topic="{{topic}}" data-name="{{name}}" data-emplid="{{emplId}}" class="chat-user">
                 <a href="#">
-                  <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}">
+                  <img class="chat-avatar" src="{{img}}" alt="{{name}}">
                   <div class="chat-user-name ellipsis">{{name}}
                     <span class="badge badge-warning right hide alarm"></span>
                   </div>
@@ -37,7 +37,7 @@
   <div class="nav-header">
     <div class="profile-element">
       <span>
-      <img alt="image" src="./img/logo_uangel.png"/>
+      <img alt="image" src="/img/logo_uangel.png"/>
       </span>
       <div class="profile-area" id="user-profile">
         <script id="profile-template" type="text/template">
@@ -56,15 +56,19 @@
         <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
       </div>
     </div>
+    <div class="logo-element">
+      UANGEL
+      <div class="public-area">
+        <a href="#" id="onProfileModal"><i class="fa fa-user"></i></a>
+        <a href="#"><i class="fa fa-cog"></i></a>
+        <a href="#" id="onLogOut"><i class="fa fa-power-off"></i></a>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
 $(document).ready(function() {
-  userCache = new cacheManager(); // user list 저장
-  channelCache = new cacheManager(); // channel list 저장
-  myMessage = messageManager(localStorageManager, loginInfo, userCache, channelCache); // global var
-
   var $userProfile = $('#user-profile');
   var $catalogSec = $("#catalog-section");
   var profileTemplate = $('#profile-template').html();
@@ -175,20 +179,30 @@ $(document).ready(function() {
             "topic" : generateTopic(loginInfo.emplId, row.emplId),
             "name" : row.name,
             "emplId": row.emplId,
-            "img": imgPath,
-            "imgAlt": row.name
+            "img": imgPath
         };
         $userListContext.append(Mustache.render(userTemplate, userData));
       });
       // set user count
       $("#topic-list .users-link").append(" (" + data.rows.length + ")");
 
-      _initPresenceDisplay();
+      // set user online status
+      var params = {
+        "teamId": loginInfo.teamId
+      };
+      restResource.login.getLoggedInEmplListByTeamId(params, function(data) {
+        if(data) {
+          $.each(data, function() {
+            userCache.get(this.emplId).online = true;
+            setUserPresenceOnList(this.emplId, true);
+          });
+        }
+      });
     }
 
     // init scroll
     $("#topic-list").mCustomScrollbar({
-      axis: "y",
+      axis: "y"
     });
 
     //sync Message
@@ -280,25 +294,6 @@ $(document).ready(function() {
       return null;
   };
 
-  var _initPresenceDisplay = function() {
-    var params = {
-      "teamId": loginInfo.teamId
-    };
-
-    restResource.login.getLoggedInEmplListByTeamId(params, function(data) {
-      if(data) {
-        var handleParams = {
-          "status" : constants.PRESENCE_STATUS_ONLINE
-        };
-
-        $.each(data, function(idx, row) {
-          handleParams.emplId = row.emplId;
-          handleLoginPresence(handleParams);
-        });
-      }
-    });
-  };
-
   hideChattingAlarm = function(topic) {
     var $activeTarget = getSingleChattingContext(topic);
     var $alarmArea = $activeTarget.find(".alarm");
@@ -354,44 +349,40 @@ $(document).ready(function() {
     };
 
     restResource.channel.getChannel(params, function(data, response) {
-      if(data.channelId) {
+      if (data.channelId) {
         channelCache.set(channelId, data);
       }
     });
   }
 
-  handleLoginPresence = function(params) {
+  // set blue border for online user on the user list
+  setUserPresenceOnList = function(emplId, online) {
     // console.log("handleLoginPresence %s", JSON.stringify(params));
-    if(typeof params === 'string')
-      params = JSON.parse(params);
-
-    if(params.emplId === loginInfo.emplId) {
+    if (emplId === loginInfo.emplId) {
       return;
     }
 
-    var topic = generateTopic(params.emplId, loginInfo.emplId)
+    var topic = generateTopic(emplId, loginInfo.emplId)
     var $activeTarget = getSingleChattingContext(topic);
     var $profileImage = $activeTarget.find(".chat-avatar");
 
-    if(params.status === constants.PRESENCE_STATUS_ONLINE) {
-      // online
+    if (online) {
       $profileImage.addClass("online");
     } else {
-      // offline
       $profileImage.removeClass("online");
     }
   };
 
   // bind Event
-  $('#onPasswordModal').bind("click", function() {
+  $('#onPasswordModal').bind("click touchend", function() {
     openModalDialog("/catalog/password_modify_popup.html");
   });
 
-  $('#onProfileWindow').bind("click", function() {
+  $('#onProfileWindow').bind("click touchend", function() {
     openModalDialog("/catalog/profile_image_popup.html");
   });
 
-  $('#onChannelJoinModal').bind("click", function() {
+  $('#onChannelJoinModal').bind("click touchend", function() {
     openModalDialog("/catalog/channel_join_popup.html");
   });
 
