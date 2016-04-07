@@ -187,6 +187,7 @@ $(window).bind("resize", function () {
     if ($(this).width() < 769) {
         $('body').addClass('body-small')
         $('body').removeClass('no-menu')
+        $('.with-info').removeClass('with-info')
     } else {
         $('body').removeClass('body-small small-navbar')
     }
