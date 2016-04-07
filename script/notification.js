@@ -27,7 +27,7 @@ var noti = (function() {
       notiBody = userValue.name + ": "  + notiBody;
     }
 
-    if (window && window.process && window.process.type) {
+    if (runningChannel === constants.CHANNEL_APP) {
       // For desktop
       myWindow.flashFrame(true);
       _handleAppNotification(msgPayload);
@@ -107,7 +107,7 @@ var noti = (function() {
         notification.close();
         event.preventDefault();
         window.focus();
-        
+
         changeTarget(msgPayload.topic);
       };
     }

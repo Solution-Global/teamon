@@ -46,8 +46,8 @@ define("TOPIC_MSG", "/msg");
 define("TOPIC_COMMAND", "/command");
 
 // presence 관련
-define("PRESENCE_STATUS_ONLINE", 0);
-define("PRESENCE_STATUS_OFFLINE", 1);
+define("PRESENCE_STATUS_ONLINE", 1);
+define("PRESENCE_STATUS_OFFLINE", 0);
 
 // channel 관련
 define("CHANNEL_CREATE", 0);
