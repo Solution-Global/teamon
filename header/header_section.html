@@ -93,9 +93,25 @@ $(document).ready(function() {
     $('.navbar-minimalize').on("touchend click", switchMenu);
     function switchMenu() {
       if ($('body').hasClass('body-small')) {
+        if (!$('body').hasClass('small-navbar')) {
+          // when side-menu turn on, hide first and show later in order to smoothly turn on
+          $('#side-menu').hide();
+          setTimeout(
+            function () {
+                $('#side-menu').fadeIn(400);
+            }, 200);
+        }
         $('body').toggleClass('small-navbar');
       } else {
         if (!$('body').hasClass('small-navbar')) {
+          if ($('body').hasClass('no-menu')) {
+            // when side-menu turn on, hide first and show later in order to smoothly turn on
+            $('#side-menu').hide();
+            setTimeout(
+              function () {
+                  $('#side-menu').fadeIn(400);
+              }, 200);
+          }
           $('body').toggleClass('no-menu');
         }
       }
