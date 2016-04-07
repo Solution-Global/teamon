@@ -6,12 +6,17 @@ function define(name, value) {
 }
 
 // [Software Update]
-var SOFTWARE_UPDATE_IP_DEV = "http://192.168.1.164";
-var SOFTWARE_UPDATE_IP_PROD = "http://211.253.26.248";
 var SOFTWARE_UPDATE_PORT = 8010;
 define("SOFTWARE_UPDATE_PORT", SOFTWARE_UPDATE_PORT);
-define("SOFTWARE_UPDATE_URL_BASE_DEV", SOFTWARE_UPDATE_IP_DEV + ":" + SOFTWARE_UPDATE_PORT);
-define("SOFTWARE_UPDATE_URL_BASE_PROD", SOFTWARE_UPDATE_IP_PROD + ":" + SOFTWARE_UPDATE_PORT);
+
+var SOFTWARE_UPDATE_IP_DEV = "http://192.168.1.164";
+var SOFTWARE_UPDATE_IP_PROD = "http://211.253.26.248";
+if (process.env.NODE_ENV === 'production') {
+  define("SOFTWARE_UPDATE_URL_BASE", SOFTWARE_UPDATE_IP_PROD + ":" + SOFTWARE_UPDATE_PORT);
+} else {
+  define("SOFTWARE_UPDATE_URL_BASE", SOFTWARE_UPDATE_IP_DEV + ":" + SOFTWARE_UPDATE_PORT);
+}
+
 define("SOFTWARE_UPDATE_URL_PATH_LATEST", "/updates/latest");
 define("SOFTWARE_UPDATE_URL_PATH_RELEASE", "/updates/releases");
 
@@ -56,9 +61,15 @@ define("CHANNEL_REMOVE_MEMBER", 2);
 
 // call 관련
 define("CALL_SHARE_CHID", 100);   // 발신자가 생성한 call history id 값을 수신자에게 공유
-define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");    // sip gw
-define("SIP_PROXY", "sip:192.168.5.53:5062");
-define("SIP_DOMAIN", "192.168.5.53");
+if (process.env.NODE_ENV === 'production') {
+  define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");    // sip gw
+  define("SIP_PROXY", "sip:192.168.5.53:5062");
+  define("SIP_DOMAIN", "192.168.5.53");
+} else {
+  define("CALL_GW_URL", "wss://192.168.5.53:8989/janus");    // sip gw
+  define("SIP_PROXY", "sip:192.168.5.53:5062");
+  define("SIP_DOMAIN", "192.168.5.53");  
+}
 
 // information 영역 관련
 define("INFO_AREA_ABOUT_USER", "about_user.html");
