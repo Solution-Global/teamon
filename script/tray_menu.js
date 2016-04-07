@@ -21,6 +21,12 @@ function renderTrayIconMenu(){
 
   var trayMenuTemplate = [
     {
+      label: 'Reload',
+      accelerator: 'CmdOrCtrl+R',
+      click: function () {
+        ipc.send('reload');
+      }
+    },{
       label: 'Toggle Developer Tool',
       accelerator: 'CmdOrCrtl+Shift+I',
       click: function () {
@@ -36,11 +42,20 @@ function renderTrayIconMenu(){
     }
   ];
   var trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
+  trayIcon.setToolTip('TeamON');
   trayIcon.setContextMenu(trayMenu);
 
   trayIcon.on('click', function() {
     ipc.send('show-window');
   });
+}
+
+ipc.on('tray_destroy', function() {
+  destroy();
+});
+
+function destroy() {
+  trayIcon.destroy();
 }
 
 function changeImageToNew() {
@@ -54,5 +69,6 @@ function changeImageToNormal() {
 module.exports = {
   renderTrayIconMenu: renderTrayIconMenu,
   changeImageToNormal: changeImageToNormal,
-  changeImageToNew: changeImageToNew
+  changeImageToNew: changeImageToNew,
+  destroy: destroy
 };

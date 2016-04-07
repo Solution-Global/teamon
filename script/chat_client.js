@@ -96,7 +96,7 @@ var chat = (function() {
     payload = JSON.parse(payload);
     var topicArray = topic.split('/');
     if (topicArray.length < 2) {
-      console.error("Invalid topic format[%s], payload:%s", topic);
+      console.error("Invalid topic format[%s], payload:%s", topic, payload);
       return;
     }
 
