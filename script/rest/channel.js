@@ -42,7 +42,7 @@ Channel.prototype.getChannelByName = function(params, callback) {
   console.log("getChannelByName - [name]" + params.name + "[teamId]" + params.teamId + "[memberIncluded]" + params.memberIncluded);
   var args = {
     path: {
-      "name": escape(params.name)
+      "name": escape("#") + encodeURI(params.name.substr(1))
     },
     parameters: {
       "teamId": params.teamId,
