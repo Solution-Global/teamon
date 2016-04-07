@@ -27,9 +27,9 @@ function initialize(){
   if(window && window.process && window.process.type) {
     // For desktop
     runningChannel = constants.CHANNEL_APP;
-    aplUrl = "http://192.168.1.164:7587/rest/";
-    UPLOAD_URL = "http://192.168.1.164:7587/upload/";
-    IMAGE_URL= "http://192.168.1.164:8083/image/";
+    API_URL = constants.API_URL;
+    UPLOAD_URL = constants.UPLOAD_URL;
+    IMAGE_URL= constants.IMAGE_URL;
 
     trayModule = require('./script/tray_menu');
     trayModule.renderTrayIconMenu();
@@ -39,7 +39,7 @@ function initialize(){
       console.trace(position);
     });
     runningChannel = constants.CHANNEL_WEB;
-    aplUrl = location.protocol + "//" + location.host + "/rest/";
+    API_URL = location.protocol + "//" + location.host + "/rest/";
     UPLOAD_URL = location.protocol + "//" + location.host + "/upload/";
     IMAGE_URL= location.protocol + "//" + location.host + "/image/";
   }
@@ -131,7 +131,7 @@ initAPI = function() {
 
   restResource = {}; // global var
   var params = {
-    "url" : aplUrl,
+    "url" : API_URL,
     "channel" :  runningChannel
   };
 

@@ -138,7 +138,7 @@ function getChannelTopicName(name) {
 
 function getImagePath(photoLoc, teamId, emplId) {
   if (photoLoc !== null) {
-    imgPath = constants.IMAGE_URL + photoLoc + "?teamId=" + teamId + "&topic=profile_image&emplId=" + emplId + "&type=profile";
+    imgPath = IMAGE_URL + photoLoc + "?teamId=" + teamId + "&topic=profile_image&emplId=" + emplId + "&type=profile";
   }
   else {
     if(runningChannel === constants.CHANNEL_APP) {
