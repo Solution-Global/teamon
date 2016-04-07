@@ -1,6 +1,6 @@
 # TeamOn
 
-**Unified desktop app for team communications and collaborations.**
+**Unified desktop app for team communication and collaboration.**
 
 ![screenshot](img/screenshot.png)
 
@@ -28,4 +28,4 @@ $ npm install
 
 ## License
 
-[ISC](LICENSE.md)
+GPL
