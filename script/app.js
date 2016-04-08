@@ -58,7 +58,7 @@ var handleSquirrelEvent = function() {
     executeSquirrelCommand(["--removeShortcut", target], done);
   }
 
-  app.setAppUserModelId('com.squirrel.teamon.teamon');
+  app.setAppUserModelId('TeamON');
   var squirrelEvent = process.argv[1];
   switch (squirrelEvent) {
     case '--squirrel-install':
@@ -94,18 +94,12 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
   // update check
-  var updateFeed = null;
-  if (process.env.NODE_ENV === 'production') {
-    updateFeed = constants.SOFTWARE_UPDATE_URL_BASE_PROD;
-  } else {
-    updateFeed = constants.SOFTWARE_UPDATE_URL_BASE_DEV;
-  }
-
+  var updateFeed = constants.SOFTWARE_UPDATE_URL_BASE;
   updateFeed += (os === 'darwin' ?
     constants.SOFTWARE_UPDATE_URL_PATH_LATEST : constants.SOFTWARE_UPDATE_URL_PATH_RELEASE + "/win32");
 
   autoUpdater.setFeedURL(updateFeed + '?v=' + appVersion);
-  console.log('feedURL: %s', updateFeed + '?v=' + appVersion);
+  console.log('CLIENT_ENV_USING:' + constants.CLIENT_ENV_USING + ', feedURL: %s', updateFeed + '?v=' + appVersion);
 
   autoUpdater.on('error', function(error) {
     console.error('error occurred! ' + error);
@@ -181,9 +175,11 @@ function setGlobalShortcuts() {
     globalShortcut.unregisterAll();
 
     var ret = globalShortcut.register('ctrl+Q', function() {
-       console.log('ctrl+Q is pressed');
-       if (mainWindow.isFocused())
-        app.quit();
+      console.log('ctrl+Q is pressed');
+      if (mainWindow.isFocused()) {
+        mainWindow.removeAllListeners('close');
+        mainWindow.close();
+      }
     });
     if (!ret) {
       console.log('ctrl+Q registration failed');
@@ -223,7 +219,8 @@ function handleTrayEvent() {
   });
 
   ipc.on('close-main-window', function() {
-    app.quit();
+    mainWindow.removeAllListeners('close');
+    mainWindow.close();
   });
 
   ipc.on('reload', function(event, arg) {

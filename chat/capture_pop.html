@@ -43,7 +43,7 @@ var topic = activeChatInfo.chatType + "_" + (activeChatInfo.chatType == 0 ? myPr
 var dropzone = new Dropzone("#cropped-form", {
     autoProcessQueue: false,
     uploadMultiple: false,
-    url: constants.UPLOAD_URL + myPref.coId + "/" + topic + "/" + myPref.emplId,
+    url: UPLOAD_URL + myPref.coId + "/" + topic + "/" + myPref.emplId,
 
     // Dropzone settings
     init: function() {
@@ -51,7 +51,7 @@ var dropzone = new Dropzone("#cropped-form", {
         this.on("success", function(file, response) {
 					file.name = response[0].name;
 					$("#crop-upload-image").closest(".modal-dialog").closest(".modal").modal("hide");
-					var imageUrl = constants.REPOSITORY_URL + file.name + "?coId=" + myPref.coId + "&topic=" + topic + "&emplId=" + myPref.emplId;
+					var imageUrl = REPOSITORY_URL + file.name + "?coId=" + myPref.coId + "&topic=" + topic + "&emplId=" + myPref.emplId;
           chatSection.sendMsg("<a href='" + imageUrl + "' target='_blank'><img src='" + imageUrl + "' class='in-message' /></a><br/>Captured image uploaded", activeChatInfo.chatType, activeChatInfo.chatRoomId);
         });
         this.on("error", function(file, response) {

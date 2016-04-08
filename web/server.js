@@ -35,8 +35,8 @@ var accessLogStream = FileStreamRotator.getStream({
 
 var app = connect()
   .use(logger(logFormat, {stream: accessLogStream}))
-  .use("/rest/", cpl('http://192.168.1.164:7587/rest/'))
-  .use("/upload/", cpl('http://192.168.1.164:7587/upload/'))
+  .use("/rest/", cpl(constants.API_URL))
+  .use("/upload/", cpl(constants.UPLOAD_URL))
   .use(serveStatic(appRootPath.path, {index: "index_web.html"}));
 
 https.createServer(tlsOptions, app).listen(8082, function() {
