@@ -58,7 +58,7 @@ var handleSquirrelEvent = function() {
     executeSquirrelCommand(["--removeShortcut", target], done);
   }
 
-  app.setAppUserModelId('TeamON');
+  app.setAppUserModelId('com.squirrel.TeamON.teamon');
   var squirrelEvent = process.argv[1];
   switch (squirrelEvent) {
     case '--squirrel-install':
@@ -221,6 +221,8 @@ function handleTrayEvent() {
   ipc.on('close-main-window', function() {
     mainWindow.removeAllListeners('close');
     mainWindow.close();
+    mainWindow = null;
+    app.quit();
   });
 
   ipc.on('reload', function(event, arg) {
