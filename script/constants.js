@@ -6,8 +6,8 @@ function define(name, value) {
 }
 
 // [Environment]
-var CLIENT_ENV_USING = "production";
-// var CLIENT_ENV_USING = "development";
+// var CLIENT_ENV_USING = "production";
+var CLIENT_ENV_USING = "development";
 define("CLIENT_ENV_USING", CLIENT_ENV_USING);
 
 // [Software Update]

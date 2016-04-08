@@ -1,7 +1,7 @@
 {
   "name": "TeamON",
   "productName": "TeamON",
-  "version": "0.0.1",
+  "version": "0.1.6",
   "description": "TeamON",
   "main": "script/app.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "clean:osx": "rm -rf dist/osx",
     "pack": "npm run pack:win",
     "dist": "npm run dist:win",
-    "pack:win": "npm run clean:win && electron-packager . TeamON --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --app-version=\"0.0.1\" --asar=true --asar-unpack=\"*.node\" --icon=assets/win/TeamON.ico --prune --ignore=\"^/(assets|logs|web|dist)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite --version-string.CompanyName=TeamON --version-string.ProductName=TeamON --version-string.FileDescription=TeamON",
+    "pack:win": "npm run clean:win && electron-packager . TeamON --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --app-version=\"0.1.6\" --asar=true --asar-unpack=\"*.node\" --icon=assets/win/TeamON.ico --prune --ignore=\"^/(assets|logs|web|dist)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite --version-string.CompanyName=TeamON --version-string.ProductName=TeamON --version-string.FileDescription=TeamON",
     "dist:win": "npm run pack:win && grunt installer",
     "dist:osx": "build"
   },
