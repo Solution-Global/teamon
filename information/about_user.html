@@ -21,7 +21,7 @@
         <div class="col-lg-8">
           <strong>About me</strong>
           <p>My name is "{{name}}".</p>
-          <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> CALL</button>
+          <button type="button" class="call btn btn-primary btn-sm btn-block"><i class="fa fa-phone"></i> VIDEO CALL</button>
         </div>
       </script>
     </div>
@@ -65,6 +65,10 @@ $(document).ready(function() {
 
   $title.html("About this conversation");
   $contentArea.find("#about-user").append(Mustache.render(aboutUserTemplate, aboutUserData));
+
+  // if user is not online, do not show call button
+  if (!userCache.get(userValue.emplId).online)
+    $contentArea.find(".call").addClass("disabled");
 
   $contentArea.find(".call").click(function() {
     makeCall();
