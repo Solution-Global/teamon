@@ -28,6 +28,7 @@ var	dropzone = new Dropzone("#fileupload-form", {
             e.stopPropagation();
             myDropzone.processQueue();
         });
+				// FIXME multiple -> single
         this.on("sendingmultiple", function() {
           $("#submit-fileupload").attr("disabled", "disabled");
         });
@@ -55,6 +56,8 @@ var	dropzone = new Dropzone("#fileupload-form", {
           });
         });
         this.on("errormultiple", function(files, response) {
+					console.error(response);
+					toastr.error("Failed to upload. Please try again");
         });
     }
 });
