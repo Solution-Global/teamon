@@ -194,18 +194,18 @@ function setGlobalShortcuts() {
       console.log('ctrl+Q registration failed');
     }
 
-    ret = globalShortcut.register('F5', function() {
-      if (mainWindow.isFocused())
-      {
-        mainWindow.webContents.send('tray_destroy');
-        mainWindow.reload();
-      }
-      else
-        console.log('F5 is pressed. Just ignored.');
-    });
-    if (!ret) {
-      console.log('F5 registration failed');
-    }
+    // ret = globalShortcut.register('F5', function() {
+    //   if (mainWindow.isFocused())
+    //   {
+    //     mainWindow.webContents.send('tray_destroy');
+    //     mainWindow.reload();
+    //   }
+    //   else
+    //     console.log('F5 is pressed. Just ignored.');
+    // });
+    // if (!ret) {
+    //   console.log('F5 registration failed');
+    // }
 }
 
 function handleTrayEvent() {
