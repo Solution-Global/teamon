@@ -218,6 +218,7 @@ function handleTrayEvent() {
 
   ipc.on('close-main-window', function() {
     app.quit();
+    app.exit(0);
   });
 
   ipc.on('reload', function(event, arg) {
