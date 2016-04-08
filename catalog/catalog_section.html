@@ -35,25 +35,25 @@
     </ul>
   </div>
   <div class="nav-header">
-    <div class="profile-element">
+    <div class="profile-element dropdown">
       <span>
       <img alt="image" src="/img/logo_uangel.png"/>
       </span>
       <div class="profile-area" id="user-profile">
-        <script id="profile-template" type="text/template">
-          <img class="chat-avatar" src="{{img}}" alt="{{imgAlt}}" style="border: none" />
-          <div class="chat-user-name ellipsis">{{name}}</div>
-        </script>
-      </div>
-      <div class="public-area">
-        <a data-toggle="dropdown" href="#">
-            <i class="fa fa-user"></i> Profile&nbsp;&nbsp;|&nbsp;&nbsp;
+        <span><img id="myprofile-image" class="img-circle" src="" style="width: 40px; height: 40px;" /></span>
+        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+          <span class="clear">
+            <span class="block m-t-xs">
+              <strong id="myprofile-name" class="font-bold"></strong>
+              <b class="caret"></b>
+            </span>
+          </span>
         </a>
-        <ul class="dropdown-menu animated fadeInRight dropdown-side">
-            <li><a href="#" id="onPasswordModal">Change Password</a></li>
-            <li><a href="#" id="onProfileWindow">Profile Image</a></li>
+        <ul class="dropdown-menu animated fadeInRight">
+          <li><a href="#" id="onPasswordModal">Change Password</a></li>
+          <li><a href="#" id="onProfileWindow">Profile Image</a></li>
+          <li><a href="#" class="logout-btn">Sign out</a></li>
         </ul>
-        <a href="#" id="onLogOut"><i class="fa fa-power-off"></i> Sign-out</a>
       </div>
     </div>
     <div class="logo-element">
@@ -61,7 +61,7 @@
       <div class="public-area">
         <a href="#" id="onProfileModal"><i class="fa fa-user"></i></a>
         <a href="#"><i class="fa fa-cog"></i></a>
-        <a href="#" id="onLogOut"><i class="fa fa-power-off"></i></a>
+        <a href="#" class="logout-btn"><i class="fa fa-power-off"></i></a>
       </div>
     </div>
   </div>
@@ -84,13 +84,8 @@ $(document).ready(function() {
     imagePath = "/img/profile_no.jpg";
 
   // set profile
-  var loginUserData = {
-      "name" : loginInfo.name,
-      "emplId": loginInfo.emplId,
-      "img": imagePath,
-      "imgAlt": loginInfo.name
-  };
-  $userProfile.append(Mustache.render(profileTemplate, loginUserData));
+  $("#myprofile-image").attr("src", imagePath).attr("alt", loginInfo.name);
+  $("#myprofile-name").html(loginInfo.name);
 
   // change all elements regarding the topic
   activeChatView = function(topic, isMovingScroll) {
@@ -373,27 +368,7 @@ $(document).ready(function() {
     }
   };
 
-  // bind Event
-  $('#onPasswordModal').bind("click touchend", function() {
-    openModalDialog("/catalog/password_modify_popup.html");
-  });
-
-  $('#onProfileWindow').bind("click touchend", function() {
-    openModalDialog("/catalog/profile_image_popup.html");
-  });
-
-  $('#onChannelJoinModal').bind("click touchend", function() {
-    openModalDialog("/catalog/channel_join_popup.html");
-  });
-
-  $('#onLogOut').bind("click", function() {
-    var dialogOptions = {
-      backdrop : "static",
-      keyboard : "false",
-      backgroundOpacity : 1,
-      backgroundColor : "#2f4050"
-    };
-
+  $("#side-menu").delegate(".logout-btn", "click touchend", function() {
     restResource.login.logout(loginInfo, function(data, response) {
       // logout from all devices
       console.log("loginCnt = %s", data.loginCnt);
@@ -409,10 +384,32 @@ $(document).ready(function() {
     userCache.initCache();
     loginInfo = null;
 
+    var dialogOptions = {
+      backdrop : "static",
+      keyboard : "false",
+      backgroundOpacity : 1,
+      backgroundColor : "#2f4050"
+    };
+
     openModalDialog("/user/login_popup.html", dialogOptions);
     //TODO session, close chat and call disconnection
     localStorageManager.removeKey("keepEmplId");
     sessionStorageManager.removeKey("sessionEmplId");
   });
+
+
+  // bind Event
+  $('#onPasswordModal').bind("click touchend", function() {
+    openModalDialog("/catalog/password_modify_popup.html");
+  });
+
+  $('#onProfileWindow').bind("click touchend", function() {
+    openModalDialog("/catalog/profile_image_popup.html");
+  });
+
+  $('#onChannelJoinModal').bind("click touchend", function() {
+    openModalDialog("/catalog/channel_join_popup.html");
+  });
+
 });
 </script>
