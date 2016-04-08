@@ -2,7 +2,7 @@ var app = require('app');
 var BrowserWindow = require('browser-window');
 var path = require('path');
 var constants = require('./constants');
-var globalShortcut = require('global-shortcut');
+var localShortcut = require('electron-localshortcut');
 var ipc = require('electron').ipcMain;
 var cp = require('child_process');
 var autoUpdater = require('auto-updater');
@@ -165,47 +165,28 @@ function createWindow() {
     mainWindow = null;
   });
 
-  // Global shortcut register
-  setGlobalShortcuts();
+  // local shortcut register
+  setLocalShortcuts();
 
   handleTrayEvent();
 }
 
-function setGlobalShortcuts() {
-    globalShortcut.unregisterAll();
+function setLocalShortcuts() {
+    localShortcut.unregisterAll();
 
-    var ret = globalShortcut.register('ctrl+Q', function() {
+    var ret = localShortcut.register(mainWindow, 'ctrl+Q', function() {
       console.log('ctrl+Q is pressed');
-      if (mainWindow.isFocused()) {
-        mainWindow.removeAllListeners('close');
-        mainWindow.close();
-      }
+      mainWindow.removeAllListeners('close');
+      mainWindow.close();
     });
-    if (!ret) {
-      console.log('ctrl+Q registration failed');
-    }
 
-    ret = globalShortcut.register('cmdOrctrl+shift+I', function() {
+    ret = localShortcut.register(mainWindow, 'cmdOrctrl+shift+I', function() {
       console.log('cmdOrctrl+shift+I is pressed');
-      if (mainWindow.isFocused())
-        mainWindow.toggleDevTools();
+      mainWindow.toggleDevTools();
     });
     if (!ret) {
-      console.log('ctrl+Q registration failed');
+      console.log('cmdOrctrl+shift+I registration failed');
     }
-
-    // ret = globalShortcut.register('F5', function() {
-    //   if (mainWindow.isFocused())
-    //   {
-    //     mainWindow.webContents.send('tray_destroy');
-    //     mainWindow.reload();
-    //   }
-    //   else
-    //     console.log('F5 is pressed. Just ignored.');
-    // });
-    // if (!ret) {
-    //   console.log('F5 registration failed');
-    // }
 }
 
 function handleTrayEvent() {
