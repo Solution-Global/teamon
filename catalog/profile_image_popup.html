@@ -50,7 +50,7 @@ var	dropzone = new Dropzone("#fileupload-form", {
 								var userValue = userCache.get(loginInfo.emplId);
 
 								loginInfo.photoLoc = params.photoLoc;
-								$("#user-profile img.chat-avatar").attr("src", fileUrl + "&timestamp=" + new Date().getTime());
+								$("#myprofile-image").attr("src", fileUrl + "&timestamp=" + new Date().getTime());
 								toastr.info("Your profile image has been modified successfully");
 						});
           });
