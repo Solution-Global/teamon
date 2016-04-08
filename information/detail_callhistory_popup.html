@@ -105,6 +105,7 @@
         $historyDetail.append(Mustache.render(callDetailTemplate, callDetailData));
         $historyDetail.find(".play").bind("click", function() {
           var $callerVideo = $('#callerVideo');
+          <!-- URL에 대해 추후 constants.js REPOSITORY_URL 사용토록 변경 필요 -->
           $("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/1_caller.webm?resType=cr");
           //$("source", $callerVideo).attr("src", "http://192.168.1.164:7587/repository/" + callHistoryId + "_caller.webm?resType=cr");
           $callerVideo.load();

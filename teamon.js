@@ -23,288 +23,290 @@ myWindow = null;
 infoSectionFlag = true;
 timerListForLastMsg = []; // lastMsgId를 관리하기 위한 Tiver Event의 ID를 저장하는 global 변수
 
-function initialize(){
-  if(window && window.process && window.process.type) {
-    // For desktop
-    runningChannel = constants.CHANNEL_APP;
-    API_URL = constants.API_URL;
-    UPLOAD_URL = constants.UPLOAD_URL;
-    IMAGE_URL= constants.IMAGE_URL;
+function initialize() {
+    if (window && window.process && window.process.type) {
+        // For desktop
+        runningChannel = constants.CHANNEL_APP;
+        API_URL = constants.API_URL;
+        UPLOAD_URL = constants.UPLOAD_URL;
 
-    trayModule = require('./script/tray_menu');
-    trayModule.renderTrayIconMenu();
-  } else {
-    // For WEB
-    navigator.geolocation.getCurrentPosition(function(position) {
-      console.trace(position);
-    });
-    runningChannel = constants.CHANNEL_WEB;
-    API_URL = location.protocol + "//" + location.host + "/rest/";
-    UPLOAD_URL = location.protocol + "//" + location.host + "/upload/";
-    IMAGE_URL= location.protocol + "//" + location.host + "/image/";
-  }
+        trayModule = require('./script/tray_menu');
+        trayModule.renderTrayIconMenu();
+    } else {
+        // For WEB
+        navigator.geolocation.getCurrentPosition(function(position) {
+            console.trace(position);
+        });
+        runningChannel = constants.CHANNEL_WEB;
+        API_URL = location.protocol + "//" + location.host + "/rest/";
+        UPLOAD_URL = location.protocol + "//" + location.host + "/upload/";
+    }
 
-  // declare global var
-  loginInfo = null;
-  activeChatInfo = null;
-  var StorageManager = require('./script/storage/storage_manager'); // global var
-  localStorageManager = StorageManager("L", false);
-  sessionStorageManager = StorageManager("S", false);
-  userCache = new CacheManager(); // user list 저장
-  channelCache = new CacheManager(); // channel list 저장
-  myMessage = MessageManager(localStorageManager); // global var
+    // declare global var
+    loginInfo = null;
+    activeChatInfo = null;
+    var StorageManager = require('./script/storage/storage_manager'); // global var
+    localStorageManager = StorageManager("L", false);
+    sessionStorageManager = StorageManager("S", false);
+    userCache = new CacheManager(); // user list 저장
+    channelCache = new CacheManager(); // channel list 저장
+    myMessage = MessageManager(localStorageManager); // global var
 
-  commnonBindEvent();
-  initAPI(); // 로그인전에 기본으로 사용할 API 초기화 설정
-  initLoginStatus();
+    commnonBindEvent();
+    initAPI(); // 로그인전에 기본으로 사용할 API 초기화 설정
+    initLoginStatus();
 }
 
 function commnonBindEvent() {
-  $("body").on("click", ".about-user", function() {
-    setInfoSectionFlag(true);
-    showInformationArea(constants.INFO_AREA_ABOUT_USER, {"emplId" : $(this).data("emplid")});
-  });
+    $("body").on("click", ".about-user", function() {
+        setInfoSectionFlag(true);
+        showInformationArea(constants.INFO_AREA_ABOUT_USER, {
+            "emplId": $(this).data("emplid")
+        });
+    });
 }
 
 function initLoginStatus() {
-  var keepEmplId = localStorageManager.getValue("keepEmplId");
-  var sessionEmplId = sessionStorageManager.getValue("sessionEmplId");
+    var keepEmplId = localStorageManager.getValue("keepEmplId");
+    var sessionEmplId = sessionStorageManager.getValue("sessionEmplId");
 
-  console.log("initLoginStatus[keepEmplId:%s, sessionEmplId:%s]", keepEmplId, sessionEmplId);
+    console.log("initLoginStatus[keepEmplId:%s, sessionEmplId:%s]", keepEmplId, sessionEmplId);
 
-  if(keepEmplId || sessionEmplId) {
-    if(keepEmplId) {
-      myPreference = new preferenceManager(localStorageManager, keepEmplId); // init preference
-      sessionStorageManager.setValue("sessionEmplId", keepEmplId);
+    if (keepEmplId || sessionEmplId) {
+        if (keepEmplId) {
+            myPreference = new preferenceManager(localStorageManager, keepEmplId); // init preference
+            sessionStorageManager.setValue("sessionEmplId", keepEmplId);
+        } else {
+            myPreference = new preferenceManager(localStorageManager, sessionEmplId); // init preference
+        }
+
+        var uaParser = new UAParser();
+        uaParser.setUA(navigator.userAgent);
+
+        loginInfo = {
+            "email": myPreference.getPreference("email"),
+            "authKey": myPreference.getPreference("authKey"),
+            "teamId": Number(myPreference.getPreference("teamId")),
+            "emplId": Number(myPreference.getPreference("emplId")),
+            "name": myPreference.getPreference("name"),
+            "browser": uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : ""),
+            "os": uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : ""),
+            "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model,
+            "photoLoc": myPreference.getPreference("photoLoc")
+        };
+
+        configureCertifiedAPI(loginInfo.email, loginInfo.authKey);
+        loadAllArea();
+
+        // let server knows that I've signed in
+        restResource.login.loggedIn(loginInfo);
+        chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
+
     } else {
-      myPreference = new preferenceManager(localStorageManager, sessionEmplId); // init preference
+        var dialogOptions = {
+            backdrop: "static",
+            keyboard: "false",
+            backgroundOpacity: 1,
+            backgroundColor: "#2f4050"
+        };
+        openModalDialog("/user/login_popup.html", dialogOptions);
     }
-
-    var uaParser = new UAParser();
-    uaParser.setUA(navigator.userAgent);
-
-    loginInfo = {
-      "email": myPreference.getPreference("email"),
-      "authKey": myPreference.getPreference("authKey"),
-      "teamId": Number(myPreference.getPreference("teamId")),
-      "emplId": Number(myPreference.getPreference("emplId")),
-      "name": myPreference.getPreference("name"),
-      "browser": uaParser.getBrowser().name + (uaParser.getBrowser().name === "IE" ? uaParser.getBrowser().major : ""),
-      "os": uaParser.getOS().name + (uaParser.getOS().name === "Windows" ? uaParser.getOS().version : ""),
-      "device": uaParser.getDevice().model === undefined ? "" : uaParser.getDevice().model,
-      "photoLoc": myPreference.getPreference("photoLoc")
-    };
-
-    configureCertifiedAPI(loginInfo.email, loginInfo.authKey);
-    loadAllArea();
-
-    // let server knows that I've signed in
-    restResource.login.loggedIn(loginInfo);
-    chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
-
-  } else {
-    var dialogOptions = {
-      backdrop : "static",
-      keyboard : "false",
-      backgroundOpacity : 1,
-      backgroundColor : "#2f4050"
-    };
-    openModalDialog("/user/login_popup.html", dialogOptions);
-  }
 }
 
 configureCertifiedAPI = function(email, authKey) {
-  var keys = Object.keys(restResource);
-  var params = {
-    "email" : email,
-    "authKey" : authKey
-  };
+    var keys = Object.keys(restResource);
+    var params = {
+        "email": email,
+        "authKey": authKey
+    };
 
-  $.each(keys, function(idx, row) {
-    restResource[row].addCommonHeader(params);
-  });
+    $.each(keys, function(idx, row) {
+        restResource[row].addCommonHeader(params);
+    });
 };
 
 initAPI = function() {
-  var emplRes = require("./script/rest/empl");
-  var loginRes = require("./script/rest/login");
-  var teamRes = require("./script/rest/team");
-  var chatRes = require("./script/rest/chat");
-  var channelRes = require("./script/rest/channel");
-  var callHistoryRes = require("./script/rest/call_history");
+    var emplRes = require("./script/rest/empl");
+    var loginRes = require("./script/rest/login");
+    var teamRes = require("./script/rest/team");
+    var chatRes = require("./script/rest/chat");
+    var channelRes = require("./script/rest/channel");
+    var callHistoryRes = require("./script/rest/call_history");
 
-  restResource = {}; // global var
-  var params = {
-    "url" : API_URL,
-    "channel" :  runningChannel
-  };
+    restResource = {}; // global var
+    var params = {
+        "url": API_URL,
+        "channel": runningChannel
+    };
 
-  // API초기화 시(로그인전) 개인 인증 AuthKey를 전달 하지 않는다.
-  restResource.empl =  new emplRes(params);
-  restResource.login = new loginRes(params);
-  restResource.team = new teamRes(params);
-  restResource.chat = new chatRes(params);
-  restResource.channel = new channelRes(params);
-  restResource.callHistory = new callHistoryRes(params);
+    // API초기화 시(로그인전) 개인 인증 AuthKey를 전달 하지 않는다.
+    restResource.empl = new emplRes(params);
+    restResource.login = new loginRes(params);
+    restResource.team = new teamRes(params);
+    restResource.chat = new chatRes(params);
+    restResource.channel = new channelRes(params);
+    restResource.callHistory = new callHistoryRes(params);
 };
 
 runTimerForSetLastMsgId = function(topic, chatId) {
-  console.info("runTimerForSetLastMsgId topic %s, chatId %s", topic, chatId);
-  clearTimeout(timerListForLastMsg[topic]); // 기존 timer 삭제 후 초기화
-  timerListForLastMsg[topic] = setTimeout(function() {shareLastMsgId(topic,chatId);}, constants.LAST_MST_ID_TIMER_INTERVAL);
+    console.info("runTimerForSetLastMsgId topic %s, chatId %s", topic, chatId);
+    clearTimeout(timerListForLastMsg[topic]); // 기존 timer 삭제 후 초기화
+    timerListForLastMsg[topic] = setTimeout(function() {
+        shareLastMsgId(topic, chatId);
+    }, constants.LAST_MST_ID_TIMER_INTERVAL);
 };
 
 shareLastMsgId = function(topic, chatId) {
-  console.info("shareLastMsgId topic %s, chatId %s", topic, chatId);
-  var params = {
-    "lastMsgId": chatId,
-    "topic": topic,
-    "emplId": loginInfo.emplId
-  };
-  if(chatId) {
-    restResource.chat.updateLastMsg(params);
-    myMessage.setLastReadMessageId(topic, chatId);
-    chatModule.sendLastMsgId(topic, chatId);
-  }
+    console.info("shareLastMsgId topic %s, chatId %s", topic, chatId);
+    var params = {
+        "lastMsgId": chatId,
+        "topic": topic,
+        "emplId": loginInfo.emplId
+    };
+    if (chatId) {
+        restResource.chat.updateLastMsg(params);
+        myMessage.setLastReadMessageId(topic, chatId);
+        chatModule.sendLastMsgId(topic, chatId);
+    }
 
-  delete timerListForLastMsg[topic]; //
+    delete timerListForLastMsg[topic]; //
 };
 
 handleLastMsgId = function(payload) {
-  // console.info("handleLastMsgId payload %s", JSON.stringify(payload));
+    // console.info("handleLastMsgId payload %s", JSON.stringify(payload));
 
-  // 멀티 로그인을 고려하여 같이 기종의 alarm count를 초기화 하기 위해서 필요
-  if(loginInfo.emplId === payload.senderId) {
-    var localLastMstId = myMessage.getLastReadMessageId(payload.topic);
-    if(localLastMstId && localLastMstId < payload.lastMsgId) {
-      myMessage.setLastReadMessageId(payload.topic, payload.lastMsgId);
-      hideChattingAlarm(payload.topic);
+    // 멀티 로그인을 고려하여 같이 기종의 alarm count를 초기화 하기 위해서 필요
+    if (loginInfo.emplId === payload.senderId) {
+        var localLastMstId = myMessage.getLastReadMessageId(payload.topic);
+        if (localLastMstId && localLastMstId < payload.lastMsgId) {
+            myMessage.setLastReadMessageId(payload.topic, payload.lastMsgId);
+            hideChattingAlarm(payload.topic);
+        }
     }
-  }
 };
 
 handleCommand = function(receiver, commandPayload) {
-  console.info("handleCommand information %s, %s", receiver, commandPayload.toString());
+    console.info("handleCommand information %s, %s", receiver, commandPayload.toString());
 
-  if(receiver != loginInfo.emplId) {
-    console.error("receiver not match %s, %s", receiver, loginInfo.emplId);
-    return;
-  }
+    if (receiver != loginInfo.emplId) {
+        console.error("receiver not match %s, %s", receiver, loginInfo.emplId);
+        return;
+    }
 
-  switch (commandPayload.type) {
-    // channel 관련
-    case constants.CHANNEL_CREATE:
-      chatModule.subscribe(getChannelTopicName(commandPayload.topic)); // channel 가입
+    switch (commandPayload.type) {
+        // channel 관련
+        case constants.CHANNEL_CREATE:
+            chatModule.subscribe(getChannelTopicName(commandPayload.topic)); // channel 가입
 
-      if(commandPayload.senderId === loginInfo.emplId) {
-        chatModule.sendMsg(commandPayload.topic, "Join Channel"); // 가입 message 전송
-      }
-      displayCreatedChannel(commandPayload);
-    break;
-    case constants.CHANNEL_ADD_MEMBER:
-      reloadChannelCache(commandPayload.channelId);
+            if (commandPayload.senderId === loginInfo.emplId) {
+                chatModule.sendMsg(commandPayload.topic, "Join Channel"); // 가입 message 전송
+            }
+            displayCreatedChannel(commandPayload);
+            break;
+        case constants.CHANNEL_ADD_MEMBER:
+            reloadChannelCache(commandPayload.channelId);
 
-      // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
-      if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
-        displayChannelMember(commandPayload.newMembers);
-      }
-    break;
-    case constants.CHANNEL_REMOVE_MEMBER:
-      reloadChannelCache(commandPayload.channelId);
-      chatModule.unsubscribe(getChannelTopicName(commandPayload.topic)); // channel 가입해지
-      if(loginInfo.emplId === commandPayload.member) {
-        // 화면 닫기 & 리스트제거
-        hideInformationArea();
-        hideChatArea();
-        // hideScreenShareArea();
-        removeChannel(commandPayload.channelId);
-      } else {
-        if(activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
-          removeChannelMember(commandPayload.member);
-        }
-      }
-    break;
-    // call 관련
-    case constants.CALL_SHARE_CHID:
-      callSection.setCallHistoryId(commandPayload.callHistoryId);
-    break;
-    default:
-    console.error("invalid command[%s]", commandPayload.type);
-    return;
-  }
+            // Active 채팅방과 멤버 추가되는 channel이 동일 할경우 asidesection에 member 추가
+            if (activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
+                displayChannelMember(commandPayload.newMembers);
+            }
+            break;
+        case constants.CHANNEL_REMOVE_MEMBER:
+            reloadChannelCache(commandPayload.channelId);
+            chatModule.unsubscribe(getChannelTopicName(commandPayload.topic)); // channel 가입해지
+            if (loginInfo.emplId === commandPayload.member) {
+                // 화면 닫기 & 리스트제거
+                hideInformationArea();
+                hideChatArea();
+                // hideScreenShareArea();
+                removeChannel(commandPayload.channelId);
+            } else {
+                if (activeChatInfo && activeChatInfo.channelId === commandPayload.channelId) {
+                    removeChannelMember(commandPayload.member);
+                }
+            }
+            break;
+            // call 관련
+        case constants.CALL_SHARE_CHID:
+            callSection.setCallHistoryId(commandPayload.callHistoryId);
+            break;
+        default:
+            console.error("invalid command[%s]", commandPayload.type);
+            return;
+    }
 };
 
 loadAllArea = function() {
-  loadHtml("/chat/chat_section.html", $("#chat-section"));
-  loadHtml("/catalog/catalog_section.html", $("#catalog-section"));
-  loadHtml("/header/header_section.html", $("#header-section"));
-  // loadHtml("/screenshare/screenshare-section.html", $("#screenshare-section"));
-  loadHtml("/call/call_section.html", $("#call-section"));
+    loadHtml("/chat/chat_section.html", $("#chat-section"));
+    loadHtml("/catalog/catalog_section.html", $("#catalog-section"));
+    loadHtml("/header/header_section.html", $("#header-section"));
+    // loadHtml("/screenshare/screenshare-section.html", $("#screenshare-section"));
+    loadHtml("/call/call_section.html", $("#call-section"));
 };
 
 showCatalogArea = function() {
-  $("#catalog-section").show();
+    $("#catalog-section").show();
 };
 
 showHeaderArea = function() {
-  $("#header-section").show();
+    $("#header-section").show();
 };
 
 showChatArea = function() {
-  $("#chat-section").show();
+    $("#chat-section").show();
 };
 
 showScreenShareArea = function() {
-  $("#screenshare-section").show();
+    $("#screenshare-section").show();
 };
 
 showCallArea = function() {
-  $("#call-section").show();
+    $("#call-section").show();
 };
 
 setInfoSectionFlag = function(flag) {
-  infoSectionFlag = flag;
+    infoSectionFlag = flag;
 };
 
 showInformationArea = function(fileName, sendingData) {
-  if (infoSectionFlag) {
-    $("#information-section").html("");
-    loadHtml("/information/" + fileName, $("#information-section"), sendingData);
-    $("#information-section").show();
-    $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
-      infoSectionFlag = false;
-      $("#information-section").empty();
-      $("#chat-section").removeClass("with-info");
-      $("#information-section").hide();
-    });
-    $("#chat-section").addClass("with-info");
-  }
+    if (infoSectionFlag) {
+        $("#information-section").html("");
+        loadHtml("/information/" + fileName, $("#information-section"), sendingData);
+        $("#information-section").show();
+        $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
+            infoSectionFlag = false;
+            $("#information-section").empty();
+            $("#chat-section").removeClass("with-info");
+            $("#information-section").hide();
+        });
+        $("#chat-section").addClass("with-info");
+    }
 };
 
 hideCatalogArea = function() {
-  $("#catalog-section").hide();
+    $("#catalog-section").hide();
 };
 
 hideHeaderArea = function() {
-  $("#header-section").hide();
+    $("#header-section").hide();
 };
 
 hideChatArea = function() {
-  $("#chat-section").hide();
+    $("#chat-section").hide();
 };
 
 hideScreenShareArea = function() {
-  $("#screenshare-section").hide();
+    $("#screenshare-section").hide();
 };
 
 hideCallArea = function() {
-  $("#call-section").hide();
+    $("#call-section").hide();
 };
 
 hideInformationArea = function() {
-  $("#information-section").hide();
+    $("#information-section").hide();
 };
 
 $(document).ready(function() {
-  initialize();
+    initialize();
 });

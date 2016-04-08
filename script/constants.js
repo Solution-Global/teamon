@@ -43,8 +43,8 @@ define("CHANNEL_CHAT", 1);
 
 // [API]
 // ### CAUTION ###
-// API_URL, UPLOAD_URL, IMAGE_URL의 경우, web, desktop에 따라 달라지므로,
-// teamon.js 파일의 initialize() 부분을 통한 전역 변수(API_URL, UPLOAD_URL, IMAGE_URL)를 사용할 것
+// API_URL, UPLOAD_URL의 경우, web, desktop에 따라 달라지므로,
+// teamon.js 파일의 initialize() 부분을 통한 전역 변수(API_URL, UPLOAD_URL)를 사용할 것
 if (CLIENT_ENV_USING === 'production') {
   // ubiz
   define("API_URL", "http://211.253.26.248:7587/rest/");
