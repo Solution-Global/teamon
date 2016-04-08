@@ -11,12 +11,14 @@
   </div>
 </div>
 <script>
+var topicForURL = activeChatInfo.topic.startsWith("#") ? escape("#") + encodeURI(activeChatInfo.topic.substr(1)) : activeChatInfo.topic;
+
 var dropzone = new Dropzone("#fileupload-form", {
     autoProcessQueue: false,
     uploadMultiple: true,
     parallelUploads: 10,
     maxFiles: 10,
-    url: UPLOAD_URL + loginInfo.teamId + "/" + escape(activeChatInfo.topic) + "/" + loginInfo.emplId + "/chat",
+		url: UPLOAD_URL + loginInfo.teamId + "/" + topicForURL + "/" + loginInfo.emplId + "/chat",
 		dictDefaultMessage: "Drop files here to upload and click below button",
 
     // Dropzone settings
@@ -34,7 +36,7 @@ var dropzone = new Dropzone("#fileupload-form", {
 					$("#submit-fileupload").closest(".modal-dialog").closest(".modal").modal("hide");
           var fileNames = "";
           $.each(files, function(idx) {
-						var fileUrl = REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + escape(activeChatInfo.topic) + "&emplId=" + loginInfo.emplId + "&type=chat";
+						var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + topicForURL + "&emplId=" + loginInfo.emplId + "&type=chat";
             fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
           });
           chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");

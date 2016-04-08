@@ -36,10 +36,10 @@
 </div>
 <script>
 $(document).ready(function() {
-  restResource.channel.getFileList({teamId: loginInfo.teamId, channel: escape(activeChatInfo.topic)}, function(data, response) {
+  restResource.channel.getFileList({teamId: loginInfo.teamId, channel: activeChatInfo.topic}, function(data, response) {
     $.each(data, function() {
       this.fileName = this.name.substring(this.name.indexOf("_") + 1, this.name.length);
-      this.download = REPOSITORY_URL + this.fileURL.replace("#", "%23");
+      this.download = constants.REPOSITORY_URL + this.fileURL.replace("#", "%23");
       this.lastModified = new Date(this.lastModified).format("YYYY/MM/DD HH:mm:ss");
       $("#information-section").find(".file-list ul").append(Mustache.render($("#filelist-template").html(), this));
     });

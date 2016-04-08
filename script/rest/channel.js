@@ -112,7 +112,7 @@ Channel.prototype.getFileList = function(params, callback) {
   var args = {
     path: {
       teamId: params.teamId,
-      channel: params.channel
+      channel: params.channel.startsWith("#") ? escape("#") + encodeURI(params.channel.substr(1)) : params.channel
     }
   };
 
