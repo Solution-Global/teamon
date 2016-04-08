@@ -42,6 +42,7 @@ var noti = (function() {
 
   function _handleAppNotification(msgPayload) {
     // node-notifier doesn't support image url for icon.
+    console.log("### notification icon %s %s", path.join(__dirname, '../favicon.png'), appRootPath + '/favicon.png');
     audio.play();
     notifier.notify({
       title: notiTitle,
