@@ -58,7 +58,8 @@ var handleSquirrelEvent = function() {
     executeSquirrelCommand(["--removeShortcut", target], done);
   }
 
-  app.setAppUserModelId('com.squirrel.TeamON.teamon');
+  app.setAppUserModelId('com.squirrel.teamon.teamon');
+  // app.setAppUserModelId('com.squirrel.TeamON.teamon');  
   var squirrelEvent = process.argv[1];
   switch (squirrelEvent) {
     case '--squirrel-install':
