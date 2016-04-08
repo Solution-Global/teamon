@@ -175,9 +175,11 @@ function setGlobalShortcuts() {
     globalShortcut.unregisterAll();
 
     var ret = globalShortcut.register('ctrl+Q', function() {
-       console.log('ctrl+Q is pressed');
-       if (mainWindow.isFocused())
-        app.quit();
+      console.log('ctrl+Q is pressed');
+      if (mainWindow.isFocused()) {
+        mainWindow.removeAllListeners('close');
+        mainWindow.close();
+      }
     });
     if (!ret) {
       console.log('ctrl+Q registration failed');
@@ -217,8 +219,8 @@ function handleTrayEvent() {
   });
 
   ipc.on('close-main-window', function() {
-    app.quit();
-    app.exit(0);
+    mainWindow.removeAllListeners('close');
+    mainWindow.close();
   });
 
   ipc.on('reload', function(event, arg) {
