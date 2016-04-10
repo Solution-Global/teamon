@@ -20,7 +20,7 @@ timezone = "Asia/Seoul";
 autosize = require('autosize');
 trayModule = null;
 myWindow = null;
-infoSectionFlag = true;
+isShowInfoSection = true;
 timerListForLastMsg = []; // lastMsgId를 관리하기 위한 Tiver Event의 ID를 저장하는 global 변수
 
 function initialize() {
@@ -59,7 +59,7 @@ function initialize() {
 
 function commnonBindEvent() {
     $("body").on("click", ".about-user", function() {
-        setInfoSectionFlag(true);
+        isShowInfoSection = true;
         showInformationArea(constants.INFO_AREA_ABOUT_USER, {
             "emplId": $(this).data("emplid")
         });
@@ -264,17 +264,13 @@ showCallArea = function() {
     $("#call-section").show();
 };
 
-setInfoSectionFlag = function(flag) {
-    infoSectionFlag = flag;
-};
-
 showInformationArea = function(fileName, sendingData) {
-    if (infoSectionFlag) {
+    if (isShowInfoSection) {
         $("#information-section").html("");
         loadHtml("/information/" + fileName, $("#information-section"), sendingData);
         $("#information-section").show();
         $("#information-section").delegate('.aside-close-link', 'click touchend', function() {
-            infoSectionFlag = false;
+            isShowInfoSection = false;
             $("#information-section").empty();
             $("#chat-section").removeClass("with-info");
             $("#information-section").hide();
