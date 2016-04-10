@@ -14,50 +14,53 @@
 <script>
 var	dropzone = new Dropzone("#fileupload-form", {
     autoProcessQueue: false,
-    uploadMultiple: true,
-    parallelUploads: 10,
-    maxFiles: 1,
+    uploadMultiple: false,
+		acceptedFiles: "image/*",
+		maxFiles: 1,
 		url: UPLOAD_URL + loginInfo.teamId + "/profile_image/" + loginInfo.emplId + "/profile",
-		dictDefaultMessage: "Drop files here to upload and click below button",
+		dictDefaultMessage: "Drop file here to upload and click below upload button",
 
     // Dropzone settings
     init: function() {
-        var myDropzone = this;
+        var profileDropzone = this;
         $("#submit-fileupload").click(function(e) {
             e.preventDefault();
             e.stopPropagation();
-            myDropzone.processQueue();
+            profileDropzone.processQueue();
         });
-				// FIXME multiple -> single
-        this.on("sendingmultiple", function() {
+				this.on("complete", function(file) {
+					if (!file.accepted)
+						this.removeFile(file);
+				});
+        this.on("sending", function() {
           $("#submit-fileupload").attr("disabled", "disabled");
         });
-        this.on("successmultiple", function(files, response) {
+        this.on("success", function(file, response) {
 					$("#submit-fileupload").closest(".modal-dialog").closest(".modal").modal("hide");
-          var fileNames = "";
-          $.each(files, function(idx) {
-						var fileArr = files[idx].name.split('.');
-						var fileUrl = getImagePath(loginInfo.emplId + '.' + fileArr[1], loginInfo.teamId, loginInfo.emplId);
-						var params = $(this).serializeObject();
-						params.emplId = loginInfo.emplId;
-						params.photoLoc = loginInfo.emplId + '.' + fileArr[1];
+					var fileArr = file.name.split('.');
+					var fileExt = fileArr[fileArr.length - 1];
+					var fileUrl = getImagePath(loginInfo.emplId + '.' + fileExt, loginInfo.teamId, loginInfo.emplId);
+					var params = $(this).serializeObject();
+					params.emplId = loginInfo.emplId;
+					params.photoLoc = loginInfo.emplId + '.' + fileExt;
 
-						restResource.empl.changeProfileImg(params,
-							function(data, response) {
-								// Success
-								myPreference.setPreference("photoLoc", params.photoLoc);
-								// TODO image cache 때문인지 사용자 chat_section과 information_section의 이미지가 바뀌지않음.
-								var userValue = userCache.get(loginInfo.emplId);
-
-								loginInfo.photoLoc = params.photoLoc;
-								$("#myprofile-image").attr("src", fileUrl + "&timestamp=" + new Date().getTime());
-								toastr.info("Your profile image has been modified successfully");
-						});
-          });
+					restResource.empl.changeProfileImg(params,
+						function(data, response) {
+							// Success
+							myPreference.setPreference("photoLoc", params.photoLoc);
+							loginInfo.photoLoc = params.photoLoc;
+							// change profile image on the screen immediately
+							// 1. profile section
+							$("#myprofile-image").attr("src", fileUrl + "&_=" + new Date().getTime());
+							// 2. about channel
+							$("li[data-emplid=" + loginInfo.emplId + "] img").attr("src", fileUrl + "&_=" + new Date().getTime());
+							// 3. chat message
+							$(".chat-message.right img").attr("src", fileUrl + "&_=" + new Date().getTime());
+							toastr.info("Your profile image has been modified successfully");
+					});
         });
-        this.on("errormultiple", function(files, response) {
-					console.error(response);
-					toastr.error("Failed to upload. Please try again");
+        this.on("error", function(file, response) {
+					toastr.error(response + " [" + file.name + "]");
         });
     }
 });
