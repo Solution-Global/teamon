@@ -169,6 +169,8 @@ $('#information-section').css("min-height", ($(window).height()-$("#header-secti
     $(window).bind("load resize scroll", function () {
         if (!$("body").hasClass('body-small')) {
             fix_height();
+            if (isShowInfoSection)
+              $("#chat-section").addClass("with-info");
         }
     });
 
