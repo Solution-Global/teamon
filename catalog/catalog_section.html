@@ -314,6 +314,7 @@ $(document).ready(function() {
     $alarmArea.removeClass("hide");
   };
 
+  // show just created channel
   displayCreatedChannel = function(channel) {
     var params = {
       "teamId": channel.teamId,
@@ -377,24 +378,28 @@ $(document).ready(function() {
       }
       // mqtt finalize
       chatModule.finalize();
+
+      // call finalize
+      callClient.finalize();
+
+      // cache clear
+      channelCache.initCache();
+      userCache.initCache();
+      loginInfo = null;
+
+      var dialogOptions = {
+        backdrop : "static",
+        keyboard : "false",
+        backgroundOpacity : 1,
+        backgroundColor : "#2f4050"
+      };
+
+      //TODO session, close chat and call disconnection
+      localStorageManager.removeKey("keepEmplId");
+      sessionStorageManager.removeKey("sessionEmplId");
+
+      openModalDialog("/user/login_popup.html", dialogOptions);
     });
-
-    // cache clear
-    channelCache.initCache();
-    userCache.initCache();
-    loginInfo = null;
-
-    var dialogOptions = {
-      backdrop : "static",
-      keyboard : "false",
-      backgroundOpacity : 1,
-      backgroundColor : "#2f4050"
-    };
-
-    openModalDialog("/user/login_popup.html", dialogOptions);
-    //TODO session, close chat and call disconnection
-    localStorageManager.removeKey("keepEmplId");
-    sessionStorageManager.removeKey("sessionEmplId");
   });
 
 

@@ -141,6 +141,10 @@ CallClient.prototype.initialize = function(userid) {
   });
 };
 
+CallClient.prototype.finalize = function() {
+  this.janus.destroy();
+};
+
 CallClient.prototype._registerUsername = function(userid) {
   var self = this;
 
