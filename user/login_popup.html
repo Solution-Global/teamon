@@ -24,6 +24,7 @@
 
 <script>
 $(document).ready(function() {
+	$("#login-form").nameFind("email").focus();
 	// set validation for login Form
 	$("#login-form").validate({
 		rules: {
@@ -47,6 +48,10 @@ $(document).ready(function() {
 		if(!$(this).valid())
 			return;
 
+		// show block screen
+		$("#login-form").parent().hide();
+		$(".sk-spinner").show();
+
 		// get user agent information
 		var uaParser = new UAParser();
 		uaParser.setUA(navigator.userAgent);
@@ -62,10 +67,12 @@ $(document).ready(function() {
 		params.client = runningChannel;
 
 		restResource.login.login(params, function(data, error) {
-			// show block screen
-			$("#login-form").parent().hide();
-			$(".sk-spinner").show();
-
+			if (data.errorCode) {
+				// hide block screen
+				$("#login-form").parent().show();
+				$(".sk-spinner").hide();
+				return;
+			}
 			// set the personal pref info first to use it around the app.
 			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
 			var isAlreadyLogin = loginInfo ? true : false;
