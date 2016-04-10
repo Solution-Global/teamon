@@ -142,23 +142,23 @@ $(document).ready(function() {
   };
 
   // Local DB에 저장되는 Message Unit의 포맷 설정
-  dispalyMessageFormat = function(params) {
-    var senderInfo = userCache.get(params.senderId);
-    var sender = "unknown";
-    if(senderInfo)
-      sender = senderInfo.name;
+  formatMessageForStorage = function(message) {
+    var senderInfo = userCache.get(message.senderId);
+    if (!senderInfo)
+      return null;
+    var sender = senderInfo ? senderInfo.name : "unknown";
     var imagePath = getImagePath(senderInfo.photoLoc, senderInfo.teamId, senderInfo.emplId);
 
     return {
-      "chatId": params.chatId,
-      "mode": loginInfo.emplId === params.senderId ? "right" : "left", // send : right or receive : left
+      "chatId": message.chatId,
+      "mode": loginInfo.emplId === message.senderId ? "right" : "left", // send : right or receive : left
       "img": imagePath,
       "imgAlt": sender,
       "sender": sender,
-      "senderId": params.senderId,
-      "msgText": params.msg,
-      "date": new Date(params.creTime).format("YYYY/MM/DD"),
-      "time": new Date(params.creTime).format("A hh:mm")
+      "senderId": message.senderId,
+      "msgText": message.msg,
+      "date": new Date(message.creTime).format("YYYY/MM/DD"),
+      "time": new Date(message.creTime).format("A hh:mm")
     };
   };
 
@@ -171,7 +171,7 @@ $(document).ready(function() {
       var messageArray = value.slice(0);
       if(constants.MESSAGE_TYPE_APPEND === type) {
         for (var key = 0; key < messageArray.length; key++) {
-          messageArray[key] = dispalyMessageFormat(messageArray[key]);
+          messageArray[key] = formatMessageForStorage(messageArray[key]);
 
           if(key != 0 && !isDisplayUnreadTag && lastChatMsgId && lastChatMsgId < messageArray[key].chatId) {
             $mcsbContainer.append(unReadTemplate);
@@ -188,10 +188,10 @@ $(document).ready(function() {
         // prepend mode
         var firstDate = messageTags ? messageTags.first().data("date") : undefined;
         var initKey = messageArray.length-1;
-        messageArray[initKey] = dispalyMessageFormat(messageArray[initKey]); // init 처음에만 진행
+        messageArray[initKey] = formatMessageForStorage(messageArray[initKey]); // init 처음에만 진행
         for (var key = initKey; key > -1; key--) {
           if(messageArray[key - 1])
-            messageArray[key - 1] = dispalyMessageFormat(messageArray[key - 1]);
+            messageArray[key - 1] = formatMessageForStorage(messageArray[key - 1]);
 
           $mcsbContainer.prepend(Mustache.render(msgTemplate, messageArray[key]));
           if (key === initKey) {
@@ -206,7 +206,7 @@ $(document).ready(function() {
       }
     } else {
       if(constants.MESSAGE_TYPE_APPEND === type) {
-        var messageObj = dispalyMessageFormat(value);
+        var messageObj = formatMessageForStorage(value);
         var lastDate = messageTags ? messageTags.last().data("date"): undefined;
         if(lastDate && messageObj.date != lastDate) {
           $mcsbContainer.append(Mustache.render(dateLineTemplate, {"date" : messageObj.date}));
