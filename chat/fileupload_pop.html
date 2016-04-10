@@ -19,15 +19,15 @@ var dropzone = new Dropzone("#fileupload-form", {
     parallelUploads: 10,
     maxFiles: 10,
 		url: UPLOAD_URL + loginInfo.teamId + "/" + topicForURL + "/" + loginInfo.emplId + "/chat",
-		dictDefaultMessage: "Drop files here to upload and click below button",
+		dictDefaultMessage: "Drop files here to upload and click below upload button",
 
     // Dropzone settings
     init: function() {
-        var myDropzone = this;
+        var fileDropzone = this;
         $("#submit-fileupload").click(function(e) {
             e.preventDefault();
             e.stopPropagation();
-            myDropzone.processQueue();
+            fileDropzone.processQueue();
         });
         this.on("sendingmultiple", function() {
           $("#submit-fileupload").attr("disabled", "disabled");
@@ -38,12 +38,15 @@ var dropzone = new Dropzone("#fileupload-form", {
           $.each(files, function(idx) {
 						var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + topicForURL + "&emplId=" + loginInfo.emplId + "&type=chat";
             fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
+						chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");
           });
-          chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");
 					if ($(".file-list").length > 0)
 						$("#info-file").click();
         });
         this.on("errormultiple", function(files, response) {
+					$.each(files, function() {
+						toastr.error(response + " [" + this.name + "]");
+					});
         });
     }
 });
