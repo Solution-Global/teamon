@@ -37,6 +37,9 @@ var RestCommon = (function(params){
           }
         } else {
           toastr.warning(data.userMessage);
+          if(callback) {
+            callback(data);
+          }
   			}
       }).on('error',function(err){
         toastr.error("Something went wrong on the request");
@@ -59,6 +62,9 @@ var RestCommon = (function(params){
           }
         } else {
           toastr.warning(data.userMessage);
+          if(callback) {
+            callback(data);
+          }
   			}
       }).on('error',function(err){
         toastr.error("Something went wrong on the request");
@@ -76,6 +82,9 @@ var RestCommon = (function(params){
           }
         } else {
           toastr.warning(data.userMessage);
+          if(callback) {
+            callback(data);
+          }
   			}
       }).on('error',function(err){
         toastr.error("Something went wrong on the request");
@@ -93,6 +102,9 @@ var RestCommon = (function(params){
           }
         } else {
           toastr.warning(data.userMessage);
+          if(callback) {
+            callback(data);
+          }
   			}
       }).on('error',function(err){
         toastr.error("Something went wrong on the request");
