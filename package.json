@@ -1,7 +1,7 @@
 {
   "name": "TeamON",
   "productName": "TeamON",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "TeamON",
   "main": "script/app.js",
   "scripts": {
