@@ -68,7 +68,7 @@ $(document).ready(function() {
 
   // if user is not online, do not show call button
   if (!userCache.get(userValue.emplId).online)
-    $contentArea.find(".call").addClass("disabled");
+    $contentArea.find(".call").prop("disabled", true);
 
   $contentArea.find(".call").click(function() {
     makeCall();
