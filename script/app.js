@@ -59,7 +59,7 @@ var handleSquirrelEvent = function() {
   }
 
   app.setAppUserModelId('com.squirrel.teamon.teamon');
-  // app.setAppUserModelId('com.squirrel.TeamON.teamon');  
+  // app.setAppUserModelId('com.squirrel.TeamON.teamon');
   var squirrelEvent = process.argv[1];
   switch (squirrelEvent) {
     case '--squirrel-install':
@@ -185,10 +185,13 @@ function setLocalShortcuts() {
       console.log('cmdOrctrl+shift+I is pressed');
       mainWindow.toggleDevTools();
     });
-    if (!ret) {
-      console.log('cmdOrctrl+shift+I registration failed');
-    }
-}
+
+    // For test, it have to remove
+    ret = localShortcut.register(mainWindow, 'F5', function() {
+      console.log('F5 is pressed');
+      mainWindow.toggleDevTools();
+    });
+  }
 
 function handleTrayEvent() {
   ipc.on('show-window', function() {

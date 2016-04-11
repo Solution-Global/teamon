@@ -88,6 +88,17 @@ $(document).ready(function() {
 		calleeId = loginInfo.emplId;
 		var msg = "Incoming call from " + userCache.get(callerId).name + "!";
 
+		if (!document.hasFocus()) {
+			if (runningChannel === constants.CHANNEL_APP) {
+				// For desktop
+				myWindow.setAlwaysOnTop(true);
+				myWindow.focus();
+				myWindow.show();
+				myWindow.setAlwaysOnTop(false);
+			} else {
+				window.focus();
+			}
+		}
 		// alert info of incoming call
 		swal({
 			title: "Incoming call",
