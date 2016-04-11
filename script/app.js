@@ -167,12 +167,12 @@ function createWindow() {
   });
 
   // local shortcut register
-  setLocalShortcuts();
+  registerLocalShortcuts();
 
   handleTrayEvent();
 }
 
-function setLocalShortcuts() {
+function registerLocalShortcuts() {
     localShortcut.unregisterAll();
 
     var ret = localShortcut.register(mainWindow, 'ctrl+Q', function() {
