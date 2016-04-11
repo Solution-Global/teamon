@@ -46,8 +46,9 @@ function initialize() {
     loginInfo = null;
     activeChatInfo = null;
     var StorageManager = require('./script/storage/storage_manager'); // global var
-    localStorageManager = StorageManager("L", false);
+    localStorageManager = StorageManager("L", true);
     sessionStorageManager = StorageManager("S", false);
+
     userCache = new CacheManager(); // user list 저장
     channelCache = new CacheManager(); // channel list 저장
     myMessage = MessageManager(localStorageManager); // global var
@@ -71,8 +72,7 @@ function initLoginStatus() {
     var sessionEmplId = sessionStorageManager.getValue("sessionEmplId");
 
     console.log("initLoginStatus[keepEmplId:%s, sessionEmplId:%s]", keepEmplId, sessionEmplId);
-
-    if (keepEmplId || sessionEmplId) {
+    if (keepEmplId || (sessionEmplId && !!localStorage.getItem("preference_" + sessionEmplId))) {
         if (keepEmplId) {
             myPreference = new preferenceManager(localStorageManager, keepEmplId); // init preference
             sessionStorageManager.setValue("sessionEmplId", keepEmplId);
@@ -304,5 +304,16 @@ hideInformationArea = function() {
 };
 
 $(document).ready(function() {
+    // TODO 기존에 압축되어 저장되어 있지 않은 LocalStorage 삭제 처리 ( 안정화 후 아래 코드 삭제 처리 한다.)
+    for(var sKey in localStorage)
+    {
+      if(sKey.startsWith("CHAT")) {
+        if(localStorage.getItem(sKey).substring(0,1) === "[") {
+          localStorage.clear();
+          break;
+        }
+      }
+    }
+
     initialize();
 });

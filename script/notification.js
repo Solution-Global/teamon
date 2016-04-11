@@ -29,6 +29,9 @@ var noti = (function() {
 
     if (runningChannel === constants.CHANNEL_APP) {
       // For desktop
+      if(!myWindow.isVisible()) {
+        myWindow.minimize();
+      }
       myWindow.flashFrame(true);
       _handleAppNotification(msgPayload);
 
@@ -57,6 +60,7 @@ var noti = (function() {
       msgPayload.channelId, msgPayload.senderId, msgPayload.msg);
 
     notifier.on('click', function(){
+      myWindow.showInactive();
       myWindow.focus();
       myWindow.show();
 
