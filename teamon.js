@@ -65,6 +65,16 @@ function commnonBindEvent() {
             "emplId": $(this).data("emplid")
         });
     });
+
+    window.addEventListener("dragover", function(e) {
+      e = e || event;
+      e.preventDefault();
+    }, false);
+
+    window.addEventListener("drop", function(e) {
+      e = e || event;
+      e.preventDefault();
+    }, false);
 }
 
 function initLoginStatus() {

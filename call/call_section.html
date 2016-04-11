@@ -271,10 +271,19 @@ $(document).ready(function() {
 	function _gwError(msg) {
 		swal.close();
 		$('#local-video').hide();
-		toastr.error(msg);
-	}
+		// toastr.error(msg);
 
+		// reinitialize Call Client
+    console.error("  -- Must reinitialize Call Client... " + msg);
+		setTimeout(_reinitCallClient, 30000);
+	}
 });
+
+function _reinitCallClient() {
+	if (loginInfo !== null) {
+		callClient.initialize(loginInfo.emplId + "_"+loginInfo.os + "_" + loginInfo.browser + "_" + loginInfo.device);
+	}
+}
 
 function makeCall(chatId, username) {
 	if (callClient.registered && !callClient.engaged) {
