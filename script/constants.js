@@ -77,17 +77,19 @@ define("TOPIC_PRESENCE", "/presence");
 define("TOPIC_MSG", "/msg");
 define("TOPIC_COMMAND", "/command");
 
-// presence 관련
+// presence
 define("PRESENCE_STATUS_ONLINE", 1);
 define("PRESENCE_STATUS_OFFLINE", 0);
 
-// channel 관련
+// channel
 define("CHANNEL_CREATE", 0);
 define("CHANNEL_ADD_MEMBER", 1);
 define("CHANNEL_REMOVE_MEMBER", 2);
 
-// call 관련
-define("CALL_SHARE_CHID", 100); // 발신자가 생성한 call history id 값을 수신자에게 공유
+define("CHANNEL_TOPIC_DELIMITER", "#");
+
+// call
+define("CALL_SHARE_CHID", 100); // share call history id made by caller to callee
 if (CLIENT_ENV_USING === 'production') {
     // ubiz janus
     define("CALL_GW_URL", "wss://211.253.26.248:8989/janus");
@@ -100,19 +102,16 @@ if (CLIENT_ENV_USING === 'production') {
     define("SIP_DOMAIN", "192.168.5.53");
 }
 
-// information 영역 관련
+// information section
 define("INFO_AREA_ABOUT_USER", "about_user.html");
 define("INFO_AREA_ABOUT_CHANNEL", "about_channel.html");
 define("INFO_AREA_MENTION", "mention_list.html");
 define("INFO_AREA_SEARCH", "search_list.html");
 
-// chatting 관련
+// chatting
 define("MESSAGE_TYPE_APPEND", 1);
 define("MESSAGE_TYPE_PREPEND", 2);
 define("MENTION_FIRST_DELIMITER", "@");
 define("MENTION_LAST_DELIMITER", ": ");
 define("LAST_MST_ID_TIMER_INTERVAL", 5000);
 define("ALARM_MAX_COUNT", 10);
-
-// channel 관련
-define("CHANNEL_TOPIC_DELIMITER", "#");

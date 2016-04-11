@@ -39,7 +39,14 @@ $(document).ready(function() {
 
 	$("#login-form").delegate('#forgot-password', 'click touchend', function() {
 		toastr.info("Ask to dev1.solution@uangel.com to reset password");
-	})
+	});
+
+	// add certificate install instruction if it's WEB
+	if (runningChannel === 'WEB') {
+		$('#login-form').append('<br/>')
+			.append('<a href="https://192.168.1.84:8387/certification/" target="_blank"><small>How to install certificate</small></a>');
+	}
+	
 	// set event for login action
 	$('#login-form').submit(function(event) {
 		event.preventDefault();
