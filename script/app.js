@@ -187,6 +187,12 @@ function setLocalShortcuts() {
       console.log('cmdOrctrl+shift+I is pressed');
       mainWindow.toggleDevTools();
     });
+
+    ret = localShortcut.register(mainWindow, 'cmdOrctrl+R', function() {
+      console.log('cmdOrctrl+R is pressed');
+      mainWindow.webContents.send('tray_destroy');
+      mainWindow.reload();
+    });
   }
 
 function handleTrayEvent() {

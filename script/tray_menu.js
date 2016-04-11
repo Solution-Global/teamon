@@ -51,12 +51,8 @@ function renderTrayIconMenu(){
 }
 
 ipc.on('tray_destroy', function() {
-  destroy();
-});
-
-function destroy() {
   trayIcon.destroy();
-}
+});
 
 function changeImageToNew() {
   trayIcon.setImage(path.join(__dirname, "../img/profile_no.jpg"));
