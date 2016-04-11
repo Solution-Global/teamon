@@ -179,16 +179,12 @@ function setLocalShortcuts() {
       console.log('ctrl+Q is pressed');
       mainWindow.removeAllListeners('close');
       mainWindow.close();
+      mainWindow = null;
+      app.quit();
     });
 
     ret = localShortcut.register(mainWindow, 'cmdOrctrl+shift+I', function() {
       console.log('cmdOrctrl+shift+I is pressed');
-      mainWindow.toggleDevTools();
-    });
-
-    // For test, it have to remove
-    ret = localShortcut.register(mainWindow, 'F5', function() {
-      console.log('F5 is pressed');
       mainWindow.toggleDevTools();
     });
   }
