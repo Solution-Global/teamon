@@ -6,16 +6,6 @@ function CallClient() {
   if (!(this instanceof CallClient)) {
     return new CallClient();
   }
-
-  this.registered = false;
-  this.janus = null;
-  this.engaged = false;
-  this.sipcall = null;
-  this.myJsep = null;
-  this.remoteJsep = null;
-  this.myusername = null;
-  this.yourusername = null;
-
   events.EventEmitter.call(this);
 }
 util.inherits(CallClient, events.EventEmitter);
@@ -26,10 +16,20 @@ CallClient.prototype.initialize = function(userid) {
   console.log("gateway url: %s", server);
   console.log("id: "+userid);
 
-  if (this.janus !== null) {
-    console.error('Already initialized');
-    return;
-  }
+  // if (this.janus !== null) {
+  //   console.error('Already initialized');
+  //   return;
+  // }
+
+  // Initialize local variables here to cope with reinitializing process.
+  this.registered = false;
+  this.janus = null;
+  this.engaged = false;
+  this.sipcall = null;
+  this.myJsep = null;
+  this.remoteJsep = null;
+  this.myusername = null;
+  this.yourusername = null;
 
   // Initialize the library (console debug enabled)
   Janus.init({
