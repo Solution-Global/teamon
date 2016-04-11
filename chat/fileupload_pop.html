@@ -38,8 +38,8 @@ var dropzone = new Dropzone("#fileupload-form", {
           $.each(files, function(idx) {
 						var fileUrl = constants.REPOSITORY_URL + response[idx].name + "?teamId=" + loginInfo.teamId + "&topic=" + topicForURL + "&emplId=" + loginInfo.emplId + "&type=chat";
             fileNames += "<a href='" + fileUrl + "' target='_blank'>" + this.name + "</a>,";
-						chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");
           });
+					chatModule.sendMsg(activeChatInfo.topic, "Files [" + fileNames.substr(0, fileNames.length-1) + "] uploaded");
 					if ($(".file-list").length > 0)
 						$("#info-file").click();
         });
