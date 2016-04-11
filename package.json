@@ -1,7 +1,7 @@
 {
   "name": "TeamON",
   "productName": "TeamON",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "TeamON",
   "main": "script/app.js",
   "scripts": {
@@ -13,7 +13,9 @@
     "pack": "npm run pack:win",
     "dist": "npm run dist:win",
     "pack:win": "npm run clean:win && electron-packager . teamon --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"^/(assets|logs|web|dist)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite --version-string.CompanyName=UANGEL --version-string.ProductName=TeamON --version-string.FileDescription=TeamON",
+    "pack:win:dev": "npm run clean:win && electron-packager . teamon_dev --out=dist/win --platform=win32 --arch=x64 --version=0.37.4 --asar=true --asar-unpack=\"*.node\" --icon=assets/win/teamon.ico --prune --ignore=\"^/(assets|logs|web|dist)\" --ignore=.gitignore --ignore=\"node_modules/.bin/(asar|electron.*)\" --overwrite --version-string.CompanyName=UANGEL --version-string.ProductName=TeamON_dev --version-string.FileDescription=TeamON_dev",
     "dist:win": "npm run pack:win && grunt installer",
+    "dist:win:dev": "npm run pack:win && grunt installer_dev",
     "dist:osx": "build"
   },
   "repository": {
@@ -25,14 +27,14 @@
   },
   "authors": "UANGEL",
   "author": "UANGEL",
-  "license": "GPL",
+  "license": "GPL-3.0",
   "homepage": "https://github.com/Solution-Global/teamon#readme",
   "devDependencies": {
     "asar": "0.9.0",
     "connect": "3.4.1",
     "connect-proxy-layer": "0.1.2",
     "electron-builder": "^3.1.1",
-    "electron-packager": "^6.0.0",
+    "electron-packager": "6.0.2",
     "electron-prebuilt": "^0.37.4",
     "file-stream-rotator": "0.0.6",
     "grunt": "^0.4.5",
