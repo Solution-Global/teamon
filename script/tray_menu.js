@@ -65,6 +65,5 @@ function changeImageToNormal() {
 module.exports = {
   renderTrayIconMenu: renderTrayIconMenu,
   changeImageToNormal: changeImageToNormal,
-  changeImageToNew: changeImageToNew,
-  destroy: destroy
+  changeImageToNew: changeImageToNew
 };
