@@ -2,12 +2,13 @@
 
 /*
   - Lacal storage 에 저장 되는 preference 관련 포맷
+  only keeps emplId, email, authkey and lastChatInfo
   key : preference_[activeEmplId]
   value : format is JSON.
   {
-    "team": "uangle",
-    "LoginId": jerry,
-    "teamId": 1
+    "emplId": "00",
+    "email": "XXX@XXX.com",
+    "authKey": "000-000-000000",
   }
 */
 
