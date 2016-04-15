@@ -38,7 +38,7 @@ $(document).ready(function() {
   var $title = $headerSec.find("h4");
 
   setHearderTitle = function(text) {
-    if(!text.startsWith("@") && !text.startsWith("#"))
+    if (!text.startsWith("@") && !text.startsWith("#"))
       text = "@" + text;
     $title.html(text);
     // change text on about menu
@@ -133,7 +133,7 @@ function doSearch(params) {
       $.each(data, function(idx, message) {
         var senderInfo = userCache.get(message.senderId);
         var sender = "unknown";
-        if(senderInfo)
+        if (senderInfo)
           sender = senderInfo.name;
         var imagePath = getImagePath(senderInfo.photoLoc, senderInfo.teamId, senderInfo.emplId);
 

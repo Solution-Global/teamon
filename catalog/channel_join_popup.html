@@ -54,7 +54,7 @@ $(document).ready(function() {
 
   var userArray = userCache.getValueArray();
   var chosenSelect = $channelForm.find(".chosen-select");
-  for(var key in userArray) {
+  for (var key in userArray) {
     if (userArray[key].emplId === loginInfo.emplId) // select list에서 본인 제외
       continue;
     chosenSelect.append("<option value='" + userArray[key].emplId + "'>" + userArray[key].name + "</option>");
@@ -63,7 +63,7 @@ $(document).ready(function() {
 
   // set event for new create channel
   $("#channel-join-submit").bind("click", function() {
-    if(!$channelForm.valid())
+    if (!$channelForm.valid())
       return;
 
     var name = constants.CHANNEL_TOPIC_DELIMITER + $channelForm.find("[name=name]").val();
@@ -91,7 +91,7 @@ $(document).ready(function() {
           "senderId" : loginInfo.emplId
         }
 
-        for(var key in members) {
+        for (var key in members) {
           chatModule.sendCommand(members[key], params);
         }
 
