@@ -95,13 +95,14 @@ $(document).ready(function() {
     activeChatInfo = {};  // initialize
     activeChatInfo.topic = topic;
     var chatType = getChatType(topic);
-    if(chatType === constants.DIRECT_CHAT) {
+    if (chatType === constants.DIRECT_CHAT) {
       activeChatInfo.name = $listItem.data("name");
       activeChatInfo.emplId = $listItem.data("emplid");
     } else {
       activeChatInfo.channelId = $listItem.data("channelid");
     }
-    myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo)); // 마지막으로 Active한 chatting 정보 저장
+    // 마지막으로 Active한 chatting 정보 저장
+    myPreference.setPreference("lastChatInfo", JSON.stringify(activeChatInfo));
 
     // A2. activate selected channel on catalog list
     $channelListContext.find("li.active").removeClass("active");
@@ -126,7 +127,7 @@ $(document).ready(function() {
 
     // B5. change information section
     if (!$('body').hasClass('body-small') && !$("#information-section").find(".search-list").length) {
-      if(activeChatInfo.channelId)
+      if (activeChatInfo.channelId)
         showInformationArea(constants.INFO_AREA_ABOUT_CHANNEL);
       else
         showInformationArea(constants.INFO_AREA_ABOUT_USER);
@@ -157,7 +158,9 @@ $(document).ready(function() {
   // init User List
   var params = {
     "teamId": loginInfo.teamId,
-    "limit" : constants.COMMON_SEARCH_ALL
+    "limit" : constants.COMMON_SEARCH_ALL,
+    "sIdx": "name",
+    "sOrder": "asc"
   };
 
   restResource.empl.getListByTeamId(params, function(data) {
@@ -186,7 +189,7 @@ $(document).ready(function() {
         "teamId": loginInfo.teamId
       };
       restResource.login.getLoggedInEmplListByTeamId(params, function(data) {
-        if(data) {
+        if (data) {
           $.each(data, function() {
             userCache.get(this.emplId).online = true;
             setUserPresenceOnList(this.emplId, true);
@@ -199,9 +202,6 @@ $(document).ready(function() {
     $("#topic-list").mCustomScrollbar({
       axis: "y"
     });
-
-    //sync Message
-    myMessage.syncChatMessage(constants.DIRECT_CHAT, userCache.getValueArray());
   });
 
 
@@ -209,18 +209,18 @@ $(document).ready(function() {
   params.memberIncluded = true;
   restResource.channel.getChannelList(params, function(data) {
     var channelCnt = 0;
-    if(data) {
+    if (data) {
       $.each(data, function(idx, row) {
         var members;
         var isIncludingMember = false;
-        for(var key in row.memberList) {
+        for (var key in row.memberList) {
           var member = row.memberList[key];
 
-          if(!isIncludingMember && loginInfo.emplId === member.emplId) {
+          if (!isIncludingMember && loginInfo.emplId === member.emplId) {
             isIncludingMember = true;
           }
 
-          if(members) {
+          if (members) {
             members += "," + member.emplId;
           } else {
             members =  member.emplId;
@@ -228,7 +228,7 @@ $(document).ready(function() {
         }
 
         // 본인이 속한 channel list 표시
-        if(!isIncludingMember)
+        if (!isIncludingMember)
           return;
 
         channelCache.set(row.channelId, row); // add each employee into channelCache.
@@ -243,17 +243,12 @@ $(document).ready(function() {
       // set channel count
       $("#topic-list .channels-link").append(" (" + channelCnt + ")");
     }
-
-    //sync Message
-    myMessage.syncChatMessage(constants.CHANNEL_CHAT, channelCache.getValueArray());
-    // show the last chat info
-    _activeLastChatView();
   });
 
-  var _activeLastChatView = function() {
+  activeLastChatView = function() {
     var lastChatInfo = myPreference.getPreference("lastChatInfo");
     var $activeTarget = null;
-    if(lastChatInfo) {
+    if (lastChatInfo) {
       lastChatInfo = JSON.parse(lastChatInfo);
       $activeTarget = getSingleChattingContext(lastChatInfo.topic);
       $activeTarget.trigger("click");
@@ -283,7 +278,7 @@ $(document).ready(function() {
     var chatType = getChatType(topic);
     if (chatType === constants.DIRECT_CHAT)
       return $userListContext.find("[data-topic='" + topic + "']");
-    else if(chatType === constants.CHANNEL_CHAT)
+    else if (chatType === constants.CHANNEL_CHAT)
       return $channelListContext.find("[data-topic='" + topic + "']");
     else
       return null;
@@ -300,14 +295,14 @@ $(document).ready(function() {
     var $activeTarget = getSingleChattingContext(topic);
     var $alarmArea = $activeTarget.find(".alarm");
     var maxAlarmCntStr = constants.ALARM_MAX_COUNT + "+";
-    if(!alarmCnt) {
+    if (!alarmCnt) {
       alarmCnt = $alarmArea.text();
-      if(alarmCnt != maxAlarmCntStr) {
+      if (alarmCnt != maxAlarmCntStr) {
         alarmCnt = alarmCnt ? Number(alarmCnt) + 1 : 1;
       }
     }
 
-    if(alarmCnt > constants.ALARM_MAX_COUNT)
+    if (alarmCnt > constants.ALARM_MAX_COUNT)
       alarmCnt = maxAlarmCntStr;
 
     $alarmArea.html(alarmCnt);
@@ -380,7 +375,8 @@ $(document).ready(function() {
       chatModule.finalize();
 
       // call finalize
-      callClient.finalize();
+      if (CallClient)
+        callClient.finalize();
 
       // cache clear
       channelCache.initCache();

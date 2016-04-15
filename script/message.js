@@ -27,8 +27,8 @@ var message = (function(storageManager) {
     ...
   */
 
-  var cacheMessage = new CacheManager();
-  var cacheFirstMsgId = new CacheManager();
+  var messageCache = new CacheManager();
+  var firstMsgIdCache = new CacheManager();
 
   function syncChatMessage(chatType, targetArray, callback) {
     var restParams = {
@@ -39,11 +39,12 @@ var message = (function(storageManager) {
     var lastMsgIdArr = [];
     var localMessageList = {};
 
-    // get lastMsgId as array from all the topics
+    // get lastMsgId as an array from all the topics
     for (var key in targetArray) {
       var topic;
 
       if (constants.DIRECT_CHAT === chatType) {
+        // ignore if target is me
         if (loginInfo.emplId === targetArray[key].emplId)
           continue;
         topic = generateTopic(loginInfo.emplId, targetArray[key].emplId);
@@ -51,54 +52,51 @@ var message = (function(storageManager) {
         topic = targetArray[key].name;
       }
 
-      var messagesStr = _readAll(KEY_TYPE_CHAT_MESSAGES, topic);
-      var lastMsgIdObj = {
-        "topic" : topic
-      };
-
-      if (messagesStr) {
-        var messagesObj = JSON.parse(messagesStr);
+      var lastMsgIdObj = {};
+      lastMsgIdObj.topic = topic;
+      var messagesObj = _readStorage(KEY_TYPE_CHAT_MESSAGES, topic);
+      if (messagesObj) {
         localMessageList[topic] = messagesObj;
         lastMsgIdObj.lastMsgId = messagesObj[messagesObj.length -1].chatId;
       }
-
       lastMsgIdArr.push(lastMsgIdObj);
     }
 
     restParams.condition = JSON.stringify(lastMsgIdArr);
     restResource.chat.getListForSync(restParams, function(msgData) {
-      $.each(msgData, function(idx, msgObject) {
-        var topic = msgObject.topic;
-        setLastReadMessageId(topic, msgObject.lastMsgId);
+      $.each(msgData, function(idx, data) {
+        var topic = data.topic;
+        setLastReadMessageId(topic, data.lastMsgId);
 
-        if (msgObject.messageList && msgObject.messageList.length > 0) {
+        if (data.messageList && data.messageList.length > 0) {
           var messageArray = localMessageList[topic];
           if (!messageArray)
             messageArray = [];
 
           var unReadMsgCnt = 0;
-          $.each(msgObject.messageList, function(idx, msgRow) {
+          $.each(data.messageList, function(idx, msgRow) {
+            if (data.lastMsgId < msgRow.chatId)
+              unReadMsgCnt++;
+
+            // LocalStorage 저장될 포맷으로 message Object 생성
             var message = {
               senderId: msgRow.senderId,
               chatId: msgRow.chatId,
               creTime: msgRow.creTime,
               msg: msgRow.msg
-            }; // LocalStorage 저장될 포맷으로 Object 생성
+            };
             messageArray.push(message);
-
-            if (msgObject.lastMsgId < msgRow.chatId)
-              unReadMsgCnt++;
           });
 
           var messageArrayLength = messageArray.length;
           if (unReadMsgCnt < constants.COMMON_SEARCH_COUNT) {
             if (messageArrayLength > constants.COMMON_SEARCH_COUNT)
-              _appendMessageArray(messageArray.slice(messageArrayLength-constants.COMMON_SEARCH_COUNT, messageArrayLength), topic); // 항상 최대 검색 갯수만 LocalStorage에 저장한다.
+              _appendMessageArray(messageArray.slice(messageArrayLength - constants.COMMON_SEARCH_COUNT, messageArrayLength), topic); // 항상 최대 검색 갯수만 LocalStorage에 저장한다.
             else
               _appendMessageArray(messageArray, topic);
           } else {
             if (messageArrayLength > (constants.COMMON_SEARCH_COUNT + 5))
-              _appendMessageArray(messageArray.slice(messageArrayLength-(constants.COMMON_SEARCH_COUNT + 5), messageArrayLength), topic); // unReadMsgCnt기준의 이전메시지 5개 이상정도 더 보여준다.
+              _appendMessageArray(messageArray.slice(messageArrayLength - (constants.COMMON_SEARCH_COUNT + 5), messageArrayLength), topic); // unReadMsgCnt기준의 이전메시지 5개 이상정도 더 보여준다.
             else
               _appendMessageArray(messageArray, topic);
           }
@@ -121,7 +119,7 @@ var message = (function(storageManager) {
       "topic": topic
     };
 
-    var firstMsgId = cacheFirstMsgId.get(topic);
+    var firstMsgId = firstMsgIdCache.get(topic);
     if (firstMsgId) {
       restParams.firstMsgId = firstMsgId;
     }
@@ -156,25 +154,24 @@ var message = (function(storageManager) {
     return keyName;
   }
 
-  function _writeAll(keyType, value, topic) {
-    var keyName = _getKeyName(keyType, topic);
-    storageManager.setValue(keyName, value);
+  function _writeStorage(keyType, value, topic) {
+    storageManager.setValue(_getKeyName(keyType, topic), JSON.stringify(value));
   }
 
-  function _readAll(keyType, topic) {
-    var keyName = _getKeyName(keyType, topic);
-    return storageManager.getValue(keyName);
+  function _readStorage(keyType, topic) {
+    var value = storageManager.getValue(_getKeyName(keyType, topic));
+    if (value)
+      return JSON.parse(value);
+    return null;
   }
 
   // 모든 메시지 가져오기
   function getAllChatMessage(topic) {
-    var messages = cacheMessage.get(topic); // Memory에 value를 우선한다.
+    var messages = messageCache.get(topic); // Memory에 value를 우선한다.
     if (messages)
       return messages;
 
-    var value = _readAll(KEY_TYPE_CHAT_MESSAGES, topic);
-    if (value)
-      return JSON.parse(value);
+    return _readStorage(KEY_TYPE_CHAT_MESSAGES, topic);
   }
 
   function appendMessageUnit(msgRow, topic) {
@@ -184,8 +181,8 @@ var message = (function(storageManager) {
     }
 
     messages.push(msgRow);
-    cacheFirstMsgId.set(topic, msgRow.chatId);
-    cacheMessage.set(topic, messages);
+    firstMsgIdCache.set(topic, msgRow.chatId);
+    messageCache.set(topic, messages);
   }
 
   function _prependMessageArray(value, topic) {
@@ -193,34 +190,28 @@ var message = (function(storageManager) {
     if (!messages)
       messages = [];
 
-    cacheFirstMsgId.set(topic, value[0].chatId);
-    cacheMessage.set(topic, value.concat(messages));
+    firstMsgIdCache.set(topic, value[0].chatId);
+    messageCache.set(topic, value.concat(messages));
   }
 
   function _appendMessageArray(value, topic) {
-    cacheFirstMsgId.set(topic, value[0].chatId);
-
-    _writeAll(KEY_TYPE_CHAT_MESSAGES, JSON.stringify(value), topic);
+    firstMsgIdCache.set(topic, value[0].chatId);
+    _writeStorage(KEY_TYPE_CHAT_MESSAGES, value, topic);
   }
 
   function setLastReadMessageId(topic, lastMsgId) {
-    var LastReadMessageIdstr = _readAll(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID);
-    var LastReadMessageIdObj = {};
-    if (LastReadMessageIdstr) {
-      LastReadMessageIdObj = JSON.parse(LastReadMessageIdstr);
-    }
-    LastReadMessageIdObj[topic] = lastMsgId;
-
-    _writeAll(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID, JSON.stringify(LastReadMessageIdObj));
+    var lastReadMessageIdMap = _readStorage(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID);
+    if (!lastReadMessageIdMap)
+      lastReadMessageIdMap = {};
+    lastReadMessageIdMap[topic] = lastMsgId;
+    _writeStorage(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID, lastReadMessageIdMap);
   }
 
   function getLastReadMessageId(topic) {
-    var LastReadMessageIdstr = _readAll(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID);
-    var LastReadMessageIdObj = {};
-    if (LastReadMessageIdstr) {
-      LastReadMessageIdObj = JSON.parse(LastReadMessageIdstr);
-    }
-    return LastReadMessageIdObj[topic];
+    var lastReadMessageIdMap = _readStorage(KEY_TYPE_CHAT_LAST_READ_MESSAGE_ID);
+    if (!lastReadMessageIdMap)
+      return null;
+    return lastReadMessageIdMap[topic];
   }
 
   return {

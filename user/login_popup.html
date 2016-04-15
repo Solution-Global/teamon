@@ -46,18 +46,17 @@ $(document).ready(function() {
 		$('#login-form').append('<br/>')
 			.append('<a href="https://192.168.1.84:8387/certification/" target="_blank"><small>How to install certificate</small></a>');
 	}
-	
+
 	// set event for login action
 	$('#login-form').submit(function(event) {
 		event.preventDefault();
 
 		var $loginAlert = $("#login-alert").addClass("hide");
-		if(!$(this).valid())
+		if (!$(this).valid())
 			return;
 
 		// show block screen
-		$("#login-form").parent().hide();
-		$(".sk-spinner").show();
+		showBlockScreen();
 
 		// get user agent information
 		var uaParser = new UAParser();
@@ -74,15 +73,18 @@ $(document).ready(function() {
 		params.client = runningChannel;
 
 		restResource.login.login(params, function(data, error) {
-			if (data.errorCode) {
-				// hide block screen
-				$("#login-form").parent().show();
-				$(".sk-spinner").hide();
+			if (data.errorCode || error) {
+				// remove block screen
+				removeBlockScreen();
 				return;
 			}
+			configureCertifiedAPI(data.email, data.authKey);
 			// set the personal pref info first to use it around the app.
-			myPreference = new preferenceManager(localStorageManager, data.emplId); // init preference
-			var isAlreadyLogin = loginInfo ? true : false;
+			myPreference = new PreferenceManager(localStorageManager, data.emplId); // init preference
+			myPreference.setPreference("emplId", data.emplId);
+			myPreference.setPreference("email", data.email);
+			myPreference.setPreference("authKey", data.authKey);
+
 			loginInfo = {
 	      "email": data.email,
 				"emplId": data.emplId ? Number(data.emplId) : null,
@@ -95,70 +97,17 @@ $(document).ready(function() {
 				"photoLoc": data.photoLoc
 	    };
 
-			configureCertifiedAPI(data.email, data.authKey);
-
-			if(params.keepMe)
+			if (params.keepMe)
 				localStorageManager.setValue("keepEmplId", data.emplId);
 			else
 				localStorageManager.removeKey("keepEmplId");
-
-			myPreference.setPreference("teamId", data.teamId);
-			myPreference.setPreference("email", data.email);
-			myPreference.setPreference("authKey", data.authKey);
-			myPreference.setPreference("emplId", data.emplId);
-			myPreference.setPreference("name", data.name);
-			myPreference.setPreference("photoLoc", data.photoLoc);
-
 			sessionStorageManager.setValue("sessionEmplId", data.emplId);
 
-			// do all the background job before show whole screen element
-			// here's the function chain starts
-			// FIXME there must be a better way to solve function chain
-			_loadUserList();
-
+			initialize(true);
 			chatModule.configMyInfo(loginInfo.teamId, loginInfo.emplId);
 
 			params = null;
 		});
-
-		function _loadUserList() {
-			var params = {
-				"teamId": loginInfo.teamId,
-				"limit" : constants.COMMON_SEARCH_ALL
-			};
-			restResource.empl.getListByTeamId(params, function(data) {
-				if (data.rows) {
-					$.each(data.rows, function(idx, row) {
-						 userCache.set(row.emplId, row); // add each employee into userCache.
-					});
-
-					// callback
-					_loadOnlineUserList();
-				}
-			});
-		}
-
-		// load online user list and set it online on userCache
-		function _loadOnlineUserList() {
-			restResource.login.getLoggedInEmplListByTeamId({ "teamId": loginInfo.teamId }, function(data) {
-				if(data) {
-					$.each(data, function() {
-						userCache.get(this.emplId).online = true;
-					});
-				}
-
-				// callback
-				_syncChatMessage();
-			});
-		}
-
-		function _syncChatMessage() {
-			loadAllArea();
-			myMessage.syncChatMessage(constants.DIRECT_CHAT, userCache.getValueArray(), function() {
-				// close login dialog when sync finished
-				$('#login-form').closest(".modal-dialog").closest(".modal").modal("hide");
-			});
-		}
 
 	});
 

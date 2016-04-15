@@ -77,4 +77,15 @@ Empl.prototype.getListByTeamId = function(params, callback) {
     self.restCommon.put("/changeProfileImg/${emplId}", args, callback);
   };
 
+  Empl.prototype.getMyInfo = function(params, callback) {
+    var self = this;
+    console.debug("getMyInfo - [emplId] " + params.emplId);
+    var args = {
+      path : {
+        emplId: params.emplId
+      }
+    };
+    self.restCommon.get("/${emplId}", args, callback);
+  };
+
 module.exports = Empl;
