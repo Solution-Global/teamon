@@ -53,11 +53,13 @@ $(document).ready(function() {
 
 function deleteFile(fileItem, teamId, emplId, channel, fileName) {
   restResource.channel.deleteFile({teamId: teamId, emplId: emplId, channel: channel, fileName: fileName}, function(data, response) {
-    $(fileItem).closest("li").slideUp(500, function() {
-      $(this).remove();
-    });
-    fileName = fileName.substr(fileName.indexOf('_') + 1, fileName.length);
-    toastr.info("The file[" + fileName + "] deleted.");
+    if (!data.errorCode) {
+      $(fileItem).closest("li").slideUp(500, function() {
+        $(this).remove();
+      });
+      fileName = fileName.substr(fileName.indexOf('_') + 1, fileName.length);
+      toastr.info("The file[" + fileName + "] deleted.");
+    }
   });
 }
 </script>
