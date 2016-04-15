@@ -1,7 +1,7 @@
 {
   "name": "TeamON",
   "productName": "TeamON",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "TeamON",
   "main": "script/app.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "asar": "0.9.0",
     "connect": "3.4.1",
     "connect-proxy-layer": "0.1.2",
-    "electron-builder": "^3.1.1",
+    "electron-builder": "^3.5.0",
     "electron-packager": "6.0.2",
     "electron-prebuilt": "^0.37.4",
     "file-stream-rotator": "0.0.6",
