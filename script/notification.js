@@ -45,12 +45,12 @@ var noti = (function() {
 
   function _handleAppNotification(msgPayload) {
     // node-notifier doesn't support image url for icon.
-    console.log("### notification icon %s %s", path.join(__dirname, '../favicon.png'), appRootPath + '/favicon.png');
+    console.log("### notification icon %s %s", path.join(appRootPath, '../favicon.png'), appRootPath + '/favicon.png');
     audio.play();
     notifier.notify({
       title: notiTitle,
       message: notiBody,
-      icon: appRootPath + '/favicon.png',// Absolute path (doesn't work on balloons)
+      icon: path.join(appRootPath, '/favicon.png'),// Absolute path (doesn't work on balloons)
       sound: false, // Only Notification Center or Windows Toasters
       wait: true // Wait with callback, until user action is taken against notification
     //}, funcion(err, response) {
