@@ -11,15 +11,15 @@ var RestCommon = (function(params){
   var path = params.path;
 
   var setCommonHeader = function(params) {
-    if(params.email) {
+    if (params.email) {
       commonHeaders['X-UANGEL-USER'] = params.email;
       commonHeaders['X-UANGEL-AUTHID'] = params.email;
     }
 
-    if(params.channel) {
+    if (params.channel) {
       commonHeaders['X-UANGEL-CHANNEL'] = params.channel;
     }
-    if(params.authKey) {
+    if (params.authKey) {
       commonHeaders['X-UANGEL-AUTHKEY'] = params.authKey;
     }
   };
@@ -32,12 +32,12 @@ var RestCommon = (function(params){
     client.put(restURL, args,
       function(data, response) {
         if (response.statusCode == 200 || response.statusCode == 201) {
-          if(callback) {
+          if (callback) {
             callback(data, callBackRequiredValues);
           }
         } else {
           toastr.warning(data.userMessage);
-          if(callback) {
+          if (callback) {
             callback(data);
           }
   			}
@@ -57,12 +57,12 @@ var RestCommon = (function(params){
     client.get(restURL, args,
       function(data, response) {
         if (response.statusCode == 200 || response.statusCode == 201) {
-          if(callback) {
+          if (callback) {
             callback(data, callBackRequiredValues);
           }
         } else {
           toastr.warning(data.userMessage);
-          if(callback) {
+          if (callback) {
             callback(data);
           }
   			}
@@ -77,12 +77,12 @@ var RestCommon = (function(params){
     client.post(restURL, args,
       function(data, response) {
         if (response.statusCode == 200 || response.statusCode == 201) {
-          if(callback) {
+          if (callback) {
             callback(data, callBackRequiredValues);
           }
         } else {
           toastr.warning(data.userMessage);
-          if(callback) {
+          if (callback) {
             callback(data);
           }
   			}
@@ -97,12 +97,12 @@ var RestCommon = (function(params){
     client.delete(restURL, args,
       function(data, response) {
         if (response.statusCode == 200 || response.statusCode == 201) {
-          if(callback) {
+          if (callback) {
             callback(data, callBackRequiredValues);
           }
         } else {
           toastr.warning(data.userMessage);
-          if(callback) {
+          if (callback) {
             callback(data);
           }
   			}

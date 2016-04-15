@@ -24,7 +24,7 @@ var iShouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory)
     return true;
 });
 
-if(iShouldQuit) {
+if (iShouldQuit) {
   app.quit();return;
 }
 

@@ -61,7 +61,7 @@ $(document).ready(function() {
     var topic = $(this).find("h3").html();
     var chatId = $(this).data("chatid");
     var $targetObj = getSingleChattingContext(topic);
-    if($targetObj) {
+    if ($targetObj) {
       activeChatView(topic, false);
 
       var $chatSec = $("#chat-section");
@@ -84,10 +84,10 @@ $(document).ready(function() {
 
       $title.html("Mention For " + loginInfo.name + ".");
       for (var key = 0; key < messages.length; key++) {
-        if(key === 0) {
+        if (key === 0) {
           $mentionArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
         }
-        if(messages[key - 1] && messages[key - 1].date != messages[key].date) {
+        if (messages[key - 1] && messages[key - 1].date != messages[key].date) {
           $mentionArea.append(Mustache.render(mentionDateLineTemplate, {"date" : messages[key].date}));
         }
         $mentionArea.append(Mustache.render(mentionTemplate, messages[key]));

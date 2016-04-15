@@ -32,9 +32,9 @@ $(document).ready(function() {
   var channelId = activeChatInfo.channelId;
   var channelValue = channelCache.get(channelId);
   var existMembers;
-  for(var key in channelValue.memberList) {
+  for (var key in channelValue.memberList) {
     var emplId = channelValue.memberList[key].emplId;
-    if(!existMembers)
+    if (!existMembers)
       existMembers = emplId;
     else
       existMembers += "," + channelValue.memberList[key].emplId;
@@ -42,10 +42,10 @@ $(document).ready(function() {
   var membersArray = String(existMembers).split(",");
   var chosenSelect = $inviteChannelForm.find(".chosen-select");
   var userArray = userCache.getValueArray();
-  for(var key in userArray) {
+  for (var key in userArray) {
     var userValue = userArray[key];
     var isMember = membersArray.indexOf(String(userValue.emplId));
-    if(isMember < 0)
+    if (isMember < 0)
       chosenSelect.append("<option value='" + userValue.emplId + "'>" + userValue.name + "</option>");
   }
   chosenSelect.chosen({width:"100%"});
@@ -68,7 +68,7 @@ $(document).ready(function() {
         };
 
         var names = "";
-        for(var key in newMembers) {
+        for (var key in newMembers) {
           chatModule.sendCommand(newMembers[key], paramsForNewMember);
           var memberInfo = userCache.get(newMembers[key]);
           names += " " + memberInfo.name;
@@ -82,7 +82,7 @@ $(document).ready(function() {
           "newMembers": newMembers
         }
 
-        for(var key in membersArray) {
+        for (var key in membersArray) {
           chatModule.sendCommand(membersArray[key], paramsForExistMember);
         }
 
@@ -90,7 +90,7 @@ $(document).ready(function() {
 
         // form reset
         $inviteChannelForm.each(function() {
-          if(this.className  == "frmClass") this.reset();
+          if (this.className  == "frmClass") this.reset();
         });
         $inviteChannelForm.closest(".modal-dialog").closest(".modal").modal("hide");
       }

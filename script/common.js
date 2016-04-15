@@ -10,7 +10,7 @@ function openModalDialog(url, options, data) {
 
   var div = $("<div>").attr("id", dialogId).addClass("modal inmodal").attr("role", "dialog");
   removeDataAttributes(div);
-  if(data) {
+  if (data) {
     var keys = Object.keys(data);
     $.each(keys, function(idx, row) {
       div.attr("data-" + keys, data[row]);
@@ -20,7 +20,7 @@ function openModalDialog(url, options, data) {
 	$("body").append(div);
 
   var rtMsg;
-  if(runningChannel === constants.CHANNEL_WEB) {
+  if (runningChannel === constants.CHANNEL_WEB) {
     // For Browser
     $.ajax({
       type: 'GET',
@@ -41,10 +41,10 @@ function openModalDialog(url, options, data) {
   div.html(rtMsg);
   div.modal(options ? $.extend({}, defaultOptions, options) : defaultOptions);
   div.on('shown.bs.modal', function (e) {
-    if(options && options.backgroundOpacity) {
+    if (options && options.backgroundOpacity) {
       $(".modal-backdrop.in").css({ "opacity": options.backgroundOpacity });
     }
-    if(options && options.backgroundColor) {
+    if (options && options.backgroundColor) {
       $(".modal-backdrop").css({ "background-color": options.backgroundColor });
     }
   });
@@ -82,20 +82,20 @@ function removeDataAttributes(target) {
 
 function loadHtml(url, target, data) {
   var div = target;
-  if(typeof target === 'string') {
+  if (typeof target === 'string') {
     div = $("#" + target);
   }
 
   removeDataAttributes(div);
   var htmlStr;
-  if(data) {
+  if (data) {
     var keys = Object.keys(data);
     $.each(keys, function(idx, row) {
       div.attr("data-" + keys.toString(), data[row]);
     });
   }
 
-  if(runningChannel === constants.CHANNEL_WEB) {
+  if (runningChannel === constants.CHANNEL_WEB) {
     // For Browser
     $.ajax({
       type: 'GET',
@@ -122,7 +122,7 @@ function generateTopic(emplId1, emplId2) {
 }
 
 function getChatType(topic) {
-  if(topic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
+  if (topic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
     return constants.CHANNEL_CHAT;
   } else {
     return constants.DIRECT_CHAT;
@@ -130,7 +130,7 @@ function getChatType(topic) {
 }
 
 function getChannelTopicName(name) {
-  if(name.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
+  if (name.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
     name = name.substr(1, name.length);
   }
   return loginInfo.teamId + constants.TOPIC_MSG + "/" + constants.CHANNEL_CHAT + "/" + name;
@@ -141,7 +141,7 @@ function getImagePath(photoLoc, teamId, emplId) {
     imgPath = constants.IMAGE_URL + photoLoc + "?teamId=" + teamId + "&topic=profile_image&emplId=" + emplId + "&type=profile";
   }
   else {
-    if(runningChannel === constants.CHANNEL_APP) {
+    if (runningChannel === constants.CHANNEL_APP) {
       imgPath = "file://" + path.join(__dirname, './img/profile_no.jpg');
     } else {
       imgPath = "./img/profile_no.jpg";

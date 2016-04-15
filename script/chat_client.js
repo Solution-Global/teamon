@@ -3,11 +3,11 @@ var chat = (function() {
   var clientChatInfo = {};
 
   function configMyInfo(teamId, emplId) {
-    if(!clientChatInfo.client || !clientChatInfo.client.connected) {
+    if (!clientChatInfo.client || !clientChatInfo.client.connected) {
       clientChatInfo.teamId = teamId;
       clientChatInfo.emplId = emplId;
 
-      console.log('teamId:%i, emplId:%i ', teamId, emplId);
+      console.info('teamId: %i, emplId: %i', teamId, emplId);
 
       if ((clientChatInfo.client = _createMQTTClient()) === null) {
         console.error("Failed to initialize MQTT client");
@@ -25,7 +25,7 @@ var chat = (function() {
           myTopic = "{peer}/" + parmas.topic;
         } else if (parmas.chatType === constants.CHANNEL_CHAT) {
           myTopic = parmas.topic;
-          if(myTopic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
+          if (myTopic.startsWith(constants.CHANNEL_TOPIC_DELIMITER)) {
             myTopic = myTopic.substr(1, myTopic.length); // "#"은 mqtt의 wildcard로 제거
           }
         }
@@ -49,7 +49,7 @@ var chat = (function() {
       rejectUnauthorized: false
     };
 
-    if(runningChannel === constants.CHANNEL_APP)
+    if (runningChannel === constants.CHANNEL_APP)
       options.rejectUnauthorized = false;
 
     var client = mqtt.connect(constants.MQTT_URL, options);
@@ -81,7 +81,7 @@ var chat = (function() {
     ];
 
     var channelArray = channelCache.getValueArray();
-    for(var key in channelArray) {
+    for (var key in channelArray) {
       topicArray.push(getChannelTopicName(channelArray[key].name));
     }
 
@@ -107,13 +107,13 @@ var chat = (function() {
           return;
         }
 
-        if(Number(topicArray[2]) === constants.CHANNEL_CHAT) {
+        if (Number(topicArray[2]) === constants.CHANNEL_CHAT) {
           payload.topic = constants.CHANNEL_TOPIC_DELIMITER + topicArray[3];
         } else {
           payload.topic = topicArray[4];
         }
 
-        if(payload.lastMsgId) {
+        if (payload.lastMsgId) {
           handleLastMsgId(payload);
         } else {
           handleMsg(payload);
@@ -121,9 +121,9 @@ var chat = (function() {
 
         break;
       case constants.TOPIC_PRESENCE:
-        if(topic === constants.TOPIC_PRESENCE_ONLINE || topic === constants.TOPIC_PRESENCE_OFFLINE)
+        if (topic === constants.TOPIC_PRESENCE_ONLINE || topic === constants.TOPIC_PRESENCE_OFFLINE)
           setUserPresenceOnList(payload.emplId, payload.status);
-        else if(topic === constants.TOPIC_PRESENCE_KEEPALIVE)
+        else if (topic === constants.TOPIC_PRESENCE_KEEPALIVE)
           chatModule.sendPresenceState();
         break;
       case constants.TOPIC_COMMAND:

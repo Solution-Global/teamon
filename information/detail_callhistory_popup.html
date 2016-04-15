@@ -139,11 +139,11 @@
 
     	// time text progress
     	$('#curTime').text(transTimeFmt(callerVideo.currentTime));
-    	if($('#duration').text() === '00:00:00')
+    	if ($('#duration').text() === '00:00:00')
     		$('#duration').text(transTimeFmt(callerVideo.duration));
 
       // caller, callee time synchronizing
-    	// if(callerVideo.duration > 0 && calleeVideo.duration > 0)
+    	// if (callerVideo.duration > 0 && calleeVideo.duration > 0)
     	// calleeVideo.currentTime = callerVideo.currentTime;
 
     	// playhead, tail progress
@@ -183,17 +183,17 @@
     	var relativeX = (event.clientX + window.scrollX) - playheadTailLeft;
 
     	//		|----o-----|
-    	if(relativeX > 0 && relativeX < playheadTailWidth){
+    	if (relativeX > 0 && relativeX < playheadTailWidth){
     		$(playhead).offset({ left: playheadTailLeft + relativeX });
     		$playhead_tail.width(relativeX + 'px');
     	}
     	// o	|----------|
-    	if(relativeX <= 0){
+    	if (relativeX <= 0){
     		$(playhead).offset({ left: playheadTailLeft });
     		$playhead_tail.width(0 + 'px');
     	}
     	//		|----------|	o
-    	if(relativeX >= playheadTailWidth){
+    	if (relativeX >= playheadTailWidth){
     		$(playhead).offset({ left: playheadTailWidth });
     		$playhead_tail.width(playheadTailWidth + 'px');
     	}
@@ -206,17 +206,17 @@
     	var relativeX = (event.clientX + window.scrollX) - volumelineLeft;
 
     	//		|----o-----|
-    	if(relativeX > 0 && relativeX < volumelineWidth){
+    	if (relativeX > 0 && relativeX < volumelineWidth){
     		$(volumehead).offset({ left: volumelineLeft + relativeX });
     		$volumehead_tail.width(relativeX + 'px');
     	}
     	// o	|----------|
-    	if(relativeX <= 0){
+    	if (relativeX <= 0){
     		$(volumehead).offset({ left: volumelineLeft });
     		$volumehead_tail.width(0 + 'px');
     	}
     	//		|----------|	o
-    	if(relativeX >= volumelineWidth){
+    	if (relativeX >= volumelineWidth){
     		$(volumehead).offset({ left: volumelineLeft + volumelineWidth });
     		$volumehead_tail.width(volumelineWidth + 'px');
     	}
@@ -227,17 +227,17 @@
     	var longTime = callerVideo.duration * clickPercent(event);
 
     	//	|----o-----|
-    	if(clickPercent(event) > 0 && clickPercent(event) < 1){
+    	if (clickPercent(event) > 0 && clickPercent(event) < 1){
     		$('#timeAlert').text(transTimeFmt(longTime));
     		$('#timeAlert').css('left', event.clientX);	// position: fixed;
     	}
     	// o	|----------|
-    	if(clickPercent(event) <= 0){
+    	if (clickPercent(event) <= 0){
     		$('#timeAlert').text(transTimeFmt(0));
     		$('#timeAlert').css('left', (timelineWrapper.offsetLeft - window.scrollX));
     	}
     	//		|----------|	o
-    	if(clickPercent(event) >= 1){
+    	if (clickPercent(event) >= 1){
     		$('#timeAlert').text(transTimeFmt(callerVideo.duration));
     		$('#timeAlert').css('left', (timelineWrapper.offsetRight - window.scrollX));
     	}
@@ -246,29 +246,29 @@
 
     // longTime -> hh:mm:ss
     var transTimeFmt = function(longTime){
-    	if(isNaN(longTime) || longTime === null || longTime === undefined)
+    	if (isNaN(longTime) || longTime === null || longTime === undefined)
     		return '00:00:00'
 
     	var sec = parseInt(longTime),
     		min = 0,
     		hour = 0;
     	// setting hour, min, sec
-    	if(sec >= 60){
+    	if (sec >= 60){
     		min = parseInt(sec / 60);
     		sec = parseInt(sec % 60);
     	}
-    	if(min >= 60){
+    	if (min >= 60){
     		hour = parseInt(min / 60);
     		min = parseInt(min % 60);
     	}
     	// setting hh, mm, ss
-    	if(sec < 10){
+    	if (sec < 10){
     		sec = '0' + sec;
     	}
-    	if(min < 10){
+    	if (min < 10){
     		min = '0' + min;
     	}
-    	if(hour < 10){
+    	if (hour < 10){
     		hour = '0' + hour;
     	}
 
@@ -278,7 +278,7 @@
 
     // video control buttons
     var play = function(){
-    	if(callerVideo.paused){
+    	if (callerVideo.paused){
         calleeVideo.play();
         callerVideo.play();
     		$('#playBtn').attr('class', '');
@@ -312,7 +312,7 @@
     	var volumelineLeft = volumelineWrapper.offsetLeft;
     	var volumelineWidth = volumelineWrapper.offsetWidth;
     	var volumeWidth = volumelineWidth * callerVideo.volume;
-    	if(callerVideo.muted){
+    	if (callerVideo.muted){
     		$(volumehead).offset({ left: volumelineLeft + volumeWidth });
     		$volumehead_tail.width(volumeWidth + 'px');
     		callerVideo.muted = false;
@@ -353,16 +353,16 @@
     	drag: function(event, ui){
     		var timelineWidth = timelineWrapper.offsetWidth;
 
-    		if(ui.position.left > 0 && ui.position.left < timelineWidth){
+    		if (ui.position.left > 0 && ui.position.left < timelineWidth){
     			$playhead_tail.width(ui.position.left + 'px');
     			callerVideo.currentTime = callerVideo.duration * (ui.position.left/timelineWidth);
     		}
-    		if(ui.position.left <= 0){
+    		if (ui.position.left <= 0){
     			ui.position.left = 0;
     			$playhead_tail.width(ui.position.left + 'px');
     			callerVideo.currentTime = 0;
     		}
-    		if(ui.position.left >= timelineWidth){
+    		if (ui.position.left >= timelineWidth){
     			ui.position.left = timelineWidth;
     			$playhead_tail.width(ui.position.left + 'px');
     			callerVideo.currentTime = callerVideo.duration;
@@ -381,18 +381,18 @@
     	drag: function(event, ui){
     		var volumelineWidth = volumelineWrapper.offsetWidth;
 
-    		if(ui.position.left > 0 && ui.position.left < volumelineWidth){
+    		if (ui.position.left > 0 && ui.position.left < volumelineWidth){
     			$volumehead_tail.width(ui.position.left + 'px');
     			callerVideo.volume = (ui.position.left / volumelineWidth);
     			calleeVideo.volume = callerVideo.volume;
     		}
-    		if(ui.position.left <= 0){
+    		if (ui.position.left <= 0){
     			ui.position.left = 0;
     			$volumehead_tail.width(ui.position.left + 'px');
     			callerVideo.volume = 0;
     			calleeVideo.volume = 0;
     		}
-    		if(ui.position.left >= volumelineWidth){
+    		if (ui.position.left >= volumelineWidth){
     			ui.position.left = volumelineWidth;
     			$volumehead_tail.width(ui.position.left + 'px');
     			callerVideo.volume = 1;

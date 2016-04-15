@@ -54,9 +54,9 @@ $(document).ready(function() {
   var channelValue = channelCache.get(channelId);
   var existMembers;
 
-  for(var key in channelValue.memberList) {
+  for (var key in channelValue.memberList) {
     var emplId = channelValue.memberList[key].emplId;
-    if(!existMembers)
+    if (!existMembers)
       existMembers = emplId;
     else
       existMembers += "," + channelValue.memberList[key].emplId;
@@ -72,7 +72,7 @@ $(document).ready(function() {
     "members":[]
   };
 
-  for(var key in membersArray) {
+  for (var key in membersArray) {
     var userValue = userCache.get(membersArray[key]);
     var imagePath = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
     aboutChannelData.members.push({
@@ -87,7 +87,7 @@ $(document).ready(function() {
   $contentArea.prepend(Mustache.render(aboutChannelTemplate, aboutChannelData));
 
   var $linkEditPurpose = $(".link-edit-purpose");
-  if(channelValue.pinupMessage) {
+  if (channelValue.pinupMessage) {
     $linkEditPurpose.text("Edit");
   }
 
@@ -99,7 +99,7 @@ $(document).ready(function() {
 
     $purposeEditArea.find(".done").click(function() {
       var purposeVal = $.trim($purposeEditArea.find("[name=purpose]").val());
-      if(purposeVal === "") {
+      if (purposeVal === "") {
         toastr.warning("Please insert the purpose message.");
         return;
       }
@@ -137,9 +137,9 @@ $(document).ready(function() {
     restResource.channel.removeMember(params,
       function(response) {
         var channelValue = channelCache.get(channelId);
-        if(channelValue) {
+        if (channelValue) {
           var members;
-          for(var key in channelValue.memberList) {
+          for (var key in channelValue.memberList) {
             var emplId = channelValue.memberList[key].emplId;
 
             var params = {
@@ -159,7 +159,7 @@ $(document).ready(function() {
   });
 
   displayChannelMember = function(members) {
-    for(var key in members) {
+    for (var key in members) {
       var userValue = userCache.get(members[key]);
       var imgUrl = getImagePath(userValue.photoLoc, userValue.teamId, userValue.emplId);
       $contentArea.find(".members").append("<li data-emplid='" + userValue.emplId + "'><a href='#'><img class='chat-avatar' src='" + imgUrl + "' alt='" + userValue.name + "'>" + userValue.name + "</a></li>");

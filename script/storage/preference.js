@@ -20,7 +20,7 @@ var preference = (function(storage, emplId) {
 
   function _readAll() {
     var value = storageManager.getValue(keyName);
-    if(value) {
+    if (value) {
       preferenceJson = JSON.parse(value);
     }
   }

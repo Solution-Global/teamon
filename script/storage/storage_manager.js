@@ -11,7 +11,7 @@ var storageManage = (function(storageType, compress) {
     }
 
     var value;
-    if(storageType === "L") {
+    if (storageType === "L") {
       value = localStorage.getItem(key);
     } else {
       value = sessionStorage.getItem(key);
@@ -41,7 +41,7 @@ var storageManage = (function(storageType, compress) {
       return;
     }
 
-    if(storageType === "L") {
+    if (storageType === "L") {
       localStorage.removeItem(key);
     } else {
       sessionStorage.removeItem(key);
@@ -55,10 +55,10 @@ var storageManage = (function(storageType, compress) {
     }
 
     value = String(value);
-    if(isCompress)
+    if (isCompress)
       value = LZString.compress(value);
 
-    if(storageType === "L") {
+    if (storageType === "L") {
       localStorage.setItem(key, value);
     } else {
       sessionStorage.setItem(key, value);

@@ -101,7 +101,7 @@ function doScrollSearch() {
       $.each(data, function(idx, message) {
         var senderInfo = userCache.get(message.senderId);
         var sender = "unknown";
-        if(senderInfo)
+        if (senderInfo)
           sender = senderInfo.name;
         var imagePath = getImagePath(senderInfo.photoLoc, senderInfo.teamId, senderInfo.emplId);
 

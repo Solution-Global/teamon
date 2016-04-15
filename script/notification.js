@@ -8,7 +8,7 @@ var noti = (function() {
   var audio = new Audio('./sound/alarm.wav');
 
   function handleNotification(msgPayload) {
-    if(msgPayload.senderId === loginInfo.emplId) {
+    if (msgPayload.senderId === loginInfo.emplId) {
       return;
     }
 
@@ -29,13 +29,13 @@ var noti = (function() {
 
     if (runningChannel === constants.CHANNEL_APP) {
       // For desktop
-      if(!myWindow.isVisible()) {
+      if (!myWindow.isVisible()) {
         myWindow.minimize();
       }
       myWindow.flashFrame(true);
       _handleAppNotification(msgPayload);
 
-      // if(trayModule)
+      // if (trayModule)
       //   trayModule.changeImageToNew();
     } else {
       // For browser
