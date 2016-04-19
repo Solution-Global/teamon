@@ -1,8 +1,10 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     jshint: {
-      all: ['Gruntfile.js', 'script/*.js', 'script/rest/*.js', '*.js'],
-      ignore: ['web/server.js']
+      options: {
+        ignores: ['script/plugins/**/*.js']
+      },
+      all: ['*.js', 'script/**/*.js']
     },
     browserify: {
       js: {
