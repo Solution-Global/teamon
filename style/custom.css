@@ -405,6 +405,7 @@ img.in-message {
 	position: absolute;
 	top: 0;
 	width: 100%;
+	padding: 5px 25px;
 }
 @media (min-width: 768px) {
 	#page-wrapper {
@@ -532,18 +533,25 @@ body.small-navbar .profile-element {
 
 /* category_section */
 .profile-area {
-	padding-left: 10px;
-	padding-top: 10px;
+	padding-top: 5px;
 	color: #a7b1c2;
 	font-weight: 600;
 	text-align: left;
+}
+
+.profile-user-name {
+	padding: 6px;
+	font-weight: 600;
+	max-width: 130px;
+	display:inline-block;
+	vertical-align: middle;
 }
 
 #topic-list {
 	position: relative;
 	height: 100%;
 	width: 100%;
-	padding-top: 154px;
+	padding-top: 110px;
 }
 
 .chat-users {

@@ -2,7 +2,7 @@
   <div id="topic-list">
     <ul class="nav metismenu">
       <li>
-        <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">ADD</span></a>
+        <a class="channels-link" href="#"><i class="fa fa-hashtag"></i><span class="nav-label">Channels</span><span id="onChannelJoinModal" class="label label-info pull-right">+</span></a>
         <div class="chat-channels">
           <ul id="channels-list" class="nav nav-second-level">
             <script id="channel-template" type="text/template">
@@ -37,17 +37,15 @@
   <div class="nav-header">
     <div class="profile-element dropdown">
       <span>
-      <img alt="image" src="/img/logo_uangel.png"/>
+      <img alt="image" src="/img/logo_uangel.png" style="width: 150px; height: 50px;" />
       </span>
       <div class="profile-area" id="user-profile">
         <span><img id="myprofile-image" class="img-circle" src="" style="width: 40px; height: 40px;" /></span>
         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-          <span class="clear">
-            <span class="block m-t-xs">
-              <strong id="myprofile-name" class="font-bold"></strong>
-              <b class="caret"></b>
+            <span class="profile-user-name ellipsis">
+              <strong id="myprofile-name"></strong>
             </span>
-          </span>
+            <b class="caret"></b>
         </a>
         <ul class="dropdown-menu animated fadeInRight">
           <li><a href="#" id="onPasswordModal">Change Password</a></li>
