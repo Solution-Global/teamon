@@ -258,7 +258,7 @@ $(document).ready(function() {
         $activeTarget.trigger("click");
       } else {
         var userList = userCache.getValueArray();
-        if (userList && channelList.length > 0) {
+        if (userList && userList.length > 0) {
           hideCallArea();
           hideChatArea();
           //hideScreenShareArea();
