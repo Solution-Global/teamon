@@ -253,12 +253,12 @@ $(document).ready(function() {
     } else {
       // 마지막으로 저장된 chatting 정보가 없을 경우
       var channelList = channelCache.getValueArray();
-      if (channelList !== null) {
+      if (channelList && channelList.length > 0) {
         $activeTarget = getSingleChattingContext(channelList[channelList.length-1].name);
         $activeTarget.trigger("click");
       } else {
         var userList = userCache.getValueArray();
-        if (userList === null) {
+        if (userList && channelList.length > 0) {
           hideCallArea();
           hideChatArea();
           //hideScreenShareArea();
